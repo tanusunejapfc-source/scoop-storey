@@ -90,49 +90,54 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     // 3D Scene Setup
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 3.5, 7.5);
-    camera.lookAt(0, 0.8, 0);
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    camera.position.set(0, 3.8, 7.8);
+    camera.lookAt(0, 0.9, 0);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // Lighting
-    const ambient = new THREE.AmbientLight(isDark ? 0x9080b0 : 0xffffff, 1.8);
+    // Dynamic High-Quality Lighting
+    const ambient = new THREE.AmbientLight(isDark ? 0x9080b0 : 0xffffff, isDark ? 1.6 : 2.0);
     scene.add(ambient);
 
-    const mainLight = new THREE.DirectionalLight(0xfff0f5, 2.2);
-    mainLight.position.set(5, 10, 5);
-    mainLight.castShadow = true;
+    const mainLight = new THREE.DirectionalLight(0xfff5ea, 2.5);
+    mainLight.position.set(4, 9, 6);
     scene.add(mainLight);
 
-    const rimLight = new THREE.PointLight(0xff66cc, 2.0, 15);
+    const spoonLight = new THREE.PointLight(0xffeedd, 3.5, 15);
+    spoonLight.position.set(0, 5, 3.5);
+    scene.add(spoonLight);
+
+    const rimLight = new THREE.PointLight(0xff66cc, 2.2, 15);
     rimLight.position.set(-4, 3, -3);
     scene.add(rimLight);
 
     // Decorative Pedestal Base
-    const baseGeo = new THREE.CylinderGeometry(3.2, 3.6, 0.4, 48);
+    const baseGeo = new THREE.CylinderGeometry(3.3, 3.7, 0.45, 48);
     const baseMat = new THREE.MeshStandardMaterial({
-      color: isDark ? 0x1f1a35 : 0xfff0f6,
-      roughness: 0.3,
+      color: isDark ? 0x1f1733 : 0xffedf4,
+      roughness: 0.35,
       metalness: 0.1
     });
     const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-    baseMesh.position.y = -0.2;
+    baseMesh.position.y = -0.22;
     scene.add(baseMesh);
 
-    // Decorative Pastel Bowl
-    const bowlGeo = new THREE.CylinderGeometry(2.4, 1.6, 1.6, 48, 1, true);
+    // Decorative Pastel Bowl (Cylinder taper from 2.4 top to 1.5 bottom)
+    const bowlGeo = new THREE.CylinderGeometry(2.4, 1.5, 1.6, 48, 1, true);
     const bowlMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFFC2D4,
+      color: 0xFFAEC4,
       roughness: 0.15,
       metalness: 0.1,
-      clearcoat: 0.9,
-      transmission: 0.3,
-      thickness: 0.5,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.1,
+      transmission: 0.4,
+      thickness: 0.8,
       side: THREE.DoubleSide
     });
     const bowl = new THREE.Mesh(bowlGeo, bowlMat);
@@ -140,99 +145,198 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     scene.add(bowl);
 
     // Bowl Bottom Disc
-    const discGeo = new THREE.CircleGeometry(1.6, 48);
+    const discGeo = new THREE.CircleGeometry(1.5, 48);
     const discMesh = new THREE.Mesh(discGeo, bowlMat);
     discMesh.rotation.x = -Math.PI / 2;
     discMesh.position.y = 0.01;
     scene.add(discMesh);
 
     // Gold Rim on Bowl
-    const rimGeo = new THREE.TorusGeometry(2.4, 0.08, 16, 64);
-    const rimMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, roughness: 0.2, metalness: 0.85 });
+    const rimGeo = new THREE.TorusGeometry(2.4, 0.09, 16, 64);
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, roughness: 0.2, metalness: 0.9 });
     const bowlRim = new THREE.Mesh(rimGeo, rimMat);
     bowlRim.rotation.x = Math.PI / 2;
     bowlRim.position.y = 1.6;
     scene.add(bowlRim);
 
-    // Charms filling the bowl
+    // Charms filling the bowl (STRICTLY CONSTRAINED INSIDE BOWL)
     const bowlCharmsGroup = new THREE.Group();
     scene.add(bowlCharmsGroup);
 
     const beadGeo = new THREE.SphereGeometry(0.18, 16, 16);
-    const cubeGeo = new THREE.BoxGeometry(0.24, 0.24, 0.24);
+    const cubeGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
     const starGeo = new THREE.OctahedronGeometry(0.2, 0);
 
     const charmColors = [0xFF6B97, 0xB388FF, 0xFFD166, 0x48CAE4, 0xFFAAA6, 0x70D6FF, 0xFFC6FF];
 
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < 160; i++) {
+      // Height between y = 0.2 and 1.3
+      const y = 0.25 + Math.random() * 1.05;
+      // Exact inner radius at height y (bowl tapers from 1.5 to 2.4 over height 1.6)
+      const maxRadiusAtY = 1.45 + (y / 1.6) * (2.35 - 1.45) - 0.25;
+      const radius = Math.random() * maxRadiusAtY;
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * 1.8;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
-      const y = 0.2 + (1.8 - radius) * 0.45 + (Math.random() - 0.5) * 0.35;
 
       const geo = i % 3 === 0 ? beadGeo : (i % 3 === 1 ? cubeGeo : starGeo);
       const mat = new THREE.MeshStandardMaterial({
         color: charmColors[i % charmColors.length],
         roughness: 0.2,
-        metalness: 0.2
+        metalness: 0.25
       });
 
       const charm = new THREE.Mesh(geo, mat);
       charm.position.set(x, y, z);
       charm.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-      charm.scale.setScalar(0.7 + Math.random() * 0.5);
+      charm.scale.setScalar(0.75 + Math.random() * 0.45);
       bowlCharmsGroup.add(charm);
     }
 
-    // 3D SCOOP SPOON
-    const spoonGroup = new THREE.Group();
-    const spoonMat = new THREE.MeshStandardMaterial({
-      color: 0xFFB37C,
-      metalness: 0.9,
-      roughness: 0.2,
-    });
+    // --- GENUINE 3D SOLID SCOOP SHOVEL SPOON ---
+    const createSolidScoopSpoon = () => {
+      const spoon = new THREE.Group();
 
-    const spoonCupGeo = new THREE.SphereGeometry(0.9, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.55);
-    spoonCupGeo.scale(1.2, 0.55, 1.3);
-    const spoonCup = new THREE.Mesh(spoonCupGeo, spoonMat);
-    spoonCup.rotation.x = Math.PI;
-    spoonGroup.add(spoonCup);
+      // Shiny Rose-Gold / Champagne Gold Metal Material
+      const spoonMat = new THREE.MeshPhysicalMaterial({
+        color: 0xFFA07A,      // Warm Rose Gold
+        emissive: 0x331405,   // Warm ambient glow
+        metalness: 0.9,
+        roughness: 0.18,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.08,
+        side: THREE.DoubleSide
+      });
 
-    const spoonHandleGeo = new THREE.CylinderGeometry(0.08, 0.12, 3.2, 16);
-    const spoonHandle = new THREE.Mesh(spoonHandleGeo, spoonMat);
-    spoonHandle.position.set(0, -1.6, -0.6);
-    spoonHandle.rotation.x = 0.4;
-    spoonGroup.add(spoonHandle);
+      const goldAccentMat = new THREE.MeshStandardMaterial({
+        color: 0xFFD700,
+        metalness: 0.95,
+        roughness: 0.15
+      });
 
-    spoonGroup.position.set(0, 3.2, 0);
-    spoonGroup.rotation.set(0.4, 0, -0.3);
-    scene.add(spoonGroup);
-    spoonRef.current = spoonGroup;
+      // 1. Scoop Trough (Extruded U-shape with physical thickness & bevel)
+      const uShape = new THREE.Shape();
+      uShape.moveTo(-0.65, 0.45);
+      uShape.lineTo(-0.65, 0);
+      uShape.bezierCurveTo(-0.65, -0.55, 0.65, -0.55, 0.65, 0);
+      uShape.lineTo(0.65, 0.45);
+      uShape.lineTo(0.55, 0.45);
+      uShape.lineTo(0.55, 0);
+      uShape.bezierCurveTo(0.55, -0.45, -0.55, -0.45, -0.55, 0);
+      uShape.lineTo(-0.55, 0.45);
+      uShape.closePath();
 
+      const extrudeSettings = {
+        depth: 1.6,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        steps: 1,
+        bevelSize: 0.06,
+        bevelThickness: 0.06
+      };
+      const troughGeo = new THREE.ExtrudeGeometry(uShape, extrudeSettings);
+      troughGeo.center();
+      const troughMesh = new THREE.Mesh(troughGeo, spoonMat);
+      spoon.add(troughMesh);
+
+      // 2. Rounded Front Shovel Lip
+      const frontCapGeo = new THREE.SphereGeometry(0.58, 24, 16, 0, Math.PI, 0, Math.PI * 0.5);
+      frontCapGeo.rotateZ(-Math.PI / 2);
+      frontCapGeo.scale(0.95, 0.75, 0.85);
+      const frontCap = new THREE.Mesh(frontCapGeo, spoonMat);
+      frontCap.position.set(0, -0.1, 0.8);
+      spoon.add(frontCap);
+
+      // 3. Back Closed Wall
+      const backWallGeo = new THREE.CylinderGeometry(0.58, 0.58, 0.1, 24, 1, false, 0, Math.PI);
+      backWallGeo.rotateX(Math.PI / 2);
+      backWallGeo.rotateZ(Math.PI);
+      const backWall = new THREE.Mesh(backWallGeo, spoonMat);
+      backWall.position.set(0, -0.05, -0.8);
+      spoon.add(backWall);
+
+      // 4. Ergonomic Rose-Gold Handle with Decorative Gold Rings
+      const handleGroup = new THREE.Group();
+      const handleGeo = new THREE.CylinderGeometry(0.09, 0.14, 2.6, 24);
+      const handleMesh = new THREE.Mesh(handleGeo, spoonMat);
+      handleMesh.position.set(0, 1.3, 0);
+      handleGroup.add(handleMesh);
+
+      const ringGeo = new THREE.TorusGeometry(0.13, 0.03, 12, 24);
+      const ring1 = new THREE.Mesh(ringGeo, goldAccentMat);
+      ring1.rotation.x = Math.PI / 2;
+      ring1.position.y = 0.8;
+      handleGroup.add(ring1);
+
+      const ring2 = new THREE.Mesh(ringGeo, goldAccentMat);
+      ring2.rotation.x = Math.PI / 2;
+      ring2.position.y = 1.7;
+      handleGroup.add(ring2);
+
+      // Cute Pink Heart Pommel at top of handle
+      const heartShape = new THREE.Shape();
+      heartShape.moveTo(0.15, 0.15);
+      heartShape.bezierCurveTo(0.15, 0.15, 0.1, 0, 0, 0);
+      heartShape.bezierCurveTo(-0.2, 0, -0.2, 0.25, -0.2, 0.25);
+      heartShape.bezierCurveTo(-0.2, 0.4, -0.05, 0.55, 0.15, 0.7);
+      heartShape.bezierCurveTo(0.35, 0.55, 0.5, 0.4, 0.5, 0.25);
+      heartShape.bezierCurveTo(0.5, 0.25, 0.5, 0, 0.3, 0);
+      heartShape.bezierCurveTo(0.2, 0, 0.15, 0.15, 0.15, 0.15);
+
+      const heartGeo = new THREE.ExtrudeGeometry(heartShape, {
+        depth: 0.1,
+        bevelEnabled: true,
+        bevelSegments: 3,
+        steps: 1,
+        bevelSize: 0.04,
+        bevelThickness: 0.04
+      });
+      heartGeo.center();
+      heartGeo.scale(0.55, -0.55, 0.55);
+      const heartMat = new THREE.MeshStandardMaterial({ color: 0xFF3385, roughness: 0.2, metalness: 0.3 });
+      const pommel = new THREE.Mesh(heartGeo, heartMat);
+      pommel.position.set(0, 2.75, 0);
+      handleGroup.add(pommel);
+
+      handleGroup.position.set(0, 0.05, -0.85);
+      handleGroup.rotation.x = -Math.PI / 2 + 0.35; // tilted comfortably upward
+      spoon.add(handleGroup);
+
+      return spoon;
+    };
+
+    const spoon = createSolidScoopSpoon();
+    // Position resting gracefully above the bowl, angled for camera view
+    spoon.position.set(0, 2.7, 0.1);
+    spoon.rotation.set(0.35, 0.15, -0.15);
+    scene.add(spoon);
+    spoonRef.current = spoon;
+
+    // Mini charms that appear inside the scoop trough during scooping
     const spoonLootGroup = new THREE.Group();
-    spoonGroup.add(spoonLootGroup);
+    spoon.add(spoonLootGroup);
     charmsInSpoonRef.current = spoonLootGroup;
 
-    for (let j = 0; j < 18; j++) {
+    for (let j = 0; j < 16; j++) {
       const geo = j % 2 === 0 ? beadGeo : cubeGeo;
       const mat = new THREE.MeshStandardMaterial({
         color: charmColors[j % charmColors.length],
-        roughness: 0.2
+        roughness: 0.2,
+        metalness: 0.2
       });
       const c = new THREE.Mesh(geo, mat);
       c.position.set(
-        (Math.random() - 0.5) * 0.9,
-        -0.15 + (Math.random() - 0.5) * 0.2,
-        (Math.random() - 0.5) * 0.9
+        (Math.random() - 0.5) * 0.7,
+        0.05 + (Math.random() - 0.5) * 0.15,
+        -0.4 + Math.random() * 0.8
       );
-      c.scale.set(0, 0, 0);
+      c.scale.set(0, 0, 0); // hidden initially
       spoonLootGroup.add(c);
     }
 
-    // Particles
+    // Sparkle Particles
     const particleGeo = new THREE.BufferGeometry();
-    const particleCount = 80;
+    const particleCount = 70;
     const posArray = new Float32Array(particleCount * 3);
     for (let k = 0; k < particleCount * 3; k += 3) {
       posArray[k] = (Math.random() - 0.5) * 8;
@@ -241,10 +345,10 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     }
     particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     const pMat = new THREE.PointsMaterial({
-      color: isDark ? 0xff66cc : 0xff99bb,
-      size: 0.08,
+      color: isDark ? 0xff66cc : 0xff88aa,
+      size: 0.09,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.65
     });
     const particles = new THREE.Points(particleGeo, pMat);
     scene.add(particles);
@@ -257,15 +361,16 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       animId = requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
 
-      bowl.rotation.y = time * 0.15;
-      bowlCharmsGroup.rotation.y = time * 0.15;
+      bowl.rotation.y = time * 0.12;
+      bowlCharmsGroup.rotation.y = time * 0.12;
 
+      // Idle floating sway when not animating
       if (spoonRef.current && !spoonRef.current.userData.isAnimating) {
-        spoonRef.current.position.y = 3.2 + Math.sin(time * 2) * 0.1;
-        spoonRef.current.rotation.y = Math.cos(time * 1.5) * 0.1;
+        spoonRef.current.position.y = 2.7 + Math.sin(time * 2) * 0.1;
+        spoonRef.current.rotation.y = 0.15 + Math.cos(time * 1.5) * 0.08;
       }
 
-      particles.rotation.y = time * 0.05;
+      particles.rotation.y = time * 0.04;
       renderer.render(scene, camera);
     };
 
@@ -292,7 +397,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     };
   }, [isDark]);
 
-  // TRIGGER 3D SCOOP ANIMATION
+  // TRIGGER 3D SCOOP ANIMATION SEQUENCE
   const handlePerformScoop = () => {
     if (isScooping || !spoonRef.current) return;
 
@@ -302,42 +407,48 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const spoon = spoonRef.current;
     spoon.userData.isAnimating = true;
 
+    // PHASE 1: Spoon plunges into bowl
     const startY = spoon.position.y;
-    const dipY = 1.0;
+    const dipY = 0.9;
     let progress = 0;
 
     const plungeInterval = setInterval(() => {
       progress += 0.06;
       spoon.position.y = THREE.MathUtils.lerp(startY, dipY, progress);
-      spoon.rotation.x = THREE.MathUtils.lerp(0.4, 0.8, progress);
+      spoon.position.z = THREE.MathUtils.lerp(0.1, 0.4, progress);
+      spoon.rotation.x = THREE.MathUtils.lerp(0.35, 0.7, progress);
 
       if (progress >= 1) {
         clearInterval(plungeInterval);
         soundFX.playScoopSound();
 
+        // Reveal loot charms inside the spoon
         if (charmsInSpoonRef.current) {
           charmsInSpoonRef.current.children.forEach(c => {
             c.scale.set(1, 1, 1);
           });
         }
 
+        // PHASE 2: Spoon lifts up overflowing with charms
         setTimeout(() => {
           let liftProgress = 0;
           const liftInterval = setInterval(() => {
             liftProgress += 0.05;
-            spoon.position.y = THREE.MathUtils.lerp(dipY, 3.8, liftProgress);
-            spoon.rotation.x = THREE.MathUtils.lerp(0.8, -0.2, liftProgress);
-            spoon.rotation.z = THREE.MathUtils.lerp(-0.3, 0.3, liftProgress);
+            spoon.position.y = THREE.MathUtils.lerp(dipY, 3.4, liftProgress);
+            spoon.position.z = THREE.MathUtils.lerp(0.4, 0.0, liftProgress);
+            spoon.rotation.x = THREE.MathUtils.lerp(0.7, 0.2, liftProgress);
+            spoon.rotation.z = THREE.MathUtils.lerp(-0.15, 0.35, liftProgress);
 
             if (liftProgress >= 1) {
               clearInterval(liftInterval);
 
+              // PHASE 3: Tilt & deposit haul
               setTimeout(() => {
                 let dumpProgress = 0;
                 const dumpInterval = setInterval(() => {
                   dumpProgress += 0.08;
-                  spoon.rotation.x = THREE.MathUtils.lerp(-0.2, 0.5, dumpProgress);
-                  spoon.rotation.z = THREE.MathUtils.lerp(0.3, 1.2, dumpProgress);
+                  spoon.rotation.x = THREE.MathUtils.lerp(0.2, 0.8, dumpProgress);
+                  spoon.rotation.z = THREE.MathUtils.lerp(0.35, 1.2, dumpProgress);
 
                   if (dumpProgress >= 1) {
                     clearInterval(dumpInterval);
@@ -366,8 +477,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                       });
                     }
 
-                    spoon.position.set(0, 3.2, 0);
-                    spoon.rotation.set(0.4, 0, -0.3);
+                    spoon.position.set(0, 2.7, 0.1);
+                    spoon.rotation.set(0.35, 0.15, -0.15);
                     spoon.userData.isAnimating = false;
 
                     setScoopResult({
@@ -541,7 +652,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       {showModal && scoopResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
           <div className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border-2 border-pink-400 dark:border-pink-700 relative overflow-hidden animate-scaleUp">
-            {/* Header Badge */}
             <div className="text-center">
               <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xs font-bold tracking-wide uppercase shadow-md mb-2">
                 <Trophy className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
@@ -555,7 +665,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               </p>
             </div>
 
-            {/* Loot List Grid */}
             <div className="my-6 max-h-56 overflow-y-auto pr-2 space-y-2">
               {scoopResult.items.map((item) => (
                 <div
@@ -583,7 +692,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               ))}
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col gap-2.5">
               <button
                 onClick={handleClaimLoot}

@@ -264,11 +264,10 @@ export default function CharmInspector3D({ isDark = false }) {
                       setSelectedCharm(m);
                       soundFX.playPop(520);
                     }}
-                    className={`p-3 rounded-xl text-left border-2 transition-all ${
-                      selectedCharm.id === m.id
-                        ? 'border-[#E60067] bg-pink-50/70 dark:bg-[#281F3D] shadow-md ring-2 ring-pink-400/30'
-                        : 'border-pink-200/70 dark:border-neutral-800 bg-white dark:bg-[#1E172E] hover:border-pink-400'
-                    }`}
+                    className={`p-3 rounded-xl text-left border-2 transition-all ${selectedCharm.id === m.id
+                      ? 'border-[#E60067] bg-pink-50/70 dark:bg-[#281F3D] shadow-md ring-2 ring-pink-400/30'
+                      : 'border-pink-200/70 dark:border-neutral-800 bg-white dark:bg-[#1E172E] hover:border-pink-400'
+                      }`}
                   >
                     <div className="text-xs font-display font-extrabold text-[#231733] dark:text-white">
                       {m.name}
@@ -295,11 +294,10 @@ export default function CharmInspector3D({ isDark = false }) {
                       setSelectedColor(c);
                       soundFX.playPop(620);
                     }}
-                    className={`w-9 h-9 rounded-full ${c.css} transition-transform ${
-                      selectedColor.name === c.name
-                        ? 'scale-125 ring-4 ring-pink-400/60 shadow-lg'
-                        : 'hover:scale-110 opacity-85'
-                    }`}
+                    className={`w-9 h-9 rounded-full ${c.css} transition-transform ${selectedColor.name === c.name
+                      ? 'scale-125 ring-4 ring-pink-400/60 shadow-lg'
+                      : 'hover:scale-110 opacity-85'
+                      }`}
                     title={c.name}
                   />
                 ))}

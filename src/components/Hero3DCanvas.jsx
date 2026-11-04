@@ -123,39 +123,104 @@ export default function Hero3DCanvas({ isDark = false }) {
       return bear;
     };
 
-    // 4. Rose Gold / Pastel Scoop Spoon
+    // 4. Rose Gold Solid Scoop Shovel
     const createScoopSpoon = () => {
       const spoon = new THREE.Group();
-      const spoonMat = new THREE.MeshStandardMaterial({
-        color: 0xFFB37C, // Rose gold
-        metalness: 0.88,
-        roughness: 0.2,
+      const spoonMat = new THREE.MeshPhysicalMaterial({
+        color: 0xFFA07A,      // Warm Rose Gold
+        emissive: 0x331405,   // Warm ambient glow
+        metalness: 0.9,
+        roughness: 0.18,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.08,
+        side: THREE.DoubleSide
       });
 
-      // Spoon Bowl
-      const bowlGeo = new THREE.SphereGeometry(1.3, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55);
-      bowlGeo.scale(1.2, 0.6, 1.4);
-      const bowlMesh = new THREE.Mesh(bowlGeo, spoonMat);
-      bowlMesh.rotation.x = Math.PI;
-      spoon.add(bowlMesh);
+      const goldAccentMat = new THREE.MeshStandardMaterial({
+        color: 0xFFD700,
+        metalness: 0.95,
+        roughness: 0.15
+      });
 
-      // Spoon Handle
-      const handleGeo = new THREE.CylinderGeometry(0.12, 0.18, 4.5, 24);
+      // 1. Scoop Trough (Extruded U-shape with physical thickness & bevel)
+      const uShape = new THREE.Shape();
+      uShape.moveTo(-0.65, 0.45);
+      uShape.lineTo(-0.65, 0);
+      uShape.bezierCurveTo(-0.65, -0.55, 0.65, -0.55, 0.65, 0);
+      uShape.lineTo(0.65, 0.45);
+      uShape.lineTo(0.55, 0.45);
+      uShape.lineTo(0.55, 0);
+      uShape.bezierCurveTo(0.55, -0.45, -0.55, -0.45, -0.55, 0);
+      uShape.lineTo(-0.55, 0.45);
+      uShape.closePath();
+
+      const extrudeSettings = {
+        depth: 1.6,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        steps: 1,
+        bevelSize: 0.06,
+        bevelThickness: 0.06
+      };
+      const troughGeo = new THREE.ExtrudeGeometry(uShape, extrudeSettings);
+      troughGeo.center();
+      const troughMesh = new THREE.Mesh(troughGeo, spoonMat);
+      spoon.add(troughMesh);
+
+      // 2. Rounded Front Shovel Lip
+      const frontCapGeo = new THREE.SphereGeometry(0.58, 24, 16, 0, Math.PI, 0, Math.PI * 0.5);
+      frontCapGeo.rotateZ(-Math.PI / 2);
+      frontCapGeo.scale(0.95, 0.75, 0.85);
+      const frontCap = new THREE.Mesh(frontCapGeo, spoonMat);
+      frontCap.position.set(0, -0.1, 0.8);
+      spoon.add(frontCap);
+
+      // 3. Back Closed Wall
+      const backWallGeo = new THREE.CylinderGeometry(0.58, 0.58, 0.1, 24, 1, false, 0, Math.PI);
+      backWallGeo.rotateX(Math.PI / 2);
+      backWallGeo.rotateZ(Math.PI);
+      const backWall = new THREE.Mesh(backWallGeo, spoonMat);
+      backWall.position.set(0, -0.05, -0.8);
+      spoon.add(backWall);
+
+      // 4. Ergonomic Rose-Gold Handle with Decorative Gold Rings
+      const handleGroup = new THREE.Group();
+      const handleGeo = new THREE.CylinderGeometry(0.09, 0.14, 2.6, 24);
       const handleMesh = new THREE.Mesh(handleGeo, spoonMat);
-      handleMesh.position.set(0, -2.4, -0.9);
-      handleMesh.rotation.x = 0.35;
-      spoon.add(handleMesh);
+      handleMesh.position.set(0, 1.3, 0);
+      handleGroup.add(handleMesh);
 
-      // Cute Heart Charm at end of handle
+      const ringGeo = new THREE.TorusGeometry(0.13, 0.03, 12, 24);
+      const ring1 = new THREE.Mesh(ringGeo, goldAccentMat);
+      ring1.rotation.x = Math.PI / 2;
+      ring1.position.y = 0.8;
+      handleGroup.add(ring1);
+
+      const ring2 = new THREE.Mesh(ringGeo, goldAccentMat);
+      ring2.rotation.x = Math.PI / 2;
+      ring2.position.y = 1.7;
+      handleGroup.add(ring2);
+
+      // Cute Pink Heart Pommel at top of handle
       const heartShape = createHeartShape();
-      const extrudeSettings = { depth: 0.12, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.05, bevelThickness: 0.05 };
-      const heartGeo = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
-      heartGeo.center();
-      heartGeo.scale(0.5, 0.5, 0.5);
-      const heartMat = new THREE.MeshStandardMaterial({ color: 0xFF5D9E, roughness: 0.2, metalness: 0.3 });
-      const heartCharm = new THREE.Mesh(heartGeo, heartMat);
-      heartCharm.position.set(0, -4.5, -1.7);
-      spoon.add(heartCharm);
+      const heartPommelGeo = new THREE.ExtrudeGeometry(heartShape, {
+        depth: 0.1,
+        bevelEnabled: true,
+        bevelSegments: 3,
+        steps: 1,
+        bevelSize: 0.04,
+        bevelThickness: 0.04
+      });
+      heartPommelGeo.center();
+      heartPommelGeo.scale(0.55, -0.55, 0.55);
+      const heartPommelMat = new THREE.MeshStandardMaterial({ color: 0xFF3385, roughness: 0.2, metalness: 0.3 });
+      const pommel = new THREE.Mesh(heartPommelGeo, heartPommelMat);
+      pommel.position.set(0, 2.75, 0);
+      handleGroup.add(pommel);
+
+      handleGroup.position.set(0, 0.05, -0.85);
+      handleGroup.rotation.x = -Math.PI / 2 + 0.35;
+      spoon.add(handleGroup);
 
       return spoon;
     };
