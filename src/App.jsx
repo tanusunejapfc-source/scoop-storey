@@ -95,9 +95,9 @@ export default function App() {
           {/* Left Text & Call to Action (6 cols) */}
           <div className="lg:col-span-6 z-10 space-y-6 text-center lg:text-left">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-xs tracking-wider uppercase shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
-              <span>India 🇮🇳 • Minimum 3 Items Required • 100% Prepaid</span>
+            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-[11px] sm:text-xs tracking-wide uppercase shadow-xs max-w-full">
+              <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping shrink-0" />
+              <span className="whitespace-nowrap">India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
             </div>
 
             {/* Main Title - High Contrast Dark Plum in light mode, Crisp White in dark */}
