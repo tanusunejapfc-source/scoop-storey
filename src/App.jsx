@@ -35,13 +35,11 @@ export default function App() {
     }
   ]);
 
-  // Apply dark mode attribute
+  // Apply dark mode class to html element ONLY when toggled
   useEffect(() => {
     if (isDark) {
-      document.documentElement.setAttribute('data-theme', 'dark');
       document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.removeAttribute('data-theme');
       document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
@@ -81,7 +79,7 @@ export default function App() {
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] transition-colors duration-400">
+    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] transition-colors duration-300">
       {/* Navigation */}
       <Navbar
         cartCount={totalCartCount}
@@ -97,19 +95,19 @@ export default function App() {
           {/* Left Text & Call to Action (6 cols) */}
           <div className="lg:col-span-6 z-10 space-y-6 text-center lg:text-left">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel shadow-sm text-pink-600 dark:text-pink-300 font-bold text-xs tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-xs tracking-wider uppercase shadow-xs">
               <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
               <span>India 🇮🇳 • Minimum 3 Items Required • 100% Prepaid</span>
             </div>
 
-            {/* Main Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-neutral-900 dark:text-white leading-[1.12]">
+            {/* Main Title - High Contrast Dark Plum in light mode, Crisp White in dark */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white leading-[1.14]">
               Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-neutral-600 dark:text-neutral-300 font-body max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Step into the world of handcrafted Kawaii mystery scoops, faceted acrylic jewels, and satisfying ASMR unboxings. Every order is packed live with love and shipped straight to you.
+            {/* Subtitle - High Contrast Charcoal */}
+            <p className="text-base sm:text-lg text-[#554664] dark:text-[#E0D7EB] font-body font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              Step into the world of handcrafted Kawaii mystery scoops, faceted acrylic jewels, and satisfying ASMR unboxings. Every order is packed live with love and shipped straight to you across India.
             </p>
 
             {/* CTA Buttons */}
@@ -126,38 +124,38 @@ export default function App() {
               <a
                 href="#menu"
                 onClick={() => soundFX.playPop(480)}
-                className="w-full sm:w-auto glass-panel hover:bg-pink-100/50 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 font-display font-bold text-base px-6 py-4 rounded-2xl flex items-center justify-center gap-2 transition"
+                className="w-full sm:w-auto bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-700 text-pink-700 dark:text-pink-300 font-display font-bold text-base px-6 py-4 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:bg-pink-50 dark:hover:bg-neutral-800 transition"
               >
-                <ShoppingBag className="w-5 h-5 text-pink-500" />
+                <ShoppingBag className="w-5 h-5 text-pink-600 dark:text-pink-400" />
                 <span>Explore The Menu</span>
               </a>
             </div>
 
             {/* Trust Metrics */}
-            <div className="pt-6 grid grid-cols-3 gap-4 border-t border-pink-200/50 dark:border-pink-900/30 max-w-lg mx-auto lg:mx-0 text-left">
+            <div className="pt-6 grid grid-cols-3 gap-4 border-t border-pink-200/60 dark:border-pink-900/40 max-w-lg mx-auto lg:mx-0 text-left">
               <div>
-                <div className="font-display font-bold text-xl md:text-2xl text-pink-600 dark:text-pink-400">
+                <div className="font-display font-black text-2xl text-pink-600 dark:text-pink-400">
                   124+
                 </div>
-                <div className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                <div className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
                   Instagram Posts
                 </div>
               </div>
 
               <div>
-                <div className="font-display font-bold text-xl md:text-2xl text-purple-600 dark:text-purple-400">
+                <div className="font-display font-black text-2xl text-purple-600 dark:text-purple-400">
                   100%
                 </div>
-                <div className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
-                  Hand-Curated Love
+                <div className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
+                  Prepaid UPI
                 </div>
               </div>
 
               <div>
-                <div className="font-display font-bold text-xl md:text-2xl text-amber-500">
+                <div className="font-display font-black text-2xl text-amber-500">
                   4.9★
                 </div>
-                <div className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                <div className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
                   Collector Rating
                 </div>
               </div>
@@ -171,8 +169,8 @@ export default function App() {
         </div>
 
         {/* Ambient Pastel Glows in Background */}
-        <div className="absolute top-10 left-1/4 w-96 h-96 bg-pink-300/20 rounded-full blur-3xl pointer-events-none -z-10" />
-        <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-10 left-1/4 w-96 h-96 bg-pink-300/15 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-purple-300/15 rounded-full blur-3xl pointer-events-none -z-10" />
       </section>
 
       {/* SIGNATURE 3D FEATURE: THE 3D VIRTUAL SCOOP MACHINE */}

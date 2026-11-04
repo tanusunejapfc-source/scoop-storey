@@ -42,7 +42,6 @@ export default function CharmInspector3D({ isDark = false }) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     container.appendChild(renderer.domElement);
 
-    // Lights
     const amb = new THREE.AmbientLight(0xffffff, 1.8);
     scene.add(amb);
 
@@ -54,7 +53,6 @@ export default function CharmInspector3D({ isDark = false }) {
     fillLight.position.set(-3, -2, 3);
     scene.add(fillLight);
 
-    // Helpers to create current model
     const createModel = (type, col) => {
       const group = new THREE.Group();
       const mat = new THREE.MeshPhysicalMaterial({
@@ -150,7 +148,6 @@ export default function CharmInspector3D({ isDark = false }) {
     scene.add(currentMesh);
     charmMeshRef.current = currentMesh;
 
-    // Interactive Drag to Rotate
     const onMouseDown = (e) => {
       isDraggingRef.current = true;
       prevMousePosRef.current = { x: e.clientX, y: e.clientY };
@@ -175,7 +172,6 @@ export default function CharmInspector3D({ isDark = false }) {
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
 
-    // Touch support
     const onTouchStart = (e) => {
       if (e.touches.length === 1) {
         isDraggingRef.current = true;
@@ -200,7 +196,6 @@ export default function CharmInspector3D({ isDark = false }) {
     window.addEventListener('touchmove', onTouchMove);
     window.addEventListener('touchend', onTouchEnd);
 
-    // Animation Loop
     let animId;
     const animate = () => {
       animId = requestAnimationFrame(animate);
@@ -239,26 +234,26 @@ export default function CharmInspector3D({ isDark = false }) {
 
   return (
     <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="bg-gradient-to-br from-pink-100/60 via-purple-100/40 to-amber-100/50 dark:from-neutral-900 dark:via-purple-950/20 dark:to-neutral-900 rounded-3xl p-6 md:p-10 border border-pink-200/60 dark:border-pink-900/40 shadow-xl">
+      <div className="bg-white dark:bg-[#1A1326] rounded-3xl p-6 md:p-10 border-2 border-pink-200 dark:border-pink-900/60 shadow-xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Controls & Details (Left 6 cols) */}
           <div className="lg:col-span-6 space-y-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-500/10 dark:bg-pink-400/20 text-pink-600 dark:text-pink-300 text-xs font-bold tracking-wider uppercase mb-2">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/60 text-[#E60067] dark:text-pink-300 text-xs font-black tracking-wider uppercase mb-2 border border-pink-200 dark:border-pink-800">
                 <Rotate3d className="w-3.5 h-3.5" />
                 <span>360° Real-time Charm Studio</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-neutral-900 dark:text-white">
+              <h2 className="text-3xl md:text-4xl font-display font-extrabold text-[#231733] dark:text-white">
                 Inspect Every Facet & Curve
               </h2>
-              <p className="mt-2 text-sm md:text-base text-neutral-600 dark:text-neutral-300">
+              <p className="mt-2 text-sm md:text-base text-[#554664] dark:text-[#E0D7EB] font-medium">
                 Rotate with your mouse or finger to view the microscopic shine and craftsmanship that goes into Bhaskar Scoop Storey pieces.
               </p>
             </div>
 
             {/* Select Model */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 block mb-2">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-[#3B2C4C] dark:text-[#E0D7EB] block mb-2">
                 Choose Charm Specimen
               </label>
               <div className="grid grid-cols-2 gap-2.5">
@@ -269,16 +264,16 @@ export default function CharmInspector3D({ isDark = false }) {
                       setSelectedCharm(m);
                       soundFX.playPop(520);
                     }}
-                    className={`p-3 rounded-xl text-left border transition-all ${
+                    className={`p-3 rounded-xl text-left border-2 transition-all ${
                       selectedCharm.id === m.id
-                        ? 'border-pink-500 bg-white dark:bg-neutral-800 shadow-md ring-2 ring-pink-300/40'
-                        : 'border-pink-200/50 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-white'
+                        ? 'border-[#E60067] bg-pink-50/70 dark:bg-[#281F3D] shadow-md ring-2 ring-pink-400/30'
+                        : 'border-pink-200/70 dark:border-neutral-800 bg-white dark:bg-[#1E172E] hover:border-pink-400'
                     }`}
                   >
-                    <div className="text-xs font-display font-bold text-neutral-900 dark:text-white">
+                    <div className="text-xs font-display font-extrabold text-[#231733] dark:text-white">
                       {m.name}
                     </div>
-                    <div className="text-[10px] text-pink-600 dark:text-pink-400 font-semibold mt-0.5">
+                    <div className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold mt-0.5">
                       {m.category}
                     </div>
                   </button>
@@ -288,7 +283,7 @@ export default function CharmInspector3D({ isDark = false }) {
 
             {/* Select Color Glaze */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 block mb-2 flex items-center gap-1.5">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-[#3B2C4C] dark:text-[#E0D7EB] block mb-2 flex items-center gap-1.5">
                 <Palette className="w-3.5 h-3.5" />
                 <span>Custom Glaze Pigment: {selectedColor.name}</span>
               </label>
@@ -302,8 +297,8 @@ export default function CharmInspector3D({ isDark = false }) {
                     }}
                     className={`w-9 h-9 rounded-full ${c.css} transition-transform ${
                       selectedColor.name === c.name
-                        ? 'scale-125 ring-4 ring-pink-400/50 shadow-lg'
-                        : 'hover:scale-110 opacity-80'
+                        ? 'scale-125 ring-4 ring-pink-400/60 shadow-lg'
+                        : 'hover:scale-110 opacity-85'
                     }`}
                     title={c.name}
                   />
@@ -312,10 +307,10 @@ export default function CharmInspector3D({ isDark = false }) {
             </div>
 
             {/* Spec Card */}
-            <div className="p-4 rounded-2xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-pink-100 dark:border-pink-900/30 flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <div className="text-xs text-neutral-600 dark:text-neutral-300">
-                <span className="font-bold text-neutral-800 dark:text-neutral-100 block mb-0.5">
+            <div className="p-4 rounded-2xl bg-pink-50/60 dark:bg-[#1E172E] border border-pink-200 dark:border-pink-900/40 flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-[#554664] dark:text-[#D5CBE2] font-medium">
+                <span className="font-extrabold text-[#231733] dark:text-neutral-100 block mb-0.5">
                   100% Non-Toxic High-Impact Craft Resin
                 </span>
                 {selectedCharm.description}
@@ -324,9 +319,9 @@ export default function CharmInspector3D({ isDark = false }) {
           </div>
 
           {/* 3D Viewer Container (Right 6 cols) */}
-          <div className="lg:col-span-6 relative h-[380px] md:h-[420px] rounded-2xl glass-panel flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing border-2 border-pink-200/50 dark:border-pink-900/40">
+          <div className="lg:col-span-6 relative h-[380px] md:h-[420px] rounded-2xl bg-pink-50/40 dark:bg-[#140D20] flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing border-2 border-pink-200 dark:border-pink-900/40 shadow-inner">
             <div ref={containerRef} className="w-full h-full" />
-            <div className="absolute bottom-4 left-4 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 pointer-events-none flex items-center gap-1.5">
+            <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-bold text-[#231733] dark:text-neutral-200 pointer-events-none flex items-center gap-1.5 border border-pink-200 dark:border-pink-800">
               <span>🖱️ Drag to rotate in 3D space</span>
             </div>
           </div>
@@ -335,4 +330,3 @@ export default function CharmInspector3D({ isDark = false }) {
     </section>
   );
 }
-

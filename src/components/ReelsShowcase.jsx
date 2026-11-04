@@ -10,8 +10,8 @@ import {
   Send, 
   Check 
 } from 'lucide-react';
-import InstagramIcon from './InstagramIcon';
 import { soundFX } from '../utils/audio';
+import InstagramIcon from './InstagramIcon';
 
 const REELS = [
   {
@@ -57,7 +57,6 @@ const REELS = [
 ];
 
 export default function ReelsShowcase() {
-  const [activeReel, setActiveReel] = useState(null);
   const [likedReels, setLikedReels] = useState({});
   const [handleInput, setHandleInput] = useState('');
   const [requestSent, setRequestSent] = useState(false);
@@ -83,23 +82,23 @@ export default function ReelsShowcase() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-panel text-pink-600 dark:text-pink-300 text-xs font-bold tracking-wider uppercase mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 text-xs font-black tracking-wider uppercase mb-2">
             <InstagramIcon className="w-3.5 h-3.5" />
             <span>Viral ASMR & Packaging Feed</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-neutral-900 dark:text-white">
+          <h2 className="text-3xl md:text-5xl font-display font-extrabold text-[#231733] dark:text-white">
             Watch Us Pack on Instagram
           </h2>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-300 max-w-xl text-sm md:text-base">
+          <p className="mt-2 text-[#554664] dark:text-[#E0D7EB] max-w-xl text-sm md:text-base font-medium">
             Satisfying ASMR sounds, custom orders, and live scoop streams. Follow 
             <a 
               href="https://www.instagram.com/bhaskar_scoopstorey/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-pink-600 dark:text-pink-400 font-bold ml-1 hover:underline"
+              className="text-[#E60067] dark:text-pink-400 font-extrabold ml-1 hover:underline"
             >
               @bhaskar_scoopstorey
-            </a> for daily packing bliss.
+            </a> for daily packing bliss across India.
           </p>
         </div>
 
@@ -115,28 +114,25 @@ export default function ReelsShowcase() {
         </a>
       </div>
 
-      {/* Reels Grid (Styled like vertical phone screens) */}
+      {/* Reels Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {REELS.map((reel) => {
           const isLiked = likedReels[reel.id];
           return (
             <div
               key={reel.id}
-              className="relative aspect-[9/16] rounded-3xl overflow-hidden shadow-xl border border-pink-200/60 dark:border-pink-900/40 group bg-neutral-900"
+              className="relative aspect-[9/16] rounded-3xl overflow-hidden shadow-xl border-2 border-pink-200 dark:border-pink-900/60 group bg-neutral-900"
             >
-              {/* Background Media */}
               <img
                 src={reel.image}
                 alt={reel.title}
                 className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
               />
 
-              {/* Gradient Scrim */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/85" />
 
-              {/* Top Meta: View Count & Brand */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white text-xs font-semibold z-10">
-                <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+                <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
                   <Play className="w-3 h-3 fill-white" />
                   <span>{reel.views} views</span>
                 </div>
@@ -145,20 +141,19 @@ export default function ReelsShowcase() {
                 </div>
               </div>
 
-              {/* Side Interaction Icons (Like, Comment, Share) */}
               <div className="absolute right-3.5 bottom-24 flex flex-col items-center gap-4 z-20">
                 <button
                   onClick={() => toggleLike(reel.id)}
                   className="flex flex-col items-center gap-1 text-white hover:scale-110 transition-transform"
                 >
-                  <div className={`p-2.5 rounded-full backdrop-blur-md ${isLiked ? 'bg-pink-500 text-white' : 'bg-black/40 text-white'}`}>
+                  <div className={`p-2.5 rounded-full backdrop-blur-md ${isLiked ? 'bg-pink-600 text-white' : 'bg-black/50 text-white'}`}>
                     <Heart className={`w-5 h-5 ${isLiked ? 'fill-white' : ''}`} />
                   </div>
                   <span className="text-[11px] font-bold">{reel.likes}</span>
                 </button>
 
                 <div className="flex flex-col items-center gap-1 text-white">
-                  <div className="p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white">
+                  <div className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white">
                     <MessageCircle className="w-5 h-5" />
                   </div>
                   <span className="text-[11px] font-bold">{reel.comments}</span>
@@ -168,21 +163,20 @@ export default function ReelsShowcase() {
                   href="https://www.instagram.com/bhaskar_scoopstorey/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white hover:scale-110 transition-transform"
+                  className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white hover:scale-110 transition-transform"
                 >
                   <Share2 className="w-5 h-5" />
                 </a>
               </div>
 
-              {/* Bottom Caption & Audio */}
               <div className="absolute bottom-4 left-4 right-16 text-white z-10">
                 <h4 className="font-display font-bold text-sm leading-snug line-clamp-2">
                   {reel.title}
                 </h4>
-                <div className="text-[11px] text-pink-300 font-medium mt-1">
+                <div className="text-[11px] text-pink-300 font-semibold mt-1">
                   {reel.tag}
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-white/80 mt-2 font-mono truncate">
+                <div className="flex items-center gap-1.5 text-[10px] text-white/90 mt-2 font-mono truncate">
                   <Volume2 className="w-3 h-3 shrink-0 animate-pulse text-yellow-300" />
                   <span className="truncate">{reel.audio}</span>
                 </div>
@@ -193,23 +187,23 @@ export default function ReelsShowcase() {
       </div>
 
       {/* "Film My Scoop on Instagram" Request Bar */}
-      <div className="mt-12 rounded-3xl bg-gradient-to-r from-purple-500/10 via-pink-500/15 to-orange-500/10 p-6 md:p-8 border border-pink-200/80 dark:border-pink-900/50 flex flex-col lg:flex-row items-center justify-between gap-6">
+      <div className="mt-12 rounded-3xl bg-white dark:bg-[#1E172E] p-6 md:p-8 border-2 border-pink-200 dark:border-pink-900/60 shadow-lg flex flex-col lg:flex-row items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-600 dark:text-pink-300 uppercase tracking-wider mb-1">
+          <div className="inline-flex items-center gap-1.5 text-xs font-black text-[#E60067] dark:text-pink-300 uppercase tracking-wider mb-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Creator Feature</span>
           </div>
-          <h3 className="text-xl md:text-2xl font-display font-bold text-neutral-900 dark:text-white">
-            Want Bhaskar to film your mystery scoop on Instagram?
+          <h3 className="text-xl md:text-2xl font-display font-extrabold text-[#231733] dark:text-white">
+            Want Bhaskar to film your order on an Instagram Reel?
           </h3>
-          <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300 mt-1 max-w-xl">
+          <p className="text-xs md:text-sm text-[#554664] dark:text-[#D5CBE2] mt-1 max-w-xl font-medium">
             Drop your Instagram username when checking out or submit below. We will tag you in the order packing Reel!
           </p>
         </div>
 
         <form onSubmit={handleSendRequest} className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-2.5">
           <div className="relative w-full sm:w-72">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500 font-bold text-sm">
               @
             </span>
             <input
@@ -217,7 +211,7 @@ export default function ReelsShowcase() {
               value={handleInput}
               onChange={(e) => setHandleInput(e.target.value)}
               placeholder="your_insta_username"
-              className="w-full pl-8 pr-4 py-3 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-pink-800 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+              className="w-full pl-8 pr-4 py-3 rounded-xl bg-pink-50/50 dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-800 text-sm text-[#231733] dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-pink-400"
             />
           </div>
 

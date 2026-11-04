@@ -405,8 +405,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   return (
     <section id="scoop-machine" className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
       {/* Policy Notice Box */}
-      <div className="mb-8 p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 border border-pink-200 dark:border-pink-900/40 flex items-center justify-center gap-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 text-center">
-        <AlertCircle className="w-4 h-4 text-pink-600 shrink-0" />
+      <div className="mb-8 p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 border-2 border-pink-300 dark:border-pink-800 flex items-center justify-center gap-2.5 text-xs font-bold text-[#231733] dark:text-[#E0D7EB] text-center">
+        <AlertCircle className="w-4 h-4 text-[#E60067] shrink-0" />
         <span>
           <strong>Store Policy:</strong> Minimum 3 Products Required to Order • Single Item Order Not Available • 100% Prepaid via UPI QR / WhatsApp (+91 8199922653)
         </span>
@@ -414,16 +414,16 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel text-pink-600 dark:text-pink-300 font-medium text-xs tracking-wider uppercase mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-xs tracking-wider uppercase mb-3 shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
           <span>India's 1st Virtual 3D Mystery Scoop Experience</span>
         </div>
-        <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-neutral-900 dark:text-white">
+        <h2 className="text-3xl md:text-5xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white">
           Dip The Golden Scoop. <br />
           <span className="shimmer-text">Collect Your Mystery Happiness.</span>
         </h2>
-        <p className="mt-4 text-base md:text-lg text-neutral-600 dark:text-neutral-300 font-body">
-          Choose from official Scoop Storey sizes below, then click <strong className="text-pink-600 font-semibold">SCOOP NOW!</strong> Watch the 3D rose-gold scoop plunge into the charm bowl and reveal your personalized haul!
+        <p className="mt-4 text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-body font-medium">
+          Choose from official Scoop Storey sizes below, then click <strong className="text-[#E60067] font-bold">SCOOP NOW!</strong> Watch the 3D rose-gold scoop plunge into the charm bowl and reveal your personalized haul!
         </p>
       </div>
 
@@ -431,7 +431,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         {/* Tier Selector Sidebar (Left 4 cols) */}
         <div className="lg:col-span-4 space-y-3.5">
-          <div className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 px-1">
+          <div className="text-xs font-extrabold uppercase tracking-wider text-[#3B2C4C] dark:text-[#E0D7EB] px-1">
             Step 1: Choose Your Scoop Tier
           </div>
 
@@ -446,38 +446,38 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 }}
                 className={`relative p-4 rounded-2xl cursor-pointer transition-all duration-200 border-2 ${
                   isSelected
-                    ? 'border-pink-500 bg-white dark:bg-neutral-800 shadow-xl scale-[1.02]'
-                    : 'border-transparent bg-white/60 dark:bg-neutral-900/60 hover:bg-white dark:hover:bg-neutral-800/80'
+                    ? 'border-[#E60067] bg-pink-50/70 dark:bg-[#281F3D] shadow-xl scale-[1.02] ring-2 ring-pink-400/30'
+                    : 'border-pink-200/80 dark:border-pink-900/40 bg-white dark:bg-[#1E172E] hover:border-pink-400 shadow-sm'
                 }`}
               >
                 {tier.badge && (
-                  <span className="absolute -top-2.5 right-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm">
+                  <span className="absolute -top-2.5 right-4 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-sm">
                     {tier.badge}
                   </span>
                 )}
 
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-display font-bold text-base text-neutral-900 dark:text-white">
+                    <h3 className="font-display font-extrabold text-base text-[#231733] dark:text-white">
                       {tier.name}
                     </h3>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                    <p className="text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold mt-0.5">
                       {tier.itemsCount}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xl font-display font-black text-pink-600 dark:text-pink-400">
+                    <span className="text-2xl font-display font-black text-[#E60067] dark:text-pink-400">
                       ₹{tier.priceINR}
                     </span>
-                    <span className="block text-[10px] text-neutral-400 font-medium">
+                    <span className="block text-[10px] text-[#716182] dark:text-neutral-400 font-bold">
                       All-Inclusive
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-300">
-                  <span className="flex items-center gap-1.5">
-                    <Gift className="w-3.5 h-3.5 text-pink-500" />
+                <div className="mt-3 flex items-center justify-between text-xs text-[#483A54] dark:text-[#D5CBE2] font-medium">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <Gift className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400" />
                     <span>{tier.scoops}x Satisfying Deep Scoops</span>
                   </span>
                   <a
@@ -485,9 +485,9 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 hover:underline"
+                    className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1 hover:underline"
                   >
-                    <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
+                    <WhatsAppIcon className="w-3 h-3 text-emerald-600" />
                     <span>Buy on WhatsApp</span>
                   </a>
                 </div>
@@ -497,9 +497,9 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         </div>
 
         {/* 3D WebGL Canvas Stage (Right 8 cols) */}
-        <div className="lg:col-span-8 relative rounded-3xl glass-panel p-4 md:p-6 shadow-2xl border border-pink-200/50 dark:border-pink-900/30 overflow-hidden">
+        <div className="lg:col-span-8 relative rounded-3xl bg-white/90 dark:bg-[#1E172E]/90 p-4 md:p-6 shadow-2xl border-2 border-pink-200 dark:border-pink-900/60 overflow-hidden">
           {/* Top Live Stage Badge */}
-          <div className="absolute top-6 left-6 z-10 flex items-center gap-2 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-pink-200 dark:border-pink-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+          <div className="absolute top-6 left-6 z-10 flex items-center gap-2 bg-white/95 dark:bg-[#1A1326]/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-pink-300 dark:border-pink-800 text-xs font-bold text-[#231733] dark:text-white shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Active Tier: {selectedTier.name} (₹{selectedTier.priceINR})</span>
           </div>
@@ -529,7 +529,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   </>
                 )}
               </button>
-              <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+              <p className="mt-2 text-xs text-[#554664] dark:text-[#D5CBE2] font-bold">
                 ✨ Turn up sound for tactile ASMR audio feedback!
               </p>
             </div>
@@ -540,18 +540,18 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       {/* REVEAL LOOT MODAL */}
       {showModal && scoopResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
-          <div className="bg-white dark:bg-neutral-900 rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border-2 border-pink-300 dark:border-pink-700 relative overflow-hidden animate-scaleUp">
+          <div className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border-2 border-pink-400 dark:border-pink-700 relative overflow-hidden animate-scaleUp">
             {/* Header Badge */}
             <div className="text-center">
-              <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold tracking-wide uppercase shadow-md mb-2">
+              <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xs font-bold tracking-wide uppercase shadow-md mb-2">
                 <Trophy className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
                 <span>Scoop Complete!</span>
               </div>
-              <h3 className="text-2xl md:text-3xl font-display font-bold text-neutral-900 dark:text-white">
+              <h3 className="text-2xl md:text-3xl font-display font-extrabold text-[#231733] dark:text-white">
                 {scoopResult.tier.name}
               </h3>
-              <p className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                You scooped <strong className="text-pink-600">{scoopResult.items.length} surprise treasures</strong>!
+              <p className="text-xs md:text-sm text-[#554664] dark:text-[#D5CBE2] font-semibold mt-1">
+                You scooped <strong className="text-[#E60067] font-bold">{scoopResult.items.length} surprise treasures</strong>!
               </p>
             </div>
 
@@ -560,23 +560,21 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               {scoopResult.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/70 border border-pink-100 dark:border-pink-900/30 text-xs md:text-sm"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800/80 border border-pink-200 dark:border-pink-900/40 text-xs md:text-sm font-semibold text-[#231733] dark:text-neutral-100"
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="text-lg">{item.icon}</span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                      {item.name}
-                    </span>
+                    <span>{item.name}</span>
                   </div>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                       item.rarity === 'Legendary'
-                        ? 'bg-amber-400 text-purple-950 font-black animate-pulse'
+                        ? 'bg-amber-400 text-purple-950 animate-pulse'
                         : item.rarity === 'Epic'
                         ? 'bg-purple-600 text-white'
                         : item.rarity === 'Rare'
-                        ? 'bg-pink-500 text-white'
-                        : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300'
+                        ? 'bg-pink-600 text-white'
+                        : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200'
                     }`}
                   >
                     {item.rarity}
@@ -591,7 +589,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 onClick={handleClaimLoot}
                 className="w-full btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm md:text-base flex items-center justify-center gap-2 shadow-lg"
               >
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingBag className="w-4 h-4 text-white" />
                 <span>Add Haul to Bag (₹{scoopResult.tier.priceINR})</span>
               </button>
 
@@ -599,7 +597,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Bhaskar! 🎀 Mujhe ${scoopResult.tier.name} (Rs ${scoopResult.tier.priceINR}) order karna hai with ${scoopResult.items.length} charms. Please send QR code for payment - Only Prepaid.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs md:text-sm flex items-center justify-center gap-2 shadow-md transition"
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm flex items-center justify-center gap-2 shadow-md transition"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 <span>Direct Order on WhatsApp (+91 8199922653)</span>
@@ -607,7 +605,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
               <button
                 onClick={() => setShowModal(false)}
-                className="py-2 text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 font-medium transition"
+                className="py-2 text-xs text-[#554664] hover:text-[#231733] dark:text-neutral-400 dark:hover:text-neutral-200 font-bold transition"
               >
                 Close
               </button>
