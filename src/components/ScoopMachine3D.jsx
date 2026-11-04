@@ -1,58 +1,59 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
-import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, Eye, Heart, Star, Check } from 'lucide-react';
+import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, Eye, Heart, Star, Check, AlertCircle } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import WhatsAppIcon from './WhatsAppIcon';
 
-// Mystery Scoop Tiers
+// Mystery Scoop Tiers (Directly synced with official Scoop Storey Canva & Tally options)
 export const SCOOP_TIERS = [
   {
-    id: 'baby-bear',
-    name: 'Baby Bear Scoop',
+    id: 'mini-scoop',
+    name: 'Scoop Storey - Mini',
     subtitle: 'Cute Starter Haul',
     scoops: 1,
-    itemsCount: '15-20 Charms',
-    priceINR: 399,
-    priceUSD: 9.99,
-    badge: 'Popular for Beginners',
+    itemsCount: '15-20 Handpicked Charms',
+    priceINR: 199,
+    badge: 'Popular Starter 🎀',
     color: 'from-pink-400 to-rose-400',
-    btnClass: 'btn-3d-pink'
+    btnClass: 'btn-3d-pink',
+    tallyLink: 'https://tally.so/r/PRjXG0'
   },
   {
-    id: 'starlight',
-    name: 'Starlight Mystery Scoop',
-    subtitle: 'Signature Fan Favorite',
+    id: 'midi-scoop',
+    name: 'Scoop Storey - Midi',
+    subtitle: 'Fan Favorite Haul',
     scoops: 2,
-    itemsCount: '35+ Charms & Resin Minis',
-    priceINR: 799,
-    priceUSD: 19.99,
+    itemsCount: '30+ Charms & Resin Minis',
+    priceINR: 349,
     badge: '★ Best Value ★',
     color: 'from-purple-400 to-indigo-500',
-    btnClass: 'btn-3d-purple'
+    btnClass: 'btn-3d-purple',
+    tallyLink: 'https://tally.so/r/o96ljX'
   },
   {
-    id: 'royal-deluxe',
-    name: 'Royal Deluxe Scoop',
-    subtitle: 'Plushie & Blind Box Included',
+    id: 'big-scoop',
+    name: 'Scoop Storey - Big',
+    subtitle: 'Includes Keychain & Extras',
     scoops: 3,
-    itemsCount: '60+ Charms + Keychain + Blind Box',
-    priceINR: 1499,
-    priceUSD: 34.99,
-    badge: 'Collector Edition',
+    itemsCount: '50+ Charms + Keychain + Blind Surprise',
+    priceINR: 499,
+    badge: 'Collector Choice ✨',
     color: 'from-amber-400 to-orange-500',
-    btnClass: 'btn-3d-gold'
+    btnClass: 'btn-3d-gold',
+    tallyLink: 'https://tally.so/r/7Xl4Qz'
   },
   {
-    id: 'bhaskar-vault',
-    name: "Bhaskar's Gold Vault Scoop",
-    subtitle: 'The Ultimate ASMR Mega Scoop',
+    id: 'vault-mega-scoop',
+    name: "Bhaskar's Vault Mega Scoop",
+    subtitle: 'The Ultimate ASMR Haul',
     scoops: 5,
-    itemsCount: '90+ Luxury Charms + Rare Gold Charm',
-    priceINR: 2199,
-    priceUSD: 49.99,
-    badge: '👑 Legendary VIP 👑',
+    itemsCount: '80+ Luxury Charms + Rare Gold Charm',
+    priceINR: 899,
+    badge: '👑 VIP Mega Scoop 👑',
     color: 'from-yellow-400 via-pink-400 to-purple-500',
-    btnClass: 'btn-3d-gold'
+    btnClass: 'btn-3d-gold',
+    tallyLink: 'https://tally.so/r/7Xl4Qz'
   }
 ];
 
@@ -153,7 +154,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     bowlRim.position.y = 1.6;
     scene.add(bowlRim);
 
-    // Charms filling the bowl (Instanced / Multi-Mesh)
+    // Charms filling the bowl
     const bowlCharmsGroup = new THREE.Group();
     scene.add(bowlCharmsGroup);
 
@@ -163,7 +164,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     const charmColors = [0xFF6B97, 0xB388FF, 0xFFD166, 0x48CAE4, 0xFFAAA6, 0x70D6FF, 0xFFC6FF];
 
-    // Create 180 mini charms inside the bowl
     for (let i = 0; i < 180; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 1.8;
@@ -187,8 +187,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     // 3D SCOOP SPOON
     const spoonGroup = new THREE.Group();
-
-    // Rose Gold / Golden Metal
     const spoonMat = new THREE.MeshStandardMaterial({
       color: 0xFFB37C,
       metalness: 0.9,
@@ -201,20 +199,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     spoonCup.rotation.x = Math.PI;
     spoonGroup.add(spoonCup);
 
-    // Spoon Handle
     const spoonHandleGeo = new THREE.CylinderGeometry(0.08, 0.12, 3.2, 16);
     const spoonHandle = new THREE.Mesh(spoonHandleGeo, spoonMat);
     spoonHandle.position.set(0, -1.6, -0.6);
     spoonHandle.rotation.x = 0.4;
     spoonGroup.add(spoonHandle);
 
-    // Initial position above the bowl
     spoonGroup.position.set(0, 3.2, 0);
     spoonGroup.rotation.set(0.4, 0, -0.3);
     scene.add(spoonGroup);
     spoonRef.current = spoonGroup;
 
-    // Mini charms that stick to spoon during scoop
     const spoonLootGroup = new THREE.Group();
     spoonGroup.add(spoonLootGroup);
     charmsInSpoonRef.current = spoonLootGroup;
@@ -231,11 +226,11 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         -0.15 + (Math.random() - 0.5) * 0.2,
         (Math.random() - 0.5) * 0.9
       );
-      c.scale.set(0, 0, 0); // hidden initially
+      c.scale.set(0, 0, 0);
       spoonLootGroup.add(c);
     }
 
-    // Floating Starlight Particles around bowl
+    // Particles
     const particleGeo = new THREE.BufferGeometry();
     const particleCount = 80;
     const posArray = new Float32Array(particleCount * 3);
@@ -254,7 +249,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const particles = new THREE.Points(particleGeo, pMat);
     scene.add(particles);
 
-    // Render loop
+    // Animation Loop
     let clock = new THREE.Clock();
     let animId;
 
@@ -262,11 +257,9 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       animId = requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
 
-      // Gentle bowl idle rotation
       bowl.rotation.y = time * 0.15;
       bowlCharmsGroup.rotation.y = time * 0.15;
 
-      // Idle spoon float if not currently scooping
       if (spoonRef.current && !spoonRef.current.userData.isAnimating) {
         spoonRef.current.position.y = 3.2 + Math.sin(time * 2) * 0.1;
         spoonRef.current.rotation.y = Math.cos(time * 1.5) * 0.1;
@@ -299,7 +292,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     };
   }, [isDark]);
 
-  // TRIGGER THE 3D SCOOP SEQUENCE
+  // TRIGGER 3D SCOOP ANIMATION
   const handlePerformScoop = () => {
     if (isScooping || !spoonRef.current) return;
 
@@ -309,7 +302,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const spoon = spoonRef.current;
     spoon.userData.isAnimating = true;
 
-    // PHASE 1: Spoon plunges into bowl
     const startY = spoon.position.y;
     const dipY = 1.0;
     let progress = 0;
@@ -323,14 +315,12 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         clearInterval(plungeInterval);
         soundFX.playScoopSound();
 
-        // Reveal loot charms in spoon
         if (charmsInSpoonRef.current) {
           charmsInSpoonRef.current.children.forEach(c => {
             c.scale.set(1, 1, 1);
           });
         }
 
-        // PHASE 2: Spoon lifts up overflowing with charms
         setTimeout(() => {
           let liftProgress = 0;
           const liftInterval = setInterval(() => {
@@ -342,7 +332,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             if (liftProgress >= 1) {
               clearInterval(liftInterval);
 
-              // PHASE 3: Spoon tilts and deposits haul
               setTimeout(() => {
                 let dumpProgress = 0;
                 const dumpInterval = setInterval(() => {
@@ -354,7 +343,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     clearInterval(dumpInterval);
                     soundFX.playSuccess();
 
-                    // Confetti explosion!
                     confetti({
                       particleCount: 80,
                       spread: 70,
@@ -362,9 +350,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                       colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FFFFFF']
                     });
 
-                    // Generate loot items according to selected tier
                     const pulledItems = [];
-                    const itemCount = selectedTier.scoops * 5;
+                    const itemCount = selectedTier.scoops * 6;
                     for (let m = 0; m < itemCount; m++) {
                       const randItem = CHARM_LOOT_POOL[Math.floor(Math.random() * CHARM_LOOT_POOL.length)];
                       pulledItems.push({
@@ -373,7 +360,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                       });
                     }
 
-                    // Reset spoon charms
                     if (charmsInSpoonRef.current) {
                       charmsInSpoonRef.current.children.forEach(c => {
                         c.scale.set(0, 0, 0);
@@ -408,7 +394,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       name: `${scoopResult.tier.name} (Custom 3D Haul)`,
       subtitle: `${scoopResult.items.length} Curated Charms`,
       priceINR: scoopResult.tier.priceINR,
-      priceUSD: scoopResult.tier.priceUSD,
       image: '/images/scoop-bowl.jpg',
       category: 'Mystery Scoops',
       lootDetails: scoopResult.items
@@ -419,18 +404,26 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
   return (
     <section id="scoop-machine" className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
+      {/* Policy Notice Box */}
+      <div className="mb-8 p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 border border-pink-200 dark:border-pink-900/40 flex items-center justify-center gap-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 text-center">
+        <AlertCircle className="w-4 h-4 text-pink-600 shrink-0" />
+        <span>
+          <strong>Store Policy:</strong> Minimum 3 Products Required to Order • Single Item Order Not Available • 100% Prepaid via UPI QR / WhatsApp (+91 8199922653)
+        </span>
+      </div>
+
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel text-pink-600 dark:text-pink-300 font-medium text-xs tracking-wider uppercase mb-3">
           <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-          <span>The World's First 3D Virtual Scoop Experience</span>
+          <span>India's 1st Virtual 3D Mystery Scoop Experience</span>
         </div>
         <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-neutral-900 dark:text-white">
           Dip The Golden Scoop. <br />
           <span className="shimmer-text">Collect Your Mystery Happiness.</span>
         </h2>
         <p className="mt-4 text-base md:text-lg text-neutral-600 dark:text-neutral-300 font-body">
-          Select your desired scoop size below, then click <strong className="text-pink-600 font-semibold">SCOOP NOW!</strong> Watch our 3D rose-gold scoop plunge into the charm bowl and reveal your personalized haul with rarity scores!
+          Choose from official Scoop Storey sizes below, then click <strong className="text-pink-600 font-semibold">SCOOP NOW!</strong> Watch the 3D rose-gold scoop plunge into the charm bowl and reveal your personalized haul!
         </p>
       </div>
 
@@ -473,18 +466,30 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-display font-extrabold text-pink-600 dark:text-pink-400">
+                    <span className="text-xl font-display font-black text-pink-600 dark:text-pink-400">
                       ₹{tier.priceINR}
                     </span>
-                    <span className="block text-[11px] text-neutral-400 font-medium">
-                      (${tier.priceUSD})
+                    <span className="block text-[10px] text-neutral-400 font-medium">
+                      All-Inclusive
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-300">
-                  <Gift className="w-3.5 h-3.5 text-pink-500" />
-                  <span>{tier.scoops}x Satisfying Deep Scoops</span>
+                <div className="mt-3 flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-300">
+                  <span className="flex items-center gap-1.5">
+                    <Gift className="w-3.5 h-3.5 text-pink-500" />
+                    <span>{tier.scoops}x Satisfying Deep Scoops</span>
+                  </span>
+                  <a
+                    href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi! Mujhe ${tier.name} Rs ${tier.priceINR} wala order karna hai - Only Prepaid`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 hover:underline"
+                  >
+                    <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
+                    <span>Buy on WhatsApp</span>
+                  </a>
                 </div>
               </div>
             );
@@ -496,7 +501,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           {/* Top Live Stage Badge */}
           <div className="absolute top-6 left-6 z-10 flex items-center gap-2 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-pink-200 dark:border-pink-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Active Tier: {selectedTier.name} ({selectedTier.scoops} Scoop)</span>
+            <span>Active Tier: {selectedTier.name} (₹{selectedTier.priceINR})</span>
           </div>
 
           {/* 3D Canvas Container */}
@@ -546,19 +551,19 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 {scoopResult.tier.name}
               </h3>
               <p className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                You successfully scooped <strong className="text-pink-600">{scoopResult.items.length} surprise treasures</strong>!
+                You scooped <strong className="text-pink-600">{scoopResult.items.length} surprise treasures</strong>!
               </p>
             </div>
 
             {/* Loot List Grid */}
-            <div className="my-6 max-h-60 overflow-y-auto pr-2 space-y-2">
-              {scoopResult.items.map((item, idx) => (
+            <div className="my-6 max-h-56 overflow-y-auto pr-2 space-y-2">
+              {scoopResult.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-pink-50/70 dark:bg-neutral-800/70 border border-pink-100 dark:border-pink-900/30 text-xs md:text-sm"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/70 border border-pink-100 dark:border-pink-900/30 text-xs md:text-sm"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xl">{item.icon}</span>
+                    <span className="text-lg">{item.icon}</span>
                     <span className="font-semibold text-neutral-800 dark:text-neutral-200">
                       {item.name}
                     </span>
@@ -581,17 +586,28 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={handleClaimLoot}
-                className="flex-1 btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm md:text-base flex items-center justify-center gap-2"
+                className="w-full btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm md:text-base flex items-center justify-center gap-2 shadow-lg"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>Add This Exact Haul to Bag (₹{scoopResult.tier.priceINR})</span>
+                <span>Add Haul to Bag (₹{scoopResult.tier.priceINR})</span>
               </button>
+
+              <a
+                href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Bhaskar! 🎀 Mujhe ${scoopResult.tier.name} (Rs ${scoopResult.tier.priceINR}) order karna hai with ${scoopResult.items.length} charms. Please send QR code for payment - Only Prepaid.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs md:text-sm flex items-center justify-center gap-2 shadow-md transition"
+              >
+                <WhatsAppIcon className="w-4 h-4" />
+                <span>Direct Order on WhatsApp (+91 8199922653)</span>
+              </a>
+
               <button
                 onClick={() => setShowModal(false)}
-                className="py-3 px-4 rounded-xl border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 font-medium text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                className="py-2 text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 font-medium transition"
               >
                 Close
               </button>
@@ -602,4 +618,3 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     </section>
   );
 }
-

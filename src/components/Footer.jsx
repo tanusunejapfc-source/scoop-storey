@@ -8,27 +8,33 @@ import {
   Check, 
   ShieldCheck, 
   Truck, 
-  Gift 
+  Gift, 
+  AlertCircle 
 } from 'lucide-react';
-import InstagramIcon from './InstagramIcon';
 import { soundFX } from '../utils/audio';
+import InstagramIcon from './InstagramIcon';
+import WhatsAppIcon from './WhatsAppIcon';
 
 const FAQS = [
   {
+    q: 'What is the minimum order requirement?',
+    a: 'We have a strict minimum order requirement of 3 products. Single item orders are not available. You can mix and match any 3 items across Pendants, Bracelets, Eye Masks, and Mystery Scoops!'
+  },
+  {
+    q: 'What payment methods do you accept?',
+    a: 'We only accept 100% Prepaid payments via UPI QR Code (Google Pay, PhonePe, Paytm, or NetBanking). Once you place your order or message us on WhatsApp (+91 8199922653), we send you the payment QR code.'
+  },
+  {
     q: 'How does a Mystery Scoop work?',
-    a: 'We fill our artisan pastel scoop directly from our charm bowls containing hundreds of handcrafted resin bears, gemstone hearts, star beads, and Kawaii miniatures. Each order is a unique, exciting surprise!'
+    a: 'We dip our rose-gold scoop directly into our charm bowls containing hundreds of handcrafted resin bears, gemstone hearts, star beads, and Kawaii miniatures. Each order is packed as an exciting surprise!'
   },
   {
-    q: 'How do I get my order packed on Instagram Reels?',
-    a: 'Simply check "Film My Scoop on Instagram Reel" at checkout and provide your Instagram @handle. Bhaskar will tag your username in an upcoming ASMR order unboxing video!'
+    q: 'How do I get my order packed on an Instagram Reel?',
+    a: 'Simply check "Film My Order on IG Reel" in your cart or on WhatsApp, and provide your Instagram @handle. Bhaskar will tag your username in an upcoming ASMR order packing video!'
   },
   {
-    q: 'Are the charms safe and non-toxic?',
-    a: 'Yes! All charms are made of premium, skin-safe craft polymers with smooth hand-polished edges. They are perfect for keychains, phone cases, bracelets, and desk decor.'
-  },
-  {
-    q: 'How long does shipping take?',
-    a: 'Orders are packed within 24-48 hours. Domestic delivery takes 3-5 business days, and international shipping typically takes 7-12 business days with full tracking.'
+    q: 'How long does delivery take across India?',
+    a: 'Orders are dispatched within 24-48 hours. Delivery takes 3-5 business days across India with full courier tracking.'
   }
 ];
 
@@ -55,7 +61,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-20 border-t border-pink-200/60 dark:border-pink-900/40 bg-gradient-to-b from-white/40 via-pink-50/40 to-pink-100/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
-      {/* Guarantees Bar */}
+      {/* Guarantees Bar (India-Centric) */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 border-b border-pink-100 dark:border-pink-900/30">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-3">
@@ -64,33 +70,33 @@ export default function Footer() {
             </div>
             <div>
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                Free Shipping Worldwide
+                Free Delivery Across India
               </div>
-              <div className="text-xs text-neutral-500">On all orders over ₹999 ($35)</div>
+              <div className="text-xs text-neutral-500">On all prepaid orders over ₹499</div>
             </div>
           </div>
 
           <div className="flex items-center justify-center md:justify-start gap-3">
             <div className="p-2.5 rounded-2xl bg-purple-100 dark:bg-neutral-800 text-purple-600 dark:text-purple-400">
-              <Gift className="w-5 h-5" />
+              <AlertCircle className="w-5 h-5" />
             </div>
             <div>
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                Guaranteed Surprise Joy
+                Minimum 3 Products Required
               </div>
-              <div className="text-xs text-neutral-500">Hand-selected rare charms in every scoop</div>
+              <div className="text-xs text-neutral-500">Mix & match any charms, pendants, or masks</div>
             </div>
           </div>
 
           <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-amber-100 dark:bg-neutral-800 text-amber-600 dark:text-amber-400">
+            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-neutral-800 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                100% Non-Toxic Craft
+                100% Prepaid UPI Guarantee
               </div>
-              <div className="text-xs text-neutral-500">Premium polished Japanese craft resin</div>
+              <div className="text-xs text-neutral-500">Verified QR payment via WhatsApp: +91 8199922653</div>
             </div>
           </div>
         </div>
@@ -118,19 +124,30 @@ export default function Footer() {
             </div>
 
             <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed font-body">
-              The official 3D interactive home of @bhaskar_scoopstorey. Bringing tactile ASMR, Kawaii resin aesthetics, and the joy of unboxing mystery scoops right to your doorstep.
+              The official 3D interactive home of @bhaskar_scoopstorey. Bringing tactile ASMR, Korean aesthetic pendants, Kawaii resin scoops, and cute self-care gifts across India.
             </p>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap gap-2.5">
+              <a
+                href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => soundFX.playPop(520)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
+              >
+                <WhatsAppIcon className="w-4 h-4" />
+                <span>WhatsApp: +91 8199922653</span>
+              </a>
+
               <a
                 href="https://www.instagram.com/bhaskar_scoopstorey/"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => soundFX.playPop(520)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-semibold text-xs shadow-md hover:opacity-95 transition"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold text-xs shadow-md hover:opacity-95 transition"
               >
                 <InstagramIcon className="w-4 h-4" />
-                <span>Follow on Instagram @bhaskar_scoopstorey</span>
+                <span>@bhaskar_scoopstorey</span>
               </a>
             </div>
           </div>
@@ -138,7 +155,7 @@ export default function Footer() {
           {/* Quick FAQ Accordion (Middle 5 cols) */}
           <div className="lg:col-span-5 space-y-3">
             <h4 className="font-display font-bold text-base text-neutral-900 dark:text-white mb-2">
-              Frequently Asked Questions
+              Store Rules & FAQs
             </h4>
             {FAQS.map((faq, idx) => (
               <div
@@ -171,7 +188,7 @@ export default function Footer() {
               Join The VIP Scoop Club
             </h4>
             <p className="text-xs text-neutral-600 dark:text-neutral-400">
-              Get secret drop alerts, exclusive discounts, and a <strong>Free Mini Bear Charm</strong> with your first order.
+              Get drop alerts and a <strong>Free Mini Charm</strong> with your first order.
             </p>
 
             <form onSubmit={handleSubscribe} className="space-y-2">
@@ -179,7 +196,7 @@ export default function Footer() {
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="Enter your email address"
+                placeholder="Enter your email"
                 className="w-full p-2.5 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-xs focus:outline-none focus:ring-1 focus:ring-pink-400"
               />
               <button
@@ -205,12 +222,12 @@ export default function Footer() {
         {/* Bottom Sub-footer */}
         <div className="mt-12 pt-6 border-t border-pink-100 dark:border-pink-900/30 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 gap-4">
           <div>
-            © {new Date().getFullYear()} Bhaskar Scoop Storey (@bhaskar_scoopstorey). All rights reserved.
+            © {new Date().getFullYear()} Bhaskar Scoop Storey (@bhaskar_scoopstorey). Strictly India Deliveries.
           </div>
           <div className="flex items-center gap-1 text-pink-500 font-medium">
             <span>Crafted with</span>
             <Heart className="w-3.5 h-3.5 fill-pink-500" />
-            <span>for collectors worldwide • Slogan: Collect Happiness</span>
+            <span>for collectors across India • Slogan: Collect Happiness</span>
           </div>
         </div>
       </div>

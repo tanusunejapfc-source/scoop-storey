@@ -27,10 +27,9 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([
     {
-      id: 'prod-1',
-      name: 'The Starlight Mystery Scoop Bowl',
-      priceINR: 799,
-      priceUSD: 19.99,
+      id: 'scoop-mini',
+      name: 'Scoop Storey - Mini Scoop',
+      priceINR: 199,
       qty: 1,
       image: '/images/scoop-bowl.jpg'
     }
@@ -100,7 +99,7 @@ export default function App() {
             {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel shadow-sm text-pink-600 dark:text-pink-300 font-bold text-xs tracking-wider uppercase">
               <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
-              <span>Official 3D Store • @bhaskar_scoopstorey</span>
+              <span>India 🇮🇳 • Minimum 3 Items Required • 100% Prepaid</span>
             </div>
 
             {/* Main Title */}

@@ -1,51 +1,55 @@
-# 🧸 Bhaskar Scoop Storey — 3D Kawaii Mystery Scoop Website
+# 🧸 Bhaskar Scoop Storey — 3D Kawaii Mystery Scoop Website (India 🇮🇳)
 
 > **Official 3D Interactive Web Experience for [@bhaskar_scoopstorey](https://www.instagram.com/bhaskar_scoopstorey/)**  
-> *"• Collect Happiness •"*
+> *"• Every scoop contains surprises • Collect Happiness •"*
 
-A modern, stylish, and interactive 3D e-commerce and brand showcase for **Bhaskar Scoop Storey**, bringing the sensory delight of Kawaii mystery scoops, faceted acrylic charms, and ASMR packaging directly to the web.
-
-![Scoop Storey Preview](public/images/deluxe-giftbox.jpg)
+A modern, stylish, and interactive 3D e-commerce and brand showcase for **Bhaskar Scoop Storey**, bringing the sensory delight of Kawaii mystery scoops, aesthetic Korean pendants, charm bracelets, eye masks, and ASMR packaging directly to India.
 
 ---
 
-## ✨ Key Features
+## 🇮🇳 Store Policies & Features
 
-- **🌟 Interactive 3D Hero Scene (Three.js)**:
-  - Real-time procedural 3D charms (Kawaii Gummy Bears, Faceted Glass Hearts, Puffy 5-Point Stars, Iridescent Moon Pearls, Gemstones).
-  - Floating reflective rose-gold scoop spoon.
-  - Full raycasting: Hover for spring bounce, click for 360° flip animation with tactile chime feedback.
-  - Dynamic mouse/gyroscope parallax camera movement.
+- **Pricing**: 100% Indian Rupees (**₹ INR**) only.
+- **Order Policy**: **Minimum 3 Products Required** to order (Single item orders are not accepted).
+- **Payment**: **100% Prepaid** via UPI QR Code (WhatsApp: `+91 8199922653`).
+- **Free Delivery**: Free shipping across India on orders over ₹499.
 
-- **🥄 The 3D Virtual Scoop Machine**:
-  - Interactive scoop simulator with 4 tiers: *Baby Bear*, *Starlight Mystery*, *Royal Deluxe*, and *Bhaskar's Vault Gold Scoop*.
-  - Live 3D scoop dip and haul animation with confetti bursts (`canvas-confetti`).
-  - Generated loot breakdown with rarity scoring (*Common*, *Rare*, *Epic*, *Legendary*).
-  - One-click "Add This Exact Haul to Bag".
+---
 
-- **🔍 360° Real-time 3D Charm Inspector**:
-  - Drag to rotate charms 360° in real-time WebGL.
-  - Switch charm specimens and test custom pastel glaze pigments on the fly.
+## ✨ Full Product Catalog (Synced with Canva & Instagram)
 
-- **🛍️ The Scoop Menu & E-Commerce Catalog**:
-  - Categorized product filters with custom editorial photography.
-  - Badges indicating "Eligible for IG Reel packing".
+### 1. 🥄 Signature Mystery Scoops
+- **Scoop Storey - Mini Scoop** (₹199) — 15-20 Handpicked Charms & Minis
+- **Scoop Storey - Midi Scoop** (₹349) — 30+ Charms & Resin Minis
+- **Scoop Storey - Big Scoop** (₹499) — 50+ Charms + Plush Bear Keychain + Blind Box
+- **Bhaskar's Vault Mega Scoop** (₹899) — 80+ Luxury Charms + Rare Gold Vault Bear
 
-- **📱 Instagram Reels & ASMR Lounge**:
-  - Vertical phone-screen styled video player showcasing viral packing ASMR.
-  - "Film My Scoop on Instagram" form linking customer orders to upcoming Reels.
+### 2. 📿 Pendants & Necklaces (₹199 - ₹240)
+- *Bow Heart Aesthetic Pendant* (₹199)
+- *Snake Chain Minimalist Pendant* (₹199)
+- *Little Heart Dainty Pendant* (₹199)
+- *Monalisa Lustrous Pearl Pendant* (₹199)
+- *Sunburst Celestial Pendant* (₹199)
+- *Rose Heart Deluxe Pendant* (₹240)
 
-- **🎧 Tactile ASMR Sound Engine (Web Audio API)**:
-  - Synthesizes clicks, charm rattles, scoop swooshes, and celebratory chords with zero latency.
-  - Toggleable mute switch in navbar.
+### 3. 🌸 Bracelets & Anklets (₹120 - ₹199)
+- *Butterfly Charm Bracelet* (₹199)
+- *Daisy Flower Charm Bracelet* (₹199)
+- *Botanical Leaf Vine Bracelet* (₹199)
+- *Evil Eye Protection Bracelet* (₹170)
+- *Snake Chain Sleek Anklet* (₹150)
+- *Classic Minimalist Bead Anklet* (₹120)
 
-- **🌗 Dual Theme Engine**:
-  - *Pastel Cloud Dream* (Light Mode) & *Midnight Neon Candy* (Dark Mode).
+### 4. 🐱 Eye Masks & Skincare Self-Care (₹99 - ₹119)
+- *Hello Kitty Kawaii Plush Eye Mask* (₹99)
+- *Miao Kitten Sleeping Eye Mask* (₹99)
+- *Heart & Floral Silk Eye Mask* (₹99)
+- *Cute Soda Can Wet Wipes (30 Wipes)* (₹99)
+- *Deep Cleansing Nose Pore Strips Pack* (₹119)
 
-- **🛒 Glassmorphic Slide-Out Cart**:
-  - Dynamic Free Shipping progress bar (unlocks at ₹999 / $35).
-  - Promo code discounts (`SCOOP10`, `HAPPINESS`).
-  - Direct Instagram DM order generator + Simulated Instant Checkout.
+### 5. 👛 Soft Korean Aesthetic Wallets (₹250)
+- *Soft Korean Aesthetic Pocket Wallet (Blush Pink)* (₹250)
+- *Soft Korean Minimalist Pocket Wallet (Ivory White)* (₹250)
 
 ---
 
@@ -53,20 +57,14 @@ A modern, stylish, and interactive 3D e-commerce and brand showcase for **Bhaska
 
 - **Framework**: React 19 + Vite 8
 - **3D Graphics**: Three.js (WebGL, PBR MeshPhysicalMaterials, procedural geometries)
-- **Styling**: Tailwind CSS v4 + Custom Glassmorphism & Neumorphic Design System
-- **Icons**: Lucide React + Custom Instagram SVG
-- **Audio**: Web Audio API Synthesizer
+- **Styling**: Tailwind CSS v4 + Glassmorphic Design System
+- **Audio Engine**: Web Audio API Synthesizer (ASMR clinks & chimes)
 - **Effects**: Canvas Confetti
+- **Direct WhatsApp Orders**: Integrated with `+91 8199922653`
 
 ---
 
 ## 🚀 Getting Started
-
-### Prerequisites
-- Node.js (v18+)
-- npm
-
-### Installation & Run
 
 ```bash
 # Clone the repository
@@ -84,17 +82,10 @@ npm run dev
 
 Visit `http://localhost:5173` in your browser.
 
-### Build for Production
-
-```bash
-npm run build
-```
-
-The optimized static build will be output to the `dist/` directory.
-
 ---
 
-## 📸 Socials
+## 📸 Official Links
 
 - **Instagram**: [@bhaskar_scoopstorey](https://www.instagram.com/bhaskar_scoopstorey/)
-- **Slogan**: Collect Happiness 🎀
+- **WhatsApp**: [+91 8199922653](https://wa.me/918199922653)
+- **Canva Catalog**: [Scoop Storey Store](https://xn--scoopstorey-jn56j.my.canva.site/)

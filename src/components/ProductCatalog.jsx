@@ -4,95 +4,268 @@ import {
   ShoppingBag, 
   Heart, 
   Video, 
-  Star, 
-  Filter, 
   Check, 
-  ArrowRight 
+  AlertCircle 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import WhatsAppIcon from './WhatsAppIcon';
 
 export const PRODUCTS = [
+  // --- MYSTERY SCOOPS ---
   {
-    id: 'prod-1',
-    name: 'The Starlight Mystery Scoop Bowl',
+    id: 'scoop-mini',
+    name: 'Scoop Storey - Mini Scoop',
     category: 'Mystery Scoops',
-    badge: 'Best Seller 🔥',
-    priceINR: 799,
-    priceUSD: 19.99,
+    badge: 'Starter Favorite 🎀',
+    priceINR: 199,
     image: '/images/scoop-bowl.jpg',
-    description: 'Our signature 2-scoop mystery experience loaded with resin bears, faceted hearts, star beads, and pearls.',
-    includes: ['35+ Kawaii Charms', '1x Rare Holographic Bear', 'Pastel Pink Storage Bag', 'Free Sticker Pack']
+    description: 'Our iconic mini mystery scoop filled with 15-20 cute colorful resin charms, beads, and a pink storage pouch.',
+    includes: ['15-20 Handpicked Charms', 'Gummy Bears & Star Beads', 'Cute Organza Bag', 'Only Prepaid Delivery']
   },
   {
-    id: 'prod-2',
-    name: 'ASMR Creator Deluxe Packaging Kit',
-    category: 'ASMR & Packaging',
-    badge: 'Creator Pick 🎀',
-    priceINR: 1199,
-    priceUSD: 28.50,
-    image: '/images/asmr-packing.jpg',
-    description: 'The authentic unboxing setup: branded pouch, crinkle paper, thank-you card, wax seals, and satin ribbons.',
-    includes: ['Custom Branded Pouch', 'Aesthetic Ribbons & Wax Seal', '45+ Curated Charms', 'Personalized Creator Note']
+    id: 'scoop-midi',
+    name: 'Scoop Storey - Midi Scoop',
+    category: 'Mystery Scoops',
+    badge: 'Best Value 🔥',
+    priceINR: 349,
+    image: '/images/scoop-bowl.jpg',
+    description: '2 deep satisfying scoops with 30+ charms, resin miniatures, pastel pearls, and sticker freebies.',
+    includes: ['30+ Curated Charms', 'Resin Minis & Flower Beads', 'Filmed on IG Reel Request', 'Free Sticker Pack']
   },
   {
-    id: 'prod-3',
-    name: 'Handmade Pastel Beaded Phone Straps',
-    category: 'DIY Charms & Accessories',
-    badge: 'Trending ✨',
+    id: 'scoop-big',
+    name: 'Scoop Storey - Big Scoop',
+    category: 'Mystery Scoops',
+    badge: 'Collector Pack ✨',
     priceINR: 499,
-    priceUSD: 12.99,
-    image: '/images/charm-bracelets.jpg',
-    description: 'Chic, durable phone straps and charm bracelets strung with rose-gold clasps, teddy bear beads, and pastel pearls.',
-    includes: ['Universal Phone Tether Tab', 'Reinforced Nylon Stringing', 'Rose-Gold Heart Clasp', 'Choice of 3 Pastel Tones']
-  },
-  {
-    id: 'prod-4',
-    name: "Bhaskar's Royal Collector Unboxing Box",
-    category: 'Collector Gift Boxes',
-    badge: '👑 Limited Edition',
-    priceINR: 2499,
-    priceUSD: 59.99,
     image: '/images/deluxe-giftbox.jpg',
-    description: 'The pinnacle Scoop Storey experience: luxury rigid box, plush bear keychain, blind box, and 80+ surprise charms.',
-    includes: ['Deluxe Rigid Pastel Box', 'Plush Teddy Bear Keychain', 'Exclusive Mystery Blind Box', '80+ Premium Craft Charms', 'Filmed on Instagram Guarantee']
+    description: '3 deep scoops overflowing with 50+ charms, a surprise keychain, and a mystery blind box surprise.',
+    includes: ['50+ Premium Charms', 'Teddy Bear Plush Keychain', 'Mystery Blind Surprise', 'ASMR Packing Video Eligible']
   },
   {
-    id: 'prod-5',
-    name: 'Mini Confetti Charm Pouch (Pack of 20)',
-    category: 'DIY Charms & Accessories',
-    badge: 'Great Add-On',
-    priceINR: 299,
-    priceUSD: 7.99,
-    image: '/images/scoop-bowl.jpg',
-    description: 'A pocket-sized burst of cuteness! 20 hand-selected mini resin charms perfect for phone cases, crocs, and nail art.',
-    includes: ['20 Mini Assorted Charms', 'Cute Organza Bag', 'Surprise Rarity Charm']
-  },
-  {
-    id: 'prod-6',
-    name: 'Kawaii Friends Surprise Blind Box',
-    category: 'Collector Gift Boxes',
-    badge: 'Secret Rarity',
-    priceINR: 599,
-    priceUSD: 14.99,
+    id: 'scoop-vault',
+    name: "Bhaskar's Vault Mega Scoop",
+    category: 'Mystery Scoops',
+    badge: '👑 VIP Mega Scoop',
+    priceINR: 899,
     image: '/images/deluxe-giftbox.jpg',
-    description: 'Unbox an adorable mystery vinyl figurine with miniature accessories. 1 in 72 chance of finding the Golden Bear!',
-    includes: ['1 Mystery Collectible Figure', 'Collector ID Card', 'Miniature Display Stand']
+    description: 'The ultimate Scoop Storey experience: 5 massive scoops, 80+ luxury charms, plus a guaranteed rare Gold Vault Bear!',
+    includes: ['80+ Luxury Charms', 'Rare Gold Vault Charm', 'Deluxe Storage Box', 'Guaranteed IG Reel Feature']
+  },
+
+  // --- PENDANTS & CHAINS ---
+  {
+    id: 'pend-bow-heart',
+    name: 'Bow Heart Aesthetic Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Trending on Insta 🎀',
+    priceINR: 199,
+    image: '/images/pendants.jpg',
+    description: 'A dainty rose-gold bow tied atop a faceted crystal heart charm on a non-tarnish shimmer chain.',
+    includes: ['Anti-Tarnish Plating', 'Lobster Clasp with Extender', 'Velvet Jewelry Pouch', 'Prepaid Shipping']
+  },
+  {
+    id: 'pend-snake-chain',
+    name: 'Snake Chain Minimalist Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Daily Wear ✨',
+    priceINR: 199,
+    image: '/images/pendants.jpg',
+    description: 'Sleek, fluid herringbone snake link chain featuring a polished micro-pendant for modern layering.',
+    includes: ['Liquid Smooth Snake Links', '18k Gold PVD Coating', 'Water-Resistant Finish', 'Hypoallergenic']
+  },
+  {
+    id: 'pend-little-heart',
+    name: 'Little Heart Dainty Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Cute Essential 💖',
+    priceINR: 199,
+    image: '/images/pendants.jpg',
+    description: 'A delicate polished puffed heart pendant that rests gracefully on your collarbone.',
+    includes: ['Subtle Mirror Polish', 'Adjustable 16-18" Length', 'Lightweight & Comfortable', 'Gift Packaging']
+  },
+  {
+    id: 'pend-monalisa',
+    name: 'Monalisa Lustrous Pearl Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Elegant Classic 🦪',
+    priceINR: 199,
+    image: '/images/pendants.jpg',
+    description: 'Lustrous teardrop pearl pendant accented with a sparkling pavé stone setting for timeless charm.',
+    includes: ['Lustrous Finish', 'Tarnish-Resistant Alloy', 'Gift Ready Display Card']
+  },
+  {
+    id: 'pend-sun',
+    name: 'Sunburst Celestial Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Golden Glow ☀️',
+    priceINR: 199,
+    image: '/images/pendants.jpg',
+    description: 'Radiant embossed sun pendant with textured sun rays capturing ambient warmth and positivity.',
+    includes: ['Embossed Sun Rays', 'Gold-Tone Finish', 'Layer-Friendly Chain']
+  },
+  {
+    id: 'pend-rose-heart',
+    name: 'Rose Heart Deluxe Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Special Edition 🌹',
+    priceINR: 240,
+    image: '/images/pendants.jpg',
+    description: 'Intricately carved floral rose bloom encased inside a sculpted romantic heart frame.',
+    includes: ['Intricate Floral Relief', 'Premium Rose Gold Tone', 'Collector Backing Card']
+  },
+
+  // --- BRACELETS & ANKLETS ---
+  {
+    id: 'brac-butterfly',
+    name: 'Butterfly Charm Bracelet',
+    category: 'Bracelets & Anklets',
+    badge: 'Insta Viral 🦋',
+    priceINR: 199,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Dainty links holding iridescent fluttering butterfly charms that catch rainbow pastel hues in daylight.',
+    includes: ['Iridescent Acrylic Wings', 'Secure Lobster Lock', 'Adjustable Wrist Fit']
+  },
+  {
+    id: 'brac-flower',
+    name: 'Daisy Flower Charm Bracelet',
+    category: 'Bracelets & Anklets',
+    badge: 'Fresh & Cute 🌸',
+    priceINR: 199,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Enamel-filled pastel daisy flowers strung along a sparkling gold chain for spring vibes.',
+    includes: ['Pastel Enamel Inlay', 'Golden Link Chain', 'Tarnish-Protected']
+  },
+  {
+    id: 'brac-leaf',
+    name: 'Botanical Leaf Vine Bracelet',
+    category: 'Bracelets & Anklets',
+    badge: 'Subtle Chic 🍃',
+    priceINR: 199,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Finely textured leaf vine accents that wrap delicately around the wrist with graceful movement.',
+    includes: ['Sculpted Vine Details', 'Polished Finish', 'Universal Size']
+  },
+  {
+    id: 'brac-evileye',
+    name: 'Evil Eye Protection Bracelet',
+    category: 'Bracelets & Anklets',
+    badge: 'Good Luck 🧿',
+    priceINR: 170,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Traditional sapphire-blue and white evil eye talisman bead set on a radiant gold chain.',
+    includes: ['Protective Evil Eye Bead', 'Durable Links', 'Positive Vibe Packaging']
+  },
+  {
+    id: 'anklet-snake',
+    name: 'Snake Chain Sleek Anklet',
+    category: 'Bracelets & Anklets',
+    badge: 'Must-Have ✨',
+    priceINR: 150,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'The trendiest liquid gold snake chain anklet. Lies flat, won’t snag, and looks gorgeous with sneakers or heels.',
+    includes: ['Silky Smooth Links', 'Non-Snag Design', 'Extender Chain Included']
+  },
+  {
+    id: 'anklet-minimal',
+    name: 'Classic Minimalist Bead Anklet',
+    category: 'Bracelets & Anklets',
+    badge: 'Subtle Dainty',
+    priceINR: 120,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Ultra-dainty ankle chain with miniature stationed polished beads for that barely-there shimmer.',
+    includes: ['Stationed Bead Accents', 'Ultra-Lightweight', 'Everyday Summer Ready']
+  },
+
+  // --- EYE MASKS & SKINCARE ---
+  {
+    id: 'mask-kitty',
+    name: 'Hello Kitty Kawaii Eye Mask',
+    category: 'Eye Masks & Self-Care',
+    badge: 'Super Soft 🐱',
+    priceINR: 99,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Plush velvet sleeping eye mask with adorable cat face embroidery. Blocks 100% light for restful naps.',
+    includes: ['Ultra-Soft Cloud Velvet', 'Gentle Elastic Strap', 'Total Light Blockout']
+  },
+  {
+    id: 'mask-miao',
+    name: 'Miao Kitten Sleeping Mask',
+    category: 'Eye Masks & Self-Care',
+    badge: 'Cute ASMR 🐾',
+    priceINR: 99,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Cute pastel cartoon kitten eye mask with cooling comfort. A favorite in our unboxing parcels.',
+    includes: ['Breathable Fabric', 'Snug Elastic Comfort', 'Individually Sealed']
+  },
+  {
+    id: 'mask-heart',
+    name: 'Heart & Floral Silk Eye Mask',
+    category: 'Eye Masks & Self-Care',
+    badge: 'Relaxing 💖',
+    priceINR: 99,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Silky smooth eye mask patterned with sweet pastel hearts and floral motifs for sensory sleep comfort.',
+    includes: ['Skin-Friendly Satin Lining', 'Padded Light Protection', 'Travel-Friendly']
+  },
+  {
+    id: 'skincare-can-wipes',
+    name: 'Cute Soda Can Wet Wipes (30 Wipes)',
+    category: 'Eye Masks & Self-Care',
+    badge: 'Viral Novelty 🥤',
+    priceINR: 99,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Novelty miniature soda can that opens from the pop-tab to dispense refreshing, lightly scented wet wipes.',
+    includes: ['Novelty Soda Can Dispenser', '30 Refreshing Wipes', 'Backpack Clip Keychain']
+  },
+  {
+    id: 'skincare-nose-strips',
+    name: 'Deep Cleansing Nose Pore Strips Pack',
+    category: 'Eye Masks & Self-Care',
+    badge: 'Skincare Win 🌸',
+    priceINR: 119,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Pore clearing nose strips that instantly pull out blackheads and leave your nose silky smooth.',
+    includes: ['Pore Purifying Formula', 'Quick 10-Minute Action', 'Dermatologist Tested']
+  },
+
+  // --- KOREAN WALLETS ---
+  {
+    id: 'wallet-pink',
+    name: 'Soft Korean Aesthetic Wallet (Blush Pink)',
+    category: 'Korean Wallets',
+    badge: 'Boutique Hot 🔥',
+    priceINR: 250,
+    image: '/images/korean-wallets.jpg',
+    description: 'Quilted diamond-stitched soft leatherette pocket wallet with gold zip accents and a mini teddy bear charm pull.',
+    includes: ['Multiple Card Slots', 'Zippered Coin Pocket', 'Attached Mini Plush Bear Charm', 'Compact Pocket Size']
+  },
+  {
+    id: 'wallet-white',
+    name: 'Soft Korean Minimalist Wallet (Ivory White)',
+    category: 'Korean Wallets',
+    badge: 'Clean Aesthetic 🤍',
+    priceINR: 250,
+    image: '/images/korean-wallets.jpg',
+    description: 'Chic creamy ivory quilted pocket wallet with durable gold hardware and a cute teddy charm. Fits in any mini bag.',
+    includes: ['Smooth Zipper Slider', 'Cash & Card Compartments', 'Aesthetic Pastel Finish']
   }
 ];
 
 const CATEGORIES = [
-  'All Products',
+  'All Items',
   'Mystery Scoops',
-  'DIY Charms & Accessories',
-  'ASMR & Packaging',
-  'Collector Gift Boxes'
+  'Pendants & Chains',
+  'Bracelets & Anklets',
+  'Eye Masks & Self-Care',
+  'Korean Wallets'
 ];
 
 export default function ProductCatalog({ onAddToCart }) {
-  const [activeCategory, setActiveCategory] = useState('All Products');
+  const [activeCategory, setActiveCategory] = useState('All Items');
   const [addedItem, setAddedItem] = useState(null);
 
-  const filteredProducts = activeCategory === 'All Products'
+  const filteredProducts = activeCategory === 'All Items'
     ? PRODUCTS
     : PRODUCTS.filter(p => p.category === activeCategory);
 
@@ -106,18 +279,24 @@ export default function ProductCatalog({ onAddToCart }) {
 
   return (
     <section id="menu" className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
+      {/* Policy Reminder Banner */}
+      <div className="mb-8 p-3 rounded-2xl bg-pink-100/60 dark:bg-neutral-800/80 border border-pink-200 dark:border-pink-900/40 flex items-center justify-center gap-2 text-xs font-bold text-pink-700 dark:text-pink-300 text-center">
+        <AlertCircle className="w-4 h-4 shrink-0 text-pink-600" />
+        <span>Order Rule: Minimum 3 Products Required • Single Item Order Not Available • 100% Prepaid Delivery</span>
+      </div>
+
       {/* Title & Filter */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-panel text-pink-600 dark:text-pink-300 text-xs font-bold tracking-wider uppercase mb-2">
             <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-            <span>Curated Artisan Collection</span>
+            <span>Official Scoop Storey India Catalog</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-neutral-900 dark:text-white">
             The Scoop Menu
           </h2>
           <p className="mt-2 text-neutral-600 dark:text-neutral-300 max-w-xl text-sm md:text-base">
-            Every item is packed with meticulous care. You can request your order to be packed on an upcoming Instagram Reel!
+            Explore authentic Pendants, Charm Bracelets, Self-Care Eye Masks, Korean Wallets, and Mystery Scoops. All prices in <strong>₹ (INR)</strong> only.
           </p>
         </div>
 
@@ -143,9 +322,11 @@ export default function ProductCatalog({ onAddToCart }) {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         {filteredProducts.map((product) => {
           const isJustAdded = addedItem === product.id;
+          const whatsappUrl = `https://wa.me/918199922653?text=${encodeURIComponent(`Hi! Mujhe ${product.name} Rs ${product.priceINR} wala order karna hai - Only Prepaid`)}`;
+
           return (
             <div
               key={product.id}
@@ -153,7 +334,7 @@ export default function ProductCatalog({ onAddToCart }) {
             >
               <div>
                 {/* Image Container with Badges */}
-                <div className="relative h-64 overflow-hidden bg-pink-100/40 dark:bg-neutral-800">
+                <div className="relative h-60 overflow-hidden bg-pink-100/40 dark:bg-neutral-800">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -173,22 +354,22 @@ export default function ProductCatalog({ onAddToCart }) {
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
+                <div className="p-5">
                   <div className="text-[11px] font-bold text-pink-500 dark:text-pink-400 uppercase tracking-wider mb-1">
                     {product.category}
                   </div>
-                  <h3 className="font-display font-bold text-lg md:text-xl text-neutral-900 dark:text-white group-hover:text-pink-600 transition-colors">
+                  <h3 className="font-display font-bold text-base md:text-lg text-neutral-900 dark:text-white group-hover:text-pink-600 transition-colors">
                     {product.name}
                   </h3>
-                  <p className="mt-2 text-xs md:text-sm text-neutral-600 dark:text-neutral-300 line-clamp-2">
+                  <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
 
                   {/* Highlights */}
-                  <div className="mt-4 pt-4 border-t border-pink-100/60 dark:border-pink-900/30 space-y-1.5">
+                  <div className="mt-3.5 pt-3 border-t border-pink-100/60 dark:border-pink-900/30 space-y-1">
                     {product.includes.slice(0, 3).map((inc, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-                        <Check className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+                        <Check className="w-3 h-3 text-pink-500 shrink-0" />
                         <span>{inc}</span>
                       </div>
                     ))}
@@ -196,37 +377,50 @@ export default function ProductCatalog({ onAddToCart }) {
                 </div>
               </div>
 
-              {/* Price & Action */}
-              <div className="p-6 pt-0 flex items-center justify-between gap-4">
-                <div>
-                  <span className="text-xl md:text-2xl font-display font-extrabold text-neutral-900 dark:text-white">
-                    ₹{product.priceINR}
-                  </span>
-                  <span className="block text-xs text-neutral-400 font-medium">
-                    (${product.priceUSD})
-                  </span>
+              {/* Price & Action Buttons */}
+              <div className="p-5 pt-0 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-2xl font-display font-black text-neutral-900 dark:text-white">
+                      ₹{product.priceINR}
+                    </span>
+                    <span className="text-[10px] text-neutral-400 font-semibold ml-1">
+                      (Prepaid)
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleAdd(product)}
+                    className={`py-2 px-3.5 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 ${
+                      isJustAdded
+                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                        : 'btn-3d-pink text-white'
+                    }`}
+                  >
+                    {isJustAdded ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Added!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>Add to Bag</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => handleAdd(product)}
-                  className={`py-3 px-5 rounded-2xl font-display font-bold text-sm tracking-wide transition-all flex items-center gap-2 ${
-                    isJustAdded
-                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                      : 'btn-3d-pink text-white'
-                  }`}
+                {/* Direct Buy on WhatsApp Button */}
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-300 dark:border-emerald-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  {isJustAdded ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Added!</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Add to Bag</span>
-                    </>
-                  )}
-                </button>
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                  <span>Buy on WhatsApp (+91 8199922653)</span>
+                </a>
               </div>
             </div>
           );
@@ -235,4 +429,3 @@ export default function ProductCatalog({ onAddToCart }) {
     </section>
   );
 }
-
