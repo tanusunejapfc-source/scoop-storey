@@ -26,11 +26,13 @@ A modern, stylish, and interactive 3D e-commerce and brand showcase for **Bhaska
 
 ### 2. 📿 Pendants & Necklaces (₹199 - ₹240)
 - *Bow Heart Aesthetic Pendant* (₹199)
+- *Classic Heart Pendant* (₹199)
 - *Snake Chain Minimalist Pendant* (₹199)
 - *Little Heart Dainty Pendant* (₹199)
-- *Monalisa Lustrous Pearl Pendant* (₹199)
-- *Sunburst Celestial Pendant* (₹199)
 - *Rose Heart Deluxe Pendant* (₹240)
+- *Lustrous Pearl Drop Pendant* (₹240)
+- *Monalisa Lustrous Gem Pendant* (₹240)
+- *Sunburst Celestial Pendant* (₹199)
 
 ### 3. 🌸 Bracelets & Anklets (₹120 - ₹199)
 - *Butterfly Charm Bracelet* (₹199)

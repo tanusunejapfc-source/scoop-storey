@@ -111,9 +111,19 @@ export const PRODUCTS = [
     category: 'Pendants & Chains',
     badge: 'Trending on Insta 🎀',
     priceINR: 199,
-    image: '/images/pendants.jpg',
+    image: '/images/pendants/bow-heart-pendant.png',
     description: 'A dainty rose-gold bow tied atop a faceted crystal heart charm on a non-tarnish shimmer chain.',
     includes: ['Anti-Tarnish Plating', 'Lobster Clasp with Extender', 'Velvet Jewelry Pouch', 'Prepaid Shipping']
+  },
+  {
+    id: 'pend-heart',
+    name: 'Classic Heart Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Best Seller 💖',
+    priceINR: 199,
+    image: '/images/pendants/heart-pendant.png',
+    description: 'Classic high-polish romantic heart pendant on a delicate cable chain for everyday elegance.',
+    includes: ['Mirror Finish Heart', 'Hypoallergenic Chain', 'Gift Display Card', 'Prepaid Shipping']
   },
   {
     id: 'pend-snake-chain',
@@ -121,7 +131,7 @@ export const PRODUCTS = [
     category: 'Pendants & Chains',
     badge: 'Daily Wear ✨',
     priceINR: 199,
-    image: '/images/pendants.jpg',
+    image: '/images/pendants/snake-chain-pendant.png',
     description: 'Sleek, fluid herringbone snake link chain featuring a polished micro-pendant for modern layering.',
     includes: ['Liquid Smooth Snake Links', '18k Gold PVD Coating', 'Water-Resistant Finish', 'Hypoallergenic']
   },
@@ -131,29 +141,9 @@ export const PRODUCTS = [
     category: 'Pendants & Chains',
     badge: 'Cute Essential 💖',
     priceINR: 199,
-    image: '/images/pendants.jpg',
+    image: '/images/pendants/little-heart-pendant.png',
     description: 'A delicate polished puffed heart pendant that rests gracefully on your collarbone.',
     includes: ['Subtle Mirror Polish', 'Adjustable 16-18" Length', 'Lightweight & Comfortable', 'Gift Packaging']
-  },
-  {
-    id: 'pend-monalisa',
-    name: 'Monalisa Lustrous Pearl Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Elegant Classic 🦪',
-    priceINR: 199,
-    image: '/images/pendants.jpg',
-    description: 'Lustrous teardrop pearl pendant accented with a sparkling pavé stone setting for timeless charm.',
-    includes: ['Lustrous Finish', 'Tarnish-Resistant Alloy', 'Gift Ready Display Card']
-  },
-  {
-    id: 'pend-sun',
-    name: 'Sunburst Celestial Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Golden Glow ☀️',
-    priceINR: 199,
-    image: '/images/pendants.jpg',
-    description: 'Radiant embossed sun pendant with textured sun rays capturing ambient warmth and positivity.',
-    includes: ['Embossed Sun Rays', 'Gold-Tone Finish', 'Layer-Friendly Chain']
   },
   {
     id: 'pend-rose-heart',
@@ -161,9 +151,39 @@ export const PRODUCTS = [
     category: 'Pendants & Chains',
     badge: 'Special Edition 🌹',
     priceINR: 240,
-    image: '/images/pendants.jpg',
+    image: '/images/pendants/rose-heart-pendant.png',
     description: 'Intricately carved floral rose bloom encased inside a sculpted romantic heart frame.',
     includes: ['Intricate Floral Relief', 'Premium Rose Gold Tone', 'Collector Backing Card']
+  },
+  {
+    id: 'pend-pearl',
+    name: 'Lustrous Pearl Drop Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Timeless Beauty 🦪',
+    priceINR: 240,
+    image: '/images/pendants/pearl-pendant.jpg',
+    description: 'Natural high-luster baroque pearl pendant suspended on a fine shimmer chain for a radiant touch.',
+    includes: ['Natural Luster Pearl', 'Tarnish-Resistant Alloy', 'Gift Ready Display Box']
+  },
+  {
+    id: 'pend-monalisa',
+    name: 'Monalisa Lustrous Gem Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Elegant Classic ✨',
+    priceINR: 240,
+    image: '/images/pendants/monalisa-pendant.png',
+    description: 'Sculpted Monalisa faceted stone pendant accented with a sparkling pavé setting for timeless charm.',
+    includes: ['Faceted Crystal Setting', 'Tarnish-Resistant Alloy', 'Gift Ready Display Card']
+  },
+  {
+    id: 'pend-sun',
+    name: 'Sunburst Celestial Pendant',
+    category: 'Pendants & Chains',
+    badge: 'Golden Glow ☀️',
+    priceINR: 199,
+    image: '/images/pendants/sun-pendant.png',
+    description: 'Radiant embossed sun pendant with textured sun rays capturing ambient warmth and positivity.',
+    includes: ['Embossed Sun Rays', 'Gold-Tone Finish', 'Layer-Friendly Chain']
   },
 
   // --- BRACELETS & ANKLETS ---
