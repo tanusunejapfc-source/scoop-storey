@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   X, 
   Plus, 
@@ -25,11 +25,14 @@ import {
   Clock,
   ExternalLink,
   Receipt,
-  FileText
+  FileText,
+  QrCode,
+  CreditCard
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { CATEGORIES } from '../data/storeData';
 import { useStoreOrders } from '../utils/orderStore';
+import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
@@ -112,6 +115,11 @@ export default function AdminPanel({
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecVal, setNewSpecVal] = useState('');
   const [newIncludeText, setNewIncludeText] = useState('');
+
+  // Payment & QR Settings State
+  const { settings: paymentSettings, updateSettings: updatePaymentSettings, reset: resetPaymentSettings } = usePaymentSettings();
+  const [paymentForm, setPaymentForm] = useState(paymentSettings);
+  const qrFileInputRef = useRef(null);
 
   if (!isOpen) return null;
 
@@ -371,6 +379,49 @@ export default function AdminPanel({
     setTimeout(() => setCopiedOrderId(null), 2500);
   };
 
+  const handleCopyText = (text, key) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedOrderId(key);
+    soundFX.playPop(500);
+    showToast('Copied to clipboard!');
+    setTimeout(() => setCopiedOrderId(null), 2500);
+  };
+
+  const handleQrFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please upload an image file (PNG, JPG, WebP)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image size should be under 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result;
+      setPaymentForm(prev => ({ ...prev, qrImage: base64 }));
+      soundFX.playPop(600);
+      showToast('QR Code image selected! Click "Save Payment Settings" to apply.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveCustomQr = () => {
+    setPaymentForm(prev => ({ ...prev, qrImage: '' }));
+    soundFX.playPop(400);
+    showToast('Custom QR removed. System will use auto-generated UPI QR.');
+  };
+
+  const handleSavePaymentSettings = (e) => {
+    e?.preventDefault();
+    updatePaymentSettings(paymentForm);
+    soundFX.playSuccess();
+    showToast('UPI & QR settings saved successfully! ✨');
+  };
+
   // Filter orders
   const filteredOrders = orders.filter(o => {
     const q = orderSearchQuery.toLowerCase().trim();
@@ -378,11 +429,13 @@ export default function AdminPanel({
       o.orderId.toLowerCase().includes(q) || 
       (o.customer?.fullName || '').toLowerCase().includes(q) ||
       (o.customer?.phone || '').includes(q) ||
-      (o.customer?.city || '').toLowerCase().includes(q);
+      (o.customer?.city || '').toLowerCase().includes(q) ||
+      (o.upiRefNumber || '').toLowerCase().includes(q);
 
     const matchesStatus = orderStatusFilter === 'All' || 
+      (orderStatusFilter === 'UPI QR' && (o.paymentMethod === 'UPI QR Code' || o.upiRefNumber || o.source?.includes('UPI'))) ||
       (orderStatusFilter === 'WhatsApp' && o.source?.includes('WhatsApp')) ||
-      (orderStatusFilter === 'Online' && o.source?.includes('Online') || o.source?.includes('Instant')) ||
+      (orderStatusFilter === 'Online' && (o.source?.includes('Online') || o.source?.includes('Instant'))) ||
       o.status === orderStatusFilter;
 
     return matchesQuery && matchesStatus;
@@ -549,6 +602,22 @@ export default function AdminPanel({
                   <span>Add Product</span>
                 </button>
 
+                {/* 4. UPI & QR PAYMENT SETTINGS TAB */}
+                <button
+                  onClick={() => {
+                    setActiveTab('payments');
+                    soundFX.playPop(450);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    activeTab === 'payments'
+                      ? 'bg-[#E60067] text-white shadow-sm'
+                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
+                  }`}
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>UPI & QR Settings</span>
+                </button>
+
                 {activeTab === 'edit' && (
                   <button
                     className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E60067] text-white shadow-sm flex items-center gap-1.5"
@@ -659,7 +728,7 @@ export default function AdminPanel({
                   </div>
 
                   <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1">
-                    {['All', 'WhatsApp', 'Online'].map((st) => (
+                    {['All', 'UPI QR', 'WhatsApp', 'Online'].map((st) => (
                       <button
                         key={st}
                         onClick={() => setOrderStatusFilter(st)}
@@ -705,11 +774,19 @@ export default function AdminPanel({
                               </span>
 
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 ${
-                                isWhatsApp
-                                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
-                                  : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800'
+                                ord.paymentMethod === 'UPI QR Code' || ord.upiRefNumber
+                                  ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                                  : isWhatsApp
+                                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                                    : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800'
                               }`}>
-                                {isWhatsApp ? <WhatsAppIcon className="w-3 h-3" /> : <Receipt className="w-3 h-3" />}
+                                {ord.paymentMethod === 'UPI QR Code' || ord.upiRefNumber ? (
+                                  <QrCode className="w-3 h-3 text-amber-600" />
+                                ) : isWhatsApp ? (
+                                  <WhatsAppIcon className="w-3 h-3" />
+                                ) : (
+                                  <Receipt className="w-3 h-3" />
+                                )}
                                 <span>{ord.source}</span>
                               </span>
 
@@ -811,6 +888,51 @@ export default function AdminPanel({
                               <br />
                               <strong>{cust.city}</strong>, {cust.state} — <strong>PIN: {cust.pincode}</strong>
                             </p>
+
+                            {/* UPI Reference / UTR Number Verification Box */}
+                            {ord.upiRefNumber && (
+                              <div className="mt-2.5 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <div className="p-1 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 shrink-0">
+                                    <QrCode className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase block">
+                                      Prepaid UPI Ref / UTR No. (Bank Verification):
+                                    </span>
+                                    <span className="font-mono font-black text-sm text-emerald-950 dark:text-emerald-100 tracking-wider">
+                                      {ord.upiRefNumber}
+                                    </span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleCopyText(ord.upiRefNumber, `utr-${ord.orderId}`)}
+                                  className="self-start sm:self-center px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold flex items-center gap-1 hover:bg-emerald-50 transition shadow-xs"
+                                >
+                                  {copiedOrderId === `utr-${ord.orderId}` ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                                  <span>{copiedOrderId === `utr-${ord.orderId}` ? 'Copied!' : 'Copy UTR'}</span>
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Payment Screenshot if uploaded */}
+                            {ord.paymentScreenshot && (
+                              <div className="mt-2 p-2 rounded-xl bg-pink-50/70 dark:bg-neutral-800/70 border border-pink-200 dark:border-neutral-700 flex items-center justify-between gap-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <img src={ord.paymentScreenshot} alt="Receipt" className="w-9 h-9 rounded-lg object-cover border" />
+                                  <span className="font-bold text-neutral-800 dark:text-neutral-200">Customer attached receipt screenshot</span>
+                                </div>
+                                <a
+                                  href={ord.paymentScreenshot}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-pink-300 text-[#E60067] font-bold text-[11px] flex items-center gap-1 hover:bg-pink-50"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  <span>View Image</span>
+                                </a>
+                              </div>
+                            )}
                           </div>
 
                           {/* Ordered Products Breakdown */}
@@ -889,6 +1011,269 @@ export default function AdminPanel({
                     })}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* TAB: UPI & QR PAYMENT GATEWAY SETTINGS */}
+            {activeTab === 'payments' && (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                {/* Header Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-xl bg-[#E60067] text-white">
+                        <QrCode className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display font-extrabold text-lg text-neutral-900 dark:text-white">
+                          UPI & QR Payment Gateway Settings
+                        </h3>
+                        <p className="text-xs text-neutral-500">
+                          Upload your custom payment QR code or configure UPI ID & mobile number for receiving 100% prepaid customer payments.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleSavePaymentSettings}
+                    className="px-5 py-2.5 rounded-xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-md transition self-start sm:self-center"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save Payment Settings</span>
+                  </button>
+                </div>
+
+                {/* Main Grid: Form on Left, Live Customer Preview on Right */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  
+                  {/* LEFT: SETTINGS FORM (7 cols) */}
+                  <form onSubmit={handleSavePaymentSettings} className="lg:col-span-7 space-y-5">
+                    
+                    {/* 1. QR Code Upload Card */}
+                    <div className="p-5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
+                          <QrCode className="w-4 h-4 text-[#E60067]" />
+                          <span>Store Payment QR Code</span>
+                        </div>
+
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          paymentForm.qrImage 
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300'
+                        }`}>
+                          {paymentForm.qrImage ? 'Custom QR Uploaded ✨' : 'Auto-Generated UPI QR Active'}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl bg-pink-50/50 dark:bg-neutral-800/50 border border-pink-100 dark:border-neutral-700">
+                        {/* Thumbnail */}
+                        <div className="w-32 h-32 shrink-0 rounded-2xl bg-white p-2 border-2 border-pink-200 shadow-md flex items-center justify-center overflow-hidden">
+                          <img
+                            src={getQrDisplayUrl(paymentForm, 499, 'PREVIEW')}
+                            alt="Active QR"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+
+                        <div className="space-y-2.5 flex-1 text-center sm:text-left">
+                          <p className="text-xs text-neutral-600 dark:text-neutral-300 font-medium leading-relaxed">
+                            Upload your official Google Pay, PhonePe, Paytm, or Bank QR code image. Customers will scan this directly to complete their prepaid order.
+                          </p>
+
+                          <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+                            <input
+                              type="file"
+                              ref={qrFileInputRef}
+                              accept="image/*"
+                              onChange={handleQrFileUpload}
+                              className="hidden"
+                            />
+                            
+                            <button
+                              type="button"
+                              onClick={() => qrFileInputRef.current?.click()}
+                              className="px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs flex items-center gap-1.5 hover:opacity-90 transition shadow-xs"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{paymentForm.qrImage ? 'Change QR Image' : 'Upload QR Code Image'}</span>
+                            </button>
+
+                            {paymentForm.qrImage && (
+                              <button
+                                type="button"
+                                onClick={handleRemoveCustomQr}
+                                className="px-3 py-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-xs font-bold hover:bg-rose-100 transition"
+                              >
+                                Use Auto UPI QR
+                              </button>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-neutral-400 block">
+                            Accepts PNG, JPG, WebP (up to 5MB)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. UPI Details Card */}
+                    <div className="p-5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40 space-y-4">
+                      <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
+                        <CreditCard className="w-4 h-4 text-[#E60067]" />
+                        <span>UPI ID & Phone Number Settings</span>
+                      </div>
+
+                      <div className="space-y-3.5">
+                        {/* UPI ID */}
+                        <div>
+                          <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                            UPI ID / VPA <span className="text-pink-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={paymentForm.upiId}
+                            onChange={(e) => setPaymentForm(prev => ({ ...prev, upiId: e.target.value }))}
+                            placeholder="e.g. 8199922653@upi or bhaskar@okaxis"
+                            className="w-full px-3 py-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-mono tracking-wide focus:outline-none focus:ring-1 focus:ring-pink-400"
+                          />
+                          <span className="text-[10px] text-neutral-400 mt-1 block">
+                            Customers can copy this with 1 click to pay in any UPI application.
+                          </span>
+                        </div>
+
+                        {/* UPI Phone Number */}
+                        <div>
+                          <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                            UPI Mobile / Phone Number <span className="text-pink-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400">+91</span>
+                            <input
+                              type="text"
+                              maxLength={10}
+                              value={paymentForm.upiPhone}
+                              onChange={(e) => setPaymentForm(prev => ({ ...prev, upiPhone: e.target.value.replace(/\D/g, '') }))}
+                              placeholder="10-digit number (e.g. 8199922653)"
+                              className="w-full pl-12 pr-3 py-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-mono tracking-wide focus:outline-none focus:ring-1 focus:ring-pink-400"
+                            />
+                          </div>
+                          <span className="text-[10px] text-neutral-400 mt-1 block">
+                            Direct phone number for customers searching in Google Pay, PhonePe, or Paytm.
+                          </span>
+                        </div>
+
+                        {/* Payee / Business Name */}
+                        <div>
+                          <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                            Beneficiary / Payee Display Name <span className="text-pink-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={paymentForm.payeeName}
+                            onChange={(e) => setPaymentForm(prev => ({ ...prev, payeeName: e.target.value }))}
+                            placeholder="e.g. Bhaskar - Scoop Storey"
+                            className="w-full px-3 py-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400 font-medium"
+                          />
+                        </div>
+
+                        {/* Customer Guidance Notes */}
+                        <div>
+                          <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                            Instructions / Message on Checkout
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={paymentForm.instructions}
+                            onChange={(e) => setPaymentForm(prev => ({ ...prev, instructions: e.target.value }))}
+                            placeholder="Custom payment instructions shown to customer"
+                            className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400 resize-none font-medium"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="submit"
+                        className="flex-1 py-3 px-5 rounded-2xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Save Payment Settings</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm('Reset all payment settings back to defaults?')) {
+                            resetPaymentSettings();
+                            showToast('Reset to default UPI settings');
+                          }
+                        }}
+                        className="py-3 px-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-xs font-bold hover:bg-neutral-200 transition"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* RIGHT: LIVE CUSTOMER PREVIEW (5 cols) */}
+                  <div className="lg:col-span-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                        Customer Checkout Preview
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold">
+                        Live Preview
+                      </span>
+                    </div>
+
+                    {/* Simulated Customer Payment Card */}
+                    <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-800 shadow-xl space-y-4">
+                      <div className="text-center space-y-1">
+                        <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold uppercase tracking-wide">
+                          Scoop Storey Prepaid UPI
+                        </span>
+                        <div className="font-display font-black text-2xl text-neutral-900 dark:text-white">
+                          ₹597 <span className="text-xs font-normal text-neutral-400">(Prepaid)</span>
+                        </div>
+                      </div>
+
+                      {/* QR Code in preview */}
+                      <div className="w-44 h-44 mx-auto p-2 bg-white rounded-2xl border-2 border-pink-200 shadow-sm flex items-center justify-center overflow-hidden">
+                        <img
+                          src={getQrDisplayUrl(paymentForm, 597, 'SS-SAMPLE')}
+                          alt="Preview QR"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      {/* Copyable Pills Preview */}
+                      <div className="space-y-2 text-xs">
+                        <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
+                          <div>
+                            <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI ID</span>
+                            <span className="font-mono font-bold text-xs">{paymentForm.upiId || '8199922653@upi'}</span>
+                          </div>
+                          <span className="px-2 py-1 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
+                        </div>
+
+                        <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
+                          <div>
+                            <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI Mobile</span>
+                            <span className="font-mono font-bold text-xs">+91 {paymentForm.upiPhone || '8199922653'}</span>
+                          </div>
+                          <span className="px-2 py-1 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-center text-xs text-emerald-800 dark:text-emerald-300 font-medium">
+                        Payee: <strong>{paymentForm.payeeName}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
