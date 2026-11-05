@@ -5,28 +5,40 @@ import {
   Video, 
   Check, 
   AlertCircle,
-  Maximize2,
-  X 
+  Eye,
+  Images,
+  Palette
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
-import { PRODUCTS, CATEGORIES } from '../data/storeData';
+import { CATEGORIES } from '../data/storeData';
+import { DEFAULT_PRODUCTS } from '../utils/productStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
-export { PRODUCTS };
+export { DEFAULT_PRODUCTS as PRODUCTS };
 
-export default function ProductCatalog({ onAddToCart }) {
+export default function ProductCatalog({ 
+  products = [], 
+  onAddToCart, 
+  onSelectProduct 
+}) {
   const [activeCategory, setActiveCategory] = useState('All Items');
   const [addedItem, setAddedItem] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
 
   const filteredProducts = activeCategory === 'All Items'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === activeCategory);
+    ? products
+    : products.filter(p => p.category === activeCategory);
 
-  const handleAdd = (product) => {
+  const handleQuickAdd = (product, e) => {
+    e?.stopPropagation();
     soundFX.playPop(650);
     soundFX.playChime();
-    onAddToCart(product);
+    const defaultColor = product.colors?.[0]?.name || 'Standard';
+    onAddToCart({
+      ...product,
+      selectedColor: defaultColor,
+      selectedColorHex: product.colors?.[0]?.hex,
+      qty: 1
+    });
     setAddedItem(product.id);
     setTimeout(() => setAddedItem(null), 2000);
   };
@@ -50,7 +62,7 @@ export default function ProductCatalog({ onAddToCart }) {
             The Scoop Menu
           </h2>
           <p className="mt-2 text-[#554664] dark:text-[#E0D7EB] font-medium max-w-xl text-sm md:text-base">
-            Explore authentic Pendants, Charm Bracelets, Self-Care Eye Masks, Korean Wallets, and Mystery Scoops. All prices in <strong className="text-[#231733] dark:text-white font-bold">₹ (INR)</strong> only.
+            Explore authentic Pendants, Charm Bracelets, Self-Care Eye Masks, Korean Wallets, and Mystery Scoops. Click any product to view multiple photos, pick custom colors, and read full specifications.
           </p>
         </div>
 
@@ -79,77 +91,112 @@ export default function ProductCatalog({ onAddToCart }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         {filteredProducts.map((product) => {
           const isJustAdded = addedItem === product.id;
+          const imageCount = product.images?.length || 1;
+          const colorCount = product.colors?.length || 0;
           const whatsappUrl = `https://wa.me/918199922653?text=${encodeURIComponent(`Hi! Mujhe ${product.name} Rs ${product.priceINR} wala order karna hai - Only Prepaid`)}`;
 
           return (
             <div
               key={product.id}
-              className="group rounded-3xl bg-white dark:bg-[#1E172E] overflow-hidden border-2 border-pink-200/80 dark:border-pink-900/60 hover:shadow-2xl hover:border-pink-400 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-md"
+              onClick={() => onSelectProduct?.(product)}
+              className="group rounded-3xl bg-white dark:bg-[#1E172E] overflow-hidden border-2 border-pink-200/80 dark:border-pink-900/60 hover:shadow-2xl hover:border-pink-400 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-md cursor-pointer"
             >
               <div>
-                {/* Standard Uniform Aspect Ratio Container (4:5 Standard E-Commerce Ratio) */}
-                <div 
-                  onClick={() => setPreviewImage(product)}
-                  className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-b from-pink-50/70 via-white to-pink-50/40 dark:from-[#251A38] dark:via-[#1E172E] dark:to-[#181126] flex items-center justify-center p-3 cursor-zoom-in"
-                >
+                {/* 4:5 Standard E-Commerce Ratio Container */}
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-b from-pink-50/70 via-white to-pink-50/40 dark:from-[#251A38] dark:via-[#1E172E] dark:to-[#181126] flex items-center justify-center p-3">
                   <img
-                    src={product.image}
+                    src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
                     alt={product.name}
                     className="w-full h-full object-contain drop-shadow-xs group-hover:scale-105 transition-transform duration-500 rounded-xl"
                   />
                   
                   {/* Badge */}
                   <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
-                    {product.badge}
+                    {product.badge || 'Popular ✨'}
                   </span>
 
-                  {/* Zoom Action Pill */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPreviewImage(product);
-                    }}
-                    className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-[#231733] dark:text-white shadow-xs hover:bg-pink-100 dark:hover:bg-neutral-800 transition"
-                    title="View Full Resolution Look"
-                    aria-label="View Full Resolution Look"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
+                  {/* Multiple Photos Pill */}
+                  {imageCount > 1 && (
+                    <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-bold text-white shadow-xs">
+                      <Images className="w-3 h-3 text-pink-300" />
+                      <span>{imageCount} Photos</span>
+                    </div>
+                  )}
 
                   {/* Pack on Reel Tag */}
                   <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs pointer-events-none">
                     <Video className="w-3 h-3 text-pink-400" />
                     <span>Eligible for IG Reel packing</span>
                   </div>
+
+                  {/* Quick View Hover Overlay Button */}
+                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <div className="px-4 py-2 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-bold text-xs text-[#E60067] shadow-xl flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>View Colors & Details</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-5">
-                  <div className="text-[11px] font-black text-[#E60067] dark:text-pink-400 uppercase tracking-wider mb-1">
-                    {product.category}
+                  <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider mb-1">
+                    <span className="text-[#E60067] dark:text-pink-400">
+                      {product.category}
+                    </span>
+                    {product.rating && (
+                      <span className="text-amber-500 font-extrabold flex items-center gap-0.5">
+                        ★ {product.rating}
+                      </span>
+                    )}
                   </div>
+
                   <h3 className="font-display font-extrabold text-base md:text-lg text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
                     {product.name}
                   </h3>
+
                   <p className="mt-1.5 text-xs text-[#554664] dark:text-[#D5CBE2] line-clamp-2 leading-relaxed font-medium">
                     {product.description}
                   </p>
 
-                  {/* Highlights */}
-                  <div className="mt-3.5 pt-3 border-t border-pink-100 dark:border-pink-900/40 space-y-1">
-                    {product.includes.slice(0, 3).map((inc, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-[#483A54] dark:text-[#D5CBE2]">
-                        <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
-                        <span>{inc}</span>
+                  {/* Color Swatches Preview */}
+                  {colorCount > 0 && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className="flex -space-x-1.5">
+                        {product.colors.slice(0, 4).map((col, idx) => (
+                          <span
+                            key={idx}
+                            className="w-4 h-4 rounded-full border-2 border-white dark:border-[#1E172E] shadow-xs"
+                            style={{ backgroundColor: col.hex }}
+                            title={col.name}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                      <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
+                        {colorCount} Color{colorCount > 1 ? 's' : ''} Available
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Highlights */}
+                  {product.includes && product.includes.length > 0 && (
+                    <div className="mt-3.5 pt-3 border-t border-pink-100 dark:border-pink-900/40 space-y-1">
+                      {product.includes.slice(0, 2).map((inc, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-[#483A54] dark:text-[#D5CBE2]">
+                          <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
+                          <span className="truncate">{inc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Price & Action Buttons */}
-              <div className="p-5 pt-0 space-y-2.5">
+              <div 
+                className="p-5 pt-0 space-y-2.5"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-2xl font-display font-black text-[#231733] dark:text-white">
@@ -160,26 +207,39 @@ export default function ProductCatalog({ onAddToCart }) {
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => handleAdd(product)}
-                    className={`py-2 px-3.5 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 ${
-                      isJustAdded
-                        ? 'bg-emerald-600 text-white shadow-lg'
-                        : 'btn-3d-pink text-white'
-                    }`}
-                  >
-                    {isJustAdded ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-white" />
-                        <span>Added!</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                        <span>Add to Bag</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onSelectProduct?.(product)}
+                      className="py-2 px-3 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-400 font-display font-bold text-xs tracking-wide transition border border-pink-200 dark:border-neutral-700 flex items-center gap-1"
+                      title="Choose Colors & See Details"
+                    >
+                      <Palette className="w-3.5 h-3.5" />
+                      <span>Colors</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleQuickAdd(product, e)}
+                      className={`py-2 px-3.5 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 ${
+                        isJustAdded
+                          ? 'bg-emerald-600 text-white shadow-lg'
+                          : 'btn-3d-pink text-white'
+                      }`}
+                    >
+                      {isJustAdded ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-white" />
+                          <span>Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                          <span>Add</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Direct Buy on WhatsApp Button */}
@@ -197,43 +257,6 @@ export default function ProductCatalog({ onAddToCart }) {
           );
         })}
       </div>
-
-      {/* FULL LOOK LIGHTBOX MODAL */}
-      {previewImage && (
-        <div 
-          onClick={() => setPreviewImage(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="relative bg-white dark:bg-[#1E172E] rounded-3xl max-w-lg w-full max-h-[92vh] overflow-hidden p-4 sm:p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-700 flex flex-col items-center animate-scaleUp"
-          >
-            <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition z-10 shadow-md"
-              aria-label="Close Preview"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="w-full flex-1 overflow-y-auto flex items-center justify-center py-2">
-              <img
-                src={previewImage.image}
-                alt={previewImage.name}
-                className="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-md"
-              />
-            </div>
-
-            <div className="w-full mt-3 pt-3 border-t border-pink-100 dark:border-pink-900/40 flex items-center justify-between text-xs sm:text-sm font-bold text-[#231733] dark:text-white">
-              <div>
-                <span>{previewImage.name}</span>
-                <span className="block text-[11px] text-pink-600 dark:text-pink-400 font-semibold">{previewImage.category}</span>
-              </div>
-              <span className="text-[#E60067] dark:text-pink-400 font-extrabold text-base">₹{previewImage.priceINR}</span>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

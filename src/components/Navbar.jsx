@@ -8,7 +8,8 @@ import {
   Menu, 
   X,
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  Sliders 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import InstagramIcon from './InstagramIcon';
@@ -40,7 +41,8 @@ export default function Navbar({
   cartCount, 
   onOpenCart, 
   isDark, 
-  onToggleTheme 
+  onToggleTheme,
+  onOpenAdmin 
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -82,9 +84,9 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
-      {/* Top Ticker Announcement (Clean single-line mobile carousel + desktop inline ticker) */}
+      {/* Top Ticker Announcement */}
       <div className="bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 text-white text-[11px] md:text-xs font-bold py-2 px-3 text-center tracking-wide overflow-hidden shadow-sm">
-        {/* Mobile: Perfectly aligned, single-line auto-cycling announcement */}
+        {/* Mobile: auto-cycling announcement */}
         <div className="flex sm:hidden items-center justify-between max-w-sm mx-auto">
           <button
             onClick={() => setAnnouncementIndex((prev) => (prev - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length)}
@@ -200,8 +202,22 @@ export default function Navbar({
             ))}
           </div>
 
-          {/* Action Buttons: Sound, Theme, WhatsApp, Instagram, Cart, Hamburger */}
+          {/* Action Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Admin Panel Button */}
+            <button
+              onClick={() => {
+                onOpenAdmin?.();
+                soundFX.playPop(550);
+              }}
+              className="h-9 sm:h-9.5 px-2.5 sm:px-3 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold"
+              title="Store Manager: Add/Edit Products, Colors & Images"
+              aria-label="Open Store Admin Panel"
+            >
+              <Sliders className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
+              <span className="hidden md:inline text-[11px]">Admin</span>
+            </button>
+
             {/* WhatsApp Quick Order (Desktop) */}
             <a
               href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai"
@@ -305,6 +321,19 @@ export default function Navbar({
                 {link.label}
               </a>
             ))}
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAdmin?.();
+                soundFX.playPop(550);
+              }}
+              className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-[#E60067] dark:text-pink-400 bg-pink-50/60 dark:bg-neutral-800/80 flex items-center gap-2 border border-pink-200 dark:border-neutral-700"
+            >
+              <Sliders className="w-4 h-4" />
+              <span>Store Manager (Admin Panel)</span>
+            </button>
+
             <div className="pt-2 border-t border-pink-200/60 dark:border-pink-900/60 space-y-2">
               <a
                 href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai"

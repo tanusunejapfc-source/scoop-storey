@@ -1,0 +1,221 @@
+import { useState, useEffect } from 'react';
+import { PRODUCTS as INITIAL_PRODUCTS } from '../data/storeData';
+
+// Enrich default products with multiple images, color variants, specifications, and stock
+export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
+  // Category-specific color presets
+  let defaultColors = [];
+  if (p.category === 'Pendants & Chains') {
+    defaultColors = [
+      { name: '18K Yellow Gold', hex: '#E5C158' },
+      { name: 'Rose Gold', hex: '#E0A899' },
+      { name: 'Silver Shimmer', hex: '#D8D8D8' }
+    ];
+  } else if (p.category === 'Bracelets & Anklets') {
+    defaultColors = [
+      { name: 'Gold Tone', hex: '#E5C158' },
+      { name: 'Rose Gold', hex: '#E0A899' },
+      { name: 'Pastel Rainbow', hex: '#FFB6C1' }
+    ];
+  } else if (p.category === 'Eye Masks & Self-Care') {
+    defaultColors = [
+      { name: 'Kawaii Pink', hex: '#FFB6C1' },
+      { name: 'Cloud White', hex: '#F5F5F7' },
+      { name: 'Lavender Mist', hex: '#E6E6FA' }
+    ];
+  } else if (p.category === 'Korean Wallets') {
+    defaultColors = [
+      { name: 'Blush Pink', hex: '#FFB6C1' },
+      { name: 'Ivory White', hex: '#FFFDD0' },
+      { name: 'Matcha Mint', hex: '#C1E1C1' },
+      { name: 'Soft Lilac', hex: '#D8BFD8' }
+    ];
+  } else {
+    // Mystery Scoops
+    defaultColors = [
+      { name: 'Pastel Kawaii Mix', hex: '#FFAAA6' },
+      { name: 'Sparkle Aurora Mix', hex: '#A0E7E5' },
+      { name: 'Golden Vault Edition', hex: '#FFD700' }
+    ];
+  }
+
+  // Category-specific multi-image gallery
+  let defaultImages = [p.image];
+  if (p.category === 'Pendants & Chains') {
+    defaultImages = [
+      p.image,
+      '/images/pendants.jpg',
+      '/images/asmr-packing.jpg',
+      '/images/deluxe-giftbox.jpg'
+    ];
+  } else if (p.category === 'Bracelets & Anklets') {
+    defaultImages = [
+      p.image,
+      '/images/charm-bracelets.jpg',
+      '/images/asmr-packing.jpg',
+      '/images/deluxe-giftbox.jpg'
+    ];
+  } else if (p.category === 'Eye Masks & Self-Care') {
+    defaultImages = [
+      p.image,
+      '/images/eyemasks-skincare.jpg',
+      '/images/asmr-packing.jpg'
+    ];
+  } else if (p.category === 'Korean Wallets') {
+    defaultImages = [
+      p.image,
+      '/images/korean-wallets.jpg',
+      '/images/deluxe-giftbox.jpg',
+      '/images/asmr-packing.jpg'
+    ];
+  } else {
+    defaultImages = [
+      p.image,
+      '/images/deluxe-giftbox.jpg',
+      '/images/asmr-packing.jpg'
+    ];
+  }
+
+  // Category-specific specifications
+  let defaultSpecs = {};
+  if (p.category === 'Pendants & Chains') {
+    defaultSpecs = {
+      'Material': 'High-Grade Anti-Tarnish Alloy & 316L Stainless Steel',
+      'Plating': '18K Gold / Rose Gold Vacuum PVD Coated',
+      'Chain Length': '16 inches + 2 inch adjustable extender',
+      'Clasp Type': 'Reinforced Lobster Clasp',
+      'Water Resistance': 'Water-safe & Sweat-resistant',
+      'Skin Friendly': '100% Nickel-Free & Hypoallergenic',
+      'Packaging': 'Velvet Display Gift Card & Pouch'
+    };
+  } else if (p.category === 'Bracelets & Anklets') {
+    defaultSpecs = {
+      'Material': 'Tarnish-Resistant Alloy & Acrylic Charms',
+      'Length': '6.5 inches + 2 inch adjustable extender',
+      'Finish': 'Polished Mirror Luster',
+      'Closure': 'Secure Claw Lock',
+      'Packaging': 'Organza Gift Bag with Wax-Sealed Tag'
+    };
+  } else if (p.category === 'Eye Masks & Self-Care') {
+    defaultSpecs = {
+      'Material': 'Ultra-Soft Cloud Velvet & Mulberry Satin Silk',
+      'Band': 'Gentle Stretch Elastic (No-Hair Pull)',
+      'Light Blocking': '100% Total Blackout Design',
+      'Care': 'Gentle Hand Wash in Cold Water'
+    };
+  } else if (p.category === 'Korean Wallets') {
+    defaultSpecs = {
+      'Material': 'Soft Quilted Diamond-Stitch Vegan Leather',
+      'Dimensions': '11 cm x 9 cm x 2.5 cm (Fits in Mini Bags)',
+      'Compartments': '4 Card Slots, 1 Bill Pocket, 1 Zip Coin Section',
+      'Hardware': 'Gold-Tone Smooth Zipper + Plush Bear Charm'
+    };
+  } else {
+    defaultSpecs = {
+      'Scoop Size': p.includes?.[0] || '15-20 Handpicked Charms',
+      'Charm Variety': 'Resin Minis, Gummy Bears, Beads & Tokens',
+      'Packaging': 'Sealed Kawaii Foil Pouch with Wax Stamp',
+      'ASMR Reel': 'Eligible for packing video request on Instagram'
+    };
+  }
+
+  return {
+    ...p,
+    images: p.images || defaultImages,
+    colors: p.colors || defaultColors,
+    specifications: p.specifications || defaultSpecs,
+    rating: p.rating || 4.9,
+    reviewsCount: p.reviewsCount || Math.floor(60 + Math.random() * 80),
+    inStock: p.inStock !== false
+  };
+});
+
+const STORAGE_KEY = 'bhaskar_store_products_v2';
+
+export function getStoredProducts() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to read products from localStorage:', err);
+  }
+  return DEFAULT_PRODUCTS;
+}
+
+export function saveStoredProducts(products) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+    window.dispatchEvent(new CustomEvent('scoop_products_updated', { detail: products }));
+  } catch (err) {
+    console.error('Failed to save products to localStorage:', err);
+  }
+}
+
+export function resetStoredProducts() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new CustomEvent('scoop_products_updated', { detail: DEFAULT_PRODUCTS }));
+  } catch (err) {
+    console.error('Failed to reset products:', err);
+  }
+  return DEFAULT_PRODUCTS;
+}
+
+export function useStoreProducts() {
+  const [products, setProducts] = useState(getStoredProducts);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e?.detail) {
+        setProducts(e.detail);
+      } else {
+        setProducts(getStoredProducts());
+      }
+    };
+
+    window.addEventListener('scoop_products_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    return () => {
+      window.removeEventListener('scoop_products_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const updateProduct = (updated) => {
+    const updatedList = products.map(p => p.id === updated.id ? updated : p);
+    saveStoredProducts(updatedList);
+    setProducts(updatedList);
+  };
+
+  const addProduct = (newProduct) => {
+    const updatedList = [newProduct, ...products];
+    saveStoredProducts(updatedList);
+    setProducts(updatedList);
+  };
+
+  const deleteProduct = (id) => {
+    const updatedList = products.filter(p => p.id !== id);
+    saveStoredProducts(updatedList);
+    setProducts(updatedList);
+  };
+
+  const resetAll = () => {
+    const defaultList = resetStoredProducts();
+    setProducts(defaultList);
+  };
+
+  return {
+    products,
+    updateProduct,
+    addProduct,
+    deleteProduct,
+    resetAll
+  };
+}
+

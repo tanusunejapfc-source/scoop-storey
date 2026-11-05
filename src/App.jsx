@@ -3,28 +3,41 @@ import Navbar from './components/Navbar';
 import Hero3DCanvas from './components/Hero3DCanvas';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
+import ProductDetailPage from './components/ProductDetailPage';
+import AdminPanel from './components/AdminPanel';
 import CharmInspector3D from './components/CharmInspector3D';
 import ReelsShowcase from './components/ReelsShowcase';
 import BrandStory from './components/BrandStory';
 import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
-import { 
-  Sparkles, 
-  ShoppingBag 
-} from 'lucide-react';
-import { soundFX } from './utils/audio';
+import { useStoreProducts } from './utils/productStore';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Dynamic Product Store (synced with localStorage & Admin updates)
+  const { 
+    products, 
+    updateProduct, 
+    addProduct, 
+    deleteProduct, 
+    resetAll 
+  } = useStoreProducts();
+
   const [cartItems, setCartItems] = useState([
     {
       id: 'scoop-mini',
+      cartKey: 'scoop-mini',
       name: 'Scoop Storey - Mini Scoop',
       priceINR: 199,
       qty: 1,
-      image: '/images/scoop-bowl.jpg'
+      image: '/images/scoop-bowl.jpg',
+      selectedColor: 'Pastel Kawaii Mix',
+      selectedColorHex: '#FFAAA6'
     }
   ]);
 
@@ -37,32 +50,63 @@ export default function App() {
     }
   }, [isDark]);
 
-  // Cart operations
+  // Check URL hash for direct links (e.g. #admin)
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#admin') {
+        setIsAdminOpen(true);
+      } else if (hash.startsWith('#product-')) {
+        const prodId = hash.replace('#product-', '');
+        const found = products.find(p => p.id === prodId);
+        if (found) setSelectedProduct(found);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [products]);
+
+  // Cart operations with color variant support
   const handleAddToCart = (product) => {
+    const colorSuffix = product.selectedColor ? `-${product.selectedColor}` : '';
+    const itemKey = `${product.id}${colorSuffix}`;
+    const addQuantity = product.qty || 1;
+
     setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      const existing = prev.find(item => (item.cartKey || item.id) === itemKey);
       if (existing) {
         return prev.map(item =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          (item.cartKey || item.id) === itemKey 
+            ? { ...item, qty: item.qty + addQuantity } 
+            : item
         );
       }
-      return [...prev, { ...product, qty: 1 }];
+      return [
+        ...prev, 
+        { 
+          ...product, 
+          cartKey: itemKey, 
+          qty: addQuantity,
+          image: product.image || (product.images?.[0] || '/images/deluxe-giftbox.jpg')
+        }
+      ];
     });
     setIsCartOpen(true);
   };
 
-  const handleUpdateQty = (id, newQty) => {
+  const handleUpdateQty = (key, newQty) => {
     if (newQty <= 0) {
-      handleRemoveItem(id);
+      handleRemoveItem(key);
       return;
     }
     setCartItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, qty: newQty } : item))
+      prev.map(item => ((item.cartKey || item.id) === key ? { ...item, qty: newQty } : item))
     );
   };
 
-  const handleRemoveItem = (id) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const handleRemoveItem = (key) => {
+    setCartItems(prev => prev.filter(item => (item.cartKey || item.id) !== key));
   };
 
   const handleClearCart = () => {
@@ -79,6 +123,7 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         isDark={isDark}
         onToggleTheme={() => setIsDark(!isDark)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* HERO SECTION WITH 3D WEBGL CHARMS */}
@@ -98,79 +143,66 @@ export default function App() {
               Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
             </h1>
 
-            {/* Subtitle - High Contrast Charcoal */}
-            <p className="text-base sm:text-lg text-[#554664] dark:text-[#E0D7EB] font-body font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Step into the world of handcrafted Kawaii mystery scoops, faceted acrylic jewels, and satisfying ASMR unboxings. Every order is packed live with love and shipped straight to you across India.
+            {/* Subtext */}
+            <p className="text-base sm:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
+              India's first 3D interactive mystery scoop studio. Dip for Kawaii charms, Korean pendants, charm bracelets, and self-care surprises — all hand-packed on Instagram Reels!
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
               <a
                 href="#scoop-machine"
-                onClick={() => soundFX.playPop(600)}
-                className="w-full sm:w-auto btn-3d-pink text-white font-display font-bold text-base px-7 py-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-xl"
+                className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl text-center"
               >
-                <Sparkles className="w-5 h-5 fill-yellow-300 text-yellow-300" />
-                <span>Take a 3D Scoop Now</span>
+                <span>Dip a 3D Scoop</span>
+                <span>✨</span>
               </a>
 
               <a
                 href="#menu"
-                onClick={() => soundFX.playPop(480)}
-                className="w-full sm:w-auto bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-700 text-pink-700 dark:text-pink-300 font-display font-bold text-base px-6 py-4 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:bg-pink-50 dark:hover:bg-neutral-800 transition"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 text-[#231733] dark:text-white font-display font-bold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 transition shadow-sm text-center"
               >
-                <ShoppingBag className="w-5 h-5 text-pink-600 dark:text-pink-400" />
-                <span>Explore The Menu</span>
+                <span>Browse Products & Colors</span>
               </a>
             </div>
 
-            {/* Trust Metrics */}
-            <div className="pt-6 grid grid-cols-3 gap-4 border-t border-pink-200/60 dark:border-pink-900/40 max-w-lg mx-auto lg:mx-0 text-left">
+            {/* Social Trust Metrics */}
+            <div className="pt-4 flex items-center justify-center lg:justify-start gap-6 text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold border-t border-pink-200/60 dark:border-pink-900/40">
               <div>
-                <div className="font-display font-black text-2xl text-pink-600 dark:text-pink-400">
-                  124+
-                </div>
-                <div className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
-                  Instagram Posts
-                </div>
+                <strong className="text-neutral-900 dark:text-white text-sm font-extrabold block">15,000+</strong>
+                <span>Charms Scooped</span>
               </div>
-
+              <div className="w-px h-7 bg-pink-200 dark:bg-pink-900" />
               <div>
-                <div className="font-display font-black text-2xl text-purple-600 dark:text-purple-400">
-                  100%
-                </div>
-                <div className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
-                  Prepaid UPI
-                </div>
+                <strong className="text-neutral-900 dark:text-white text-sm font-extrabold block">100%</strong>
+                <span>Prepaid India Delivery</span>
               </div>
-
+              <div className="w-px h-7 bg-pink-200 dark:bg-pink-900" />
               <div>
-                <div className="font-display font-black text-2xl text-amber-500">
-                  4.9★
-                </div>
-                <div className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
-                  Collector Rating
-                </div>
+                <strong className="text-neutral-900 dark:text-white text-sm font-extrabold block">4.9 ★</strong>
+                <span>Instagram Community</span>
               </div>
             </div>
           </div>
 
-          {/* Right Interactive 3D WebGL Canvas (6 cols) */}
-          <div className="lg:col-span-6 relative">
+          {/* Right 3D Visualizer Canvas (6 cols) */}
+          <div className="lg:col-span-6 relative aspect-square max-w-[500px] mx-auto lg:max-w-none w-full">
             <Hero3DCanvas isDark={isDark} />
           </div>
         </div>
-
-        {/* Ambient Pastel Glows in Background */}
-        <div className="absolute top-10 left-1/4 w-96 h-96 bg-pink-300/15 rounded-full blur-3xl pointer-events-none -z-10" />
-        <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-purple-300/15 rounded-full blur-3xl pointer-events-none -z-10" />
       </section>
 
-      {/* SIGNATURE 3D FEATURE: THE 3D VIRTUAL SCOOP MACHINE */}
-      <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+      {/* 3D INTERACTIVE MYSTERY SCOOP MACHINE */}
+      <section id="scoop-machine">
+        <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+      </section>
 
       {/* THE SCOOP MENU (PRODUCT CATALOG) */}
-      <ProductCatalog onAddToCart={handleAddToCart} />
+      <ProductCatalog 
+        products={products} 
+        onAddToCart={handleAddToCart} 
+        onSelectProduct={(prod) => setSelectedProduct(prod)}
+      />
 
       {/* 360° REAL-TIME 3D CHARM INSPECTOR STUDIO */}
       <div id="charm-studio">
@@ -186,6 +218,25 @@ export default function App() {
       {/* CUSTOMER TESTIMONIALS */}
       <Testimonials />
 
+      {/* PRODUCT DETAIL PAGE / MODAL */}
+      <ProductDetailPage
+        key={selectedProduct?.id || 'none'}
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCart={handleAddToCart}
+      />
+
+      {/* STORE ADMIN PANEL */}
+      <AdminPanel
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        products={products}
+        onUpdateProduct={updateProduct}
+        onAddProduct={addProduct}
+        onDeleteProduct={deleteProduct}
+        onResetDefaults={resetAll}
+      />
+
       {/* CART DRAWER */}
       <CartDrawer
         isOpen={isCartOpen}
@@ -197,7 +248,7 @@ export default function App() {
       />
 
       {/* FOOTER */}
-      <Footer />
+      <Footer onOpenAdmin={() => setIsAdminOpen(true)} />
     </div>
   );
 }

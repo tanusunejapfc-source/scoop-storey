@@ -174,7 +174,7 @@ export default function CartDrawer({
 
     soundFX.playPop(600);
     const orderItemsSummary = cartItems
-      .map(item => `• ${item.name} x${item.qty} = ₹${item.priceINR * item.qty}`)
+      .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
 
     const msg = `Hi Scoop Storey! 🎀 Mujhe yeh order karna hai (Prepaid):
@@ -352,9 +352,11 @@ Please send me the UPI QR code for payment! ✨`;
                     <span>Price</span>
                   </div>
 
-                  {cartItems.map((item) => (
+                  {cartItems.map((item) => {
+                    const itemKey = item.cartKey || item.id;
+                    return (
                     <div
-                      key={item.id}
+                      key={itemKey}
                       className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
                     >
                       <img
@@ -366,6 +368,19 @@ Please send me the UPI QR code for payment! ✨`;
                         <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
                           {item.name}
                         </h5>
+                        {item.selectedColor && (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {item.selectedColorHex && (
+                              <span 
+                                className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" 
+                                style={{ backgroundColor: item.selectedColorHex }} 
+                              />
+                            )}
+                            <span className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
+                              Color: {item.selectedColor}
+                            </span>
+                          </div>
+                        )}
                         <div className="text-xs font-extrabold text-pink-600 dark:text-pink-400 mt-0.5">
                           ₹{item.priceINR * item.qty}
                         </div>
@@ -375,7 +390,7 @@ Please send me the UPI QR code for payment! ✨`;
                           <div className="flex items-center rounded-lg bg-pink-100/60 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700">
                             <button
                               onClick={() => {
-                                onUpdateQty(item.id, item.qty - 1);
+                                onUpdateQty(itemKey, item.qty - 1);
                                 soundFX.playPop(420);
                               }}
                               className="p-1 hover:text-pink-600 transition"
@@ -388,7 +403,7 @@ Please send me the UPI QR code for payment! ✨`;
                             </span>
                             <button
                               onClick={() => {
-                                onUpdateQty(item.id, item.qty + 1);
+                                onUpdateQty(itemKey, item.qty + 1);
                                 soundFX.playPop(520);
                               }}
                               className="p-1 hover:text-pink-600 transition"
@@ -400,7 +415,7 @@ Please send me the UPI QR code for payment! ✨`;
 
                           <button
                             onClick={() => {
-                              onRemoveItem(item.id);
+                              onRemoveItem(itemKey);
                               soundFX.playPop(350);
                             }}
                             className="text-neutral-400 hover:text-red-500 p-1 transition"
@@ -411,7 +426,7 @@ Please send me the UPI QR code for payment! ✨`;
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );})}
                 </div>
 
                 {/* ADDRESS & CONTACT DETAILS FORM */}

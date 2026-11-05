@@ -7,7 +7,8 @@ import {
   Check, 
   ShieldCheck, 
   Truck, 
-  AlertCircle 
+  AlertCircle,
+  Sliders 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import InstagramIcon from './InstagramIcon';
@@ -38,7 +39,7 @@ const FAQS = [
   }
 ];
 
-export default function Footer() {
+export default function Footer({ onOpenAdmin }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [emailInput, setEmailInput] = useState('');
   const [subscribed, setSubscribed] = useState(false);
@@ -53,10 +54,7 @@ export default function Footer() {
     if (!emailInput.trim()) return;
     soundFX.playSuccess();
     setSubscribed(true);
-    setTimeout(() => {
-      setSubscribed(false);
-      setEmailInput('');
-    }, 4000);
+    setEmailInput('');
   };
 
   return (
@@ -102,49 +100,48 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Main Footer Content */}
+      {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Brand Info (Left 4 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          
+          {/* Brand Bio (Left 4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
-              <img
-                src="/brand-avatar.jpg"
-                alt="Bhaskar Scoop Storey"
-                className="w-12 h-12 rounded-full border-2 border-pink-400 object-cover shadow-md"
+              <img 
+                src="/brand-avatar.jpg" 
+                alt="Bhaskar Scoop Storey" 
+                className="w-12 h-12 rounded-full object-cover border-2 border-pink-400 shadow-md"
               />
               <div>
-                <span className="font-display font-bold text-xl text-neutral-900 dark:text-white">
+                <h3 className="font-display font-bold text-lg text-neutral-900 dark:text-white leading-tight">
                   Bhaskar Scoop Storey
-                </span>
-                <span className="block text-xs font-script font-bold text-pink-500">
-                  • Collect Happiness •
+                </h3>
+                <span className="text-xs text-pink-600 dark:text-pink-400 font-script font-bold">
+                  • Collect Happiness In Every Scoop •
                 </span>
               </div>
             </div>
 
-            <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed font-body">
-              The official 3D interactive home of @bhaskar_scoopstorey. Bringing tactile ASMR, Korean aesthetic pendants, Kawaii resin scoops, and cute self-care gifts across India.
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-body">
+              India's premier 3D Kawaii mystery scoop studio. Bringing sensory ASMR unboxings, handcrafted resin bear charms, aesthetic Korean pendants, and delicate bracelets straight to your doorstep.
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-2.5">
+            <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai"
+                href="https://wa.me/918199922653"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => soundFX.playPop(520)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
+                className="p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-xs flex items-center gap-2 text-xs font-bold"
               >
                 <WhatsAppIcon className="w-4 h-4" />
-                <span>WhatsApp: +91 8199922653</span>
+                <span>+91 8199922653</span>
               </a>
 
               <a
                 href="https://www.instagram.com/bhaskar_scoopstorey/"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => soundFX.playPop(520)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold text-xs shadow-md hover:opacity-95 transition"
+                className="p-2.5 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white hover:opacity-90 transition shadow-xs flex items-center gap-2 text-xs font-bold"
               >
                 <InstagramIcon className="w-4 h-4" />
                 <span>@bhaskar_scoopstorey</span>
@@ -221,8 +218,17 @@ export default function Footer() {
 
         {/* Bottom Sub-footer */}
         <div className="mt-12 pt-6 border-t border-pink-100 dark:border-pink-900/30 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 gap-4">
-          <div>
-            © {CURRENT_YEAR} Bhaskar Scoop Storey (@bhaskar_scoopstorey). Strictly India Deliveries.
+          <div className="flex items-center gap-3 flex-wrap">
+            <span>© {CURRENT_YEAR} Bhaskar Scoop Storey (@bhaskar_scoopstorey). Strictly India Deliveries.</span>
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="text-[#E60067] dark:text-pink-400 font-bold hover:underline flex items-center gap-1"
+              >
+                <Sliders className="w-3 h-3" />
+                <span>Store Manager (Admin)</span>
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-1 text-pink-500 font-medium">
             <span>Crafted with</span>
