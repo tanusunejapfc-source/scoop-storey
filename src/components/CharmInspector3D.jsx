@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Sparkles, Rotate3d, Palette, ShieldCheck, Heart } from 'lucide-react';
+import { Rotate3d, Palette, ShieldCheck } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import { disposeThreeScene } from '../utils/threeUtils';
 
 const CHARM_MODELS = [
   { id: 'bear', name: 'Signature Kawaii Bear', category: 'Handcrafted Resin', description: 'Hand-cast with eco-friendly Japanese resin and finished with a micro-gloss coat.' },
@@ -228,7 +229,7 @@ export default function CharmInspector3D({ isDark = false }) {
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
-      renderer.dispose();
+      disposeThreeScene(scene, renderer);
     };
   }, [selectedCharm, selectedColor, isDark]);
 

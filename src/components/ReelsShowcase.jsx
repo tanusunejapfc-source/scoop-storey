@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Play, 
-  Pause, 
   Heart, 
   MessageCircle, 
   Share2, 
@@ -163,6 +162,7 @@ export default function ReelsShowcase() {
                   href="https://www.instagram.com/bhaskar_scoopstorey/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Share on Instagram"
                   className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white hover:scale-110 transition-transform"
                 >
                   <Share2 className="w-5 h-5" />

@@ -11,15 +11,8 @@ import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import { 
   Sparkles, 
-  ArrowRight, 
-  ShoppingBag, 
-  Heart, 
-  Award, 
-  Smile, 
-  CheckCircle2, 
-  Play 
+  ShoppingBag 
 } from 'lucide-react';
-import InstagramIcon from './components/InstagramIcon';
 import { soundFX } from './utils/audio';
 
 export default function App() {

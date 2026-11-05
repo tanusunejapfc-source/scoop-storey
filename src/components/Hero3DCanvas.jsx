@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { soundFX } from '../utils/audio';
+import { disposeThreeScene } from '../utils/threeUtils';
 
 export default function Hero3DCanvas({ isDark = false }) {
   const containerRef = useRef(null);
@@ -234,15 +235,6 @@ export default function Hero3DCanvas({ isDark = false }) {
 
     // SPAWN A GALAXY OF INTERACTIVE FLOATING CHARMS
     const charmObjects = [];
-    const colors = [
-      0xFF6B97, // Strawberry Pink
-      0xB388FF, // Dreamy Lilac
-      0xFFD166, // Butter Sunshine
-      0x48CAE4, // Sky Mint
-      0xFFAAA6, // Peach
-      0x06D6A0, // Sweet Emerald
-      0xFF85A1  // Sugar Pop
-    ];
 
     const heartGeo = new THREE.ExtrudeGeometry(createHeartShape(), {
       depth: 0.25,
@@ -380,7 +372,7 @@ export default function Hero3DCanvas({ isDark = false }) {
       targetCameraRot.y = x * 0.25;
     };
 
-    const handleClick = (e) => {
+    const handleClick = () => {
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects(charmObjects, true);
 
@@ -501,7 +493,7 @@ export default function Hero3DCanvas({ isDark = false }) {
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
-      renderer.dispose();
+      disposeThreeScene(scene, renderer);
     };
   }, [isDark]);
 

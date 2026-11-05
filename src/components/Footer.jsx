@@ -4,16 +4,16 @@ import {
   Sparkles, 
   ChevronDown, 
   ChevronUp, 
-  Send, 
   Check, 
   ShieldCheck, 
   Truck, 
-  Gift, 
   AlertCircle 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import InstagramIcon from './InstagramIcon';
 import WhatsAppIcon from './WhatsAppIcon';
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 const FAQS = [
   {
@@ -222,7 +222,7 @@ export default function Footer() {
         {/* Bottom Sub-footer */}
         <div className="mt-12 pt-6 border-t border-pink-100 dark:border-pink-900/30 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 gap-4">
           <div>
-            © {new Date().getFullYear()} Bhaskar Scoop Storey (@bhaskar_scoopstorey). Strictly India Deliveries.
+            © {CURRENT_YEAR} Bhaskar Scoop Storey (@bhaskar_scoopstorey). Strictly India Deliveries.
           </div>
           <div className="flex items-center gap-1 text-pink-500 font-medium">
             <span>Crafted with</span>

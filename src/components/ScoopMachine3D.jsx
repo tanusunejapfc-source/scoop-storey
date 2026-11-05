@@ -1,77 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
-import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, Eye, Heart, Star, Check, AlertCircle } from 'lucide-react';
+import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import { disposeThreeScene } from '../utils/threeUtils';
+import { SCOOP_TIERS, CHARM_LOOT_POOL } from '../data/storeData';
 import WhatsAppIcon from './WhatsAppIcon';
-
-// Mystery Scoop Tiers (Directly synced with official Scoop Storey Canva & Tally options)
-export const SCOOP_TIERS = [
-  {
-    id: 'mini-scoop',
-    name: 'Scoop Storey - Mini',
-    subtitle: 'Cute Starter Haul',
-    scoops: 1,
-    itemsCount: '15-20 Handpicked Charms',
-    priceINR: 199,
-    badge: 'Popular Starter 🎀',
-    color: 'from-pink-400 to-rose-400',
-    btnClass: 'btn-3d-pink',
-    tallyLink: 'https://tally.so/r/PRjXG0'
-  },
-  {
-    id: 'midi-scoop',
-    name: 'Scoop Storey - Midi',
-    subtitle: 'Fan Favorite Haul',
-    scoops: 2,
-    itemsCount: '30+ Charms & Resin Minis',
-    priceINR: 349,
-    badge: '★ Best Value ★',
-    color: 'from-purple-400 to-indigo-500',
-    btnClass: 'btn-3d-purple',
-    tallyLink: 'https://tally.so/r/o96ljX'
-  },
-  {
-    id: 'big-scoop',
-    name: 'Scoop Storey - Big',
-    subtitle: 'Includes Keychain & Extras',
-    scoops: 3,
-    itemsCount: '50+ Charms + Keychain + Blind Surprise',
-    priceINR: 499,
-    badge: 'Collector Choice ✨',
-    color: 'from-amber-400 to-orange-500',
-    btnClass: 'btn-3d-gold',
-    tallyLink: 'https://tally.so/r/7Xl4Qz'
-  },
-  {
-    id: 'vault-mega-scoop',
-    name: "Bhaskar's Vault Mega Scoop",
-    subtitle: 'The Ultimate ASMR Haul',
-    scoops: 5,
-    itemsCount: '80+ Luxury Charms + Rare Gold Charm',
-    priceINR: 899,
-    badge: '👑 VIP Mega Scoop 👑',
-    color: 'from-yellow-400 via-pink-400 to-purple-500',
-    btnClass: 'btn-3d-gold',
-    tallyLink: 'https://tally.so/r/7Xl4Qz'
-  }
-];
-
-// Charm item pool for loot generation
-const CHARM_LOOT_POOL = [
-  { name: 'Kawaii Gummy Bear Charm', rarity: 'Common', icon: '🧸', color: '#FF94C2' },
-  { name: 'Faceted Aurora Heart Gem', rarity: 'Rare', icon: '💖', color: '#FF4D8D' },
-  { name: 'Shimmering Starlight Bead', rarity: 'Common', icon: '⭐', color: '#FFD166' },
-  { name: 'Iridescent Sweetwater Pearl', rarity: 'Rare', icon: '🦪', color: '#E0AAFF' },
-  { name: 'Mini Sanrio-Style Resin Donut', rarity: 'Rare', icon: '🍩', color: '#FFAAA6' },
-  { name: 'Crystal Candy Flower Token', rarity: 'Common', icon: '🌸', color: '#A0E7E5' },
-  { name: 'Glitter Heart Slider Charm', rarity: 'Rare', icon: '✨', color: '#C77DFF' },
-  { name: 'Hand-Poured Holographic Bear', rarity: 'Epic', icon: '🌈', color: '#70D6FF' },
-  { name: 'Pastel Butterfly Hair Pin', rarity: 'Epic', icon: '🦋', color: '#FF99C8' },
-  { name: 'Bhaskar Gold Vault Bear Token', rarity: 'Legendary', icon: '👑', color: '#FFD700' },
-  { name: 'Mystery Keychain Hardware Kit', rarity: 'Epic', icon: '🗝️', color: '#F3C98B' },
-  { name: 'Collector Scented Wax Melt Charm', rarity: 'Rare', icon: '🕯️', color: '#D8B4F8' }
-];
 
 export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const containerRef = useRef(null);
@@ -81,6 +15,12 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const [showModal, setShowModal] = useState(false);
   const spoonRef = useRef(null);
   const charmsInSpoonRef = useRef([]);
+  const animTimersRef = useRef([]);
+
+  const addTimer = (id) => {
+    animTimersRef.current.push(id);
+    return id;
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -390,10 +330,15 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
+      animTimersRef.current.forEach((t) => {
+        clearInterval(t);
+        clearTimeout(t);
+      });
+      animTimersRef.current = [];
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
-      renderer.dispose();
+      disposeThreeScene(scene, renderer);
     };
   }, [isDark]);
 
@@ -412,7 +357,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const dipY = 0.9;
     let progress = 0;
 
-    const plungeInterval = setInterval(() => {
+    const plungeInterval = addTimer(setInterval(() => {
       progress += 0.06;
       spoon.position.y = THREE.MathUtils.lerp(startY, dipY, progress);
       spoon.position.z = THREE.MathUtils.lerp(0.1, 0.4, progress);
@@ -430,9 +375,9 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         }
 
         // PHASE 2: Spoon lifts up overflowing with charms
-        setTimeout(() => {
+        addTimer(setTimeout(() => {
           let liftProgress = 0;
-          const liftInterval = setInterval(() => {
+          const liftInterval = addTimer(setInterval(() => {
             liftProgress += 0.05;
             spoon.position.y = THREE.MathUtils.lerp(dipY, 3.4, liftProgress);
             spoon.position.z = THREE.MathUtils.lerp(0.4, 0.0, liftProgress);
@@ -443,9 +388,9 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               clearInterval(liftInterval);
 
               // PHASE 3: Tilt & deposit haul
-              setTimeout(() => {
+              addTimer(setTimeout(() => {
                 let dumpProgress = 0;
-                const dumpInterval = setInterval(() => {
+                const dumpInterval = addTimer(setInterval(() => {
                   dumpProgress += 0.08;
                   spoon.rotation.x = THREE.MathUtils.lerp(0.2, 0.8, dumpProgress);
                   spoon.rotation.z = THREE.MathUtils.lerp(0.35, 1.2, dumpProgress);
@@ -489,13 +434,13 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     setIsScooping(false);
                     setShowModal(true);
                   }
-                }, 30);
-              }, 400);
+                }, 30));
+              }, 400));
             }
-          }, 30);
-        }, 500);
+          }, 30));
+        }, 500));
       }
-    }, 25);
+    }, 25));
   };
 
   const handleClaimLoot = () => {

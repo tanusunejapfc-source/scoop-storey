@@ -5,12 +5,10 @@ import {
   VolumeX, 
   Moon, 
   Sun, 
-  Sparkles, 
   Menu, 
   X,
-  Heart,
-  ChevronLeft,
-  ChevronRight
+  ChevronLeft, 
+  ChevronRight 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import InstagramIcon from './InstagramIcon';

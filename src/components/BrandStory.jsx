@@ -1,6 +1,5 @@
 import React from 'react';
 import { Sparkles, Heart, ShieldCheck, Smile, Gift, Award } from 'lucide-react';
-import { soundFX } from '../utils/audio';
 
 export default function BrandStory() {
   const values = [

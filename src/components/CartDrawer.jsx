@@ -5,19 +5,13 @@ import {
   Plus, 
   Minus, 
   ShoppingBag, 
-  Sparkles, 
   CreditCard, 
-  Check, 
   Tag, 
   Gift, 
-  AlertCircle, 
-  QrCode, 
-  Heart, 
-  ArrowRight 
+  AlertCircle 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
-import InstagramIcon from './InstagramIcon';
 import WhatsAppIcon from './WhatsAppIcon';
 
 export default function CartDrawer({
@@ -75,6 +69,12 @@ export default function CartDrawer({
 
   // Direct WhatsApp Checkout Link
   const handleWhatsAppCheckout = () => {
+    if (!isMinimumMet) {
+      soundFX.playPop(300);
+      alert(`Minimum ${minRequired} products are required to place an order. Please add ${itemsRemainingForMin} more item(s).`);
+      return;
+    }
+
     soundFX.playPop(600);
     const orderItemsSummary = cartItems
       .map(item => `• ${item.name} x${item.qty} = ₹${item.priceINR * item.qty}`)
@@ -83,7 +83,7 @@ export default function CartDrawer({
     const msg = `Hi Scoop Storey! 🎀 Mujhe yeh order karna hai (Prepaid):\n\n${orderItemsSummary}\n\nTotal: ₹${totalINR} (Items: ${totalItemCount})\n${filmOnReel ? `Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${waxSealNote ? 'Handwritten Note: Yes\n' : ''}\nPlease send me the UPI QR code for payment! ✨`;
 
     const encoded = encodeURIComponent(msg);
-    window.open(`https://wa.me/918199922653?text=${encoded}`, '_blank');
+    window.open(`https://wa.me/918199922653?text=${encoded}`, '_blank', 'noopener,noreferrer');
   };
 
   // Instant Simulated Checkout
