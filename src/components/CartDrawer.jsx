@@ -222,7 +222,7 @@ export default function CartDrawer({
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-14 h-14 rounded-xl object-cover border border-pink-200/50 shrink-0"
+                    className="w-14 h-14 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">

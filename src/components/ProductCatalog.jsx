@@ -4,7 +4,9 @@ import {
   ShoppingBag, 
   Video, 
   Check, 
-  AlertCircle 
+  AlertCircle,
+  Maximize2,
+  X 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { PRODUCTS, CATEGORIES } from '../data/storeData';
@@ -15,6 +17,7 @@ export { PRODUCTS };
 export default function ProductCatalog({ onAddToCart }) {
   const [activeCategory, setActiveCategory] = useState('All Items');
   const [addedItem, setAddedItem] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const filteredProducts = activeCategory === 'All Items'
     ? PRODUCTS
@@ -84,21 +87,38 @@ export default function ProductCatalog({ onAddToCart }) {
               className="group rounded-3xl bg-white dark:bg-[#1E172E] overflow-hidden border-2 border-pink-200/80 dark:border-pink-900/60 hover:shadow-2xl hover:border-pink-400 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-md"
             >
               <div>
-                {/* Image Container with Badges */}
-                <div className="relative h-60 overflow-hidden bg-pink-100/50 dark:bg-neutral-800">
+                {/* Standard Uniform Aspect Ratio Container (4:5 Standard E-Commerce Ratio) */}
+                <div 
+                  onClick={() => setPreviewImage(product)}
+                  className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-b from-pink-50/70 via-white to-pink-50/40 dark:from-[#251A38] dark:via-[#1E172E] dark:to-[#181126] flex items-center justify-center p-3 cursor-zoom-in"
+                >
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain drop-shadow-xs group-hover:scale-105 transition-transform duration-500 rounded-xl"
                   />
                   
                   {/* Badge */}
-                  <span className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800">
+                  <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
                     {product.badge}
                   </span>
 
+                  {/* Zoom Action Pill */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPreviewImage(product);
+                    }}
+                    className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-[#231733] dark:text-white shadow-xs hover:bg-pink-100 dark:hover:bg-neutral-800 transition"
+                    title="View Full Resolution Look"
+                    aria-label="View Full Resolution Look"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+
                   {/* Pack on Reel Tag */}
-                  <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs">
+                  <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs pointer-events-none">
                     <Video className="w-3 h-3 text-pink-400" />
                     <span>Eligible for IG Reel packing</span>
                   </div>
@@ -177,6 +197,43 @@ export default function ProductCatalog({ onAddToCart }) {
           );
         })}
       </div>
+
+      {/* FULL LOOK LIGHTBOX MODAL */}
+      {previewImage && (
+        <div 
+          onClick={() => setPreviewImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white dark:bg-[#1E172E] rounded-3xl max-w-lg w-full max-h-[92vh] overflow-hidden p-4 sm:p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-700 flex flex-col items-center animate-scaleUp"
+          >
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition z-10 shadow-md"
+              aria-label="Close Preview"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-full flex-1 overflow-y-auto flex items-center justify-center py-2">
+              <img
+                src={previewImage.image}
+                alt={previewImage.name}
+                className="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-md"
+              />
+            </div>
+
+            <div className="w-full mt-3 pt-3 border-t border-pink-100 dark:border-pink-900/40 flex items-center justify-between text-xs sm:text-sm font-bold text-[#231733] dark:text-white">
+              <div>
+                <span>{previewImage.name}</span>
+                <span className="block text-[11px] text-pink-600 dark:text-pink-400 font-semibold">{previewImage.category}</span>
+              </div>
+              <span className="text-[#E60067] dark:text-pink-400 font-extrabold text-base">₹{previewImage.priceINR}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
