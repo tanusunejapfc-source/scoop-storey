@@ -12,6 +12,7 @@ import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import { useStoreProducts } from './utils/productStore';
+import { categoryToSlug, slugToCategory } from './data/storeData';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -51,30 +52,49 @@ export default function App() {
     }
   }, [isDark]);
 
-  // Check URL hash for direct links (e.g. #admin)
+  // Handle URL hash & browser back/forward buttons (popstate & hashchange)
   useEffect(() => {
-    const handleHash = () => {
+    const handleNavigation = () => {
       const hash = window.location.hash;
+
+      // 1. Admin Panel
       if (hash === '#admin') {
         setIsAdminOpen(true);
-      } else if (hash.startsWith('#product-')) {
+      } else {
+        setIsAdminOpen(false);
+      }
+
+      // 2. Product Detail Modal
+      if (hash.startsWith('#product-')) {
         const prodId = hash.replace('#product-', '');
         const found = products.find(p => p.id === prodId);
         if (found) setSelectedProduct(found);
-      } else if (hash === '#collections') {
-        setActiveCollection(null);
-      } else if (hash.startsWith('#collection-')) {
+      } else {
+        setSelectedProduct(null);
+      }
+
+      // 3. Collection Navigation (Returns to Collections Hub if hash is not a collection)
+      if (hash.startsWith('#collection-')) {
         const colId = hash.replace('#collection-', '');
-        if (colId === 'mystery-scoops') setActiveCollection('Mystery Scoops');
-        else if (colId === 'pendants-chains' || colId === 'pendants') setActiveCollection('Pendants & Chains');
-        else if (colId === 'bracelets-anklets' || colId === 'bracelets') setActiveCollection('Bracelets & Anklets');
-        else if (colId === 'eyemasks-selfcare' || colId === 'self-care') setActiveCollection('Eye Masks & Self-Care');
-        else if (colId === 'korean-wallets' || colId === 'wallets') setActiveCollection('Korean Wallets');
+        const foundCategory = slugToCategory(colId, products);
+        if (foundCategory) {
+          setActiveCollection(foundCategory);
+        } else if (colId === 'all') {
+          setActiveCollection('All Items');
+        }
+      } else {
+        // When user clicks browser Back button from a collection, return smoothly to Collections Hub
+        setActiveCollection(null);
       }
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+
+    handleNavigation();
+    window.addEventListener('hashchange', handleNavigation);
+    window.addEventListener('popstate', handleNavigation);
+    return () => {
+      window.removeEventListener('hashchange', handleNavigation);
+      window.removeEventListener('popstate', handleNavigation);
+    };
   }, [products]);
 
   // Cart operations with color variant support
@@ -136,6 +156,15 @@ export default function App() {
         onOpenAdmin={() => setIsAdminOpen(true)}
         onSelectCategory={(category) => {
           setActiveCollection(category);
+          const slug = category ? categoryToSlug(category) : 'all';
+          const targetHash = category ? `#collection-${slug}` : '#collections';
+          if (window.location.hash !== targetHash) {
+            try {
+              window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
+            } catch {
+              window.location.hash = targetHash;
+            }
+          }
           document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
         }}
       />
@@ -216,9 +245,29 @@ export default function App() {
       <ProductCatalog 
         products={products} 
         onAddToCart={handleAddToCart} 
-        onSelectProduct={(prod) => setSelectedProduct(prod)}
+        onSelectProduct={(prod) => {
+          setSelectedProduct(prod);
+          if (prod) {
+            try {
+              window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
+            } catch {
+              window.location.hash = `#product-${prod.id}`;
+            }
+          }
+        }}
         activeCollection={activeCollection}
-        onSelectCollection={setActiveCollection}
+        onSelectCollection={(col) => {
+          setActiveCollection(col);
+          const slug = col ? categoryToSlug(col) : 'all';
+          const targetHash = col ? `#collection-${slug}` : '#collections';
+          if (window.location.hash !== targetHash) {
+            try {
+              window.history.pushState({ type: 'collection', category: col }, '', window.location.pathname + targetHash);
+            } catch {
+              window.location.hash = targetHash;
+            }
+          }
+        }}
       />
 
       {/* 360° REAL-TIME 3D CHARM INSPECTOR STUDIO */}
@@ -239,7 +288,17 @@ export default function App() {
       <ProductDetailPage
         key={selectedProduct?.id || 'none'}
         product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
+        onClose={() => {
+          setSelectedProduct(null);
+          if (window.location.hash.startsWith('#product-')) {
+            const fallback = activeCollection ? `#collection-${categoryToSlug(activeCollection)}` : '#collections';
+            try {
+              window.history.pushState(null, '', window.location.pathname + fallback);
+            } catch {
+              window.location.hash = fallback;
+            }
+          }
+        }}
         onAddToCart={handleAddToCart}
       />
 

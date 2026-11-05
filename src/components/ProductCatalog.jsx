@@ -16,7 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
-import { CATEGORIES, COLLECTIONS_CONFIG } from '../data/storeData';
+import { CATEGORIES, COLLECTIONS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
@@ -46,13 +46,34 @@ export default function ProductCatalog({
   const [sortBy, setSortBy] = useState('featured');
   const catalogRef = useRef(null);
 
-  // Scroll to catalog section when collection is selected
+  // Scroll to catalog section when collection is selected and push history entry
   const handleEnterCollection = (categoryName) => {
     soundFX.playPop(700);
     soundFX.playChime();
     setActiveCollection(categoryName);
     setSearchQuery('');
     setSortBy('featured');
+
+    // Push history state so browser Back button returns to Collections Hub instead of exiting website
+    if (categoryName) {
+      const slug = categoryToSlug(categoryName);
+      const targetHash = `#collection-${slug}`;
+      if (window.location.hash !== targetHash) {
+        try {
+          window.history.pushState({ type: 'collection', category: categoryName }, '', window.location.pathname + targetHash);
+        } catch {
+          window.location.hash = targetHash;
+        }
+      }
+    } else {
+      if (window.location.hash !== '#collections') {
+        try {
+          window.history.pushState({ type: 'collections' }, '', window.location.pathname + '#collections');
+        } catch {
+          window.location.hash = '#collections';
+        }
+      }
+    }
 
     setTimeout(() => {
       catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -63,6 +84,16 @@ export default function ProductCatalog({
     soundFX.playPop(500);
     setActiveCollection(null);
     setSearchQuery('');
+
+    // If currently on a collection hash, push #collections so browser Back won't exit
+    if (window.location.hash.startsWith('#collection-')) {
+      try {
+        window.history.pushState({ type: 'collections' }, '', window.location.pathname + '#collections');
+      } catch {
+        window.location.hash = '#collections';
+      }
+    }
+
     setTimeout(() => {
       catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);

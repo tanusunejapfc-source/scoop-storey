@@ -401,3 +401,29 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
   }
 ];
+
+
+export function categoryToSlug(category) {
+  if (!category || category === 'All Items') return 'all';
+  if (category === 'Mystery Scoops') return 'mystery-scoops';
+  if (category === 'Pendants & Chains') return 'pendants-chains';
+  if (category === 'Bracelets & Anklets') return 'bracelets-anklets';
+  if (category === 'Eye Masks & Self-Care') return 'eyemasks-selfcare';
+  if (category === 'Korean Wallets') return 'korean-wallets';
+  return category.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+export function slugToCategory(slug, products = []) {
+  if (!slug || slug === 'all') return 'All Items';
+  if (slug === 'mystery-scoops' || slug === 'scoops') return 'Mystery Scoops';
+  if (slug === 'pendants-chains' || slug === 'pendants') return 'Pendants & Chains';
+  if (slug === 'bracelets-anklets' || slug === 'bracelets') return 'Bracelets & Anklets';
+  if (slug === 'eyemasks-selfcare' || slug === 'self-care' || slug === 'eyemasks') return 'Eye Masks & Self-Care';
+  if (slug === 'korean-wallets' || slug === 'wallets') return 'Korean Wallets';
+  
+  if (Array.isArray(products)) {
+    const found = products.find(p => p.category && categoryToSlug(p.category) === slug);
+    if (found) return found.category;
+  }
+  return null;
+}
