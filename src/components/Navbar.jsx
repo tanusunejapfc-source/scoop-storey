@@ -197,8 +197,8 @@ export default function Navbar({
             </div>
           </a>
 
-          {/* Desktop Nav Links - Centered & Single-Line */}
-          <div className="hidden lg:flex items-center gap-3.5 xl:gap-5 justify-center flex-1 max-w-2xl px-2">
+          {/* Desktop Nav Links - Centered & Clean (Never Overlaps) */}
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5 justify-center flex-1 min-w-0 px-2">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -211,17 +211,18 @@ export default function Navbar({
                     onSelectCategory?.(link.category);
                   }
                 }}
-                className="text-xs xl:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap shrink-0 flex items-center"
+                className={`text-xs xl:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap items-center ${
+                  link.category ? 'hidden xl:inline-flex' : 'inline-flex'
+                }`}
               >
-                <span className="hidden xl:inline">{link.fullLabel || link.label}</span>
-                <span className="xl:hidden">{link.label}</span>
+                <span>{link.label}</span>
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-200 group-hover:w-full rounded-full" />
               </a>
             ))}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
+          {/* Action Buttons (Compact, Uniform & Sleek) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Admin Panel Button (Desktop/Tablet) */}
             <button
               type="button"
@@ -229,45 +230,43 @@ export default function Navbar({
                 onOpenAdmin?.();
                 soundFX.playPop(550);
               }}
-              className="hidden sm:inline-flex h-9 w-9 xl:w-auto xl:px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold"
+              className="hidden sm:inline-flex h-9 px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold shrink-0"
               title="Store Manager: Add/Edit Products, Colors & Images"
               aria-label="Open Store Admin Panel"
             >
               <Sliders className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
-              <span className="hidden xl:inline text-[11px]">Admin</span>
+              <span className="text-[11px]">Admin</span>
             </button>
 
-            {/* WhatsApp Quick Order (Desktop) */}
+            {/* WhatsApp Quick Order (Desktop Icon Button) */}
             <a
               href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => soundFX.playPop(520)}
-              className="hidden md:inline-flex items-center justify-center gap-1.5 h-9 w-9 xl:w-auto xl:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition"
+              className="hidden md:inline-flex items-center justify-center h-9 w-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm hover:scale-105 transition shrink-0"
               title="Chat with Bhaskar on WhatsApp (+91 8199922653)"
             >
-              <WhatsAppIcon className="w-3.5 h-3.5" />
-              <span className="hidden xl:inline">WhatsApp</span>
+              <WhatsAppIcon className="w-4 h-4" />
             </a>
 
-            {/* Instagram Profile Link (Desktop) */}
+            {/* Instagram Profile Link (Desktop Icon Button) */}
             <a
               href="https://www.instagram.com/bhaskar_scoopstorey/"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => soundFX.playPop(520)}
-              className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 w-9 2xl:w-auto 2xl:px-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-xs shadow-sm hover:opacity-95 transition"
+              className="hidden sm:inline-flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-xs shadow-sm hover:scale-105 hover:opacity-95 transition shrink-0"
               title="Follow @bhaskar_scoopstorey on Instagram"
             >
-              <InstagramIcon className="w-3.5 h-3.5" />
-              <span className="hidden 2xl:inline">@bhaskar_scoopstorey</span>
+              <InstagramIcon className="w-4 h-4" />
             </a>
 
             {/* Sound Toggle */}
             <button
               type="button"
               onClick={handleToggleSound}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition shrink-0"
               title={soundEnabled ? 'Mute ASMR sound effects' : 'Enable ASMR sound effects'}
               aria-label="Toggle Sound"
             >
@@ -285,7 +284,7 @@ export default function Navbar({
                 onToggleTheme();
                 soundFX.playPop(580);
               }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition shrink-0"
               title={isDark ? 'Switch to Pastel Cloud Dream' : 'Switch to Midnight Neon Candy'}
               aria-label="Toggle Dark Mode"
             >
@@ -303,10 +302,11 @@ export default function Navbar({
                 onOpenCart();
                 soundFX.playPop(620);
               }}
-              className="relative h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white flex items-center justify-center gap-1.5 shadow-md hover:from-pink-600 hover:to-rose-700 active:scale-95 transition"
+              className="relative h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white flex items-center justify-center gap-1.5 shadow-md hover:from-pink-600 hover:to-rose-700 active:scale-95 transition shrink-0"
               aria-label="View Shopping Bag"
             >
               <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              <span className="hidden sm:inline font-bold text-xs">Bag</span>
               {cartCount > 0 && (
                 <span className="min-w-[16px] sm:min-w-[18px] h-4 sm:h-[18px] px-1 rounded-full bg-yellow-400 text-purple-950 text-[9px] sm:text-[10px] font-black flex items-center justify-center shadow-xs">
                   {cartCount}
@@ -321,7 +321,7 @@ export default function Navbar({
                 setMobileMenuOpen(!mobileMenuOpen);
                 soundFX.playPop(450);
               }}
-              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
+              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition shrink-0"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-600" /> : <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#231733] dark:text-white" />}
