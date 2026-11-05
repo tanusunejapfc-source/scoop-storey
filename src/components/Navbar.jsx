@@ -79,13 +79,13 @@ export default function Navbar({
   };
 
   const navLinks = [
-    { label: '3D Scoop Machine', href: '#scoop-machine' },
-    { label: 'Collections', href: '#menu', isAllCollections: true },
-    { label: 'Pendants & Chains', href: '#menu', category: 'Pendants & Chains' },
-    { label: 'Bracelets', href: '#menu', category: 'Bracelets & Anklets' },
-    { label: 'Self-Care & Masks', href: '#menu', category: 'Eye Masks & Self-Care' },
-    { label: 'Charm Studio', href: '#charm-studio' },
-    { label: 'ASMR Reels', href: '#reels' },
+    { label: '3D Scoops', fullLabel: '3D Scoop Machine', href: '#scoop-machine' },
+    { label: 'Collections', fullLabel: 'Collections', href: '#menu', isAllCollections: true },
+    { label: 'Pendants', fullLabel: 'Pendants & Chains', href: '#menu', category: 'Pendants & Chains' },
+    { label: 'Bracelets', fullLabel: 'Bracelets', href: '#menu', category: 'Bracelets & Anklets' },
+    { label: 'Self-Care', fullLabel: 'Self-Care & Masks', href: '#menu', category: 'Eye Masks & Self-Care' },
+    { label: 'Charm Studio', fullLabel: 'Charm Studio', href: '#charm-studio' },
+    { label: 'ASMR Reels', fullLabel: 'ASMR Reels', href: '#reels' },
   ];
 
   const activeAnnouncement = ANNOUNCEMENTS[announcementIndex];
@@ -166,7 +166,7 @@ export default function Navbar({
           ? 'bg-white/95 dark:bg-[#1A1326]/95 shadow-md backdrop-blur-xl border-b-2 border-pink-200 dark:border-pink-900' 
           : 'bg-white/90 dark:bg-[#1A1326]/90 backdrop-blur-md border-b border-pink-100 dark:border-pink-950'
       }`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 xl:gap-8">
           
           {/* Logo & Brand Identity */}
           <a 
@@ -197,8 +197,8 @@ export default function Navbar({
             </div>
           </a>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-5">
+          {/* Desktop Nav Links - Centered & Single-Line */}
+          <div className="hidden lg:flex items-center gap-3.5 xl:gap-5 justify-center flex-1 max-w-2xl px-2">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -211,16 +211,17 @@ export default function Navbar({
                     onSelectCategory?.(link.category);
                   }
                 }}
-                className="text-xs md:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1"
+                className="text-xs xl:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap shrink-0 flex items-center"
               >
-                {link.label}
+                <span className="hidden xl:inline">{link.fullLabel || link.label}</span>
+                <span className="xl:hidden">{link.label}</span>
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-200 group-hover:w-full rounded-full" />
               </a>
             ))}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
             {/* Admin Panel Button (Desktop/Tablet) */}
             <button
               type="button"
@@ -228,12 +229,12 @@ export default function Navbar({
                 onOpenAdmin?.();
                 soundFX.playPop(550);
               }}
-              className="hidden sm:inline-flex h-9 sm:h-9.5 px-2.5 sm:px-3 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold"
+              className="hidden sm:inline-flex h-9 w-9 xl:w-auto xl:px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold"
               title="Store Manager: Add/Edit Products, Colors & Images"
               aria-label="Open Store Admin Panel"
             >
               <Sliders className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
-              <span className="hidden md:inline text-[11px]">Admin</span>
+              <span className="hidden xl:inline text-[11px]">Admin</span>
             </button>
 
             {/* WhatsApp Quick Order (Desktop) */}
@@ -242,11 +243,11 @@ export default function Navbar({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => soundFX.playPop(520)}
-              className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition"
-              title="Chat with Bhaskar on WhatsApp"
+              className="hidden md:inline-flex items-center justify-center gap-1.5 h-9 w-9 xl:w-auto xl:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition"
+              title="Chat with Bhaskar on WhatsApp (+91 8199922653)"
             >
               <WhatsAppIcon className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
+              <span className="hidden xl:inline">WhatsApp</span>
             </a>
 
             {/* Instagram Profile Link (Desktop) */}
@@ -255,17 +256,18 @@ export default function Navbar({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => soundFX.playPop(520)}
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-xs shadow-sm hover:opacity-95 transition"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 w-9 2xl:w-auto 2xl:px-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-xs shadow-sm hover:opacity-95 transition"
+              title="Follow @bhaskar_scoopstorey on Instagram"
             >
               <InstagramIcon className="w-3.5 h-3.5" />
-              <span>@bhaskar_scoopstorey</span>
+              <span className="hidden 2xl:inline">@bhaskar_scoopstorey</span>
             </a>
 
             {/* Sound Toggle */}
             <button
               type="button"
               onClick={handleToggleSound}
-              className="w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
               title={soundEnabled ? 'Mute ASMR sound effects' : 'Enable ASMR sound effects'}
               aria-label="Toggle Sound"
             >
@@ -283,7 +285,7 @@ export default function Navbar({
                 onToggleTheme();
                 soundFX.playPop(580);
               }}
-              className="w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
               title={isDark ? 'Switch to Pastel Cloud Dream' : 'Switch to Midnight Neon Candy'}
               aria-label="Toggle Dark Mode"
             >
@@ -301,7 +303,7 @@ export default function Navbar({
                 onOpenCart();
                 soundFX.playPop(620);
               }}
-              className="relative h-8 sm:h-9.5 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white flex items-center justify-center gap-1.5 shadow-md hover:from-pink-600 hover:to-rose-700 active:scale-95 transition"
+              className="relative h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white flex items-center justify-center gap-1.5 shadow-md hover:from-pink-600 hover:to-rose-700 active:scale-95 transition"
               aria-label="View Shopping Bag"
             >
               <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -319,7 +321,7 @@ export default function Navbar({
                 setMobileMenuOpen(!mobileMenuOpen);
                 soundFX.playPop(450);
               }}
-              className="lg:hidden w-8 h-8 sm:w-9.5 sm:h-9.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
+              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-600" /> : <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#231733] dark:text-white" />}
@@ -369,7 +371,7 @@ export default function Navbar({
                 }}
                 className="block px-3 py-2 rounded-lg font-bold text-sm text-[#231733] dark:text-neutral-100 hover:bg-pink-100/70 dark:hover:bg-neutral-800"
               >
-                {link.label}
+                {link.fullLabel || link.label}
               </a>
             ))}
 

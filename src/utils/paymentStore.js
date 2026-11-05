@@ -107,3 +107,4 @@ export function getQrDisplayUrl(settings, amount = 0, orderId = '') {
   });
   return `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(upiUri)}&bgcolor=FFFFFF&color=231733&qzone=2`;
 }
+
