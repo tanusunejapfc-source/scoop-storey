@@ -18,6 +18,7 @@ import {
 import { soundFX } from '../utils/audio';
 import { CATEGORIES, COLLECTIONS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
+import { saveOrderToStore } from '../utils/orderStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
 export { DEFAULT_PRODUCTS as PRODUCTS };
@@ -216,6 +217,65 @@ export default function ProductCatalog({
     });
     setAddedItem(product.id);
     setTimeout(() => setAddedItem(null), 2000);
+  };
+
+  const handleDirectWhatsAppOrder = (product, e) => {
+    e?.stopPropagation();
+    const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    let savedAddress = null;
+    try {
+      const raw = localStorage.getItem('bhaskar_delivery_address');
+      if (raw) savedAddress = JSON.parse(raw);
+    } catch {
+      // ignore
+    }
+
+    const directOrder = {
+      orderId,
+      timestamp: Date.now(),
+      date: new Date().toLocaleDateString('en-IN', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      source: 'Product Direct WhatsApp',
+      status: 'WhatsApp Inquiry / Order',
+      paymentMethod: 'WhatsApp Direct',
+      customer: savedAddress || {
+        fullName: 'WhatsApp Customer',
+        phone: '',
+        streetAddress: 'To be provided on WhatsApp',
+        city: '',
+        state: 'Maharashtra',
+        pincode: ''
+      },
+      items: [
+        {
+          id: product.id,
+          name: product.name,
+          priceINR: product.priceINR,
+          qty: 1,
+          image: product.image || (Array.isArray(product.images) && product.images[0]) || '/images/deluxe-giftbox.jpg',
+          selectedColor: product.colors?.[0]?.name || 'Standard',
+          selectedColorHex: product.colors?.[0]?.hex || '#FFB6C1'
+        }
+      ],
+      totalItemCount: 1,
+      subtotalINR: product.priceINR,
+      discountAmountINR: 0,
+      shippingINR: product.priceINR >= 499 ? 0 : 60,
+      totalINR: product.priceINR + (product.priceINR >= 499 ? 0 : 60),
+      additionalNotes: 'Direct 1-Click WhatsApp Order from Catalog'
+    };
+
+    saveOrderToStore(directOrder);
+    soundFX.playSuccess();
+
+    const msg = `Hi Scoop Storey! 🎀 Mujhe yeh product order karna hai (Order ID: ${orderId}):\n\n• ${product.name}\n• Price: ₹${product.priceINR} (Prepaid)\n${savedAddress?.fullName ? `• Name: ${savedAddress.fullName}\n• Address: ${savedAddress.streetAddress}, ${savedAddress.city} (${savedAddress.pincode})\n` : ''}\nPlease send me the UPI QR code for payment! ✨`;
+    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -598,7 +658,6 @@ export default function ProductCatalog({
               const isJustAdded = addedItem === product.id;
               const imageCount = product.images?.length || 1;
               const colorCount = product.colors?.length || 0;
-              const whatsappUrl = `https://wa.me/918199922653?text=${encodeURIComponent(`Hi! Mujhe ${product.name} Rs ${product.priceINR} wala order karna hai - Only Prepaid`)}`;
 
               return (
                 <div
@@ -752,15 +811,14 @@ export default function ProductCatalog({
                     </div>
 
                     {/* Direct Buy on WhatsApp Button */}
-                    <a
-                      href={whatsappUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={(e) => handleDirectWhatsAppOrder(product, e)}
                       className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
                     >
                       <WhatsAppIcon className="w-3.5 h-3.5" />
                       <span>Buy on WhatsApp (+91 8199922653)</span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               );

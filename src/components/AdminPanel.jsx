@@ -27,7 +27,8 @@ import {
   Receipt,
   FileText,
   QrCode,
-  CreditCard
+  CreditCard,
+  RefreshCw
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { CATEGORIES } from '../data/storeData';
@@ -132,7 +133,23 @@ export default function AdminPanel({
   const [copiedOrderId, setCopiedOrderId] = useState(null);
 
   // Orders store hook
-  const { orders, updateStatus, deleteOrder, clearOrders } = useStoreOrders();
+  const { orders, refreshOrders, updateStatus, deleteOrder, clearOrders } = useStoreOrders();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-refresh orders whenever Admin Panel opens
+  useEffect(() => {
+    if (isOpen) {
+      refreshOrders();
+    }
+  }, [isOpen, refreshOrders]);
+
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    soundFX.playPop(550);
+    refreshOrders();
+    showToast('Orders refreshed! 🎀');
+    setTimeout(() => setIsRefreshing(false), 600);
+  };
 
   // Form states for Editing or Adding a Product
   const [formData, setFormData] = useState({
@@ -791,22 +808,31 @@ export default function AdminPanel({
 
                   <div className="p-3.5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40 flex items-center justify-between">
                     <div>
-                      <span className="text-[11px] text-neutral-500 font-semibold block">Clear Records</span>
-                      <span className="text-[10px] text-neutral-400">Reset test orders</span>
+                      <span className="text-[11px] text-neutral-500 font-semibold block">Sync & Clear</span>
+                      <span className="text-[10px] text-neutral-400">Live order records</span>
                     </div>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Clear all stored customer orders?')) {
-                          clearOrders();
-                          soundFX.playPop(300);
-                          showToast('Order history cleared.');
-                        }
-                      }}
-                      className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
-                      title="Clear orders"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={handleManualRefresh}
+                        className={`p-1.5 rounded-xl text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-800 transition ${isRefreshing ? 'animate-spin' : ''}`}
+                        title="Refresh live orders"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Clear all stored customer orders?')) {
+                            clearOrders();
+                            soundFX.playPop(300);
+                            showToast('Order history cleared.');
+                          }
+                        }}
+                        className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                        title="Clear orders"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1046,7 +1072,11 @@ export default function AdminPanel({
                                   <img
                                     src={it.image || '/images/deluxe-giftbox.jpg'}
                                     alt={it.name}
-                                    className="w-10 h-10 rounded-lg object-contain bg-pink-50 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                    }}
+                                    className="w-10 h-10 rounded-lg object-cover bg-pink-50 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
                                   />
                                   <div className="min-w-0 flex-1">
                                     <h6 className="font-bold text-neutral-900 dark:text-white truncate">

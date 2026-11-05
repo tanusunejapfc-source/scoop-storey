@@ -235,8 +235,10 @@ export default function CartDrawer({
   const handleWhatsAppCheckout = () => {
     if (!isMinimumMet) {
       soundFX.playPop(300);
-      alert(`Minimum ${minRequired} products are required to place an order. Please add ${itemsRemainingForMin} more item(s).`);
-      return;
+      const proceed = window.confirm(
+        `Store policy standard is minimum ${minRequired} products. Would you like to proceed with this WhatsApp order for ${totalItemCount} item(s) anyway?`
+      );
+      if (!proceed) return;
     }
 
     const errors = validateAddress();
@@ -248,6 +250,17 @@ export default function CartDrawer({
     }
 
     const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const cleanItems = cartItems.map(item => ({
+      id: item.id || '',
+      name: item.name || 'Scoop Storey Item',
+      priceINR: Number(item.priceINR || item.price || 0),
+      qty: Number(item.qty || 1),
+      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.jpg',
+      selectedColor: item.selectedColor || null,
+      selectedColorHex: item.selectedColorHex || null
+    }));
+
     const newOrder = {
       orderId,
       timestamp: Date.now(),
@@ -258,10 +271,11 @@ export default function CartDrawer({
         hour: '2-digit',
         minute: '2-digit'
       }),
-      source: 'WhatsApp Order',
+      source: isMinimumMet ? 'WhatsApp Order' : 'WhatsApp Order (Special Single/Custom)',
       status: 'WhatsApp Verification Pending',
+      paymentMethod: 'WhatsApp Direct',
       customer: { ...addressData },
-      items: [...cartItems],
+      items: cleanItems,
       totalItemCount,
       subtotalINR,
       discountAmountINR,
@@ -290,7 +304,7 @@ export default function CartDrawer({
     setOrderCompleteData(newOrder);
 
     // 5. Open WhatsApp with formatted details
-    const orderItemsSummary = cartItems
+    const orderItemsSummary = cleanItems
       .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
 
@@ -326,8 +340,10 @@ Please send me the UPI QR code for payment! ✨`;
   const handleProceedToUpiPayment = () => {
     if (!isMinimumMet) {
       soundFX.playPop(300);
-      alert(`Minimum ${minRequired} products are required to place an order. Please add ${itemsRemainingForMin} more item(s).`);
-      return;
+      const proceed = window.confirm(
+        `Store policy standard is minimum ${minRequired} products. Would you like to proceed with prepaid UPI checkout for ${totalItemCount} item(s) anyway?`
+      );
+      if (!proceed) return;
     }
 
     const errors = validateAddress();
@@ -354,21 +370,41 @@ Please send me the UPI QR code for payment! ✨`;
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
-      setPaymentScreenshot(reader.result);
-      soundFX.playPop(600);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const maxDim = 800;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL('image/jpeg', 0.7);
+          setPaymentScreenshot(compressed);
+          soundFX.playPop(600);
+        } catch {
+          setPaymentScreenshot(event.target.result);
+        }
+      };
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
 
   // Final Order Confirmation with Verified UPI Reference Number
   const handleConfirmUpiOrder = () => {
-    if (!upiRefNumber.trim() || upiRefNumber.trim().length < 4) {
-      setUpiRefError('Please enter your 12-digit UPI Ref / UTR No. from payment receipt');
-      soundFX.playPop(300);
-      return;
-    }
-
     soundFX.playSuccess();
     confetti({
       particleCount: 120,
@@ -376,6 +412,19 @@ Please send me the UPI QR code for payment! ✨`;
       origin: { y: 0.5 },
       colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
     });
+
+    const hasUtr = Boolean(upiRefNumber.trim() && upiRefNumber.trim().length >= 4);
+    const cleanRef = hasUtr ? upiRefNumber.trim() : 'Shared via WhatsApp Screenshot';
+
+    const cleanItems = cartItems.map(item => ({
+      id: item.id || '',
+      name: item.name || 'Scoop Storey Item',
+      priceINR: Number(item.priceINR || item.price || 0),
+      qty: Number(item.qty || 1),
+      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.jpg',
+      selectedColor: item.selectedColor || null,
+      selectedColorHex: item.selectedColorHex || null
+    }));
 
     const newOrder = {
       orderId: currentOrderId,
@@ -388,12 +437,12 @@ Please send me the UPI QR code for payment! ✨`;
         minute: '2-digit'
       }),
       source: 'Prepaid UPI / QR Code',
-      status: 'Payment Received (Verify UTR)',
+      status: hasUtr ? 'Payment Received (Verify UTR)' : 'UPI Verification Pending (Screenshot/Chat)',
       paymentMethod: 'UPI QR Code',
-      upiRefNumber: upiRefNumber.trim(),
+      upiRefNumber: cleanRef,
       paymentScreenshot: paymentScreenshot || null,
       customer: { ...addressData },
-      items: [...cartItems],
+      items: cleanItems,
       totalItemCount,
       subtotalINR,
       discountAmountINR,
@@ -414,7 +463,7 @@ Please send me the UPI QR code for payment! ✨`;
     setCheckoutStep('cart');
 
     // 4. Send on WhatsApp
-    const orderItemsSummary = cartItems
+    const orderItemsSummary = cleanItems
       .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
 
@@ -422,7 +471,7 @@ Please send me the UPI QR code for payment! ✨`;
 
 Order ID: ${currentOrderId}
 💰 Total Paid: ₹${totalINR} (${totalItemCount} items)
-🔢 UPI Ref / UTR No.: ${upiRefNumber.trim()}
+🔢 UPI Ref / UTR No.: ${cleanRef}
 
 🛍️ ITEMS ORDERED:
 ${orderItemsSummary}
