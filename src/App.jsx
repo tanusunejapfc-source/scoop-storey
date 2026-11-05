@@ -18,6 +18,7 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [activeCollection, setActiveCollection] = useState(null);
 
   // Dynamic Product Store (synced with localStorage & Admin updates)
   const { 
@@ -60,6 +61,15 @@ export default function App() {
         const prodId = hash.replace('#product-', '');
         const found = products.find(p => p.id === prodId);
         if (found) setSelectedProduct(found);
+      } else if (hash === '#collections') {
+        setActiveCollection(null);
+      } else if (hash.startsWith('#collection-')) {
+        const colId = hash.replace('#collection-', '');
+        if (colId === 'mystery-scoops') setActiveCollection('Mystery Scoops');
+        else if (colId === 'pendants-chains' || colId === 'pendants') setActiveCollection('Pendants & Chains');
+        else if (colId === 'bracelets-anklets' || colId === 'bracelets') setActiveCollection('Bracelets & Anklets');
+        else if (colId === 'eyemasks-selfcare' || colId === 'self-care') setActiveCollection('Eye Masks & Self-Care');
+        else if (colId === 'korean-wallets' || colId === 'wallets') setActiveCollection('Korean Wallets');
       }
     };
     handleHash();
@@ -124,6 +134,10 @@ export default function App() {
         isDark={isDark}
         onToggleTheme={() => setIsDark(!isDark)}
         onOpenAdmin={() => setIsAdminOpen(true)}
+        onSelectCategory={(category) => {
+          setActiveCollection(category);
+          document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+        }}
       />
 
       {/* HERO SECTION WITH 3D WEBGL CHARMS */}
@@ -160,9 +174,10 @@ export default function App() {
 
               <a
                 href="#menu"
+                onClick={() => setActiveCollection(null)}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 text-[#231733] dark:text-white font-display font-bold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 transition shadow-sm text-center"
               >
-                <span>Browse Products & Colors</span>
+                <span>Browse Collections</span>
               </a>
             </div>
 
@@ -197,11 +212,13 @@ export default function App() {
         <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
       </section>
 
-      {/* THE SCOOP MENU (PRODUCT CATALOG) */}
+      {/* THE SCOOP MENU (PRODUCT COLLECTIONS & CATALOG) */}
       <ProductCatalog 
         products={products} 
         onAddToCart={handleAddToCart} 
         onSelectProduct={(prod) => setSelectedProduct(prod)}
+        activeCollection={activeCollection}
+        onSelectCollection={setActiveCollection}
       />
 
       {/* 360° REAL-TIME 3D CHARM INSPECTOR STUDIO */}

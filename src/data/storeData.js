@@ -332,3 +332,72 @@ export const CATEGORIES = [
   'Korean Wallets'
 ];
 
+
+
+export const COLLECTIONS_CONFIG = [
+  {
+    id: 'mystery-scoops',
+    category: 'Mystery Scoops',
+    name: 'Mystery Scoops',
+    icon: '🍨',
+    badge: 'Popular ASMR Hauls 🎀',
+    tagline: 'Hand-Scooped Charms, Keychain & Blind Surprises',
+    description: 'Dip directly into hundreds of handcrafted Kawaii charms, pastel pearls, and VIP mystery blind boxes packed live on Instagram Reels.',
+    coverImage: '/images/scoop-bowl.jpg',
+    gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
+    borderHover: 'hover:border-pink-400',
+    btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500'
+  },
+  {
+    id: 'pendants-chains',
+    category: 'Pendants & Chains',
+    name: 'Pendants & Chains',
+    icon: '✨',
+    badge: 'Korean Anti-Tarnish 💖',
+    tagline: '18K Yellow & Rose Gold Plated Aesthetic Necklaces',
+    description: 'Anti-tarnish, water-resistant dainty chains, sparkling bow hearts, sculpted Monalisa crystals, and lustrous baroque pearls.',
+    coverImage: '/images/pendants.jpg',
+    gradient: 'from-amber-500/15 via-pink-500/10 to-rose-500/20',
+    borderHover: 'hover:border-amber-400',
+    btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
+  },
+  {
+    id: 'bracelets-anklets',
+    category: 'Bracelets & Anklets',
+    name: 'Bracelets & Anklets',
+    icon: '🎀',
+    badge: 'Handcrafted Dainty ✨',
+    tagline: 'Romantic Heart Links & Protective Evil Eye Talismans',
+    description: 'Adjustable charm link bracelets, protective evil eye amulets, and fairy-core pastel glass beads designed for daily stacking.',
+    coverImage: '/images/charm-bracelets.jpg',
+    gradient: 'from-purple-500/15 via-pink-500/10 to-indigo-500/20',
+    borderHover: 'hover:border-purple-400',
+    btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'
+  },
+  {
+    id: 'eyemasks-selfcare',
+    category: 'Eye Masks & Self-Care',
+    name: 'Eye Masks & Self-Care',
+    icon: '🌸',
+    badge: 'Relaxation Routine 💤',
+    tagline: 'Aromatherapy Steam Eye Masks & Skin Purifying',
+    description: 'Self-heating 40°C warm steam eye masks with calming lavender and chamomile scents, plus deep pore-cleansing skincare strips.',
+    coverImage: '/images/eyemasks-skincare.jpg',
+    gradient: 'from-rose-500/15 via-pink-500/10 to-teal-500/20',
+    borderHover: 'hover:border-rose-400',
+    btnGradient: 'bg-gradient-to-r from-rose-500 to-purple-500'
+  },
+  {
+    id: 'korean-wallets',
+    category: 'Korean Wallets',
+    name: 'Korean Wallets',
+    icon: '👛',
+    badge: 'Boutique Hot 🔥',
+    tagline: 'Quilted Diamond Pocket Wallets with Plush Bear',
+    description: 'Soft pastel diamond-quilted pocket wallets featuring durable gold hardware, multi-card compartments, and a cute teddy bear charm.',
+    coverImage: '/images/korean-wallets.jpg',
+    gradient: 'from-pink-500/15 via-purple-500/10 to-rose-500/20',
+    borderHover: 'hover:border-pink-400',
+    btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
+  }
+];

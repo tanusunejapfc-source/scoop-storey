@@ -42,7 +42,8 @@ export default function Navbar({
   onOpenCart, 
   isDark, 
   onToggleTheme,
-  onOpenAdmin 
+  onOpenAdmin,
+  onSelectCategory
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -73,9 +74,10 @@ export default function Navbar({
 
   const navLinks = [
     { label: '3D Scoop Machine', href: '#scoop-machine' },
-    { label: 'Pendants & Chains', href: '#menu' },
-    { label: 'Bracelets', href: '#menu' },
-    { label: 'Self-Care & Masks', href: '#menu' },
+    { label: 'Collections', href: '#menu', isAllCollections: true },
+    { label: 'Pendants & Chains', href: '#menu', category: 'Pendants & Chains' },
+    { label: 'Bracelets', href: '#menu', category: 'Bracelets & Anklets' },
+    { label: 'Self-Care & Masks', href: '#menu', category: 'Eye Masks & Self-Care' },
     { label: 'Charm Studio', href: '#charm-studio' },
     { label: 'ASMR Reels', href: '#reels' },
   ];
@@ -193,7 +195,14 @@ export default function Navbar({
               <a
                 key={link.label}
                 href={link.href}
-                onClick={() => soundFX.playPop(480)}
+                onClick={() => {
+                  soundFX.playPop(480);
+                  if (link.isAllCollections) {
+                    onSelectCategory?.(null);
+                  } else if (link.category) {
+                    onSelectCategory?.(link.category);
+                  }
+                }}
                 className="text-xs md:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1"
               >
                 {link.label}
@@ -315,6 +324,11 @@ export default function Navbar({
                 onClick={() => {
                   setMobileMenuOpen(false);
                   soundFX.playPop(480);
+                  if (link.isAllCollections) {
+                    onSelectCategory?.(null);
+                  } else if (link.category) {
+                    onSelectCategory?.(link.category);
+                  }
                 }}
                 className="block px-3 py-2 rounded-lg font-bold text-sm text-[#231733] dark:text-neutral-100 hover:bg-pink-100/70 dark:hover:bg-neutral-800"
               >
