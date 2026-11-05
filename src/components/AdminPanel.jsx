@@ -17,10 +17,19 @@ import {
   Unlock,
   Sliders,
   Sparkles,
-  Check
+  Check,
+  ShoppingBag,
+  Phone,
+  MapPin,
+  Copy,
+  Clock,
+  ExternalLink,
+  Receipt
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { CATEGORIES } from '../data/storeData';
+import { useStoreOrders } from '../utils/orderStore';
+import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
   { label: 'Pearl Pendant', url: '/images/pendants/pearl-pendant.jpg' },
@@ -67,10 +76,17 @@ export default function AdminPanel({
   const [passcode, setPasscode] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('list'); // 'list' | 'edit' | 'new'
+  // Primary navigation: 'orders' | 'products' | 'edit' | 'new'
+  const [activeTab, setActiveTab] = useState('orders');
   const [searchQuery, setSearchQuery] = useState('');
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [toastMessage, setToastMessage] = useState('');
+  const [copiedOrderId, setCopiedOrderId] = useState(null);
+
+  // Orders store hook
+  const { orders, updateStatus, deleteOrder, clearOrders } = useStoreOrders();
 
   // Form states for Editing or Adding a Product
   const [formData, setFormData] = useState({
@@ -298,10 +314,10 @@ export default function AdminPanel({
     }
 
     soundFX.playSuccess();
-    setActiveTab('list');
+    setActiveTab('products');
   };
 
-  const handleDelete = (id, name) => {
+  const handleDeleteProduct = (id, name) => {
     if (window.confirm(`Are you sure you want to delete "${name}" from the store catalog?`)) {
       onDeleteProduct(id);
       soundFX.playPop(300);
@@ -342,13 +358,47 @@ export default function AdminPanel({
     reader.readAsText(file);
   };
 
-  // Filter products for the list
+  // Copy full shipping address to clipboard
+  const handleCopyAddress = (order) => {
+    const cust = order.customer;
+    if (!cust) return;
+    const addr = `${cust.fullName}\nPhone: +91 ${cust.phone}\n${cust.streetAddress}${cust.landmark ? ` (Near ${cust.landmark})` : ''}\n${cust.city}, ${cust.state} - ${cust.pincode}`;
+    navigator.clipboard.writeText(addr);
+    setCopiedOrderId(order.orderId);
+    soundFX.playPop(500);
+    showToast('Shipping address copied to clipboard!');
+    setTimeout(() => setCopiedOrderId(null), 2500);
+  };
+
+  // Filter orders
+  const filteredOrders = orders.filter(o => {
+    const q = orderSearchQuery.toLowerCase().trim();
+    const matchesQuery = !q || 
+      o.orderId.toLowerCase().includes(q) || 
+      (o.customer?.fullName || '').toLowerCase().includes(q) ||
+      (o.customer?.phone || '').includes(q) ||
+      (o.customer?.city || '').toLowerCase().includes(q);
+
+    const matchesStatus = orderStatusFilter === 'All' || 
+      (orderStatusFilter === 'WhatsApp' && o.source?.includes('WhatsApp')) ||
+      (orderStatusFilter === 'Online' && o.source?.includes('Online') || o.source?.includes('Instant')) ||
+      o.status === orderStatusFilter;
+
+    return matchesQuery && matchesStatus;
+  });
+
+  // Filter products for the catalog tab
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
     return matchesSearch && matchesCat;
   });
+
+  // Total revenue stats
+  const totalOrdersCount = orders.length;
+  const totalRevenueINR = orders.reduce((acc, o) => acc + (o.totalINR || 0), 0);
+  const pendingOrdersCount = orders.filter(o => o.status?.includes('Pending') || o.status?.includes('New')).length;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 md:p-8 animate-fadeIn">
@@ -381,7 +431,7 @@ export default function AdminPanel({
                 </span>
               </div>
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Directly manage products, image galleries, color variants & specifications
+                Track WhatsApp & Online orders, manage product images, colors & specifications
               </p>
             </div>
           </div>
@@ -421,7 +471,7 @@ export default function AdminPanel({
               Store Manager Access
             </h4>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 mb-5">
-              Enter passcode to manage products, colors, and images. (Default: <code>scoop123</code>)
+              Enter passcode to view WhatsApp customer orders and manage store products. (Default: <code>scoop123</code>)
             </p>
 
             <form onSubmit={handleLogin} className="w-full space-y-3">
@@ -453,21 +503,39 @@ export default function AdminPanel({
             {/* Navigation Tabs */}
             <div className="px-4 sm:px-6 py-2.5 bg-pink-50/40 dark:bg-neutral-900/60 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between gap-2 overflow-x-auto">
               <div className="flex items-center gap-2">
+                {/* 1. ORDERS TAB (PRIMARY) */}
                 <button
                   onClick={() => {
-                    setActiveTab('list');
+                    setActiveTab('orders');
                     soundFX.playPop(450);
                   }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                    activeTab === 'list'
+                    activeTab === 'orders'
+                      ? 'bg-[#E60067] text-white shadow-sm'
+                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
+                  }`}
+                >
+                  <Receipt className="w-3.5 h-3.5" />
+                  <span>Orders & WhatsApp Hauls ({orders.length})</span>
+                </button>
+
+                {/* 2. ALL PRODUCTS TAB */}
+                <button
+                  onClick={() => {
+                    setActiveTab('products');
+                    soundFX.playPop(450);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    activeTab === 'products'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
                   <Package className="w-3.5 h-3.5" />
-                  <span>All Products ({products.length})</span>
+                  <span>Products ({products.length})</span>
                 </button>
 
+                {/* 3. ADD NEW PRODUCT TAB */}
                 <button
                   onClick={handleStartNew}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
@@ -477,7 +545,7 @@ export default function AdminPanel({
                   }`}
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Add New Product</span>
+                  <span>Add Product</span>
                 </button>
 
                 {activeTab === 'edit' && (
@@ -529,8 +597,294 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* TAB 1: PRODUCT LIST VIEW */}
-            {activeTab === 'list' && (
+            {/* TAB 1: ORDERS & INVOICES MANAGEMENT */}
+            {activeTab === 'orders' && (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                {/* Orders Metrics Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40">
+                    <span className="text-[11px] text-neutral-500 font-semibold block">Total Orders</span>
+                    <span className="text-xl font-display font-black text-neutral-900 dark:text-white mt-0.5 block">
+                      {totalOrdersCount}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40">
+                    <span className="text-[11px] text-neutral-500 font-semibold block">Total Revenue</span>
+                    <span className="text-xl font-display font-black text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                      ₹{totalRevenueINR}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40">
+                    <span className="text-[11px] text-neutral-500 font-semibold block">Pending Action</span>
+                    <span className="text-xl font-display font-black text-amber-500 mt-0.5 block">
+                      {pendingOrdersCount}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl glass-panel border border-pink-200 dark:border-pink-900/40 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] text-neutral-500 font-semibold block">Clear Records</span>
+                      <span className="text-[10px] text-neutral-400">Reset test orders</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Clear all stored customer orders?')) {
+                          clearOrders();
+                          soundFX.playPop(300);
+                          showToast('Order history cleared.');
+                        }
+                      }}
+                      className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                      title="Clear orders"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Search & Filter Orders */}
+                <div className="flex flex-col sm:flex-row gap-3 items-center justify-between pt-1">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={orderSearchQuery}
+                      onChange={(e) => setOrderSearchQuery(e.target.value)}
+                      placeholder="Search Order ID, Name, Phone, City..."
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1">
+                    {['All', 'WhatsApp', 'Online'].map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setOrderStatusFilter(st)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                          orderStatusFilter === st
+                            ? 'bg-[#231733] dark:bg-white text-white dark:text-[#231733] border-transparent'
+                            : 'bg-white dark:bg-neutral-800 border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
+                        }`}
+                      >
+                        {st}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Orders Cards List */}
+                {filteredOrders.length === 0 ? (
+                  <div className="p-10 rounded-2xl glass-panel text-center text-neutral-400 space-y-2">
+                    <ShoppingBag className="w-10 h-10 mx-auto text-pink-300" />
+                    <h4 className="font-display font-bold text-base text-neutral-800 dark:text-neutral-200">
+                      No customer orders found
+                    </h4>
+                    <p className="text-xs">
+                      When customers place orders via WhatsApp or Online Prepaid, they will automatically appear here with complete address details.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5">
+                    {filteredOrders.map((ord) => {
+                      const isWhatsApp = ord.source?.includes('WhatsApp');
+                      const cust = ord.customer || {};
+
+                      return (
+                        <div
+                          key={ord.orderId}
+                          className="p-4 sm:p-5 rounded-2xl glass-panel border border-pink-200/80 dark:border-pink-900/40 shadow-sm space-y-3.5 hover:border-pink-300 transition"
+                        >
+                          {/* Order Header */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-pink-100 dark:border-neutral-800">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-display font-black text-sm text-[#E60067] dark:text-pink-400">
+                                {ord.orderId}
+                              </span>
+
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 ${
+                                isWhatsApp
+                                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                                  : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800'
+                              }`}>
+                                {isWhatsApp ? <WhatsAppIcon className="w-3 h-3" /> : <Receipt className="w-3 h-3" />}
+                                <span>{ord.source}</span>
+                              </span>
+
+                              <span className="text-[11px] text-neutral-400 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {ord.date}
+                              </span>
+                            </div>
+
+                            {/* Status Selector Dropdown */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-bold text-neutral-500">Status:</span>
+                              <select
+                                value={ord.status || 'New Order'}
+                                onChange={(e) => {
+                                  updateStatus(ord.orderId, e.target.value);
+                                  soundFX.playPop(500);
+                                  showToast(`Status updated to "${e.target.value}"`);
+                                }}
+                                className="px-2.5 py-1 text-xs font-bold rounded-xl bg-pink-50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-[#E60067] dark:text-pink-400 focus:outline-none"
+                              >
+                                <option value="WhatsApp Verification Pending">⏳ WhatsApp Pending Verification</option>
+                                <option value="Payment Received (QR Verified)">💰 Payment Received (QR Verified)</option>
+                                <option value="Packing on IG Reel">🎬 Packing on IG Reel</option>
+                                <option value="Dispatched / In Transit">🚚 Dispatched / In Transit</option>
+                                <option value="Delivered Successfully">✅ Delivered Successfully</option>
+                              </select>
+
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`Delete order ${ord.orderId}?`)) {
+                                    deleteOrder(ord.orderId);
+                                    soundFX.playPop(300);
+                                    showToast(`Order ${ord.orderId} removed`);
+                                  }
+                                }}
+                                className="p-1.5 text-neutral-400 hover:text-rose-500 transition"
+                                title="Delete Order"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Customer Shipping & Contact Details */}
+                          <div className="p-3.5 rounded-xl bg-pink-50/60 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700/60 text-xs space-y-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-pink-500 shrink-0" />
+                                <span className="font-display font-bold text-neutral-900 dark:text-white text-sm">
+                                  {cust.fullName || 'Customer'}
+                                </span>
+                                <span className="text-neutral-400">•</span>
+                                <span className="font-semibold text-neutral-700 dark:text-neutral-300 flex items-center gap-1">
+                                  <Phone className="w-3 h-3 text-pink-400" />
+                                  +91 {cust.phone}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                {/* 1-Click WhatsApp Chat */}
+                                {cust.phone && (
+                                  <a
+                                    href={`https://wa.me/91${cust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${cust.fullName}! Bhaskar from Scoop Storey here regarding your order ${ord.orderId}.`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition"
+                                  >
+                                    <WhatsAppIcon className="w-3 h-3" />
+                                    <span>Chat with Customer</span>
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                  </a>
+                                )}
+
+                                {/* Copy Address for Courier Label */}
+                                <button
+                                  onClick={() => handleCopyAddress(ord)}
+                                  className="px-2.5 py-1 rounded-lg glass-pill font-bold text-[11px] text-neutral-700 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1 transition"
+                                >
+                                  {copiedOrderId === ord.orderId ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-emerald-500" />
+                                      <span className="text-emerald-600">Copied!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3 h-3" />
+                                      <span>Copy Address</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Full Address */}
+                            <p className="text-neutral-600 dark:text-neutral-400 pl-6 leading-relaxed">
+                              {cust.streetAddress}
+                              {cust.landmark ? `, Near ${cust.landmark}` : ''}
+                              <br />
+                              <strong>{cust.city}</strong>, {cust.state} — <strong>PIN: {cust.pincode}</strong>
+                            </p>
+                          </div>
+
+                          {/* Ordered Products Breakdown */}
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[11px] font-bold text-neutral-500 block uppercase tracking-wider">
+                              Ordered Items ({ord.items?.length || 0}):
+                            </span>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                              {ord.items?.map((it, idx) => (
+                                <div
+                                  key={idx}
+                                  className="p-2 rounded-xl bg-white dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 flex items-center gap-2 text-xs"
+                                >
+                                  <img
+                                    src={it.image || '/images/deluxe-giftbox.jpg'}
+                                    alt={it.name}
+                                    className="w-10 h-10 rounded-lg object-contain bg-pink-50 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
+                                  />
+                                  <div className="min-w-0 flex-1">
+                                    <h6 className="font-bold text-neutral-900 dark:text-white truncate">
+                                      {it.name}
+                                    </h6>
+                                    {it.selectedColor && (
+                                      <div className="flex items-center gap-1 text-[10px] text-neutral-500">
+                                        {it.selectedColorHex && (
+                                          <span
+                                            className="w-2 h-2 rounded-full border border-black/20"
+                                            style={{ backgroundColor: it.selectedColorHex }}
+                                          />
+                                        )}
+                                        <span>Color: {it.selectedColor}</span>
+                                      </div>
+                                    )}
+                                    <span className="text-pink-600 dark:text-pink-400 font-extrabold text-[11px]">
+                                      x{it.qty} = ₹{it.priceINR * it.qty}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Footer with IG Reel, Wax Seal & Total */}
+                          <div className="pt-2 border-t border-pink-100 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              {ord.filmOnReel && (
+                                <span className="px-2 py-0.5 rounded-md bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-bold text-[11px] flex items-center gap-1">
+                                  🎬 Film on IG: {ord.filmOnReel}
+                                </span>
+                              )}
+                              {ord.waxSealNote && (
+                                <span className="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold text-[11px]">
+                                  💌 Wax-Sealed Note: Yes
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white flex items-center gap-2">
+                              <span>Total Amount:</span>
+                              <span className="text-[#E60067] dark:text-pink-400">
+                                ₹{ord.totalINR}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: PRODUCT CATALOG MANAGEMENT */}
+            {activeTab === 'products' && (
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 {/* Search & Category Filter Bar */}
                 <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
@@ -624,7 +978,7 @@ export default function AdminPanel({
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(p.id, p.name)}
+                          onClick={() => handleDeleteProduct(p.id, p.name)}
                           className="p-2 rounded-xl bg-neutral-100 hover:bg-rose-100 text-neutral-500 hover:text-rose-600 dark:bg-neutral-800 dark:hover:bg-rose-950 transition"
                           title="Delete product"
                         >
@@ -637,7 +991,7 @@ export default function AdminPanel({
               </div>
             )}
 
-            {/* TAB 2 & 3: EDIT OR ADD PRODUCT FORM */}
+            {/* TAB 3 & 4: EDIT OR ADD PRODUCT FORM */}
             {(activeTab === 'edit' || activeTab === 'new') && (
               <form onSubmit={handleSaveProduct} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                 
@@ -1003,7 +1357,7 @@ export default function AdminPanel({
                 <div className="sticky bottom-0 p-4 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border border-pink-200 dark:border-pink-900/60 shadow-xl flex items-center justify-between gap-3">
                   <button
                     type="button"
-                    onClick={() => setActiveTab('list')}
+                    onClick={() => setActiveTab('products')}
                     className="px-5 py-2.5 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                   >
                     Cancel

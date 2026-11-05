@@ -15,11 +15,14 @@ import {
   Home,
   Building2,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
 import WhatsAppIcon from './WhatsAppIcon';
+import { lookupPincode } from '../utils/pincodeApi';
+import { saveOrderToStore } from '../utils/orderStore';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 
@@ -47,6 +50,11 @@ export default function CartDrawer({
   const [waxSealNote, setWaxSealNote] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderCompleteData, setOrderCompleteData] = useState(null);
+
+  // Auto PIN Code detection states
+  const [isDetectingPin, setIsDetectingPin] = useState(false);
+  const [pinDetected, setPinDetected] = useState(false);
+  const [pinStatusMsg, setPinStatusMsg] = useState('');
 
   // Delivery Address & Contact Details State (saved in localStorage for repeat customers)
   const [addressData, setAddressData] = useState(() => {
@@ -114,6 +122,58 @@ export default function CartDrawer({
     }
   };
 
+  // Automatic PIN Code Lookup API (Auto-fills City & State)
+  const handlePincodeChange = async (val) => {
+    const cleanPin = val.replace(/\D/g, '').slice(0, 6);
+    handleAddressChange('pincode', cleanPin);
+
+    if (cleanPin.length === 6) {
+      setIsDetectingPin(true);
+      setPinStatusMsg('');
+      try {
+        const res = await lookupPincode(cleanPin);
+        if (res.success && res.city) {
+          const updated = {
+            ...addressData,
+            pincode: cleanPin,
+            city: res.city,
+            state: res.state
+          };
+          setAddressData(updated);
+          try {
+            localStorage.setItem('bhaskar_delivery_address', JSON.stringify(updated));
+          } catch {
+            // ignore
+          }
+
+          setPinDetected(true);
+          setPinStatusMsg(`Auto-detected: ${res.city}, ${res.state} ✨`);
+          soundFX.playPop(550);
+
+          // Clear errors
+          setAddressErrors(prev => {
+            const next = { ...prev };
+            delete next.pincode;
+            delete next.city;
+            delete next.state;
+            return next;
+          });
+        } else {
+          setPinDetected(false);
+          setPinStatusMsg('Could not auto-detect. Please enter City & State.');
+        }
+      } catch (err) {
+        console.warn('PIN Lookup Error:', err);
+        setPinDetected(false);
+      } finally {
+        setIsDetectingPin(false);
+      }
+    } else {
+      setPinDetected(false);
+      setPinStatusMsg('');
+    }
+  };
+
   const validateAddress = () => {
     const errors = {};
     if (!addressData.fullName.trim()) {
@@ -126,15 +186,15 @@ export default function CartDrawer({
     if (!addressData.streetAddress.trim()) {
       errors.streetAddress = 'Flat / House No. and Street address are required';
     }
+    const cleanPin = addressData.pincode.replace(/\D/g, '');
+    if (!cleanPin || cleanPin.length !== 6) {
+      errors.pincode = 'Valid 6-digit PIN code is required';
+    }
     if (!addressData.city.trim()) {
       errors.city = 'City is required';
     }
     if (!addressData.state.trim()) {
       errors.state = 'State is required';
-    }
-    const cleanPin = addressData.pincode.replace(/\D/g, '');
-    if (!cleanPin || cleanPin.length !== 6) {
-      errors.pincode = 'Valid 6-digit PIN code is required';
     }
     return errors;
   };
@@ -172,12 +232,54 @@ export default function CartDrawer({
       return;
     }
 
-    soundFX.playPop(600);
+    const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
+    const newOrder = {
+      orderId,
+      timestamp: Date.now(),
+      date: new Date().toLocaleDateString('en-IN', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      source: 'WhatsApp Order',
+      status: 'WhatsApp Verification Pending',
+      customer: { ...addressData },
+      items: [...cartItems],
+      totalItemCount,
+      subtotalINR,
+      discountAmountINR,
+      shippingINR,
+      totalINR,
+      filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
+      waxSealNote: waxSealNote
+    };
+
+    // 1. Save to persistent orderStore so admin can view order details in Admin Panel!
+    saveOrderToStore(newOrder);
+
+    // 2. Play celebration and audio
+    soundFX.playSuccess();
+    confetti({
+      particleCount: 120,
+      spread: 85,
+      origin: { y: 0.5 },
+      colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
+    });
+
+    // 3. Clear cart so details in cart DO NOT remain filled!
+    onClearCart();
+
+    // 4. Set receipt modal data
+    setOrderCompleteData(newOrder);
+
+    // 5. Open WhatsApp with formatted details
     const orderItemsSummary = cartItems
       .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
 
-    const msg = `Hi Scoop Storey! 🎀 Mujhe yeh order karna hai (Prepaid):
+    const msg = `Hi Scoop Storey! 🎀 Mera Order ID ${orderId} hai (Prepaid):
 
 🛍️ ITEMS ORDERED:
 ${orderItemsSummary}
@@ -225,14 +327,34 @@ Please send me the UPI QR code for payment! ✨`;
         colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
       });
 
-      setOrderCompleteData({
-        orderId: `SS-${Math.floor(100000 + Math.random() * 900000)}`,
+      const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
+      const newOrder = {
+        orderId,
+        timestamp: Date.now(),
+        date: new Date().toLocaleDateString('en-IN', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        source: 'Instant Prepaid Checkout',
+        status: 'Prepaid Confirmed',
+        customer: { ...addressData },
         items: [...cartItems],
+        totalItemCount,
+        subtotalINR,
+        discountAmountINR,
+        shippingINR,
         totalINR,
         filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
-        customer: { ...addressData },
-        date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
-      });
+        waxSealNote: waxSealNote
+      };
+
+      // Save to persistent order store
+      saveOrderToStore(newOrder);
+
+      setOrderCompleteData(newOrder);
       setIsCheckingOut(false);
       onClearCart();
     }, 1200);
@@ -355,78 +477,79 @@ Please send me the UPI QR code for payment! ✨`;
                   {cartItems.map((item) => {
                     const itemKey = item.cartKey || item.id;
                     return (
-                    <div
-                      key={itemKey}
-                      className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-14 h-14 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
-                          {item.name}
-                        </h5>
-                        {item.selectedColor && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            {item.selectedColorHex && (
-                              <span 
-                                className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" 
-                                style={{ backgroundColor: item.selectedColorHex }} 
-                              />
-                            )}
-                            <span className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
-                              Color: {item.selectedColor}
-                            </span>
-                          </div>
-                        )}
-                        <div className="text-xs font-extrabold text-pink-600 dark:text-pink-400 mt-0.5">
-                          ₹{item.priceINR * item.qty}
-                        </div>
-
-                        {/* Qty controls */}
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex items-center rounded-lg bg-pink-100/60 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700">
-                            <button
-                              onClick={() => {
-                                onUpdateQty(itemKey, item.qty - 1);
-                                soundFX.playPop(420);
-                              }}
-                              className="p-1 hover:text-pink-600 transition"
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="px-2 text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                              {item.qty}
-                            </span>
-                            <button
-                              onClick={() => {
-                                onUpdateQty(itemKey, item.qty + 1);
-                                soundFX.playPop(520);
-                              }}
-                              className="p-1 hover:text-pink-600 transition"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                      <div
+                        key={itemKey}
+                        className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-14 h-14 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
+                            {item.name}
+                          </h5>
+                          {item.selectedColor && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {item.selectedColorHex && (
+                                <span 
+                                  className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" 
+                                  style={{ backgroundColor: item.selectedColorHex }} 
+                                />
+                              )}
+                              <span className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
+                                Color: {item.selectedColor}
+                              </span>
+                            </div>
+                          )}
+                          <div className="text-xs font-extrabold text-pink-600 dark:text-pink-400 mt-0.5">
+                            ₹{item.priceINR * item.qty}
                           </div>
 
-                          <button
-                            onClick={() => {
-                              onRemoveItem(itemKey);
-                              soundFX.playPop(350);
-                            }}
-                            className="text-neutral-400 hover:text-red-500 p-1 transition"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {/* Qty controls */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center rounded-lg bg-pink-100/60 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700">
+                              <button
+                                onClick={() => {
+                                  onUpdateQty(itemKey, item.qty - 1);
+                                  soundFX.playPop(420);
+                                }}
+                                className="p-1 hover:text-pink-600 transition"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="px-2 text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                                {item.qty}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  onUpdateQty(itemKey, item.qty + 1);
+                                  soundFX.playPop(520);
+                                }}
+                                className="p-1 hover:text-pink-600 transition"
+                                aria-label="Increase quantity"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                onRemoveItem(itemKey);
+                                soundFX.playPop(350);
+                              }}
+                              className="text-neutral-400 hover:text-red-500 p-1 transition"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );})}
+                    );
+                  })}
                 </div>
 
                 {/* ADDRESS & CONTACT DETAILS FORM */}
@@ -563,9 +686,47 @@ Please send me the UPI QR code for payment! ✨`;
                       />
                     </div>
 
-                    {/* City, State & PIN Code in 3 columns */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {/* City */}
+                    {/* RE-ORDERED: PIN CODE PLACED BEFORE CITY AND STATE WITH AUTOMATIC PINCODE LOOKUP */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {/* 1. PIN Code (Placed First + Auto API) */}
+                      <div>
+                        <label className="flex items-center justify-between text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                          <span>PIN Code <span className="text-pink-500">*</span></span>
+                          <span className="text-[9px] text-pink-600 font-normal">Auto-detects</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            value={addressData.pincode}
+                            onChange={(e) => handlePincodeChange(e.target.value)}
+                            placeholder="6 digits (e.g. 110001)"
+                            className={`w-full px-2.5 py-2 pr-7 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
+                              addressErrors.pincode
+                                ? 'border-rose-400 focus:ring-rose-400'
+                                : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
+                            }`}
+                          />
+                          {isDetectingPin && (
+                            <Loader2 className="w-3.5 h-3.5 text-pink-500 animate-spin absolute right-2 top-1/2 -translate-y-1/2" />
+                          )}
+                          {!isDetectingPin && pinDetected && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 absolute right-2 top-1/2 -translate-y-1/2" />
+                          )}
+                        </div>
+                        {addressErrors.pincode && (
+                          <span className="text-[10px] text-rose-500 font-semibold mt-0.5 block">
+                            {addressErrors.pincode}
+                          </span>
+                        )}
+                        {pinStatusMsg && (
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 block leading-tight">
+                            {pinStatusMsg}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* 2. City (Auto-filled from PIN) */}
                       <div>
                         <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                           City <span className="text-pink-500">*</span>
@@ -591,7 +752,7 @@ Please send me the UPI QR code for payment! ✨`;
                         )}
                       </div>
 
-                      {/* State */}
+                      {/* 3. State (Auto-selected from PIN) */}
                       <div>
                         <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                           State <span className="text-pink-500">*</span>
@@ -607,30 +768,6 @@ Please send me the UPI QR code for payment! ✨`;
                             </option>
                           ))}
                         </select>
-                      </div>
-
-                      {/* PIN Code */}
-                      <div>
-                        <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
-                          PIN Code <span className="text-pink-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={6}
-                          value={addressData.pincode}
-                          onChange={(e) => handleAddressChange('pincode', e.target.value)}
-                          placeholder="6 digits"
-                          className={`w-full px-2.5 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
-                            addressErrors.pincode
-                              ? 'border-rose-400 focus:ring-rose-400'
-                              : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
-                          }`}
-                        />
-                        {addressErrors.pincode && (
-                          <span className="text-[10px] text-rose-500 font-semibold mt-0.5 block">
-                            {addressErrors.pincode}
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -775,7 +912,7 @@ Please send me the UPI QR code for payment! ✨`;
               🎉
             </div>
             <h3 className="text-2xl font-display font-bold text-neutral-900 dark:text-white">
-              Order Received!
+              Order Confirmed & Sent!
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Order ID: <strong className="text-pink-600">{orderCompleteData.orderId}</strong>
@@ -791,8 +928,8 @@ Please send me the UPI QR code for payment! ✨`;
                 <span className="font-semibold text-neutral-700 dark:text-neutral-300">{orderCompleteData.date}</span>
               </div>
               <div className="flex justify-between text-emerald-600 font-semibold">
-                <span>Payment Mode:</span>
-                <span>Prepaid (UPI / QR)</span>
+                <span>Order Channel:</span>
+                <span>{orderCompleteData.source}</span>
               </div>
 
               {/* Delivery Address Details */}
@@ -823,7 +960,7 @@ Please send me the UPI QR code for payment! ✨`;
             </div>
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
-              Please share your transaction screenshot or complete payment via WhatsApp on <strong>+91 8199922653</strong>. Bhaskar will start hand-packing your mystery scoop!
+              Your order has been recorded in our system! If WhatsApp hasn't opened automatically, click the button below to message Bhaskar directly.
             </p>
 
             <div className="space-y-2">
@@ -836,7 +973,7 @@ Please send me the UPI QR code for payment! ✨`;
                 className="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:bg-emerald-500 transition"
               >
                 <WhatsAppIcon className="w-4 h-4" />
-                <span>Confirm on WhatsApp (+91 8199922653)</span>
+                <span>Open WhatsApp Chat (+91 8199922653)</span>
               </a>
 
               <button
