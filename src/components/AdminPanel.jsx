@@ -65,6 +65,48 @@ const PRESET_COLORS = [
   { name: 'Midnight Black', hex: '#2A2A2A' }
 ];
 
+// Lightweight image compression helper for fast device uploads & lean localStorage persistence
+const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality = 0.85) => {
+  return new Promise((resolve) => {
+    if (!file || !file.type.startsWith('image/')) {
+      resolve(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mimeType, quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(e.target?.result || null);
+      img.src = e.target?.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function AdminPanel({
   isOpen,
   onClose,
@@ -120,6 +162,7 @@ export default function AdminPanel({
   const { settings: paymentSettings, updateSettings: updatePaymentSettings, reset: resetPaymentSettings } = usePaymentSettings();
   const [paymentForm, setPaymentForm] = useState(paymentSettings);
   const qrFileInputRef = useRef(null);
+  const productFileInputRef = useRef(null);
 
   if (!isOpen) return null;
 
@@ -190,20 +233,73 @@ export default function AdminPanel({
 
   // Image actions
   const handleAddImage = (url) => {
-    const imgUrl = (url || newImageUrl).trim();
-    if (!imgUrl) return;
-    if (formData.images.includes(imgUrl)) {
+    const raw = typeof url === 'string' ? url : newImageUrl;
+    const imgUrl = (raw || '').trim();
+
+    if (!imgUrl) {
+      if (productFileInputRef.current) {
+        productFileInputRef.current.click();
+      } else {
+        showToast('Please enter an image URL or choose a file');
+      }
+      return;
+    }
+
+    const currentImages = Array.isArray(formData.images) ? formData.images : [];
+    if (currentImages.includes(imgUrl)) {
       showToast('Image already added!');
       return;
     }
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, imgUrl],
-      image: prev.image || imgUrl
-    }));
+
+    setFormData(prev => {
+      const prevImages = Array.isArray(prev.images) ? prev.images : [];
+      return {
+        ...prev,
+        images: [...prevImages, imgUrl],
+        image: prev.image || imgUrl
+      };
+    });
+
     setNewImageUrl('');
     soundFX.playPop(600);
     showToast('Image added to gallery!');
+  };
+
+  const handleProductFileUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file');
+        continue;
+      }
+      try {
+        const compressedDataUrl = await compressImage(file, 1000, 1000, 0.85);
+        if (!compressedDataUrl) continue;
+
+        setFormData(prev => {
+          const prevImages = Array.isArray(prev.images) ? prev.images : [];
+          if (prevImages.includes(compressedDataUrl)) {
+            showToast('Image already in gallery!');
+            return prev;
+          }
+          return {
+            ...prev,
+            images: [...prevImages, compressedDataUrl],
+            image: prev.image || compressedDataUrl
+          };
+        });
+
+        soundFX.playSuccess();
+        showToast(`Added "${file.name}" to gallery!`);
+      } catch (err) {
+        console.error('Failed to load image:', err);
+        showToast(`Failed to upload ${file.name}`);
+      }
+    }
+
+    e.target.value = '';
   };
 
   const handleRemoveImage = (index) => {
@@ -850,7 +946,7 @@ export default function AdminPanel({
                                 {/* 1-Click WhatsApp Chat */}
                                 {cust.phone && (
                                   <a
-                                    href={`https://wa.me/91${cust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${cust.fullName}! Bhaskar from Scoop Storey here regarding your order ${ord.orderId}.`)}`}
+                                    href={`https://wa.me/91${cust.phone.replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${cust.fullName}! Bhaskar from Scoop Storey here regarding your order ${ord.orderId}.`)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition"
@@ -1321,6 +1417,10 @@ export default function AdminPanel({
                         <img
                           src={p.image || p.images?.[0] || '/images/deluxe-giftbox.jpg'}
                           alt={p.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
                           className="w-16 h-16 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
                         />
                         <div className="min-w-0">
@@ -1481,6 +1581,10 @@ export default function AdminPanel({
                         <img 
                           src={img} 
                           alt={`Gallery ${idx + 1}`} 
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
                           className="w-full aspect-square object-contain rounded-xl"
                         />
                         {/* Overlay Controls */}
@@ -1512,25 +1616,63 @@ export default function AdminPanel({
                     ))}
                   </div>
 
-                  {/* Add New Image Input */}
-                  <div className="pt-2 border-t border-pink-100 dark:border-neutral-800 space-y-2">
-                    <label className="block text-[11px] font-bold">Add Image URL or Local Path</label>
-                    <div className="flex gap-2">
+                  {/* Add New Image Controls */}
+                  <div className="pt-2 border-t border-pink-100 dark:border-neutral-800 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[11px] font-bold text-neutral-800 dark:text-neutral-200">
+                        Add Image (URL, Local Path, or Device Upload)
+                      </label>
+                      <span className="text-[10px] text-neutral-500 font-medium">
+                        Device files, local paths & web URLs supported
+                      </span>
+                    </div>
+
+                    {/* Hidden Native File Input for Device Photo Upload */}
+                    <input
+                      type="file"
+                      ref={productFileInputRef}
+                      accept="image/*"
+                      multiple
+                      onChange={handleProductFileUpload}
+                      className="hidden"
+                    />
+
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={newImageUrl}
                         onChange={(e) => setNewImageUrl(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddImage();
+                          }
+                        }}
                         placeholder="e.g. /images/pendants/pearl-pendant.jpg or https://..."
                         className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
                       />
-                      <button
-                        type="button"
-                        onClick={() => handleAddImage()}
-                        className="px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 transition flex items-center gap-1.5"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add Image</span>
-                      </button>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleAddImage()}
+                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 transition flex items-center justify-center gap-1.5 shadow-xs"
+                          title="Add entered image URL (or browse from device if input is empty)"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add Image</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => productFileInputRef.current?.click()}
+                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 border border-pink-300 dark:border-pink-800 font-bold text-xs hover:bg-pink-200 dark:hover:bg-pink-900 transition flex items-center justify-center gap-1.5 shadow-xs"
+                          title="Upload product photo directly from your device"
+                        >
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Upload from Device</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* Quick Pick from Preset Store Assets */}

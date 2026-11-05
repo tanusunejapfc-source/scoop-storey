@@ -171,7 +171,11 @@ export default function Navbar({
           {/* Logo & Brand Identity */}
           <a 
             href="#" 
-            onClick={() => soundFX.playPop(500)}
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              soundFX.playPop(500);
+            }}
             className="flex items-center gap-1.5 sm:gap-3 group shrink-0 min-w-0"
           >
             <div className="relative shrink-0">

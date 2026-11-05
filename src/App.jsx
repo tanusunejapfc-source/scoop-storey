@@ -235,9 +235,7 @@ export default function App() {
       </section>
 
       {/* 3D INTERACTIVE MYSTERY SCOOP MACHINE */}
-      <section id="scoop-machine">
-        <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
-      </section>
+      <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
 
       {/* THE SCOOP MENU (PRODUCT COLLECTIONS & CATALOG) */}
       <ProductCatalog 

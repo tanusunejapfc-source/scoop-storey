@@ -132,6 +132,10 @@ export default function ProductDetailPage({
               <img
                 src={currentImage}
                 alt={`${product.name} - ${activeImageIndex + 1}`}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                }}
                 className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
               />
 

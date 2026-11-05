@@ -41,9 +41,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     const updateCameraFraming = (w, h) => {
       if (!camera || !renderer) return;
-      const aspect = w / h;
-      camera.aspect = aspect;
-
+      camera.aspect = w / h;
       const isMobile = w < 640;
       if (isMobile) {
         // Mobile view: wider FOV and further camera distance
@@ -509,8 +507,9 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       id: `custom-scoop-${Date.now()}`,
       name: `${scoopResult.tier.name} (Live Haul)`,
       price: scoopResult.tier.priceINR,
-      image: '/logo.png',
-      category: 'Mystery Scoop',
+      priceINR: scoopResult.tier.priceINR,
+      image: '/images/scoop-bowl.jpg',
+      category: 'Mystery Scoops',
       scoopedItems: scoopResult.items,
       quantity: 1,
       isScoopTier: true

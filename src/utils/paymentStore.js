@@ -81,7 +81,26 @@ export function usePaymentSettings() {
 /**
  * Builds a standard UPI deep-link intent URI for opening mobile apps (GPay, PhonePe, Paytm, etc.)
  */
-export function buildUpiUri({ upiId, payeeName, amount, orderId }) {
+export function buildUpiUri(arg1, arg2, arg3) {
+  let upiId, payeeName, amount, orderId;
+  if (typeof arg1 === 'object' && arg1 !== null) {
+    if ('amount' in arg1 || 'orderId' in arg1) {
+      upiId = arg1.upiId;
+      payeeName = arg1.payeeName;
+      amount = arg1.amount;
+      orderId = arg1.orderId;
+    } else {
+      upiId = arg1.upiId;
+      payeeName = arg1.payeeName;
+      amount = arg2;
+      orderId = arg3;
+    }
+  } else {
+    upiId = arg1;
+    amount = arg2;
+    orderId = arg3;
+  }
+
   const pa = upiId || DEFAULT_PAYMENT_SETTINGS.upiId;
   const pn = payeeName || DEFAULT_PAYMENT_SETTINGS.payeeName;
   const am = Number(amount || 0).toFixed(2);

@@ -612,6 +612,10 @@ export default function ProductCatalog({
                       <img
                         src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
                         alt={product.name}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                        }}
                         className="w-full h-full object-contain drop-shadow-xs group-hover:scale-105 transition-transform duration-500 rounded-xl"
                       />
                       
