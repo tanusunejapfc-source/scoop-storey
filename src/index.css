@@ -41,12 +41,28 @@
     --shadow-glow: 0 0 30px rgba(255, 51, 133, 0.4);
   }
 
+  html {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-page);
     color: var(--text-main);
+    width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
+    position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 

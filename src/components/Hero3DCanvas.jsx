@@ -502,10 +502,10 @@ export default function Hero3DCanvas({ isDark = false }) {
       <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
       
       {/* 3D Hint Badge */}
-      <div className="absolute bottom-6 left-6 pointer-events-none z-10">
-        <div className="flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel shadow-sm text-xs font-semibold tracking-wide text-pink-600 dark:text-pink-300">
-          <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping" />
-          <span>Interactive 3D Charms • Click or Hover to Play</span>
+      <div className="absolute bottom-4 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-auto pointer-events-none z-10 flex justify-center sm:justify-start">
+        <div className="flex items-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-panel shadow-sm text-[11px] sm:text-xs font-semibold tracking-wide text-pink-600 dark:text-pink-300 max-w-full">
+          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-pink-500 animate-ping shrink-0" />
+          <span className="truncate">Interactive 3D Charms • Tap to Play</span>
         </div>
       </div>
 

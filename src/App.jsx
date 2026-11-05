@@ -146,7 +146,7 @@ export default function App() {
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] transition-colors duration-300">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg-page)] text-[var(--text-main)] transition-colors duration-300">
       {/* Navigation */}
       <Navbar
         cartCount={totalCartCount}
@@ -176,9 +176,9 @@ export default function App() {
           {/* Left Text & Call to Action (6 cols) */}
           <div className="lg:col-span-6 z-10 space-y-6 text-center lg:text-left">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-[11px] sm:text-xs tracking-wide uppercase shadow-xs max-w-full">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-[10px] sm:text-xs tracking-wide uppercase shadow-xs max-w-full">
               <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping shrink-0" />
-              <span className="whitespace-nowrap">India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
+              <span className="truncate sm:whitespace-nowrap">India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
             </div>
 
             {/* Main Title - High Contrast Dark Plum in light mode, Crisp White in dark */}
@@ -211,20 +211,18 @@ export default function App() {
             </div>
 
             {/* Social Trust Metrics */}
-            <div className="pt-4 flex items-center justify-center lg:justify-start gap-6 text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold border-t border-pink-200/60 dark:border-pink-900/40">
-              <div>
-                <strong className="text-neutral-900 dark:text-white text-sm font-extrabold block">15,000+</strong>
-                <span>Charms Scooped</span>
+            <div className="pt-4 grid grid-cols-3 gap-2 sm:gap-6 text-center lg:text-left text-[11px] sm:text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold border-t border-pink-200/60 dark:border-pink-900/40 w-full max-w-md mx-auto lg:mx-0">
+              <div className="px-1">
+                <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">15,000+</strong>
+                <span className="text-[10px] sm:text-xs leading-tight">Charms Scooped</span>
               </div>
-              <div className="w-px h-7 bg-pink-200 dark:bg-pink-900" />
-              <div>
-                <strong className="text-neutral-900 dark:text-white text-sm font-extrabold block">100%</strong>
-                <span>Prepaid India Delivery</span>
+              <div className="px-1 border-x border-pink-200 dark:border-pink-900">
+                <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">100%</strong>
+                <span className="text-[10px] sm:text-xs leading-tight">Prepaid Delivery</span>
               </div>
-              <div className="w-px h-7 bg-pink-200 dark:bg-pink-900" />
-              <div>
-                <strong className="text-neutral-900 dark:text-white text-sm font-extrabold block">4.9 ★</strong>
-                <span>Instagram Community</span>
+              <div className="px-1">
+                <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">4.9 ★</strong>
+                <span className="text-[10px] sm:text-xs leading-tight">IG Community</span>
               </div>
             </div>
           </div>
