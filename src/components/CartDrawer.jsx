@@ -16,7 +16,8 @@ import {
   Building2,
   CheckCircle2,
   Sparkles,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
@@ -47,7 +48,7 @@ export default function CartDrawer({
   const [promoMessage, setPromoMessage] = useState('');
   const [filmOnReel, setFilmOnReel] = useState(false);
   const [userHandle, setUserHandle] = useState('');
-  const [waxSealNote, setWaxSealNote] = useState(false);
+  const [additionalNotes, setAdditionalNotes] = useState('');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderCompleteData, setOrderCompleteData] = useState(null);
 
@@ -253,7 +254,7 @@ export default function CartDrawer({
       shippingINR,
       totalINR,
       filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
-      waxSealNote: waxSealNote
+      additionalNotes: additionalNotes.trim() || null
     };
 
     // 1. Save to persistent orderStore so admin can view order details in Admin Panel!
@@ -285,7 +286,7 @@ export default function CartDrawer({
 ${orderItemsSummary}
 
 💰 TOTAL: ₹${totalINR} (${totalItemCount} items)
-${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${waxSealNote ? '💌 Handwritten Wax-Sealed Note: Yes\n' : ''}
+${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${additionalNotes.trim() ? `📝 Additional Notes: ${additionalNotes.trim()}\n` : ''}
 📍 DELIVERY ADDRESS & CONTACT:
 • Name: ${addressData.fullName}
 • Mobile/WhatsApp: +91 ${addressData.phone}
@@ -348,7 +349,7 @@ Please send me the UPI QR code for payment! ✨`;
         shippingINR,
         totalINR,
         filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
-        waxSealNote: waxSealNote
+        additionalNotes: additionalNotes.trim() || null
       };
 
       // Save to persistent order store
@@ -686,13 +687,12 @@ Please send me the UPI QR code for payment! ✨`;
                       />
                     </div>
 
-                    {/* RE-ORDERED: PIN CODE PLACED BEFORE CITY AND STATE WITH AUTOMATIC PINCODE LOOKUP */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {/* RE-ORDERED & ALIGNED: PIN CODE, CITY, AND STATE WITH AUTOMATIC PINCODE LOOKUP */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
                       {/* 1. PIN Code (Placed First + Auto API) */}
                       <div>
-                        <label className="flex items-center justify-between text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
-                          <span>PIN Code <span className="text-pink-500">*</span></span>
-                          <span className="text-[9px] text-pink-600 font-normal">Auto-detects</span>
+                        <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                          PIN Code <span className="text-pink-500">*</span>
                         </label>
                         <div className="relative">
                           <input
@@ -700,8 +700,8 @@ Please send me the UPI QR code for payment! ✨`;
                             maxLength={6}
                             value={addressData.pincode}
                             onChange={(e) => handlePincodeChange(e.target.value)}
-                            placeholder="6 digits (e.g. 110001)"
-                            className={`w-full px-2.5 py-2 pr-7 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
+                            placeholder="6 digits"
+                            className={`w-full h-9 px-2.5 pr-7 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
                               addressErrors.pincode
                                 ? 'border-rose-400 focus:ring-rose-400'
                                 : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
@@ -719,11 +719,6 @@ Please send me the UPI QR code for payment! ✨`;
                             {addressErrors.pincode}
                           </span>
                         )}
-                        {pinStatusMsg && (
-                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 block leading-tight">
-                            {pinStatusMsg}
-                          </span>
-                        )}
                       </div>
 
                       {/* 2. City (Auto-filled from PIN) */}
@@ -732,13 +727,13 @@ Please send me the UPI QR code for payment! ✨`;
                           City <span className="text-pink-500">*</span>
                         </label>
                         <div className="relative">
-                          <Building2 className="w-3 h-3 text-neutral-400 absolute left-2 top-1/2 -translate-y-1/2" />
+                          <Building2 className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type="text"
                             value={addressData.city}
                             onChange={(e) => handleAddressChange('city', e.target.value)}
                             placeholder="e.g. Mumbai"
-                            className={`w-full pl-6 pr-2 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
+                            className={`w-full h-9 pl-7 pr-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
                               addressErrors.city
                                 ? 'border-rose-400 focus:ring-rose-400'
                                 : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
@@ -760,7 +755,7 @@ Please send me the UPI QR code for payment! ✨`;
                         <select
                           value={addressData.state}
                           onChange={(e) => handleAddressChange('state', e.target.value)}
-                          className="w-full px-2 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                          className="w-full h-9 px-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
                         >
                           {INDIAN_STATES.map((st) => (
                             <option key={st} value={st}>
@@ -770,14 +765,22 @@ Please send me the UPI QR code for payment! ✨`;
                         </select>
                       </div>
                     </div>
+
+                    {/* Auto-detected PIN feedback message cleanly placed under the 3-column row */}
+                    {pinStatusMsg && (
+                      <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 animate-fadeIn">
+                        <Sparkles className="w-3 h-3 text-pink-500 shrink-0" />
+                        <span>{pinStatusMsg}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Creator Options */}
-                <div className="p-3.5 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 space-y-2 text-xs text-neutral-700 dark:text-neutral-300">
+                {/* Creator & Special Requests */}
+                <div className="p-3.5 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 space-y-2.5 text-xs text-neutral-700 dark:text-neutral-300">
                   <div className="font-bold text-neutral-800 dark:text-neutral-200 text-xs flex items-center gap-1.5 mb-1">
                     <Sparkles className="w-3.5 h-3.5 text-pink-500" />
-                    <span>Special Packaging & IG Tag Options</span>
+                    <span>Special Requests & IG Tag</span>
                   </div>
 
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -802,15 +805,21 @@ Please send me the UPI QR code for payment! ✨`;
                     />
                   )}
 
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={waxSealNote}
-                      onChange={(e) => setWaxSealNote(e.target.checked)}
-                      className="accent-pink-500 rounded"
+                  {/* Additional Notes Option */}
+                  <div className="pt-2 border-t border-pink-100 dark:border-neutral-800 space-y-1">
+                    <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Additional Notes</span>
+                      <span className="text-neutral-400 font-normal text-[10px]">(Optional)</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={additionalNotes}
+                      onChange={(e) => setAdditionalNotes(e.target.value)}
+                      placeholder="Add instructions, gift message, or special packaging notes..."
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 resize-none focus:outline-none focus:ring-1 focus:ring-pink-400 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                     />
-                    <span>Include custom handwritten wax-sealed note (Free)</span>
-                  </label>
+                  </div>
                 </div>
 
                 {/* Promo Code Form */}
@@ -955,6 +964,18 @@ Please send me the UPI QR code for payment! ✨`;
                 <div className="flex justify-between text-pink-600 dark:text-pink-400 font-semibold pt-1 border-t border-pink-200/40 dark:border-neutral-700">
                   <span>Tagged for IG Reel:</span>
                   <span>{orderCompleteData.filmOnReel}</span>
+                </div>
+              )}
+
+              {orderCompleteData.additionalNotes && (
+                <div className="pt-2 border-t border-pink-200/40 dark:border-neutral-700 text-xs">
+                  <div className="font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-pink-500" />
+                    <span>Customer Note:</span>
+                  </div>
+                  <p className="text-neutral-600 dark:text-neutral-400 italic pl-5 mt-0.5">
+                    "{orderCompleteData.additionalNotes}"
+                  </p>
                 </div>
               )}
             </div>

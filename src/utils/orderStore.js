@@ -60,7 +60,7 @@ const INITIAL_SAMPLE_ORDERS = [
     shippingINR: 0,
     totalINR: 538,
     filmOnReel: '@aarohi_style',
-    waxSealNote: true
+    additionalNotes: 'Please pack in a cute pink gift pouch with extra stickers! ✨'
   }
 ];
 

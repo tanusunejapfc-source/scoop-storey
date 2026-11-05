@@ -24,7 +24,8 @@ import {
   Copy,
   Clock,
   ExternalLink,
-  Receipt
+  Receipt,
+  FileText
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { CATEGORIES } from '../data/storeData';
@@ -853,17 +854,25 @@ export default function AdminPanel({
                             </div>
                           </div>
 
-                          {/* Footer with IG Reel, Wax Seal & Total */}
+                          {/* Customer Additional Notes if any */}
+                          {ord.additionalNotes && (
+                            <div className="p-2.5 rounded-xl bg-pink-50/60 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-800 text-xs">
+                              <div className="font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5 mb-0.5">
+                                <FileText className="w-3.5 h-3.5 text-pink-500" />
+                                <span>Customer Additional Note:</span>
+                              </div>
+                              <p className="text-neutral-600 dark:text-neutral-300 italic pl-5">
+                                "{ord.additionalNotes}"
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Footer with IG Reel & Total */}
                           <div className="pt-2 border-t border-pink-100 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
                             <div className="flex items-center gap-3 flex-wrap">
                               {ord.filmOnReel && (
                                 <span className="px-2 py-0.5 rounded-md bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-bold text-[11px] flex items-center gap-1">
                                   🎬 Film on IG: {ord.filmOnReel}
-                                </span>
-                              )}
-                              {ord.waxSealNote && (
-                                <span className="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold text-[11px]">
-                                  💌 Wax-Sealed Note: Yes
                                 </span>
                               )}
                             </div>
