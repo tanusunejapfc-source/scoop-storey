@@ -112,9 +112,10 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
     };
   } else {
     defaultSpecs = {
-      'Scoop Size': p.includes?.[0] || '15-20 Handpicked Charms',
-      'Charm Variety': 'Resin Minis, Gummy Bears, Beads & Tokens',
-      'Packaging': 'Sealed Kawaii Foil Pouch with Wax Stamp',
+      'Scoop Size': p.includes?.[0] || 'Handpicked Cute Surprises',
+      'Extra Free Gifts': 'Included with every scoop',
+      'Free Shipping': 'Free Delivery Across India (Prepaid)',
+      'Packaging': 'Deluxe Kawaii Gift Packaging & Stickers',
       'ASMR Reel': 'Eligible for packing video request on Instagram'
     };
   }
@@ -130,7 +131,7 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
   };
 });
 
-const STORAGE_KEY = 'bhaskar_store_products_v2';
+const STORAGE_KEY = 'bhaskar_store_products_v3';
 
 export function getStoredProducts() {
   try {
@@ -138,7 +139,8 @@ export function getStoredProducts() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Filter out any legacy 4th scoop (scoop-vault)
+        return parsed.filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop');
       }
     }
   } catch (err) {

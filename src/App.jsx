@@ -35,7 +35,7 @@ export default function App() {
       id: 'scoop-mini',
       cartKey: 'scoop-mini',
       name: 'Scoop Storey - Mini Scoop',
-      priceINR: 199,
+      priceINR: 799,
       qty: 1,
       image: '/images/scoop-bowl.jpg',
       selectedColor: 'Pastel Kawaii Mix',

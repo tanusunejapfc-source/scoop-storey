@@ -2,47 +2,42 @@
 export const SCOOP_TIERS = [
   {
     id: 'mini-scoop',
-    name: 'Scoop Storey - Mini',
-    subtitle: 'Cute Starter Haul',
+    name: 'Scoop Storey - Mini Scoop',
+    subtitle: '7–8 Products + Free Gifts',
     scoops: 1,
-    itemsCount: '15-20 Handpicked Charms',
-    priceINR: 199,
+    productCount: 8,
+    itemsCount: '7–8 Products + Extra Free Gifts',
+    priceINR: 799,
     badge: 'Popular Starter 🎀',
     color: 'from-pink-400 to-rose-400',
-    btnClass: 'btn-3d-pink'
+    btnClass: 'btn-3d-pink',
+    features: ['7–8 Products', 'Extra Free Gifts Included', 'Free Shipping Across India']
   },
   {
     id: 'midi-scoop',
-    name: 'Scoop Storey - Midi',
-    subtitle: 'Fan Favorite Haul',
+    name: 'Scoop Storey - Midi Scoop',
+    subtitle: '12–15 Products + Free Gifts',
     scoops: 2,
-    itemsCount: '30+ Charms & Resin Minis',
-    priceINR: 349,
+    productCount: 14,
+    itemsCount: '12–15 Products + Extra Free Gifts',
+    priceINR: 1299,
     badge: '★ Best Value ★',
     color: 'from-purple-400 to-indigo-500',
-    btnClass: 'btn-3d-purple'
+    btnClass: 'btn-3d-purple',
+    features: ['12–15 Products', 'Extra Free Gifts Included', 'Free Shipping Across India']
   },
   {
     id: 'big-scoop',
-    name: 'Scoop Storey - Big',
-    subtitle: 'Includes Keychain & Extras',
+    name: 'Scoop Storey - Big Scoop',
+    subtitle: 'Over 20 Items (Mini + Midi Included)',
     scoops: 3,
-    itemsCount: '50+ Charms + Keychain + Blind Surprise',
-    priceINR: 499,
+    productCount: 22,
+    itemsCount: 'Everything from Mini + Midi (20+ Items)',
+    priceINR: 1799,
     badge: 'Collector Choice ✨',
     color: 'from-amber-400 to-orange-500',
-    btnClass: 'btn-3d-gold'
-  },
-  {
-    id: 'vault-mega-scoop',
-    name: "Bhaskar's Vault Mega Scoop",
-    subtitle: 'The Ultimate ASMR Haul',
-    scoops: 5,
-    itemsCount: '80+ Luxury Charms + Rare Gold Charm',
-    priceINR: 899,
-    badge: '👑 VIP Mega Scoop 👑',
-    color: 'from-yellow-400 via-pink-400 to-purple-500',
-    btnClass: 'btn-3d-gold'
+    btnClass: 'btn-3d-gold',
+    features: ['Everything from a Mini Scoop + Midi Scoop', 'Over 20 Items', 'Even More Extra Free Gifts', 'Free Shipping Across India']
   }
 ];
 
@@ -62,46 +57,52 @@ export const CHARM_LOOT_POOL = [
 ];
 
 export const PRODUCTS = [
-  // --- MYSTERY SCOOPS ---
+    // --- MYSTERY SCOOPS ---
   {
     id: 'scoop-mini',
     name: 'Scoop Storey - Mini Scoop',
     category: 'Mystery Scoops',
-    badge: 'Starter Favorite 🎀',
-    priceINR: 199,
+    badge: 'Popular Starter 🎀',
+    priceINR: 799,
     image: '/images/scoop-bowl.jpg',
-    description: 'Our iconic mini mystery scoop filled with 15-20 cute colorful resin charms, beads, and a pink storage pouch.',
-    includes: ['15-20 Handpicked Charms', 'Gummy Bears & Star Beads', 'Cute Organza Bag', 'Only Prepaid Delivery']
+    description: 'Handpicked cute surprises just for you! Filled with 7–8 aesthetic kawaii products, stationery/plushies, extra free gifts, and free delivery across India.',
+    includes: [
+      '7–8 Handpicked Products',
+      'Extra Free Surprise Gifts Included',
+      'Free Shipping Across India',
+      'Cute Packaging & Stickers'
+    ]
   },
   {
     id: 'scoop-midi',
     name: 'Scoop Storey - Midi Scoop',
     category: 'Mystery Scoops',
     badge: 'Best Value 🔥',
-    priceINR: 349,
+    priceINR: 1299,
     image: '/images/scoop-bowl.jpg',
-    description: '2 deep satisfying scoops with 30+ charms, resin miniatures, pastel pearls, and sticker freebies.',
-    includes: ['30+ Curated Charms', 'Resin Minis & Flower Beads', 'Filmed on IG Reel Request', 'Free Sticker Pack']
+    description: 'Our fan-favorite haul! 2 deep satisfying scoops packed with 12–15 premium kawaii products, beauty/accessories, extra free gifts, and free delivery across India.',
+    includes: [
+      '12–15 Handpicked Products',
+      'Extra Free Surprise Gifts Included',
+      'Free Shipping Across India',
+      'ASMR Reel Filming Eligible'
+    ]
   },
   {
     id: 'scoop-big',
     name: 'Scoop Storey - Big Scoop',
     category: 'Mystery Scoops',
-    badge: 'Collector Pack ✨',
-    priceINR: 499,
+    badge: 'Collector Choice ✨',
+    priceINR: 1799,
     image: '/images/deluxe-giftbox.jpg',
-    description: '3 deep scoops overflowing with 50+ charms, a surprise keychain, and a mystery blind box surprise.',
-    includes: ['50+ Premium Charms', 'Teddy Bear Plush Keychain', 'Mystery Blind Surprise', 'ASMR Packing Video Eligible']
-  },
-  {
-    id: 'scoop-vault',
-    name: "Bhaskar's Vault Mega Scoop",
-    category: 'Mystery Scoops',
-    badge: '👑 VIP Mega Scoop',
-    priceINR: 899,
-    image: '/images/deluxe-giftbox.jpg',
-    description: 'The ultimate Scoop Storey experience: 5 massive scoops, 80+ luxury charms, plus a guaranteed rare Gold Vault Bear!',
-    includes: ['80+ Luxury Charms', 'Rare Gold Vault Charm', 'Deluxe Storage Box', 'Guaranteed IG Reel Feature']
+    description: 'The ultimate luxury hamper! Includes everything from a Mini Scoop + Midi Scoop with over 20+ aesthetic items, plushies, even more extra free gifts, and free delivery across India.',
+    includes: [
+      'Over 20+ Premium Items',
+      'Everything from Mini + Midi Scoop',
+      'Even More Extra Free Gifts',
+      'Free Shipping Across India',
+      'VIP Hamper Packaging'
+    ]
   },
 
   // --- PENDANTS & CHAINS ---

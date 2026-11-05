@@ -465,7 +465,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     });
 
                     const pulledItems = [];
-                    const itemCount = selectedTier.scoops * 6;
+                    const itemCount = selectedTier.productCount || (selectedTier.scoops * 7);
                     for (let m = 0; m < itemCount; m++) {
                       const randItem = CHARM_LOOT_POOL[Math.floor(Math.random() * CHARM_LOOT_POOL.length)];
                       pulledItems.push({
@@ -517,65 +517,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     };
     onAddToCart(customItem);
     setShowModal(false);
-  };
-
-  const handleDirectTierWhatsApp = (tier, e) => {
-    e?.stopPropagation();
-    soundFX.playSuccess();
-    const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    let savedAddress = null;
-    try {
-      const raw = localStorage.getItem('bhaskar_delivery_address');
-      if (raw) savedAddress = JSON.parse(raw);
-    } catch {
-      // ignore
-    }
-
-    const directOrder = {
-      orderId,
-      timestamp: Date.now(),
-      date: new Date().toLocaleDateString('en-IN', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      source: '3D Scoop Tier WhatsApp',
-      status: 'WhatsApp Inquiry / Order',
-      paymentMethod: 'WhatsApp Direct',
-      customer: savedAddress || {
-        fullName: 'WhatsApp Customer',
-        phone: '',
-        streetAddress: 'To be provided on WhatsApp',
-        city: '',
-        state: 'Maharashtra',
-        pincode: ''
-      },
-      items: [
-        {
-          id: tier.id,
-          name: tier.name,
-          priceINR: tier.priceINR,
-          qty: 1,
-          image: '/images/scoop-bowl.jpg',
-          selectedColor: 'Mystery Charms Mix',
-          selectedColorHex: '#FFAAA6'
-        }
-      ],
-      totalItemCount: 1,
-      subtotalINR: tier.priceINR,
-      discountAmountINR: 0,
-      shippingINR: tier.priceINR >= 499 ? 0 : 60,
-      totalINR: tier.priceINR + (tier.priceINR >= 499 ? 0 : 60),
-      additionalNotes: `Tier WhatsApp Order: ${tier.name} (${tier.itemsCount})`
-    };
-
-    saveOrderToStore(directOrder);
-
-    const msg = `Hi Bhaskar! 🎀 Mujhe ${tier.name} Rs ${tier.priceINR} wala scoop order karna hai (Order ID: ${orderId}).\n${savedAddress?.fullName ? `• Name: ${savedAddress.fullName}\n• Address: ${savedAddress.streetAddress}, ${savedAddress.city} (${savedAddress.pincode})\n` : ''}\nPlease send QR code for prepaid payment! ✨`;
-    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleLootModalWhatsApp = () => {
@@ -744,7 +685,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {SCOOP_TIERS.map((tier) => {
             const isSelected = selectedTier.id === tier.id;
             return (
@@ -776,7 +717,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                         ₹{tier.priceINR}
                       </span>
                       <span className="block text-[10px] text-[#716182] dark:text-neutral-400 font-bold">
-                        All-Inclusive
+                        Free Shipping
                       </span>
                     </div>
                   </div>
@@ -785,13 +726,25 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     {tier.itemsCount}
                   </p>
 
-                  <div className="mt-3 flex items-center gap-1.5 text-xs text-[#483A54] dark:text-[#D5CBE2] font-medium">
+                  {/* Highlights from Poster */}
+                  {tier.features && (
+                    <ul className="mt-3 space-y-1.5 text-xs text-[#554664] dark:text-[#D5CBE2]">
+                      {tier.features.map((feat, fIdx) => (
+                        <li key={fIdx} className="flex items-center gap-1.5 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#E60067] dark:bg-pink-400 shrink-0" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="mt-3 flex items-center gap-1.5 text-xs text-[#483A54] dark:text-[#D5CBE2] font-bold">
                     <Gift className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400 shrink-0" />
                     <span>{tier.scoops}x Satisfying Deep Scoops</span>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-pink-100 dark:border-pink-900/40 flex items-center justify-between gap-2">
+                <div className="mt-5 pt-3 border-t border-pink-100 dark:border-pink-900/40">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -799,22 +752,13 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                       setSelectedTier(tier);
                       soundFX.playPop(550);
                     }}
-                    className={`text-xs font-black px-3 py-1.5 rounded-xl transition ${
+                    className={`w-full text-xs font-black py-2.5 px-4 rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 ${
                       isSelected
-                        ? 'bg-[#E60067] text-white shadow-xs'
+                        ? 'bg-[#E60067] text-white shadow-md'
                         : 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 hover:bg-pink-200'
                     }`}
                   >
                     {isSelected ? '✓ Selected' : 'Select Tier'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => handleDirectTierWhatsApp(tier, e)}
-                    className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1 hover:underline cursor-pointer"
-                  >
-                    <WhatsAppIcon className="w-3 h-3 text-emerald-600" />
-                    <span>Buy on WhatsApp</span>
                   </button>
                 </div>
               </div>

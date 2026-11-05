@@ -31,7 +31,7 @@ export const INITIAL_SAMPLE_ORDERS = [
       {
         id: 'scoop-midi',
         name: 'Scoop Storey - Midi Scoop',
-        priceINR: 349,
+        priceINR: 1299,
         qty: 1,
         selectedColor: 'Pastel Kawaii Mix',
         selectedColorHex: '#FFAAA6',
@@ -48,10 +48,10 @@ export const INITIAL_SAMPLE_ORDERS = [
       }
     ],
     totalItemCount: 2,
-    subtotalINR: 548,
+    subtotalINR: 1498,
     discountAmountINR: 0,
     shippingINR: 0,
-    totalINR: 548,
+    totalINR: 1498,
     filmOnReel: '@diya_aesthetic',
     additionalNotes: 'Please pack in cute pink bubblewrap and add extra gummy bears! 💖'
   },
