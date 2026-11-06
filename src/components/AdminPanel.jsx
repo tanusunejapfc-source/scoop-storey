@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   X, 
   Plus, 
@@ -28,14 +28,24 @@ import {
   FileText,
   QrCode,
   CreditCard,
-  RefreshCw
+  RefreshCw,
+  Tags,
+  Layers,
+  ChevronRight,
+  AlertCircle
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
-import { CATEGORIES } from '../data/storeData';
+import { categoryToSlug } from '../data/storeData';
 import { useStoreOrders } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import { saveStoredProducts } from '../utils/productStore';
 import { uploadImageToSupabase } from '../utils/supabaseClient';
+import { 
+  getStoredCategories, 
+  saveStoredCategories, 
+  slugifyCategory, 
+  resetStoredCategories 
+} from '../utils/categoryStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
@@ -48,12 +58,13 @@ const PRESET_LOCAL_IMAGES = [
   { label: 'Rose Heart', url: '/images/pendants/rose-heart-pendant.png' },
   { label: 'Snake Chain Pendant', url: '/images/pendants/snake-chain-pendant.png' },
   { label: 'Pendants Collection', url: '/images/pendants.jpg' },
-  { label: 'Bracelets & Anklets', url: '/images/bracelets-anklets.jpg' },
+  { label: 'Bracelets Collection', url: '/images/charm-bracelets.jpg' },
+  { label: 'Anklets Collection', url: '/images/bracelets-anklets.jpg' },
   { label: 'Butterfly Charm Bracelet', url: '/images/bracelets/butterfly-charm-bracelet.png' },
-  { label: 'Charm Bracelets', url: '/images/charm-bracelets.jpg' },
   { label: 'Scoop Bowl', url: '/images/scoop-bowl.jpg' },
   { label: 'Deluxe Gift Box', url: '/images/deluxe-giftbox.jpg' },
-  { label: 'Eye Masks & Skincare', url: '/images/eyemasks-skincare.jpg' },
+  { label: 'Eye Masks Collection', url: '/images/eyemasks-skincare.jpg' },
+  { label: 'Self-Care Essentials', url: '/images/eyemasks-skincare.jpg' },
   { label: 'Korean Wallets', url: '/images/korean-wallets.jpg' },
   { label: 'ASMR Packing Stage', url: '/images/asmr-packing.jpg' }
 ];
@@ -187,6 +198,213 @@ export default function AdminPanel({
   const [paymentForm, setPaymentForm] = useState(paymentSettings);
   const qrFileInputRef = useRef(null);
   const productFileInputRef = useRef(null);
+
+  // Category Store & Management
+  const [categoryList, setCategoryList] = useState(getStoredCategories);
+
+  // Sync categoryList with storage on external changes
+  useEffect(() => {
+    const handleCatUpdate = (e) => {
+      if (e?.detail) setCategoryList(e.detail);
+      else setCategoryList(getStoredCategories());
+    };
+    window.addEventListener('scoop_categories_updated', handleCatUpdate);
+    return () => window.removeEventListener('scoop_categories_updated', handleCatUpdate);
+  }, []);
+
+  // Dynamic list of all category names from metadata + products
+  const allCategoryNames = useMemo(() => {
+    const metaNames = categoryList.map(c => c.name);
+    const prodCats = products.map(p => p.category).filter(Boolean);
+    return Array.from(new Set([...metaNames, ...prodCats]));
+  }, [categoryList, products]);
+
+  // Category Add/Edit Modal
+  const [categoryModal, setCategoryModal] = useState({
+    isOpen: false,
+    mode: 'add',
+    name: '',
+    oldName: '',
+    icon: '🎀',
+    badge: 'New Drop 🎀',
+    description: ''
+  });
+
+  // Delete Category Confirmation Modal
+  const [deleteCategoryModal, setDeleteCategoryModal] = useState({
+    isOpen: false,
+    categoryName: '',
+    reassignTo: 'Mystery Scoops'
+  });
+
+  // Bulk Move Modal
+  const [bulkMoveModal, setBulkMoveModal] = useState({
+    isOpen: false,
+    selectedProductIds: [],
+    targetCategory: ''
+  });
+
+  const handleOpenAddCategoryModal = () => {
+    setCategoryModal({
+      isOpen: true,
+      mode: 'add',
+      name: '',
+      oldName: '',
+      icon: '🎀',
+      badge: 'New Drop 🎀',
+      description: ''
+    });
+    soundFX.playPop(500);
+  };
+
+  const handleOpenEditCategoryModal = (cat) => {
+    setCategoryModal({
+      isOpen: true,
+      mode: 'edit',
+      name: cat.name,
+      oldName: cat.name,
+      icon: cat.icon || '✨',
+      badge: cat.badge || '',
+      description: cat.description || ''
+    });
+    soundFX.playPop(500);
+  };
+
+  const handleSaveCategorySubmit = (e) => {
+    e?.preventDefault();
+    const trimmedName = categoryModal.name.trim();
+    if (!trimmedName) {
+      showToast('Please enter a category name');
+      return;
+    }
+
+    if (categoryModal.mode === 'add') {
+      if (allCategoryNames.some(c => c.toLowerCase() === trimmedName.toLowerCase())) {
+        showToast('A category with this name already exists');
+        return;
+      }
+      const newCat = {
+        id: slugifyCategory(trimmedName),
+        name: trimmedName,
+        icon: categoryModal.icon || '🎀',
+        badge: categoryModal.badge || 'New Drop 🎀',
+        description: categoryModal.description || `Cute ${trimmedName} collection.`,
+        isDefault: false
+      };
+      const updated = [...categoryList, newCat];
+      setCategoryList(updated);
+      saveStoredCategories(updated);
+      showToast(`Category "${trimmedName}" created! ✨`);
+    } else {
+      const oldName = categoryModal.oldName;
+      const nameChanged = oldName !== trimmedName;
+
+      if (nameChanged && allCategoryNames.some(c => c.toLowerCase() === trimmedName.toLowerCase() && c.toLowerCase() !== oldName.toLowerCase())) {
+        showToast('Another category already uses this name');
+        return;
+      }
+
+      let updated = categoryList.map(c => {
+        if (c.name === oldName) {
+          return {
+            ...c,
+            id: slugifyCategory(trimmedName),
+            name: trimmedName,
+            icon: categoryModal.icon || c.icon || '✨',
+            badge: categoryModal.badge,
+            description: categoryModal.description
+          };
+        }
+        return c;
+      });
+
+      if (!updated.some(c => c.name === trimmedName)) {
+        updated.push({
+          id: slugifyCategory(trimmedName),
+          name: trimmedName,
+          icon: categoryModal.icon || '✨',
+          badge: categoryModal.badge || '',
+          description: categoryModal.description || '',
+          isDefault: false
+        });
+      }
+
+      setCategoryList(updated);
+      saveStoredCategories(updated);
+
+      if (nameChanged) {
+        let count = 0;
+        products.forEach(p => {
+          if (p.category === oldName) {
+            onUpdateProduct({ ...p, category: trimmedName });
+            count++;
+          }
+        });
+        showToast(`Category renamed & ${count} products updated! ✨`);
+      } else {
+        showToast(`Category "${trimmedName}" updated! ✨`);
+      }
+    }
+
+    setCategoryModal(prev => ({ ...prev, isOpen: false }));
+    soundFX.playSuccess();
+  };
+
+  const handleDeleteCategoryConfirm = () => {
+    const catName = deleteCategoryModal.categoryName;
+    const reassignTo = deleteCategoryModal.reassignTo || 'Mystery Scoops';
+    if (!catName) return;
+
+    let count = 0;
+    products.forEach(p => {
+      if (p.category === catName) {
+        onUpdateProduct({ ...p, category: reassignTo });
+        count++;
+      }
+    });
+
+    const updated = categoryList.filter(c => c.name !== catName);
+    setCategoryList(updated);
+    saveStoredCategories(updated);
+
+    setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '' });
+    soundFX.playPop(450);
+    showToast(`Category deleted. ${count} products reassigned to "${reassignTo}".`);
+  };
+
+  const handleBulkMoveSubmit = () => {
+    const target = bulkMoveModal.targetCategory;
+    const ids = bulkMoveModal.selectedProductIds;
+    if (!target) {
+      showToast('Please select a target category');
+      return;
+    }
+    if (!ids.length) {
+      showToast('Please select at least 1 product');
+      return;
+    }
+
+    let count = 0;
+    products.forEach(p => {
+      if (ids.includes(p.id)) {
+        onUpdateProduct({ ...p, category: target });
+        count++;
+      }
+    });
+
+    setBulkMoveModal({ isOpen: false, selectedProductIds: [], targetCategory: '' });
+    soundFX.playSuccess();
+    showToast(`Moved ${count} products to "${target}"! 🎀`);
+  };
+
+  const handleResetCategoriesConfirm = () => {
+    if (window.confirm('Reset all categories to default? This will restore standard categories.')) {
+      const resetList = resetStoredCategories();
+      setCategoryList(resetList);
+      soundFX.playPop(550);
+      showToast('Categories reset to defaults! 🎀');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -781,6 +999,22 @@ export default function AdminPanel({
                 >
                   <Package className="w-3.5 h-3.5" />
                   <span>Products ({products.length})</span>
+                </button>
+
+                {/* 3. MANAGE CATEGORIES TAB */}
+                <button
+                  onClick={() => {
+                    setActiveTab('categories');
+                    soundFX.playPop(450);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    activeTab === 'categories'
+                      ? 'bg-[#E60067] text-white shadow-sm'
+                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
+                  }`}
+                >
+                  <Tags className="w-3.5 h-3.5" />
+                  <span>Categories ({allCategoryNames.length})</span>
                 </button>
 
                 {/* 3. ADD NEW PRODUCT TAB */}
@@ -1501,7 +1735,7 @@ export default function AdminPanel({
                   </div>
 
                   <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1">
-                    {['All', ...CATEGORIES.filter(c => c !== 'All Items')].map((cat) => (
+                    {['All', ...allCategoryNames].map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
@@ -1514,6 +1748,18 @@ export default function AdminPanel({
                         {cat}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('categories');
+                        soundFX.playPop(500);
+                      }}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border border-dashed border-pink-400 text-[#E60067] dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 flex items-center gap-1.5 shrink-0"
+                      title="Manage Categories"
+                    >
+                      <Tags className="w-3.5 h-3.5" />
+                      <span>Manage Categories</span>
+                    </button>
                   </div>
                 </div>
 
@@ -1634,13 +1880,23 @@ export default function AdminPanel({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] font-bold mb-1">Category</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-bold">Category</label>
+                        <button
+                          type="button"
+                          onClick={handleOpenAddCategoryModal}
+                          className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold hover:underline flex items-center gap-0.5"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>+ New Category</span>
+                        </button>
+                      </div>
                       <select
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
                       >
-                        {CATEGORIES.filter(c => c !== 'All Items').map(c => (
+                        {allCategoryNames.map(c => (
                           <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
@@ -2083,6 +2339,535 @@ export default function AdminPanel({
                   </button>
                 </div>
               </form>
+            )}
+
+            {/* TAB 4: CATEGORY & COLLECTION MANAGER */}
+            {activeTab === 'categories' && (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                {/* Header Banner */}
+                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-rose-500/15 border-2 border-pink-200 dark:border-pink-900/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-extrabold text-[#E60067] dark:text-pink-400 mb-2">
+                      <Tags className="w-3.5 h-3.5" />
+                      <span>Category & Collection Manager</span>
+                    </div>
+                    <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white">
+                      Manage Store Categories & Collections
+                    </h3>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-xl">
+                      Bracelets and Anklets are kept separate, and Eye Masks and Self-Care are kept separate. You can create custom categories, edit names, or bulk reassign products.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleOpenAddCategoryModal}
+                      className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-2 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ Add New Category</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBulkMoveModal({
+                          isOpen: true,
+                          selectedProductIds: [],
+                          targetCategory: allCategoryNames[0] || 'Mystery Scoops'
+                        });
+                        soundFX.playPop(500);
+                      }}
+                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md hover:opacity-95 transition"
+                    >
+                      <Layers className="w-4 h-4" />
+                      <span>Bulk Move Products</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleResetCategoriesConfirm}
+                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5"
+                      title="Reset Categories to Defaults"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset Defaults</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Stats Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Total Categories</span>
+                    <strong className="text-xl font-black text-neutral-900 dark:text-white mt-0.5 block">{allCategoryNames.length}</strong>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Total Products</span>
+                    <strong className="text-xl font-black text-neutral-900 dark:text-white mt-0.5 block">{products.length}</strong>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Avg Items / Cat</span>
+                    <strong className="text-xl font-black text-neutral-900 dark:text-white mt-0.5 block">
+                      {(products.length / Math.max(1, allCategoryNames.length)).toFixed(1)}
+                    </strong>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 block">Supabase Sync</span>
+                    <strong className="text-sm font-black text-emerald-700 dark:text-emerald-300 mt-1 block flex items-center gap-1">
+                      <Check className="w-4 h-4" /> Live & Cloud Synced
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Categories Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {allCategoryNames.map((catName) => {
+                    const meta = categoryList.find(c => c.name === catName) || {
+                      id: slugifyCategory(catName),
+                      name: catName,
+                      icon: '✨',
+                      badge: 'Collection 🎀',
+                      description: `Handpicked cute items curated under ${catName}.`,
+                      isDefault: false
+                    };
+
+                    const catProducts = products.filter(p => p.category === catName);
+                    const inStockCount = catProducts.filter(p => p.inStock !== false).length;
+
+                    return (
+                      <div
+                        key={catName}
+                        className="p-4 rounded-3xl bg-white dark:bg-neutral-800/90 border-2 border-pink-200/80 dark:border-pink-900/50 hover:border-pink-400 transition shadow-sm flex flex-col justify-between gap-3 group"
+                      >
+                        <div>
+                          {/* Card Header: Icon, Name & Action buttons */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 via-purple-100 to-pink-50 dark:from-pink-950 dark:to-neutral-900 border border-pink-200 dark:border-pink-800 flex items-center justify-center text-2xl shadow-inner shrink-0">
+                                {meta.icon || '🎀'}
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-display font-extrabold text-sm sm:text-base text-[#231733] dark:text-white truncate">
+                                  {catName}
+                                </h4>
+                                {meta.badge && (
+                                  <span className="inline-block text-[10px] font-bold text-pink-600 dark:text-pink-300 bg-pink-100/80 dark:bg-pink-950/60 px-2 py-0.5 rounded-md border border-pink-200 dark:border-pink-800 truncate max-w-full">
+                                    {meta.badge}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditCategoryModal(meta)}
+                                className="p-1.5 rounded-xl text-neutral-500 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-700 transition"
+                                title={`Edit ${catName}`}
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const otherCategory = allCategoryNames.find(c => c !== catName) || 'Mystery Scoops';
+                                  setDeleteCategoryModal({
+                                    isOpen: true,
+                                    categoryName: catName,
+                                    reassignTo: otherCategory
+                                  });
+                                  soundFX.playPop(400);
+                                }}
+                                className="p-1.5 rounded-xl text-neutral-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-neutral-700 transition"
+                                title={`Delete ${catName}`}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-2.5 line-clamp-2 leading-relaxed">
+                            {meta.description || `Explore our cute ${catName} line.`}
+                          </p>
+
+                          <div className="mt-2 text-[10px] text-neutral-400 font-mono">
+                            #{categoryToSlug(catName)}
+                          </div>
+                        </div>
+
+                        {/* Bottom Row */}
+                        <div className="pt-3 border-t border-pink-100 dark:border-neutral-700 flex items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2 py-0.5 rounded-lg bg-pink-100 dark:bg-pink-950/60 text-[#E60067] dark:text-pink-300 font-extrabold text-[11px]">
+                              {catProducts.length} {catProducts.length === 1 ? 'Product' : 'Products'}
+                            </span>
+                            {catProducts.length > 0 && inStockCount === 0 && (
+                              <span className="text-[10px] text-rose-500 font-bold">Out of stock</span>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCategory(catName);
+                              setActiveTab('products');
+                              soundFX.playPop(500);
+                            }}
+                            className="text-xs font-bold text-[#E60067] dark:text-pink-400 hover:underline flex items-center gap-1"
+                          >
+                            <span>View Items</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* MODAL 1: ADD / EDIT CATEGORY MODAL */}
+            {categoryModal.isOpen && (
+              <div 
+                onClick={() => setCategoryModal(prev => ({ ...prev, isOpen: false }))}
+                className="fixed inset-0 z-60 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+              >
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-950/80 flex items-center justify-center text-[#E60067] dark:text-pink-400">
+                        <Tags className="w-4 h-4" />
+                      </div>
+                      <h4 className="font-display font-extrabold text-base">
+                        {categoryModal.mode === 'add' ? 'Create New Category' : `Edit Category: ${categoryModal.oldName}`}
+                      </h4>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCategoryModal(prev => ({ ...prev, isOpen: false }))}
+                      className="p-1 rounded-xl hover:bg-pink-100 dark:hover:bg-neutral-800 transition text-neutral-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSaveCategorySubmit} className="space-y-3.5 text-xs">
+                    <div>
+                      <label className="block font-bold mb-1">Category Name *</label>
+                      <input
+                        type="text"
+                        value={categoryModal.name}
+                        onChange={(e) => setCategoryModal({ ...categoryModal, name: e.target.value })}
+                        placeholder="e.g. Hair Accessories, Phone Charms, Stationery"
+                        className="w-full px-3 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-pink-400"
+                        autoFocus
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold mb-1">Category Emoji Icon</label>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-pink-100 dark:bg-neutral-800 flex items-center justify-center text-xl shrink-0 border border-pink-200 dark:border-neutral-700">
+                          {categoryModal.icon || '🎀'}
+                        </div>
+                        <input
+                          type="text"
+                          value={categoryModal.icon}
+                          onChange={(e) => setCategoryModal({ ...categoryModal, icon: e.target.value })}
+                          placeholder="Type or click emoji below"
+                          className="flex-1 px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                        />
+                      </div>
+
+                      {/* Quick Emoji Picker Buttons */}
+                      <div className="flex flex-wrap gap-1.5 p-2 rounded-xl bg-pink-50/40 dark:bg-neutral-900/60 border border-pink-100 dark:border-pink-900/40">
+                        {['🎀', '✨', '🧸', '🍨', '💫', '💤', '🌸', '👛', '💎', '🍓', '🦋', '💍', '👑', '📦', '💖', '🌈'].map(emoji => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setCategoryModal(prev => ({ ...prev, icon: emoji }))}
+                            className={`w-7 h-7 rounded-lg text-base flex items-center justify-center transition hover:scale-110 ${
+                              categoryModal.icon === emoji ? 'bg-pink-300 dark:bg-pink-800 ring-2 ring-pink-500' : 'hover:bg-white dark:hover:bg-neutral-800'
+                            }`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold mb-1">Badge Tag (Optional)</label>
+                      <input
+                        type="text"
+                        value={categoryModal.badge}
+                        onChange={(e) => setCategoryModal({ ...categoryModal, badge: e.target.value })}
+                        placeholder="e.g. New Drop 🎀, Summer Shimmer ☀️, Viral on Insta ✨"
+                        className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold mb-1">Description (Optional)</label>
+                      <textarea
+                        rows={2}
+                        value={categoryModal.description}
+                        onChange={(e) => setCategoryModal({ ...categoryModal, description: e.target.value })}
+                        placeholder="Short overview shown on the collection card..."
+                        className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 resize-none focus:outline-none focus:ring-1 focus:ring-pink-400"
+                      />
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCategoryModal(prev => ({ ...prev, isOpen: false }))}
+                        className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl btn-3d-pink text-white font-display font-bold shadow-md"
+                      >
+                        {categoryModal.mode === 'add' ? 'Create Category' : 'Save Category'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* MODAL 2: DELETE CATEGORY CONFIRMATION MODAL */}
+            {deleteCategoryModal.isOpen && (
+              <div 
+                onClick={() => setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '' })}
+                className="fixed inset-0 z-60 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+              >
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-rose-300 dark:border-rose-900 space-y-4 animate-scaleUp text-[#231733] dark:text-white"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 flex items-center justify-center shrink-0">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-display font-extrabold text-base text-rose-600 dark:text-rose-400">
+                        Delete Category "{deleteCategoryModal.categoryName}"?
+                      </h4>
+                      <span className="text-xs text-neutral-500">Safe deletion with product reassignment</span>
+                    </div>
+                  </div>
+
+                  {(() => {
+                    const affected = products.filter(p => p.category === deleteCategoryModal.categoryName);
+                    const remainingCategories = allCategoryNames.filter(c => c !== deleteCategoryModal.categoryName);
+
+                    return (
+                      <div className="space-y-3 text-xs">
+                        {affected.length > 0 ? (
+                          <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 leading-relaxed">
+                            <strong>Notice:</strong> There are currently <strong>{affected.length} products</strong> in this category. To avoid losing or orphaning items, choose where they should be moved:
+                          </div>
+                        ) : (
+                          <p className="text-neutral-600 dark:text-neutral-300">
+                            There are 0 products in this category. It can be safely deleted.
+                          </p>
+                        )}
+
+                        {affected.length > 0 && (
+                          <div>
+                            <label className="block font-bold mb-1">Reassign {affected.length} products to:</label>
+                            <select
+                              value={deleteCategoryModal.reassignTo}
+                              onChange={(e) => setDeleteCategoryModal({ ...deleteCategoryModal, reassignTo: e.target.value })}
+                              className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-pink-400"
+                            >
+                              {remainingCategories.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        <div className="pt-2 flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '' })}
+                            className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleDeleteCategoryConfirm}
+                            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-display font-bold shadow-md transition"
+                          >
+                            Delete Category
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* MODAL 3: BULK MOVE PRODUCTS MODAL */}
+            {bulkMoveModal.isOpen && (
+              <div 
+                onClick={() => setBulkMoveModal({ isOpen: false, selectedProductIds: [], targetCategory: '' })}
+                className="fixed inset-0 z-60 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-fadeIn"
+              >
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col p-5 sm:p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white overflow-hidden"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-pink-100 dark:border-pink-900/40">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-2xl bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                        <Layers className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-display font-extrabold text-base">Bulk Move Products</h4>
+                        <span className="text-[11px] text-neutral-500">Reassign multiple items to a category at once</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBulkMoveModal({ isOpen: false, selectedProductIds: [], targetCategory: '' })}
+                      className="p-1 rounded-xl hover:bg-pink-100 dark:hover:bg-neutral-800 transition text-neutral-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Target Category Selector */}
+                  <div className="p-3.5 rounded-2xl bg-pink-50/60 dark:bg-neutral-900/70 border border-pink-200 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <span className="font-bold text-neutral-800 dark:text-neutral-200">
+                      Destination Category:
+                    </span>
+                    <select
+                      value={bulkMoveModal.targetCategory}
+                      onChange={(e) => setBulkMoveModal({ ...bulkMoveModal, targetCategory: e.target.value })}
+                      className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-pink-300 dark:border-neutral-600 font-bold text-xs focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    >
+                      {allCategoryNames.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selection Bar */}
+                  <div className="flex items-center justify-between text-xs font-bold text-neutral-600 dark:text-neutral-300 px-1">
+                    <span>
+                      {bulkMoveModal.selectedProductIds.length} of {products.length} products selected
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setBulkMoveModal(prev => ({
+                          ...prev,
+                          selectedProductIds: products.map(p => p.id)
+                        }))}
+                        className="text-[#E60067] dark:text-pink-400 hover:underline"
+                      >
+                        Select All
+                      </button>
+                      <span>•</span>
+                      <button
+                        type="button"
+                        onClick={() => setBulkMoveModal(prev => ({ ...prev, selectedProductIds: [] }))}
+                        className="text-neutral-500 hover:underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Product Checkbox List */}
+                  <div className="flex-1 overflow-y-auto space-y-2 pr-1 max-h-72 border rounded-2xl p-2 border-pink-100 dark:border-neutral-800">
+                    {products.map((p) => {
+                      const isChecked = bulkMoveModal.selectedProductIds.includes(p.id);
+                      return (
+                        <label
+                          key={p.id}
+                          className={`flex items-center gap-3 p-2.5 rounded-xl border transition cursor-pointer text-xs ${
+                            isChecked
+                              ? 'bg-pink-100/70 dark:bg-pink-950/50 border-pink-400'
+                              : 'bg-white dark:bg-neutral-800/80 border-pink-100 dark:border-neutral-700/60 hover:bg-pink-50/50'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setBulkMoveModal(prev => ({
+                                ...prev,
+                                selectedProductIds: isChecked
+                                  ? prev.selectedProductIds.filter(id => id !== p.id)
+                                  : [...prev.selectedProductIds, p.id]
+                              }));
+                            }}
+                            className="w-4 h-4 rounded text-pink-600 focus:ring-pink-400 cursor-pointer"
+                          />
+
+                          <img
+                            src={p.image || p.images?.[0] || '/images/deluxe-giftbox.jpg'}
+                            alt={p.name}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            }}
+                            className="w-9 h-9 rounded-lg object-contain bg-pink-50/80 dark:bg-neutral-900 border shrink-0"
+                          />
+
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-neutral-900 dark:text-white truncate">
+                              {p.name}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] text-neutral-500">
+                              <span>Current: <strong className="text-pink-600 dark:text-pink-400">{p.category}</strong></span>
+                              <span>•</span>
+                              <span>₹{p.priceINR}</span>
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="pt-2 flex items-center justify-between border-t border-pink-100 dark:border-pink-900/40 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setBulkMoveModal({ isOpen: false, selectedProductIds: [], targetCategory: '' })}
+                      className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleBulkMoveSubmit}
+                      disabled={bulkMoveModal.selectedProductIds.length === 0}
+                      className="px-5 py-2.5 rounded-xl btn-3d-pink text-white font-display font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      <Layers className="w-4 h-4" />
+                      <span>
+                        Move {bulkMoveModal.selectedProductIds.length} Products to "{bulkMoveModal.targetCategory}"
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </>
         )}

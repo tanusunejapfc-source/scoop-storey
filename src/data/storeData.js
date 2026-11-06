@@ -187,11 +187,11 @@ export const PRODUCTS = [
     includes: ['Embossed Sun Rays', 'Gold-Tone Finish', 'Layer-Friendly Chain']
   },
 
-  // --- BRACELETS & ANKLETS ---
+  // --- BRACELETS ---
   {
     id: 'brac-butterfly',
     name: 'Butterfly Charm Bracelet',
-    category: 'Bracelets & Anklets',
+    category: 'Bracelets',
     badge: 'Insta Viral 🦋',
     priceINR: 199,
     image: '/images/bracelets/butterfly-charm-bracelet.png',
@@ -201,7 +201,7 @@ export const PRODUCTS = [
   {
     id: 'brac-flower',
     name: 'Daisy Flower Charm Bracelet',
-    category: 'Bracelets & Anklets',
+    category: 'Bracelets',
     badge: 'Fresh & Cute 🌸',
     priceINR: 199,
     image: '/images/bracelets-anklets.jpg',
@@ -211,7 +211,7 @@ export const PRODUCTS = [
   {
     id: 'brac-leaf',
     name: 'Botanical Leaf Vine Bracelet',
-    category: 'Bracelets & Anklets',
+    category: 'Bracelets',
     badge: 'Subtle Chic 🍃',
     priceINR: 199,
     image: '/images/bracelets-anklets.jpg',
@@ -221,17 +221,19 @@ export const PRODUCTS = [
   {
     id: 'brac-evileye',
     name: 'Evil Eye Protection Bracelet',
-    category: 'Bracelets & Anklets',
+    category: 'Bracelets',
     badge: 'Good Luck 🧿',
     priceINR: 170,
     image: '/images/bracelets-anklets.jpg',
     description: 'Traditional sapphire-blue and white evil eye talisman bead set on a radiant gold chain.',
     includes: ['Protective Evil Eye Bead', 'Durable Links', 'Positive Vibe Packaging']
   },
+
+  // --- ANKLETS ---
   {
     id: 'anklet-snake',
     name: 'Snake Chain Sleek Anklet',
-    category: 'Bracelets & Anklets',
+    category: 'Anklets',
     badge: 'Must-Have ✨',
     priceINR: 150,
     image: '/images/bracelets-anklets.jpg',
@@ -241,7 +243,7 @@ export const PRODUCTS = [
   {
     id: 'anklet-minimal',
     name: 'Classic Minimalist Bead Anklet',
-    category: 'Bracelets & Anklets',
+    category: 'Anklets',
     badge: 'Subtle Dainty',
     priceINR: 120,
     image: '/images/bracelets-anklets.jpg',
@@ -249,11 +251,11 @@ export const PRODUCTS = [
     includes: ['Stationed Bead Accents', 'Ultra-Lightweight', 'Everyday Summer Ready']
   },
 
-  // --- EYE MASKS & SKINCARE ---
+  // --- EYE MASKS ---
   {
     id: 'mask-kitty',
     name: 'Hello Kitty Kawaii Eye Mask',
-    category: 'Eye Masks & Self-Care',
+    category: 'Eye Masks',
     badge: 'Super Soft 🐱',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
@@ -263,7 +265,7 @@ export const PRODUCTS = [
   {
     id: 'mask-miao',
     name: 'Miao Kitten Sleeping Mask',
-    category: 'Eye Masks & Self-Care',
+    category: 'Eye Masks',
     badge: 'Cute ASMR 🐾',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
@@ -273,17 +275,19 @@ export const PRODUCTS = [
   {
     id: 'mask-heart',
     name: 'Heart & Floral Silk Eye Mask',
-    category: 'Eye Masks & Self-Care',
+    category: 'Eye Masks',
     badge: 'Relaxing 💖',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
     description: 'Silky smooth eye mask patterned with sweet pastel hearts and floral motifs for sensory sleep comfort.',
     includes: ['Skin-Friendly Satin Lining', 'Padded Light Protection', 'Travel-Friendly']
   },
+
+  // --- SELF-CARE ---
   {
     id: 'skincare-can-wipes',
     name: 'Cute Soda Can Wet Wipes (30 Wipes)',
-    category: 'Eye Masks & Self-Care',
+    category: 'Self-Care',
     badge: 'Viral Novelty 🥤',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
@@ -293,7 +297,7 @@ export const PRODUCTS = [
   {
     id: 'skincare-nose-strips',
     name: 'Deep Cleansing Nose Pore Strips Pack',
-    category: 'Eye Masks & Self-Care',
+    category: 'Self-Care',
     badge: 'Skincare Win 🌸',
     priceINR: 119,
     image: '/images/eyemasks-skincare.jpg',
@@ -328,12 +332,12 @@ export const CATEGORIES = [
   'All Items',
   'Mystery Scoops',
   'Pendants & Chains',
-  'Bracelets & Anklets',
-  'Eye Masks & Self-Care',
+  'Bracelets',
+  'Anklets',
+  'Eye Masks',
+  'Self-Care',
   'Korean Wallets'
 ];
-
-
 
 export const COLLECTIONS_CONFIG = [
   {
@@ -363,12 +367,12 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
   },
   {
-    id: 'bracelets-anklets',
-    category: 'Bracelets & Anklets',
-    name: 'Bracelets & Anklets',
+    id: 'bracelets',
+    category: 'Bracelets',
+    name: 'Bracelets',
     icon: '🎀',
     badge: 'Handcrafted Dainty ✨',
-    tagline: 'Romantic Heart Links & Protective Evil Eye Talismans',
+    tagline: 'Romantic Charm Links & Protective Evil Eye Talismans',
     description: 'Adjustable charm link bracelets, protective evil eye amulets, and fairy-core pastel glass beads designed for daily stacking.',
     coverImage: '/images/charm-bracelets.jpg',
     gradient: 'from-purple-500/15 via-pink-500/10 to-indigo-500/20',
@@ -376,17 +380,43 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'
   },
   {
-    id: 'eyemasks-selfcare',
-    category: 'Eye Masks & Self-Care',
-    name: 'Eye Masks & Self-Care',
-    icon: '🌸',
-    badge: 'Relaxation Routine 💤',
-    tagline: 'Aromatherapy Steam Eye Masks & Skin Purifying',
-    description: 'Self-heating 40°C warm steam eye masks with calming lavender and chamomile scents, plus deep pore-cleansing skincare strips.',
+    id: 'anklets',
+    category: 'Anklets',
+    name: 'Anklets',
+    icon: '💫',
+    badge: 'Summer Shimmer ☀️',
+    tagline: 'Liquid Gold Snake Chains & Barely-There Stationed Beads',
+    description: 'Sleek, fluid herringbone snake chains and dainty beaded ankle chains that never snag and add instant shimmer to sneakers or heels.',
+    coverImage: '/images/bracelets-anklets.jpg',
+    gradient: 'from-amber-500/15 via-orange-500/10 to-pink-500/20',
+    borderHover: 'hover:border-amber-400',
+    btnGradient: 'bg-gradient-to-r from-amber-500 to-orange-500'
+  },
+  {
+    id: 'eye-masks',
+    category: 'Eye Masks',
+    name: 'Eye Masks',
+    icon: '💤',
+    badge: 'Sweet Dreams 🌙',
+    tagline: 'Ultra-Soft Velvet & Silk Blindfolds for 100% Light Blockout',
+    description: 'Plush kitten velvet and skin-friendly satin sleeping masks with total light blockout and breathable elastic comfort for restful naps.',
     coverImage: '/images/eyemasks-skincare.jpg',
-    gradient: 'from-rose-500/15 via-pink-500/10 to-teal-500/20',
+    gradient: 'from-indigo-500/15 via-pink-500/10 to-purple-500/20',
+    borderHover: 'hover:border-indigo-400',
+    btnGradient: 'bg-gradient-to-r from-indigo-500 to-purple-500'
+  },
+  {
+    id: 'self-care',
+    category: 'Self-Care',
+    name: 'Self-Care',
+    icon: '🌸',
+    badge: 'Glow Routine ✨',
+    tagline: 'Refreshing Pocket Wipes, Pore Purifiers & Beauty Treats',
+    description: 'Viral novelty soda can refreshing wet wipes, deep-cleansing blackhead nose strips, and cute everyday self-care treats.',
+    coverImage: '/images/eyemasks-skincare.jpg',
+    gradient: 'from-rose-500/15 via-teal-500/10 to-emerald-500/20',
     borderHover: 'hover:border-rose-400',
-    btnGradient: 'bg-gradient-to-r from-rose-500 to-purple-500'
+    btnGradient: 'bg-gradient-to-r from-rose-500 to-teal-500'
   },
   {
     id: 'korean-wallets',
@@ -403,14 +433,18 @@ export const COLLECTIONS_CONFIG = [
   }
 ];
 
-
 export function categoryToSlug(category) {
   if (!category || category === 'All Items') return 'all';
   if (category === 'Mystery Scoops') return 'mystery-scoops';
   if (category === 'Pendants & Chains') return 'pendants-chains';
-  if (category === 'Bracelets & Anklets') return 'bracelets-anklets';
-  if (category === 'Eye Masks & Self-Care') return 'eyemasks-selfcare';
+  if (category === 'Bracelets') return 'bracelets';
+  if (category === 'Anklets') return 'anklets';
+  if (category === 'Eye Masks') return 'eye-masks';
+  if (category === 'Self-Care') return 'self-care';
   if (category === 'Korean Wallets') return 'korean-wallets';
+  // Backward compatibility
+  if (category === 'Bracelets & Anklets') return 'bracelets';
+  if (category === 'Eye Masks & Self-Care') return 'self-care';
   return category.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
@@ -418,8 +452,12 @@ export function slugToCategory(slug, products = []) {
   if (!slug || slug === 'all') return 'All Items';
   if (slug === 'mystery-scoops' || slug === 'scoops') return 'Mystery Scoops';
   if (slug === 'pendants-chains' || slug === 'pendants') return 'Pendants & Chains';
-  if (slug === 'bracelets-anklets' || slug === 'bracelets') return 'Bracelets & Anklets';
-  if (slug === 'eyemasks-selfcare' || slug === 'self-care' || slug === 'eyemasks') return 'Eye Masks & Self-Care';
+  if (slug === 'bracelets') return 'Bracelets';
+  if (slug === 'anklets') return 'Anklets';
+  if (slug === 'bracelets-anklets') return 'Bracelets';
+  if (slug === 'eye-masks' || slug === 'eyemasks') return 'Eye Masks';
+  if (slug === 'self-care' || slug === 'skincare') return 'Self-Care';
+  if (slug === 'eyemasks-selfcare') return 'Self-Care';
   if (slug === 'korean-wallets' || slug === 'wallets') return 'Korean Wallets';
   
   if (Array.isArray(products)) {

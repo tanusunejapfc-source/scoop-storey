@@ -82,8 +82,10 @@ export default function Navbar({
     { label: '3D Scoops', fullLabel: '3D Scoop Machine', href: '#scoop-machine' },
     { label: 'Collections', fullLabel: 'Collections', href: '#collections', isAllCollections: true },
     { label: 'Pendants', fullLabel: 'Pendants & Chains', href: '#collection-pendants-chains', category: 'Pendants & Chains' },
-    { label: 'Bracelets', fullLabel: 'Bracelets', href: '#collection-bracelets-anklets', category: 'Bracelets & Anklets' },
-    { label: 'Self-Care', fullLabel: 'Self-Care & Masks', href: '#collection-eyemasks-selfcare', category: 'Eye Masks & Self-Care' },
+    { label: 'Bracelets', fullLabel: 'Bracelets', href: '#collection-bracelets', category: 'Bracelets' },
+    { label: 'Anklets', fullLabel: 'Anklets', href: '#collection-anklets', category: 'Anklets' },
+    { label: 'Eye Masks', fullLabel: 'Eye Masks', href: '#collection-eye-masks', category: 'Eye Masks' },
+    { label: 'Self-Care', fullLabel: 'Self-Care', href: '#collection-self-care', category: 'Self-Care' },
     { label: 'Charm Studio', fullLabel: 'Charm Studio', href: '#charm-studio' },
     { label: 'ASMR Reels', fullLabel: 'ASMR Reels', href: '#reels' },
   ];

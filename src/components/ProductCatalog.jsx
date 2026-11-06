@@ -195,9 +195,9 @@ export default function ProductCatalog({
   const hotPicks = useMemo(() => {
     const picks = [
       products.find(p => p.id === 'scoop-mini') || products[0],
-      products.find(p => p.id === 'pend-pearl-drop') || products.find(p => p.category === 'Pendants & Chains'),
-      products.find(p => p.category === 'Bracelets & Anklets'),
-      products.find(p => p.category === 'Korean Wallets') || products.find(p => p.category === 'Eye Masks & Self-Care')
+      products.find(p => p.category === 'Pendants & Chains'),
+      products.find(p => p.category === 'Bracelets') || products.find(p => p.category === 'Anklets'),
+      products.find(p => p.category === 'Korean Wallets') || products.find(p => p.category === 'Eye Masks') || products.find(p => p.category === 'Self-Care')
     ].filter(Boolean);
 
     // Ensure distinct items

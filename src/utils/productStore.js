@@ -16,17 +16,29 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       { name: 'Rose Gold', hex: '#E0A899' },
       { name: 'Silver Shimmer', hex: '#D8D8D8' }
     ];
-  } else if (p.category === 'Bracelets & Anklets') {
+  } else if (p.category === 'Bracelets') {
     defaultColors = [
+      { name: 'Pastel Rainbow', hex: '#FFB6C1' },
       { name: 'Gold Tone', hex: '#E5C158' },
-      { name: 'Rose Gold', hex: '#E0A899' },
-      { name: 'Pastel Rainbow', hex: '#FFB6C1' }
+      { name: 'Rose Gold', hex: '#E0A899' }
     ];
-  } else if (p.category === 'Eye Masks & Self-Care') {
+  } else if (p.category === 'Anklets') {
+    defaultColors = [
+      { name: '18K Yellow Gold', hex: '#E5C158' },
+      { name: 'Rose Gold', hex: '#E0A899' },
+      { name: 'Silver Shimmer', hex: '#D8D8D8' }
+    ];
+  } else if (p.category === 'Eye Masks') {
     defaultColors = [
       { name: 'Kawaii Pink', hex: '#FFB6C1' },
       { name: 'Cloud White', hex: '#F5F5F7' },
       { name: 'Lavender Mist', hex: '#E6E6FA' }
+    ];
+  } else if (p.category === 'Self-Care') {
+    defaultColors = [
+      { name: 'Fresh Mint', hex: '#A0E7E5' },
+      { name: 'Berry Punch', hex: '#FF99C8' },
+      { name: 'Citrus Pop', hex: '#FFD166' }
     ];
   } else if (p.category === 'Korean Wallets') {
     defaultColors = [
@@ -53,18 +65,30 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       '/images/asmr-packing.jpg',
       '/images/deluxe-giftbox.jpg'
     ];
-  } else if (p.category === 'Bracelets & Anklets') {
+  } else if (p.category === 'Bracelets') {
     defaultImages = [
       p.image,
       '/images/charm-bracelets.jpg',
       '/images/asmr-packing.jpg',
       '/images/deluxe-giftbox.jpg'
     ];
-  } else if (p.category === 'Eye Masks & Self-Care') {
+  } else if (p.category === 'Anklets') {
+    defaultImages = [
+      p.image,
+      '/images/bracelets-anklets.jpg',
+      '/images/asmr-packing.jpg'
+    ];
+  } else if (p.category === 'Eye Masks') {
     defaultImages = [
       p.image,
       '/images/eyemasks-skincare.jpg',
       '/images/asmr-packing.jpg'
+    ];
+  } else if (p.category === 'Self-Care') {
+    defaultImages = [
+      p.image,
+      '/images/eyemasks-skincare.jpg',
+      '/images/deluxe-giftbox.jpg'
     ];
   } else if (p.category === 'Korean Wallets') {
     defaultImages = [
@@ -93,7 +117,7 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       'Skin Friendly': '100% Nickel-Free & Hypoallergenic',
       'Packaging': 'Velvet Display Gift Card & Pouch'
     };
-  } else if (p.category === 'Bracelets & Anklets') {
+  } else if (p.category === 'Bracelets') {
     defaultSpecs = {
       'Material': 'Tarnish-Resistant Alloy & Acrylic Charms',
       'Length': '6.5 inches + 2 inch adjustable extender',
@@ -101,12 +125,27 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       'Closure': 'Secure Claw Lock',
       'Packaging': 'Organza Gift Bag with Wax-Sealed Tag'
     };
-  } else if (p.category === 'Eye Masks & Self-Care') {
+  } else if (p.category === 'Anklets') {
+    defaultSpecs = {
+      'Material': '18K Gold Plated Stainless Steel / Brass',
+      'Style': 'Herringbone Snake Chain & Stationed Beads',
+      'Length': '8.5 inches + 2 inch extender',
+      'Water Resistance': 'Safe for splashes & everyday wear',
+      'Skin Friendly': 'Hypoallergenic & Lead-Free'
+    };
+  } else if (p.category === 'Eye Masks') {
     defaultSpecs = {
       'Material': 'Ultra-Soft Cloud Velvet & Mulberry Satin Silk',
       'Band': 'Gentle Stretch Elastic (No-Hair Pull)',
       'Light Blocking': '100% Total Blackout Design',
       'Care': 'Gentle Hand Wash in Cold Water'
+    };
+  } else if (p.category === 'Self-Care') {
+    defaultSpecs = {
+      'Purpose': 'Sensory Refresh & Skincare Cleansing',
+      'Packaging': 'Novelty Collectible Dispenser Pack',
+      'Skin Friendly': 'Dermatologist-Approved & Alcohol-Free Formula',
+      'Origin': 'Handpicked Kawaii Curation'
     };
   } else if (p.category === 'Korean Wallets') {
     defaultSpecs = {
@@ -224,14 +263,30 @@ export async function clearIDBProducts() {
   }
 }
 
+// Helper to automatically migrate any legacy combined categories
+export function migrateLegacyProduct(p) {
+  if (!p) return p;
+  let category = p.category;
+  if (category === 'Bracelets & Anklets') {
+    category = (p.id?.startsWith('anklet') || p.name?.toLowerCase().includes('anklet')) ? 'Anklets' : 'Bracelets';
+  } else if (category === 'Eye Masks & Self-Care') {
+    category = (p.id?.startsWith('skincare') || p.name?.toLowerCase().includes('wipes') || p.name?.toLowerCase().includes('strip') || p.name?.toLowerCase().includes('care'))
+      ? 'Self-Care'
+      : 'Eye Masks';
+  }
+  return { ...p, category };
+}
+
 export function getStoredProducts() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Filter out any legacy 4th scoop (scoop-vault)
-        return parsed.filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop');
+        // Filter out legacy vault scoop and migrate categories
+        return parsed
+          .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop')
+          .map(migrateLegacyProduct);
       }
     }
   } catch (err) {
@@ -275,17 +330,19 @@ export function useStoreProducts() {
     // 1. Fetch live products from Supabase Cloud Database first
     fetchProductsFromSupabase().then((cloudList) => {
       if (isMounted && Array.isArray(cloudList) && cloudList.length > 0) {
-        setProducts(cloudList);
-        saveStoredProducts(cloudList);
+        const migrated = cloudList.map(migrateLegacyProduct);
+        setProducts(migrated);
+        saveStoredProducts(migrated);
       }
     });
 
     // 2. Load from IndexedDB on refresh to restore cached images
     getIDBProducts().then((idbList) => {
       if (isMounted && idbList && Array.isArray(idbList) && idbList.length > 0) {
-        setProducts((curr) => (curr.length > 0 ? curr : idbList));
+        const migrated = idbList.map(migrateLegacyProduct);
+        setProducts((curr) => (curr.length > 0 ? curr : migrated));
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(idbList));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
         } catch {
           // Ignore localStorage quota
         }
