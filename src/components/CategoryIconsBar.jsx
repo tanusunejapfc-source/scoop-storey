@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import MiniScoopIcon from './MiniScoopIcon';
 
 // Curated Category Icons matching Scoop Storey Kawaii Luxury Aesthetic
 export const CATEGORY_ICONS_DATA = [
@@ -10,7 +11,8 @@ export const CATEGORY_ICONS_DATA = [
     name: 'Mystery Scoops',
     shortName: '3D Scoops',
     image: '/images/scoop-bowl.jpg',
-    emoji: '🍨',
+    icon: MiniScoopIcon,
+    emoji: '✨',
     tag: 'Live ASMR',
     gradient: 'from-pink-500 via-rose-500 to-purple-500',
     ringColor: 'from-[#FF4D8D] to-[#D8005A]'
@@ -195,15 +197,19 @@ export default function CategoryIconsBar({
                       </div>
                     </div>
 
-                    {/* Floating Cute Category Emoji Badge */}
+                    {/* Floating Cute Category Badge */}
                     <span 
-                      className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-[#1E172E] border-2 shadow-sm flex items-center justify-center text-xs transition-transform group-hover:scale-110 ${
+                      className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-[#1E172E] border-2 shadow-sm flex items-center justify-center text-xs transition-transform group-hover:scale-110 overflow-hidden ${
                         isSelected 
                           ? 'border-[#E60067] shadow-pink-500/30 animate-bounce' 
                           : 'border-pink-200 dark:border-pink-900'
                       }`}
                     >
-                      {item.emoji}
+                      {item.icon ? (
+                        <item.icon className="w-3.5 h-3.5" />
+                      ) : (
+                        item.emoji
+                      )}
                     </span>
                   </div>
 

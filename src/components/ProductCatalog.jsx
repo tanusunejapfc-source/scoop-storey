@@ -22,8 +22,25 @@ import { DEFAULT_PRODUCTS } from '../utils/productStore';
 import { saveOrderToStore } from '../utils/orderStore';
 import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
+import MiniScoopIcon from './MiniScoopIcon';
 
 export { DEFAULT_PRODUCTS as PRODUCTS };
+
+const renderCollectionIcon = (iconOrMeta, className = "w-4 h-4") => {
+  const isScoop = 
+    iconOrMeta === '🍨' ||
+    iconOrMeta?.icon === '🍨' ||
+    iconOrMeta?.id === 'mystery-scoops' ||
+    iconOrMeta?.category === 'Mystery Scoops';
+
+  if (isScoop) {
+    return <MiniScoopIcon className={className} />;
+  }
+  if (typeof iconOrMeta === 'object' && iconOrMeta?.icon) {
+    return iconOrMeta.icon;
+  }
+  return iconOrMeta;
+};
 
 export default function ProductCatalog({ 
   products = [], 
@@ -341,8 +358,8 @@ export default function ProductCatalog({
 
                     {/* Top Badges */}
                     <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-                      <span className="px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-[11px] font-black text-[#E60067] dark:text-pink-400 shadow-xs border border-pink-200/60 dark:border-pink-800 flex items-center gap-1">
-                        <span>{col.icon}</span>
+                      <span className="px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-[11px] font-black text-[#E60067] dark:text-pink-400 shadow-xs border border-pink-200/60 dark:border-pink-800 flex items-center gap-1.5">
+                        <span className="flex items-center">{renderCollectionIcon(col, 'w-3.5 h-3.5')}</span>
                         <span>{col.badge}</span>
                       </span>
 
@@ -363,7 +380,7 @@ export default function ProductCatalog({
                   <div className="p-5 sm:p-6 space-y-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl">{col.icon}</span>
+                        <span className="text-xl flex items-center">{renderCollectionIcon(col, 'w-5 h-5')}</span>
                         <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
                           {col.name}
                         </h3>
@@ -624,7 +641,7 @@ export default function ProductCatalog({
             <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-pink-100/70 via-purple-100/60 to-pink-50/70 dark:from-[#2A1D3D] dark:via-[#1F152F] dark:to-[#2A1D3D] border-2 border-pink-200 dark:border-pink-900/60 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
               <div className="space-y-2 max-w-2xl">
                 <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/90 dark:bg-neutral-900/90 text-[#E60067] dark:text-pink-400 text-xs font-black shadow-xs">
-                  <span>{currentCollectionMeta.icon}</span>
+                  <span className="flex items-center">{renderCollectionIcon(currentCollectionMeta, 'w-4 h-4')}</span>
                   <span>{currentCollectionMeta.badge}</span>
                 </div>
                 <h2 className="text-2xl md:text-4xl font-display font-extrabold text-[#231733] dark:text-white">
