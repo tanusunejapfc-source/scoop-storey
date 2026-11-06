@@ -113,11 +113,15 @@ export default function App() {
         } else if (colId === 'all') {
           setActiveCollection('All Items');
         }
+        if (!isInitial) {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
       } else if (hash === '#collections' || hash === '#menu' || hash === '' || hash === '#') {
         // Return smoothly to Collections Overview Hub
         setActiveCollection(null);
-      } else if (!isInitial && (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine')) {
+      } else if (!isInitial && (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine' || hash === '#faq-section')) {
         // Smooth scroll to dedicated landing page section ONLY on active user navigation, never on initial mount!
+        setActiveCollection(null);
         const targetId = hash.slice(1);
         setTimeout(() => {
           document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
@@ -134,6 +138,36 @@ export default function App() {
       window.removeEventListener('popstate', onNavChange);
     };
   }, [products]);
+
+  // Update document title dynamically for category pages vs homepage
+  useEffect(() => {
+    if (activeCollection) {
+      document.title = `${activeCollection === 'All Items' ? 'All Products' : activeCollection} • Scoop Storey 3D`;
+    } else {
+      document.title = 'Scoop Storey 3D • Collect Happiness In Every Single Scoop';
+    }
+  }, [activeCollection]);
+
+  // Unified Category Navigation handler
+  const handleSelectCategory = (category) => {
+    setActiveCollection(category);
+    const slug = category ? categoryToSlug(category) : 'all';
+    const targetHash = category ? `#collection-${slug}` : '#collections';
+    if (window.location.hash !== targetHash) {
+      try {
+        window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
+      } catch {
+        window.location.hash = targetHash;
+      }
+    }
+    if (category) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    } else {
+      setTimeout(() => {
+        document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  };
 
   // Cart operations with color variant support
   const handleAddToCart = (product) => {
@@ -195,166 +229,163 @@ export default function App() {
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenTracking={() => setIsTrackingOpen(true)}
         onOpenWishlist={() => setIsWishlistOpen(true)}
-        onSelectCategory={(category) => {
-          setActiveCollection(category);
-          const slug = category ? categoryToSlug(category) : 'all';
-          const targetHash = category ? `#collection-${slug}` : '#collections';
-          if (window.location.hash !== targetHash) {
-            try {
-              window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
-            } catch {
-              window.location.hash = targetHash;
-            }
-          }
-          setTimeout(() => {
-            document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 40);
-        }}
+        onSelectCategory={handleSelectCategory}
       />
 
       {/* STYLISH CATEGORY ICONS BAR (Story Bubbles / Quick Category Selector) */}
       <CategoryIconsBar
         activeCategory={activeCollection}
-        onSelectCategory={(category) => {
-          setActiveCollection(category);
-          const slug = category ? categoryToSlug(category) : 'all';
-          const targetHash = category ? `#collection-${slug}` : '#collections';
-          if (window.location.hash !== targetHash) {
-            try {
-              window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
-            } catch {
-              window.location.hash = targetHash;
-            }
-          }
-          setTimeout(() => {
-            document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 40);
-        }}
+        onSelectCategory={handleSelectCategory}
       />
 
-      {/* HERO SECTION WITH 3D WEBGL CHARMS */}
-      <section className="relative pt-6 pb-16 md:pt-12 md:pb-24 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          {/* Left Text & Call to Action (6 cols) */}
-          <div className="lg:col-span-6 z-10 space-y-6 text-center lg:text-left">
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-[10px] sm:text-xs tracking-wide uppercase shadow-xs max-w-full">
-              <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping shrink-0" />
-              <span className="truncate sm:whitespace-nowrap">India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
+      {/* ======================================================== */}
+      {/* CONDITIONAL ROUTE: Dedicated Category Page vs Homepage   */}
+      {/* ======================================================== */}
+      {activeCollection ? (
+        /* DEDICATED SEPARATE CATEGORY PAGE VIEW */
+        <main className="min-h-[70vh]">
+          {/* If viewing Mystery Scoops category, display the 3D scoop machine prominently on this page! */}
+          {activeCollection === 'Mystery Scoops' && (
+            <div className="pt-2 pb-4">
+              <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
             </div>
+          )}
 
-            {/* Main Title - High Contrast Dark Plum in light mode, Crisp White in dark */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white leading-[1.14]">
-              Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
-            </h1>
+          {/* Dedicated Category Product Grid, Header, Search & Filter Pills */}
+          <ProductCatalog 
+            products={products} 
+            onAddToCart={handleAddToCart} 
+            onSelectProduct={(prod) => {
+              setSelectedProduct(prod);
+              if (prod) {
+                try {
+                  window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
+                } catch {
+                  window.location.hash = `#product-${prod.id}`;
+                }
+              }
+            }}
+            activeCollection={activeCollection}
+            onSelectCollection={handleSelectCategory}
+          />
+        </main>
+      ) : (
+        /* FULL FEATURED HOMEPAGE */
+        <main>
+          {/* HERO SECTION WITH 3D WEBGL CHARMS */}
+          <section className="relative pt-6 pb-16 md:pt-12 md:pb-24 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              {/* Left Text & Call to Action (6 cols) */}
+              <div className="lg:col-span-6 z-10 space-y-6 text-center lg:text-left">
+                {/* Top Badge */}
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-[10px] sm:text-xs tracking-wide uppercase shadow-xs max-w-full">
+                  <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping shrink-0" />
+                  <span className="truncate sm:whitespace-nowrap">India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
+                </div>
 
-            {/* Subtext */}
-            <p className="text-base sm:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
-              India's first 3D interactive mystery scoop studio. Dip for Kawaii charms, Korean pendants, charm bracelets, and self-care surprises — all hand-packed on Instagram Reels!
-            </p>
+                {/* Main Title - High Contrast Dark Plum in light mode, Crisp White in dark */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white leading-[1.14]">
+                  Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
+                </h1>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
-              <a
-                href="#scoop-machine"
-                onClick={(e) => {
-                  e.preventDefault();
-                  soundFX.playPop(550);
-                  document.getElementById('scoop-machine')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl text-center"
-              >
-                <span>Dip a 3D Scoop</span>
-                <span>✨</span>
-              </a>
+                {/* Subtext */}
+                <p className="text-base sm:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
+                  India's first 3D interactive mystery scoop studio. Dip for Kawaii charms, Korean pendants, charm bracelets, and self-care surprises — all hand-packed on Instagram Reels!
+                </p>
 
-              <a
-                href="#menu"
-                onClick={(e) => {
-                  e.preventDefault();
-                  soundFX.playPop(500);
-                  setActiveCollection(null);
-                  document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 text-[#231733] dark:text-white font-display font-bold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 transition shadow-sm text-center"
-              >
-                <span>Browse Collections</span>
-              </a>
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+                  <a
+                    href="#scoop-machine"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      soundFX.playPop(550);
+                      document.getElementById('scoop-machine')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl text-center"
+                  >
+                    <span>Dip a 3D Scoop</span>
+                    <span>✨</span>
+                  </a>
+
+                  <a
+                    href="#menu"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      soundFX.playPop(500);
+                      setActiveCollection(null);
+                      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 text-[#231733] dark:text-white font-display font-bold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 transition shadow-sm text-center"
+                  >
+                    <span>Browse Collections</span>
+                  </a>
+                </div>
+
+                {/* Social Trust Metrics */}
+                <div className="pt-4 grid grid-cols-3 gap-2 sm:gap-6 text-center lg:text-left text-[11px] sm:text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold border-t border-pink-200/60 dark:border-pink-900/40 w-full max-w-md mx-auto lg:mx-0">
+                  <div className="px-1">
+                    <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">15,000+</strong>
+                    <span className="text-[10px] sm:text-xs leading-tight">Charms Scooped</span>
+                  </div>
+                  <div className="px-1 border-x border-pink-200 dark:border-pink-900">
+                    <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">100%</strong>
+                    <span className="text-[10px] sm:text-xs leading-tight">Prepaid Delivery</span>
+                  </div>
+                  <div className="px-1">
+                    <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">4.9 ★</strong>
+                    <span className="text-[10px] sm:text-xs leading-tight">IG Community</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right 3D Visualizer Canvas (6 cols) */}
+              <div className="lg:col-span-6 relative aspect-square max-w-[500px] mx-auto lg:max-w-none w-full">
+                <Hero3DCanvas isDark={isDark} />
+              </div>
             </div>
+          </section>
 
-            {/* Social Trust Metrics */}
-            <div className="pt-4 grid grid-cols-3 gap-2 sm:gap-6 text-center lg:text-left text-[11px] sm:text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold border-t border-pink-200/60 dark:border-pink-900/40 w-full max-w-md mx-auto lg:mx-0">
-              <div className="px-1">
-                <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">15,000+</strong>
-                <span className="text-[10px] sm:text-xs leading-tight">Charms Scooped</span>
-              </div>
-              <div className="px-1 border-x border-pink-200 dark:border-pink-900">
-                <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">100%</strong>
-                <span className="text-[10px] sm:text-xs leading-tight">Prepaid Delivery</span>
-              </div>
-              <div className="px-1">
-                <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">4.9 ★</strong>
-                <span className="text-[10px] sm:text-xs leading-tight">IG Community</span>
-              </div>
-            </div>
+          {/* 3D INTERACTIVE MYSTERY SCOOP MACHINE */}
+          <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+
+          {/* THE SCOOP MENU (PRODUCT COLLECTIONS HUB) */}
+          <ProductCatalog 
+            products={products} 
+            onAddToCart={handleAddToCart} 
+            onSelectProduct={(prod) => {
+              setSelectedProduct(prod);
+              if (prod) {
+                try {
+                  window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
+                } catch {
+                  window.location.hash = `#product-${prod.id}`;
+                }
+              }
+            }}
+            activeCollection={null}
+            onSelectCollection={handleSelectCategory}
+          />
+
+          {/* 360° REAL-TIME 3D CHARM INSPECTOR STUDIO */}
+          <div id="charm-studio">
+            <CharmInspector3D isDark={isDark} />
           </div>
 
-          {/* Right 3D Visualizer Canvas (6 cols) */}
-          <div className="lg:col-span-6 relative aspect-square max-w-[500px] mx-auto lg:max-w-none w-full">
-            <Hero3DCanvas isDark={isDark} />
-          </div>
-        </div>
-      </section>
+          {/* ASMR & INSTAGRAM REELS SHOWCASE */}
+          <ReelsShowcase />
 
-      {/* 3D INTERACTIVE MYSTERY SCOOP MACHINE */}
-      <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+          {/* BRAND STORY & PHILOSOPHY */}
+          <BrandStory />
 
-      {/* THE SCOOP MENU (PRODUCT COLLECTIONS & CATALOG) */}
-      <ProductCatalog 
-        products={products} 
-        onAddToCart={handleAddToCart} 
-        onSelectProduct={(prod) => {
-          setSelectedProduct(prod);
-          if (prod) {
-            try {
-              window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
-            } catch {
-              window.location.hash = `#product-${prod.id}`;
-            }
-          }
-        }}
-        activeCollection={activeCollection}
-        onSelectCollection={(col) => {
-          setActiveCollection(col);
-          const slug = col ? categoryToSlug(col) : 'all';
-          const targetHash = col ? `#collection-${slug}` : '#collections';
-          if (window.location.hash !== targetHash) {
-            try {
-              window.history.pushState({ type: 'collection', category: col }, '', window.location.pathname + targetHash);
-            } catch {
-              window.location.hash = targetHash;
-            }
-          }
-        }}
-      />
+          {/* CUSTOMER TESTIMONIALS */}
+          <Testimonials />
 
-      {/* 360° REAL-TIME 3D CHARM INSPECTOR STUDIO */}
-      <div id="charm-studio">
-        <CharmInspector3D isDark={isDark} />
-      </div>
-
-      {/* ASMR & INSTAGRAM REELS SHOWCASE */}
-      <ReelsShowcase />
-
-      {/* BRAND STORY & PHILOSOPHY */}
-      <BrandStory />
-
-      {/* CUSTOMER TESTIMONIALS */}
-      <Testimonials />
-
-      {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
-      <StoreFAQ />
+          {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
+          <StoreFAQ />
+        </main>
+      )}
 
       {/* PRODUCT DETAIL PAGE / MODAL */}
       <ProductDetailPage

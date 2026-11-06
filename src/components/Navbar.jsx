@@ -192,6 +192,7 @@ export default function Navbar({
             href="#" 
             onClick={(e) => {
               e.preventDefault();
+              onSelectCategory?.(null);
               window.scrollTo({ top: 0, behavior: 'smooth' });
               soundFX.playPop(500);
             }}
@@ -235,12 +236,17 @@ export default function Navbar({
                     e.preventDefault();
                     onSelectCategory?.(link.category);
                   } else if (link.href?.startsWith('#')) {
+                    e.preventDefault();
+                    onSelectCategory?.(null);
                     const targetId = link.href.slice(1);
-                    const el = document.getElementById(targetId);
-                    if (el) {
-                      e.preventDefault();
-                      el.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    setTimeout(() => {
+                      const el = document.getElementById(targetId);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }, 50);
                   }
                 }}
                 className="inline-flex items-center text-xs sm:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap"
@@ -504,12 +510,17 @@ export default function Navbar({
                     e.preventDefault();
                     onSelectCategory?.(link.category);
                   } else if (link.href?.startsWith('#')) {
+                    e.preventDefault();
+                    onSelectCategory?.(null);
                     const targetId = link.href.slice(1);
-                    const el = document.getElementById(targetId);
-                    if (el) {
-                      e.preventDefault();
-                      el.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    setTimeout(() => {
+                      const el = document.getElementById(targetId);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }, 50);
                   }
                 }}
                 className="block px-3 py-2 rounded-lg font-bold text-sm text-[#231733] dark:text-neutral-100 hover:bg-pink-100/70 dark:hover:bg-neutral-800"

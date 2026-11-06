@@ -96,9 +96,7 @@ export default function ProductCatalog({
       }
     }
 
-    setTimeout(() => {
-      catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleBackToCollections = () => {
@@ -106,18 +104,18 @@ export default function ProductCatalog({
     setActiveCollection(null);
     setSearchQuery('');
 
-    // If currently on a collection hash, push #collections so browser Back won't exit
+    // If currently on a collection hash, push empty hash / home so browser Back won't exit
     if (window.location.hash.startsWith('#collection-')) {
       try {
-        window.history.pushState({ type: 'collections' }, '', window.location.pathname + '#collections');
+        window.history.pushState({ type: 'home' }, '', window.location.pathname);
       } catch {
-        window.location.hash = '#collections';
+        window.location.hash = '';
       }
     }
 
     setTimeout(() => {
       catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    }, 60);
   };
 
   // Build dynamic collections list, merging COLLECTIONS_CONFIG with any custom categories added in Admin
@@ -299,7 +297,7 @@ export default function ProductCatalog({
   };
 
   return (
-    <section id="menu" ref={catalogRef} className="py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto scroll-mt-24">
+    <section id="menu" ref={catalogRef} className={`${activeCollection ? 'py-4 sm:py-8' : 'py-16 md:py-24'} px-4 md:px-8 max-w-7xl mx-auto scroll-mt-24`}>
       {/* Policy Reminder Banner */}
       <div className="mb-8 p-3.5 rounded-2xl bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 dark:from-[#261537] dark:via-[#341B49] dark:to-[#261537] border-2 border-pink-300 dark:border-pink-800/80 flex items-center justify-center gap-2 text-xs font-bold text-[#231733] dark:text-pink-100 text-center shadow-xs">
         <AlertCircle className="w-4 h-4 shrink-0 text-[#E60067] dark:text-pink-400" />
@@ -547,15 +545,27 @@ export default function ProductCatalog({
             <div className="flex items-center gap-3">
               <button
                 onClick={handleBackToCollections}
-                className="px-3.5 py-2 rounded-2xl bg-pink-100/80 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center gap-1.5 transition shadow-xs"
-                title="Return to Collections Hub"
+                className="px-3.5 py-2 rounded-2xl bg-pink-100/80 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95"
+                title="Return to Home & Collections"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>All Collections</span>
+                <span>← Back to Home</span>
               </button>
 
               <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-                <span>Collections</span>
+                <button 
+                  onClick={handleBackToCollections}
+                  className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition-colors"
+                >
+                  Home
+                </button>
+                <span>/</span>
+                <button 
+                  onClick={handleBackToCollections}
+                  className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition-colors"
+                >
+                  Collections
+                </button>
                 <span>/</span>
                 <span className="font-bold text-[#231733] dark:text-white">
                   {activeCollection === 'All Items' ? 'All Products' : activeCollection}
@@ -884,10 +894,10 @@ export default function ProductCatalog({
           <div className="pt-8 border-t border-pink-200/60 dark:border-pink-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
             <button
               onClick={handleBackToCollections}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-300 dark:border-pink-800 font-display font-bold text-xs sm:text-sm text-[#E60067] dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 shadow-xs"
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-300 dark:border-pink-800 font-display font-extrabold text-xs sm:text-sm text-[#E60067] dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>← Back to All Collections</span>
+              <span>← Back to Home & Collections</span>
             </button>
 
             <span className="text-xs text-neutral-400 font-medium">
