@@ -12,6 +12,7 @@ import CharmInspector3D from './components/CharmInspector3D';
 import ReelsShowcase from './components/ReelsShowcase';
 import BrandStory from './components/BrandStory';
 import Testimonials from './components/Testimonials';
+import StoreFAQ from './components/StoreFAQ';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import { useStoreProducts } from './utils/productStore';
@@ -348,6 +349,9 @@ export default function App() {
 
       {/* CUSTOMER TESTIMONIALS */}
       <Testimonials />
+
+      {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
+      <StoreFAQ />
 
       {/* PRODUCT DETAIL PAGE / MODAL */}
       <ProductDetailPage

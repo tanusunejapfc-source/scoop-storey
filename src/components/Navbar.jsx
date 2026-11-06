@@ -100,6 +100,7 @@ export default function Navbar({
     { label: 'Collections', fullLabel: 'All Collections', href: '#collections', isAllCollections: true },
     { label: 'Charm Studio', fullLabel: '3D Charm Studio', href: '#charm-studio' },
     { label: 'ASMR Reels', fullLabel: 'ASMR Packing Reels', href: '#reels' },
+    { label: 'Care & FAQ', fullLabel: 'Care Guide & FAQs', href: '#faq-section' },
   ];
 
   const activeAnnouncement = ANNOUNCEMENTS[announcementIndex];
