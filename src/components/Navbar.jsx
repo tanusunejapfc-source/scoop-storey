@@ -80,14 +80,9 @@ export default function Navbar({
 
   const navLinks = [
     { label: '3D Scoops', fullLabel: '3D Scoop Machine', href: '#scoop-machine' },
-    { label: 'Collections', fullLabel: 'Collections', href: '#collections', isAllCollections: true },
-    { label: 'Pendants', fullLabel: 'Pendants & Chains', href: '#collection-pendants-chains', category: 'Pendants & Chains' },
-    { label: 'Bracelets', fullLabel: 'Bracelets', href: '#collection-bracelets', category: 'Bracelets' },
-    { label: 'Anklets', fullLabel: 'Anklets', href: '#collection-anklets', category: 'Anklets' },
-    { label: 'Eye Masks', fullLabel: 'Eye Masks', href: '#collection-eye-masks', category: 'Eye Masks' },
-    { label: 'Self-Care', fullLabel: 'Self-Care', href: '#collection-self-care', category: 'Self-Care' },
-    { label: 'Charm Studio', fullLabel: 'Charm Studio', href: '#charm-studio' },
-    { label: 'ASMR Reels', fullLabel: 'ASMR Reels', href: '#reels' },
+    { label: 'Collections', fullLabel: 'All Collections', href: '#collections', isAllCollections: true },
+    { label: 'Charm Studio', fullLabel: '3D Charm Studio', href: '#charm-studio' },
+    { label: 'ASMR Reels', fullLabel: 'ASMR Packing Reels', href: '#reels' },
   ];
 
   const activeAnnouncement = ANNOUNCEMENTS[announcementIndex];
@@ -226,9 +221,7 @@ export default function Navbar({
                     }
                   }
                 }}
-                className={`text-xs xl:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap items-center ${
-                  link.category ? 'hidden xl:inline-flex' : 'inline-flex'
-                }`}
+                className="inline-flex items-center text-xs sm:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap"
               >
                 <span>{link.label}</span>
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-200 group-hover:w-full rounded-full" />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import CategoryIconsBar from './components/CategoryIconsBar';
 import Hero3DCanvas from './components/Hero3DCanvas';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
@@ -184,6 +185,26 @@ export default function App() {
         isDark={isDark}
         onToggleTheme={() => setIsDark(!isDark)}
         onOpenAdmin={() => setIsAdminOpen(true)}
+        onSelectCategory={(category) => {
+          setActiveCollection(category);
+          const slug = category ? categoryToSlug(category) : 'all';
+          const targetHash = category ? `#collection-${slug}` : '#collections';
+          if (window.location.hash !== targetHash) {
+            try {
+              window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
+            } catch {
+              window.location.hash = targetHash;
+            }
+          }
+          setTimeout(() => {
+            document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 40);
+        }}
+      />
+
+      {/* STYLISH CATEGORY ICONS BAR (Story Bubbles / Quick Category Selector) */}
+      <CategoryIconsBar
+        activeCategory={activeCollection}
         onSelectCategory={(category) => {
           setActiveCollection(category);
           const slug = category ? categoryToSlug(category) : 'all';
