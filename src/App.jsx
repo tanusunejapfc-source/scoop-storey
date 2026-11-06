@@ -73,7 +73,7 @@ export default function App() {
         setSelectedProduct(null);
       }
 
-      // 3. Collection Navigation (Returns to Collections Hub if hash is not a collection)
+      // 3. Collection Navigation
       if (hash.startsWith('#collection-')) {
         const colId = hash.replace('#collection-', '');
         const foundCategory = slugToCategory(colId, products);
@@ -82,9 +82,15 @@ export default function App() {
         } else if (colId === 'all') {
           setActiveCollection('All Items');
         }
-      } else {
-        // When user clicks browser Back button from a collection, return smoothly to Collections Hub
+      } else if (hash === '#collections' || hash === '#menu' || hash === '' || hash === '#') {
+        // Return smoothly to Collections Overview Hub
         setActiveCollection(null);
+      } else if (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine') {
+        // Smooth scroll to dedicated landing page section without resetting collection unexpectedly
+        const targetId = hash.slice(1);
+        setTimeout(() => {
+          document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
       }
     };
 
@@ -165,7 +171,9 @@ export default function App() {
               window.location.hash = targetHash;
             }
           }
-          document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 40);
         }}
       />
 

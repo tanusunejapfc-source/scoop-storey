@@ -80,10 +80,10 @@ export default function Navbar({
 
   const navLinks = [
     { label: '3D Scoops', fullLabel: '3D Scoop Machine', href: '#scoop-machine' },
-    { label: 'Collections', fullLabel: 'Collections', href: '#menu', isAllCollections: true },
-    { label: 'Pendants', fullLabel: 'Pendants & Chains', href: '#menu', category: 'Pendants & Chains' },
-    { label: 'Bracelets', fullLabel: 'Bracelets', href: '#menu', category: 'Bracelets & Anklets' },
-    { label: 'Self-Care', fullLabel: 'Self-Care & Masks', href: '#menu', category: 'Eye Masks & Self-Care' },
+    { label: 'Collections', fullLabel: 'Collections', href: '#collections', isAllCollections: true },
+    { label: 'Pendants', fullLabel: 'Pendants & Chains', href: '#collection-pendants-chains', category: 'Pendants & Chains' },
+    { label: 'Bracelets', fullLabel: 'Bracelets', href: '#collection-bracelets-anklets', category: 'Bracelets & Anklets' },
+    { label: 'Self-Care', fullLabel: 'Self-Care & Masks', href: '#collection-eyemasks-selfcare', category: 'Eye Masks & Self-Care' },
     { label: 'Charm Studio', fullLabel: 'Charm Studio', href: '#charm-studio' },
     { label: 'ASMR Reels', fullLabel: 'ASMR Reels', href: '#reels' },
   ];
@@ -207,12 +207,26 @@ export default function Navbar({
               <a
                 key={link.label}
                 href={link.href}
-                onClick={() => {
+                onClick={(e) => {
                   soundFX.playPop(480);
                   if (link.isAllCollections) {
+                    e.preventDefault();
                     onSelectCategory?.(null);
                   } else if (link.category) {
+                    e.preventDefault();
                     onSelectCategory?.(link.category);
+                  } else if (link.href?.startsWith('#')) {
+                    const targetId = link.href.slice(1);
+                    const el = document.getElementById(targetId);
+                    if (el) {
+                      e.preventDefault();
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      try {
+                        window.history.pushState(null, '', link.href);
+                      } catch {
+                        window.location.hash = link.href;
+                      }
+                    }
                   }
                 }}
                 className={`text-xs xl:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap items-center ${
@@ -364,13 +378,27 @@ export default function Navbar({
               <a
                 key={link.label}
                 href={link.href}
-                onClick={() => {
+                onClick={(e) => {
                   setMobileMenuOpen(false);
                   soundFX.playPop(480);
                   if (link.isAllCollections) {
+                    e.preventDefault();
                     onSelectCategory?.(null);
                   } else if (link.category) {
+                    e.preventDefault();
                     onSelectCategory?.(link.category);
+                  } else if (link.href?.startsWith('#')) {
+                    const targetId = link.href.slice(1);
+                    const el = document.getElementById(targetId);
+                    if (el) {
+                      e.preventDefault();
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      try {
+                        window.history.pushState(null, '', link.href);
+                      } catch {
+                        window.location.hash = link.href;
+                      }
+                    }
                   }
                 }}
                 className="block px-3 py-2 rounded-lg font-bold text-sm text-[#231733] dark:text-neutral-100 hover:bg-pink-100/70 dark:hover:bg-neutral-800"
