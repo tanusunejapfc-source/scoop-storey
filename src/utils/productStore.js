@@ -133,6 +133,92 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
 
 const STORAGE_KEY = 'bhaskar_store_products_v3';
 
+// Native IndexedDB for robust large image persistence (no 5MB localStorage quota limit!)
+const IDB_NAME = 'ScoopStoreyDB';
+const IDB_VERSION = 1;
+const IDB_STORE = 'store_catalog';
+
+function openCatalogDB() {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      resolve(null);
+      return;
+    }
+    try {
+      const request = indexedDB.open(IDB_NAME, IDB_VERSION);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = (e) => {
+        console.warn('IndexedDB open error:', e);
+        resolve(null);
+      };
+    } catch (err) {
+      console.warn('IndexedDB open exception:', err);
+      resolve(null);
+    }
+  });
+}
+
+export async function getIDBProducts() {
+  try {
+    const db = await openCatalogDB();
+    if (!db) return null;
+    return new Promise((resolve) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.get('products');
+      req.onsuccess = () => {
+        const val = req.result;
+        if (Array.isArray(val) && val.length > 0) {
+          resolve(val.filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop'));
+        } else {
+          resolve(null);
+        }
+      };
+      req.onerror = () => resolve(null);
+    });
+  } catch (err) {
+    console.warn('IndexedDB read error:', err);
+    return null;
+  }
+}
+
+export async function saveIDBProducts(products) {
+  try {
+    const db = await openCatalogDB();
+    if (!db) return false;
+    return new Promise((resolve) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.put(products, 'products');
+      req.onsuccess = () => resolve(true);
+      req.onerror = (e) => {
+        console.warn('IndexedDB write error:', e);
+        resolve(false);
+      };
+    });
+  } catch (err) {
+    console.warn('IndexedDB save exception:', err);
+    return false;
+  }
+}
+
+export async function clearIDBProducts() {
+  try {
+    const db = await openCatalogDB();
+    if (!db) return;
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).delete('products');
+  } catch (err) {
+    console.warn('IndexedDB clear error:', err);
+  }
+}
+
 export function getStoredProducts() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -150,17 +236,24 @@ export function getStoredProducts() {
 }
 
 export function saveStoredProducts(products) {
+  // 1. Permanently store in IndexedDB (handles large uploaded images without hitting quotas)
+  saveIDBProducts(products);
+
+  // 2. Also sync to localStorage for instantaneous initial load
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-    window.dispatchEvent(new CustomEvent('scoop_products_updated', { detail: products }));
   } catch (err) {
-    console.error('Failed to save products to localStorage:', err);
+    console.warn('localStorage quota exceeded (large image uploads). Data is safely persisted in IndexedDB.', err);
   }
+
+  // 3. Broadcast update to active views
+  window.dispatchEvent(new CustomEvent('scoop_products_updated', { detail: products }));
 }
 
 export function resetStoredProducts() {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    clearIDBProducts();
     window.dispatchEvent(new CustomEvent('scoop_products_updated', { detail: DEFAULT_PRODUCTS }));
   } catch (err) {
     console.error('Failed to reset products:', err);
@@ -172,11 +265,29 @@ export function useStoreProducts() {
   const [products, setProducts] = useState(getStoredProducts);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Load from IndexedDB on refresh to restore full uploaded images
+    getIDBProducts().then((idbList) => {
+      if (isMounted && idbList && Array.isArray(idbList) && idbList.length > 0) {
+        setProducts(idbList);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(idbList));
+        } catch {
+          // Ignore localStorage quota
+        }
+      }
+    });
+
     const handleUpdate = (e) => {
       if (e?.detail) {
         setProducts(e.detail);
       } else {
-        setProducts(getStoredProducts());
+        getIDBProducts().then((idbList) => {
+          if (isMounted) {
+            setProducts(idbList || getStoredProducts());
+          }
+        });
       }
     };
 
@@ -184,6 +295,7 @@ export function useStoreProducts() {
     window.addEventListener('storage', handleUpdate);
 
     return () => {
+      isMounted = false;
       window.removeEventListener('scoop_products_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };

@@ -34,6 +34,7 @@ import { soundFX } from '../utils/audio';
 import { CATEGORIES } from '../data/storeData';
 import { useStoreOrders } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
+import { saveStoredProducts } from '../utils/productStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
@@ -66,8 +67,8 @@ const PRESET_COLORS = [
   { name: 'Midnight Black', hex: '#2A2A2A' }
 ];
 
-// Lightweight image compression helper for fast device uploads & lean localStorage persistence
-const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality = 0.85) => {
+// Lightweight image compression helper for fast device uploads & lean localStorage/IndexedDB persistence
+const compressImage = (file, maxWidth = 900, maxHeight = 900, quality = 0.80) => {
   return new Promise((resolve) => {
     if (!file || !file.type.startsWith('image/')) {
       resolve(null);
@@ -94,10 +95,14 @@ const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality = 0.85) 
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+
+        // Fill background white so transparent PNGs render cleanly
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
-        const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        const dataUrl = canvas.toDataURL(mimeType, quality);
+        // Always compress to JPEG at 0.80 (produces compact 30-50KB images that never exceed browser quotas)
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(dataUrl);
       };
       img.onerror = () => resolve(e.target?.result || null);
@@ -249,7 +254,7 @@ export default function AdminPanel({
   };
 
   // Image actions
-  const handleAddImage = (url) => {
+  const handleAddImage = (url, makePrimary = false) => {
     const raw = typeof url === 'string' ? url : newImageUrl;
     const imgUrl = (raw || '').trim();
 
@@ -262,24 +267,20 @@ export default function AdminPanel({
       return;
     }
 
-    const currentImages = Array.isArray(formData.images) ? formData.images : [];
-    if (currentImages.includes(imgUrl)) {
-      showToast('Image already added!');
-      return;
-    }
-
     setFormData(prev => {
       const prevImages = Array.isArray(prev.images) ? prev.images : [];
+      const filtered = prevImages.filter(x => x !== imgUrl);
+      const nextImages = makePrimary ? [imgUrl, ...filtered] : [...filtered, imgUrl];
       return {
         ...prev,
-        images: [...prevImages, imgUrl],
-        image: prev.image || imgUrl
+        images: nextImages,
+        image: makePrimary ? imgUrl : (prev.image || imgUrl)
       };
     });
 
     setNewImageUrl('');
     soundFX.playPop(600);
-    showToast('Image added to gallery!');
+    showToast(makePrimary ? 'Primary thumbnail updated!' : 'Image added to gallery!');
   };
 
   const handleProductFileUpload = async (e) => {
@@ -292,24 +293,22 @@ export default function AdminPanel({
         continue;
       }
       try {
-        const compressedDataUrl = await compressImage(file, 1000, 1000, 0.85);
+        const compressedDataUrl = await compressImage(file, 900, 900, 0.80);
         if (!compressedDataUrl) continue;
 
         setFormData(prev => {
           const prevImages = Array.isArray(prev.images) ? prev.images : [];
-          if (prevImages.includes(compressedDataUrl)) {
-            showToast('Image already in gallery!');
-            return prev;
-          }
+          // Prepend newly uploaded photo so it becomes the primary image immediately
+          const nextImages = [compressedDataUrl, ...prevImages.filter(x => x !== compressedDataUrl)];
           return {
             ...prev,
-            images: [...prevImages, compressedDataUrl],
-            image: prev.image || compressedDataUrl
+            images: nextImages,
+            image: compressedDataUrl
           };
         });
 
         soundFX.playSuccess();
-        showToast(`Added "${file.name}" to gallery!`);
+        showToast(`Uploaded "${file.name}" as primary photo!`);
       } catch (err) {
         console.error('Failed to load image:', err);
         showToast(`Failed to upload ${file.name}`);
@@ -332,10 +331,15 @@ export default function AdminPanel({
   };
 
   const handleSetPrimaryImage = (img) => {
-    setFormData(prev => ({
-      ...prev,
-      image: img
-    }));
+    setFormData(prev => {
+      const prevImages = Array.isArray(prev.images) ? prev.images : [];
+      const filtered = prevImages.filter(x => x !== img);
+      return {
+        ...prev,
+        image: img,
+        images: [img, ...filtered]
+      };
+    });
     soundFX.playPop(500);
     showToast('Primary thumbnail updated!');
   };
@@ -421,10 +425,16 @@ export default function AdminPanel({
       return;
     }
 
+    const primaryImage = formData.image || formData.images[0] || '/images/deluxe-giftbox.jpg';
+    const allImages = formData.images && formData.images.length > 0
+      ? [primaryImage, ...formData.images.filter(x => x !== primaryImage)]
+      : [primaryImage];
+
     const payload = {
       ...formData,
       priceINR: Number(formData.priceINR) || 199,
-      image: formData.image || formData.images[0] || '/images/deluxe-giftbox.jpg'
+      image: primaryImage,
+      images: allImages
     };
 
     if (activeTab === 'edit') {
@@ -468,8 +478,9 @@ export default function AdminPanel({
       try {
         const parsed = JSON.parse(event.target.result);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          localStorage.setItem('bhaskar_store_products_v2', JSON.stringify(parsed));
-          window.location.reload();
+          saveStoredProducts(parsed);
+          showToast('Catalog imported successfully!');
+          setTimeout(() => window.location.reload(), 400);
         } else {
           showToast('Invalid catalog format.');
         }
@@ -1591,59 +1602,123 @@ export default function AdminPanel({
 
                 {/* 2. IMAGE GALLERY MANAGER */}
                 <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/40 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-pink-100 dark:border-neutral-800">
                     <div className="flex items-center gap-2 font-display font-extrabold text-sm text-[#E60067] dark:text-pink-400">
                       <ImageIcon className="w-4 h-4" />
                       <span>Product Images Gallery ({formData.images.length})</span>
                     </div>
-                    <span className="text-[11px] text-neutral-500">First image is primary thumbnail</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => productFileInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-xl bg-[#E60067] hover:bg-[#D8005A] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
+                        title="Upload a new photo from your device"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload from Device</span>
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Current Active Images Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                    {formData.images.map((img, idx) => (
-                      <div 
-                        key={idx}
-                        className={`relative group rounded-2xl overflow-hidden border-2 p-1 bg-white dark:bg-neutral-900 ${
-                          formData.image === img ? 'border-pink-500 shadow-md ring-2 ring-pink-400/30' : 'border-pink-200 dark:border-neutral-700'
-                        }`}
-                      >
-                        <img 
-                          src={img} 
-                          alt={`Gallery ${idx + 1}`} 
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
-                          }}
-                          className="w-full aspect-square object-contain rounded-xl"
-                        />
-                        {/* Overlay Controls */}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-1">
-                          <button
-                            type="button"
-                            onClick={() => handleSetPrimaryImage(img)}
-                            className="p-1.5 rounded-lg bg-pink-500 text-white text-[10px] font-bold hover:bg-pink-600 transition"
-                            title="Set as primary thumbnail"
-                          >
-                            Main
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            className="p-1.5 rounded-lg bg-rose-600 text-white hover:bg-rose-700 transition"
-                            title="Remove image"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                  {/* Primary Thumbnail Spotlight Card */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50/70 via-purple-50/40 to-pink-50/70 dark:from-pink-950/30 dark:to-neutral-900 border border-pink-200/80 dark:border-pink-900/50 flex flex-col sm:flex-row items-center gap-4">
+                    <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-white dark:bg-neutral-800 border-2 border-pink-400 shadow-sm shrink-0 flex items-center justify-center p-1">
+                      <img
+                        src={formData.image || formData.images[0] || '/images/deluxe-giftbox.jpg'}
+                        alt="Primary Preview"
+                        className="w-full h-full object-contain rounded-lg"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                        }}
+                      />
+                      <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-[#E60067] text-white text-[9px] font-black uppercase">
+                        Main
+                      </span>
+                    </div>
 
-                        {formData.image === img && (
-                          <span className="absolute bottom-2 left-2 z-10 px-2 py-0.5 rounded-full bg-pink-500 text-white text-[9px] font-bold">
-                            Primary
-                          </span>
-                        )}
+                    <div className="flex-1 space-y-1.5 text-center sm:text-left">
+                      <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-extrabold text-[#231733] dark:text-white">
+                        <span>Current Primary Store Thumbnail</span>
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
                       </div>
-                    ))}
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                        This is the photo shown in the catalog, collections, and cart. Newly uploaded device photos are automatically set as main.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => productFileInputRef.current?.click()}
+                        className="text-xs font-bold text-[#E60067] dark:text-pink-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Upload className="w-3 h-3" />
+                        <span>Replace with new photo</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Current Active Images Grid with mobile-friendly controls */}
+                  <div>
+                    <span className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 block mb-2">
+                      All Gallery Photos ({formData.images.length}):
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                      {formData.images.map((img, idx) => {
+                        const isMain = formData.image === img || (idx === 0 && !formData.image);
+                        return (
+                          <div 
+                            key={idx}
+                            className={`relative rounded-2xl overflow-hidden border-2 p-1.5 bg-white dark:bg-neutral-900 transition-all ${
+                              isMain ? 'border-[#E60067] shadow-md ring-2 ring-pink-400/30' : 'border-pink-200 dark:border-neutral-700 hover:border-pink-300'
+                            }`}
+                          >
+                            <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-pink-50/50 dark:bg-neutral-800 p-1">
+                              <img 
+                                src={img} 
+                                alt={`Gallery ${idx + 1}`} 
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                }}
+                                className="w-full h-full object-contain rounded-lg"
+                              />
+
+                              {isMain && (
+                                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded-full bg-[#E60067] text-white text-[9px] font-black uppercase shadow-xs">
+                                  Primary
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Mobile-friendly action buttons */}
+                            <div className="mt-2 pt-1.5 border-t border-pink-100 dark:border-neutral-800 flex items-center justify-between gap-1">
+                              {!isMain ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetPrimaryImage(img)}
+                                  className="px-2 py-1 rounded-lg bg-pink-100 dark:bg-pink-950 text-[#E60067] dark:text-pink-300 hover:bg-[#E60067] hover:text-white text-[10px] font-bold transition flex-1 text-center cursor-pointer"
+                                  title="Make this the primary thumbnail"
+                                >
+                                  Set Main
+                                </button>
+                              ) : (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex-1 text-center">
+                                  ✓ Main
+                                </span>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveImage(idx)}
+                                className="p-1 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                                title="Remove image"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Add New Image Controls */}
@@ -1686,7 +1761,7 @@ export default function AdminPanel({
                         <button
                           type="button"
                           onClick={() => handleAddImage()}
-                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 transition flex items-center justify-center gap-1.5 shadow-xs"
+                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
                           title="Add entered image URL (or browse from device if input is empty)"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -1696,7 +1771,7 @@ export default function AdminPanel({
                         <button
                           type="button"
                           onClick={() => productFileInputRef.current?.click()}
-                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 border border-pink-300 dark:border-pink-800 font-bold text-xs hover:bg-pink-200 dark:hover:bg-pink-900 transition flex items-center justify-center gap-1.5 shadow-xs"
+                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 border border-pink-300 dark:border-pink-800 font-bold text-xs hover:bg-pink-200 dark:hover:bg-pink-900 transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
                           title="Upload product photo directly from your device"
                         >
                           <Upload className="w-3.5 h-3.5" />
@@ -1716,7 +1791,7 @@ export default function AdminPanel({
                             key={i}
                             type="button"
                             onClick={() => handleAddImage(pImg.url)}
-                            className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-pink-50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 hover:border-pink-400 transition"
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-pink-50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 hover:border-pink-400 transition cursor-pointer"
                           >
                             + {pImg.label}
                           </button>
