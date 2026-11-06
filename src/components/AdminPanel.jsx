@@ -32,7 +32,10 @@ import {
   Tags,
   Layers,
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Video,
+  Play,
+  Film
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { categoryToSlug } from '../data/storeData';
@@ -40,6 +43,7 @@ import { useStoreOrders } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import { saveStoredProducts } from '../utils/productStore';
 import { uploadImageToSupabase } from '../utils/supabaseClient';
+import { useStoreReels, captureVideoPoster } from '../utils/reelsStore';
 import { 
   getStoredCategories, 
   saveStoredCategories, 
@@ -167,6 +171,153 @@ export default function AdminPanel({
     refreshOrders();
     showToast('Orders refreshed! 🎀');
     setTimeout(() => setIsRefreshing(false), 600);
+  };
+
+  // Reels store hook & management states
+  const { reels, updateReel, addReel, deleteReel, resetReels } = useStoreReels();
+  const [editingReel, setEditingReel] = useState(null);
+  const [reelFormData, setReelFormData] = useState({
+    id: '',
+    title: '',
+    views: '480K',
+    likes: '42K',
+    comments: '1,200',
+    audio: 'Original Audio - Bhaskar Scoop Storey (ASMR)',
+    tag: '#mysteryscoop #asmrpacking #satisfying',
+    image: '',
+    videoUrl: '',
+    instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+  });
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [posterUploading, setPosterUploading] = useState(false);
+  const [quickUploadReelId, setQuickUploadReelId] = useState(null);
+  const quickVideoInputRef = useRef(null);
+
+  const handleOpenEditReel = (reel) => {
+    soundFX.playPop(520);
+    setEditingReel(reel);
+    setReelFormData({
+      id: reel.id,
+      title: reel.title || '',
+      views: reel.views || '500K',
+      likes: reel.likes || '45K',
+      comments: reel.comments || '1,200',
+      audio: reel.audio || 'Original Audio • Bhaskar ASMR',
+      tag: reel.tag || '',
+      image: reel.image || '',
+      videoUrl: reel.videoUrl || '',
+      instagramUrl: reel.instagramUrl || 'https://www.instagram.com/bhaskar_scoopstorey/'
+    });
+  };
+
+  const handleOpenAddReel = () => {
+    soundFX.playPop(550);
+    const newId = `reel-${Date.now()}`;
+    setEditingReel({ id: newId, isNew: true });
+    setReelFormData({
+      id: newId,
+      title: 'Packing 5x Scoop Order for @customer 🎀',
+      views: '120K',
+      likes: '14.5K',
+      comments: '420',
+      audio: 'Original Audio - Bhaskar ASMR',
+      tag: '#mysteryscoop #asmrpacking #scoopstorey',
+      image: '/images/asmr-packing.jpg',
+      videoUrl: '',
+      instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+    });
+  };
+
+  const handleSaveReel = (e) => {
+    e?.preventDefault();
+    if (!reelFormData.title.trim()) {
+      showToast('Please enter a reel title');
+      return;
+    }
+
+    if (editingReel?.isNew) {
+      addReel(reelFormData);
+      showToast('New ASMR Reel created! 🎥');
+    } else {
+      updateReel(reelFormData);
+      showToast('Reel updated successfully! ✨');
+    }
+
+    soundFX.playSuccess();
+    setEditingReel(null);
+  };
+
+  const handleDeleteReel = (reelId) => {
+    const confirm = window.confirm('Are you sure you want to delete this Reel?');
+    if (!confirm) return;
+    deleteReel(reelId);
+    showToast('Reel deleted');
+    soundFX.playPop(420);
+    if (editingReel?.id === reelId) setEditingReel(null);
+  };
+
+  const handleReelVideoUpload = async (file, targetId = null) => {
+    if (!file || !file.type.startsWith('video/')) {
+      alert('Please select a valid video file (.mp4, .webm, .mov, etc.)');
+      return;
+    }
+
+    setVideoUploading(true);
+    soundFX.playPop(520);
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const dataUrl = event.target?.result;
+
+      let posterDataUrl = null;
+      try {
+        posterDataUrl = await captureVideoPoster(file);
+      } catch {
+        // ignore
+      }
+
+      if (targetId) {
+        const found = reels.find(r => r.id === targetId);
+        if (found) {
+          updateReel({
+            ...found,
+            videoUrl: dataUrl,
+            image: posterDataUrl || found.image
+          });
+          showToast('Video uploaded and saved to Reel! 🎥');
+          soundFX.playSuccess();
+        }
+      } else {
+        setReelFormData(prev => ({
+          ...prev,
+          videoUrl: dataUrl,
+          image: prev.image || posterDataUrl || ''
+        }));
+        showToast('Video attached! Click Save Reel to confirm.');
+        soundFX.playSuccess();
+      }
+      setVideoUploading(false);
+    };
+
+    reader.onerror = () => {
+      alert('Failed to read video file');
+      setVideoUploading(false);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleReelPosterUpload = async (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    setPosterUploading(true);
+    soundFX.playPop(520);
+    const compressed = await compressImage(file, 900, 1600, 0.85);
+    if (compressed) {
+      setReelFormData(prev => ({ ...prev, image: compressed }));
+      showToast('Cover poster image updated! 🖼️');
+      soundFX.playSuccess();
+    }
+    setPosterUploading(false);
   };
 
   // Form states for Editing or Adding a Product
@@ -1044,6 +1195,22 @@ export default function AdminPanel({
                 >
                   <QrCode className="w-3.5 h-3.5" />
                   <span>UPI & QR Settings</span>
+                </button>
+
+                {/* 5. ASMR REELS & VIDEO UPLOADS TAB */}
+                <button
+                  onClick={() => {
+                    setActiveTab('reels');
+                    soundFX.playPop(450);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    activeTab === 'reels'
+                      ? 'bg-[#E60067] text-white shadow-sm'
+                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
+                  }`}
+                >
+                  <Video className="w-3.5 h-3.5" />
+                  <span>ASMR Reels & Videos ({reels.length})</span>
                 </button>
 
                 {activeTab === 'edit' && (
@@ -2720,6 +2887,201 @@ export default function AdminPanel({
               </div>
             )}
 
+            {/* TAB 5: ASMR REELS & VIDEO UPLOADS */}
+            {activeTab === 'reels' && (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                {/* Header Banner */}
+                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-rose-500/15 border-2 border-pink-200 dark:border-pink-900/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-extrabold text-[#E60067] dark:text-pink-400 mb-2">
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Instagram ASMR Packing Reels Studio</span>
+                    </div>
+                    <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white">
+                      Upload & Edit Packing Videos
+                    </h3>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-xl">
+                      Upload video files (.mp4, .webm, .mov) or set video links, update view counters, edit order titles, and add Instagram links for your homepage feed.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleOpenAddReel}
+                      className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add New Reel</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Reset all reels back to original defaults?')) {
+                          resetReels();
+                          showToast('Reels reset to default');
+                        }
+                      }}
+                      className="px-3 py-2 rounded-2xl border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-600 dark:text-neutral-300 hover:bg-pink-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+                    >
+                      Reset Defaults
+                    </button>
+                  </div>
+                </div>
+
+                {/* Hidden Quick Video File Input */}
+                <input
+                  ref={quickVideoInputRef}
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0] && quickUploadReelId) {
+                      handleReelVideoUpload(e.target.files[0], quickUploadReelId);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+
+                {/* Reels Grid in Admin */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {reels.map((reel, index) => {
+                    const hasVideo = Boolean(reel.videoUrl && reel.videoUrl !== '__STORED_IN_INDEXEDDB__');
+                    return (
+                      <div
+                        key={reel.id}
+                        className="rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-200 dark:border-pink-900/60 overflow-hidden shadow-md flex flex-col justify-between group hover:border-pink-400 transition"
+                      >
+                        <div>
+                          {/* 9:16 Aspect Video / Poster Preview */}
+                          <div className="relative aspect-[9/16] w-full bg-neutral-900 overflow-hidden">
+                            {hasVideo ? (
+                              <video
+                                src={reel.videoUrl}
+                                poster={reel.image}
+                                muted
+                                loop
+                                playsInline
+                                onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                                onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src={reel.image || '/images/asmr-packing.jpg'}
+                                alt={reel.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                              />
+                            )}
+
+                            {/* Status Badge */}
+                            <div className="absolute top-3 left-3 z-10">
+                              {hasVideo ? (
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[10px] font-black flex items-center gap-1 shadow-xs backdrop-blur-xs">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                                  <span>Video Active</span>
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full bg-black/60 text-pink-300 text-[10px] font-black flex items-center gap-1 shadow-xs backdrop-blur-xs border border-white/20">
+                                  <ImageIcon className="w-3 h-3" />
+                                  <span>Cover Image Only</span>
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Slot number */}
+                            <span className="absolute top-3 right-3 z-10 w-6 h-6 rounded-full bg-black/60 text-white text-[11px] font-black flex items-center justify-center border border-white/20">
+                              #{index + 1}
+                            </span>
+
+                            {/* Views & Likes stats overlay */}
+                            <div className="absolute bottom-2 left-2 right-2 p-2 rounded-xl bg-black/75 backdrop-blur-md text-white text-[10px] flex items-center justify-between border border-white/10">
+                              <span className="font-bold flex items-center gap-1">
+                                <Play className="w-2.5 h-2.5 fill-white" />
+                                <span>{reel.views || '500K'}</span>
+                              </span>
+                              <span className="font-bold flex items-center gap-1">
+                                <Heart className="w-2.5 h-2.5 fill-pink-500 text-pink-500" />
+                                <span>{reel.likes || '45K'}</span>
+                              </span>
+                              <span className="text-neutral-400 truncate max-w-[80px]">
+                                {reel.comments || '1.2K'}💬
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Info */}
+                          <div className="p-3.5 space-y-1.5">
+                            <h5 className="font-display font-bold text-xs text-[#231733] dark:text-white line-clamp-2">
+                              {reel.title}
+                            </h5>
+                            <p className="text-[10px] text-pink-600 dark:text-pink-400 font-semibold truncate">
+                              {reel.tag || '#mysteryscoop #asmr'}
+                            </p>
+                            <p className="text-[10px] text-neutral-400 truncate">
+                              🎵 {reel.audio || 'Original Audio'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="p-3 pt-0 border-t border-pink-100 dark:border-neutral-800 space-y-2">
+                          <div className="grid grid-cols-2 gap-1.5 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditReel(reel)}
+                              className="w-full py-1.5 px-2 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Edit Details</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setQuickUploadReelId(reel.id);
+                                quickVideoInputRef.current?.click();
+                              }}
+                              className="w-full py-1.5 px-2 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/80 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                              title="Upload video file directly to this reel"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{hasVideo ? 'Replace Video' : 'Upload Video'}</span>
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[11px] pt-1">
+                            {reel.instagramUrl && (
+                              <a
+                                href={reel.instagramUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-pink-600 dark:text-pink-400 font-bold hover:underline flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>View on IG</span>
+                              </a>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteReel(reel.id)}
+                              className="text-neutral-400 hover:text-rose-500 font-bold ml-auto flex items-center gap-1 transition cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* MODAL 3: BULK MOVE PRODUCTS MODAL */}
             {bulkMoveModal.isOpen && (
               <div 
@@ -2866,6 +3228,320 @@ export default function AdminPanel({
                       </span>
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* MODAL 4: EDIT / ADD ASMR REEL MODAL */}
+            {editingReel && (
+              <div
+                onClick={() => setEditingReel(null)}
+                className="fixed inset-0 z-60 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-fadeIn"
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col p-5 sm:p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white overflow-hidden"
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/40">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#E60067] to-purple-600 text-white flex items-center justify-center shadow-md">
+                        <Video className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-display font-extrabold text-base">
+                          {editingReel.isNew ? 'Create New ASMR Packing Reel' : 'Edit ASMR Reel & Upload Video'}
+                        </h4>
+                        <span className="text-[11px] text-neutral-500">
+                          Configure video, cover poster, views, likes & Instagram links
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditingReel(null)}
+                      className="p-1 rounded-xl hover:bg-pink-100 dark:hover:bg-neutral-800 transition text-neutral-400 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Modal Body Form */}
+                  <form onSubmit={handleSaveReel} className="flex-1 overflow-y-auto space-y-4 pr-1">
+                    {/* Video Upload Section */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-pink-50/70 to-purple-50/60 dark:from-neutral-800/80 dark:to-neutral-800/40 border border-pink-200 dark:border-pink-900/40 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+                          <Video className="w-4 h-4 text-[#E60067]" />
+                          <span>Video File (.mp4, .webm, .mov)</span>
+                        </label>
+                        {videoUploading && (
+                          <span className="text-[11px] text-pink-600 dark:text-pink-400 font-bold animate-pulse">
+                            Processing video file...
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Video Player Preview if attached */}
+                      {reelFormData.videoUrl ? (
+                        <div className="space-y-2">
+                          <div className="relative aspect-[9/16] max-h-64 rounded-2xl bg-black overflow-hidden border border-pink-300 dark:border-neutral-700 mx-auto flex items-center justify-center">
+                            <video
+                              src={reelFormData.videoUrl}
+                              poster={reelFormData.image}
+                              controls
+                              playsInline
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-center gap-2 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'video/*';
+                                input.onchange = (e) => {
+                                  if (e.target.files?.[0]) handleReelVideoUpload(e.target.files[0]);
+                                };
+                                input.click();
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>Replace Video</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                showToast('Generating cover from video...');
+                                const poster = await captureVideoPoster(reelFormData.videoUrl);
+                                if (poster) {
+                                  setReelFormData(prev => ({ ...prev, image: poster }));
+                                  showToast('Cover poster generated!');
+                                } else {
+                                  showToast('Could not extract frame');
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-neutral-700 text-purple-700 dark:text-purple-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>Auto-Create Poster Frame</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setReelFormData(prev => ({ ...prev, videoUrl: '' }))}
+                              className="px-3 py-1.5 rounded-xl text-rose-500 hover:bg-rose-50 text-xs font-bold transition cursor-pointer"
+                            >
+                              Remove Video
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'video/*';
+                            input.onchange = (e) => {
+                              if (e.target.files?.[0]) handleReelVideoUpload(e.target.files[0]);
+                            };
+                            input.click();
+                          }}
+                          className="border-2 border-dashed border-pink-300 dark:border-pink-800 rounded-2xl p-6 text-center hover:bg-pink-100/50 dark:hover:bg-neutral-800 transition cursor-pointer space-y-1.5"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 flex items-center justify-center mx-auto">
+                            <Upload className="w-5 h-5" />
+                          </div>
+                          <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                            Click to upload video file (MP4, WebM, MOV)
+                          </p>
+                          <p className="text-[11px] text-neutral-500">
+                            Saved permanently in IndexedDB — persists across reloads!
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Or Video URL input */}
+                      <div className="pt-1">
+                        <label className="text-[11px] font-bold text-neutral-600 dark:text-neutral-400 block mb-1">
+                          Or enter direct Video URL:
+                        </label>
+                        <input
+                          type="text"
+                          value={reelFormData.videoUrl?.startsWith('data:') ? '' : reelFormData.videoUrl}
+                          onChange={(e) => setReelFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
+                          placeholder="e.g. https://.../reel-packing.mp4"
+                          className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:border-[#E60067]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Cover Poster Image Upload */}
+                    <div className="p-4 rounded-2xl bg-white dark:bg-neutral-800/60 border border-pink-200 dark:border-neutral-700 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+                          <ImageIcon className="w-4 h-4 text-[#E60067]" />
+                          <span>Cover Poster Image</span>
+                        </label>
+                        {posterUploading && (
+                          <span className="text-[11px] text-pink-600 font-bold animate-pulse">Compressing...</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={reelFormData.image || '/images/asmr-packing.jpg'}
+                          alt="Poster preview"
+                          className="w-14 h-20 rounded-xl object-cover bg-neutral-900 border border-pink-200 shrink-0"
+                          onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                        />
+
+                        <div className="flex-1 space-y-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = (e) => {
+                                if (e.target.files?.[0]) handleReelPosterUpload(e.target.files[0]);
+                              };
+                              input.click();
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Upload Cover Photo</span>
+                          </button>
+
+                          <input
+                            type="text"
+                            value={reelFormData.image?.startsWith('data:') ? '' : reelFormData.image}
+                            onChange={(e) => setReelFormData(prev => ({ ...prev, image: e.target.value }))}
+                            placeholder="Or enter image URL (/images/asmr-packing.jpg)"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Reel Title & Hashtags */}
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-bold mb-1">
+                          Reel Caption / Order Note:
+                        </label>
+                        <input
+                          type="text"
+                          value={reelFormData.title}
+                          onChange={(e) => setReelFormData(prev => ({ ...prev, title: e.target.value }))}
+                          placeholder="e.g. Packing 5x Scoop Order for @diya_aesthetic 🎀"
+                          className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:border-[#E60067] font-semibold"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold mb-1">
+                            Hashtags:
+                          </label>
+                          <input
+                            type="text"
+                            value={reelFormData.tag}
+                            onChange={(e) => setReelFormData(prev => ({ ...prev, tag: e.target.value }))}
+                            placeholder="e.g. #mysteryscoop #asmrpacking #satisfying"
+                            className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold mb-1">
+                            Audio Track Name:
+                          </label>
+                          <input
+                            type="text"
+                            value={reelFormData.audio}
+                            onChange={(e) => setReelFormData(prev => ({ ...prev, audio: e.target.value }))}
+                            placeholder="e.g. Pure ASMR Charm Clinks • Bhaskar"
+                            className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Metrics: Views, Likes, Comments */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold mb-1">Views Count:</label>
+                          <input
+                            type="text"
+                            value={reelFormData.views}
+                            onChange={(e) => setReelFormData(prev => ({ ...prev, views: e.target.value }))}
+                            placeholder="e.g. 482K"
+                            className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold mb-1">Likes Count:</label>
+                          <input
+                            type="text"
+                            value={reelFormData.likes}
+                            onChange={(e) => setReelFormData(prev => ({ ...prev, likes: e.target.value }))}
+                            placeholder="e.g. 42.8K"
+                            className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold mb-1">Comments Count:</label>
+                          <input
+                            type="text"
+                            value={reelFormData.comments}
+                            onChange={(e) => setReelFormData(prev => ({ ...prev, comments: e.target.value }))}
+                            placeholder="e.g. 1,280"
+                            className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Instagram Link */}
+                      <div>
+                        <label className="block text-xs font-bold mb-1">
+                          Instagram Post / Reel URL:
+                        </label>
+                        <input
+                          type="text"
+                          value={reelFormData.instagramUrl}
+                          onChange={(e) => setReelFormData(prev => ({ ...prev, instagramUrl: e.target.value }))}
+                          placeholder="https://www.instagram.com/reel/..."
+                          className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Modal Footer Buttons */}
+                    <div className="pt-3 flex items-center justify-between border-t border-pink-100 dark:border-pink-900/40">
+                      <button
+                        type="button"
+                        onClick={() => setEditingReel(null)}
+                        className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 text-xs font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="submit"
+                        className="px-5 py-2.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Save Reel & Publish</span>
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
