@@ -366,6 +366,16 @@ Please send me the UPI QR code for payment! ✨`;
     setTimeout(() => setCopiedField(null), 2500);
   };
 
+  const handleShareBagOnWhatsApp = () => {
+    soundFX.playPop(520);
+    if (!cartItems.length) return;
+    const itemList = cartItems
+      .map(item => `• ${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
+      .join('\n');
+    const msg = `Hey! 💖 Here are the cute jewelry finds I saved in my cart on Scoop Storey:\n\n${itemList}\n\n💰 Total: ₹${totalINR} (${totalItemCount} items)\n✨ Look at them here: https://scoop-storey-1du8.vercel.app/\nWould make the dreamiest gift or surprise! 🎁✨`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
   // Transition to UPI & QR Payment Step
   const handleProceedToUpiPayment = () => {
     if (!isMinimumMet) {
@@ -1391,6 +1401,17 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                 >
                   <WhatsAppIcon className="w-3.5 h-3.5" />
                   <span>Order directly on WhatsApp (+91 8199922653)</span>
+                </button>
+
+                {/* Drop a Gift Hint / Share Bag on WhatsApp */}
+                <button
+                  type="button"
+                  onClick={handleShareBagOnWhatsApp}
+                  className="w-full py-2.5 rounded-2xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
+                  title="Share your bag with someone on WhatsApp"
+                >
+                  <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                  <span>Drop a Gift Hint / Share Bag on WhatsApp 🎁</span>
                 </button>
               </div>
             </div>

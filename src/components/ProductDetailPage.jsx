@@ -9,10 +9,16 @@ import {
   ShieldCheck, 
   Truck, 
   Video, 
-  Share2
+  Share2,
+  Gift,
+  MapPin,
+  Sparkles,
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { saveOrderToStore } from '../utils/orderStore';
+import { lookupPincode } from '../utils/pincodeApi';
 import WhatsAppIcon from './WhatsAppIcon';
 
 export default function ProductDetailPage({
@@ -34,6 +40,82 @@ export default function ProductDetailPage({
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'includes' | 'shipping'
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Delivery & PIN Code Estimator State
+  const [pincodeInput, setPincodeInput] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bhaskar_delivery_address');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.pincode || '';
+      }
+    } catch {}
+    return '';
+  });
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [deliveryInfo, setDeliveryInfo] = useState(null);
+  const [pincodeError, setPincodeError] = useState('');
+
+  const getEstimatedDeliveryRange = (daysMin = 3, daysMax = 5) => {
+    const now = new Date();
+    const minDate = new Date(now.getTime() + daysMin * 24 * 60 * 60 * 1000);
+    const maxDate = new Date(now.getTime() + daysMax * 24 * 60 * 60 * 1000);
+    const opts = { weekday: 'short', month: 'short', day: 'numeric' };
+    return `${minDate.toLocaleDateString('en-IN', opts)} – ${maxDate.toLocaleDateString('en-IN', opts)}`;
+  };
+
+  const handleCheckPincode = async (overridePin) => {
+    const pin = (overridePin !== undefined ? overridePin : pincodeInput).trim().replace(/\D/g, '').slice(0, 6);
+    if (pin.length !== 6) {
+      setPincodeError('Please enter a valid 6-digit PIN code');
+      setDeliveryInfo(null);
+      return;
+    }
+    setPincodeLoading(true);
+    setPincodeError('');
+    try {
+      const result = await lookupPincode(pin);
+      if (result.success) {
+        setDeliveryInfo({
+          city: result.city,
+          state: result.state,
+          dateRange: getEstimatedDeliveryRange(3, 5),
+          pincode: pin
+        });
+        soundFX.playPop(580);
+      } else {
+        setDeliveryInfo({
+          city: 'Across India',
+          state: '',
+          dateRange: getEstimatedDeliveryRange(3, 5),
+          pincode: pin
+        });
+      }
+    } catch {
+      setDeliveryInfo({
+        city: 'Across India',
+        state: '',
+        dateRange: getEstimatedDeliveryRange(3, 5),
+        pincode: pin
+      });
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
+
+  // Auto-verify if saved pincode already exists
+  useEffect(() => {
+    if (pincodeInput && pincodeInput.length === 6 && !deliveryInfo) {
+      handleCheckPincode(pincodeInput);
+    }
+  }, []);
+
+  const handleGiftHint = () => {
+    soundFX.playPop(520);
+    const shareUrl = window.location.href;
+    const msg = `Hey! 💖 I saw this gorgeous "${product.name}" (${selectedColor?.name || 'Standard'}) on Scoop Storey and totally loved it: ${shareUrl} ✨ Would make the dreamiest gift!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   // Handle ESC key to close
   useEffect(() => {
@@ -415,6 +497,108 @@ export default function ProductDetailPage({
                   <WhatsAppIcon className="w-4 h-4" />
                   <span>Order "{selectedColor?.name || 'Standard'}" on WhatsApp (+91 8199922653)</span>
                 </button>
+
+                {/* Secondary Actions: Drop Gift Hint & Share */}
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleGiftHint}
+                    className="py-2.5 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
+                    title="Send a cute hint to friends or partner on WhatsApp"
+                  >
+                    <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <span>Drop Gift Hint 🎁</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    className="py-2.5 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-emerald-600">Link Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-3.5 h-3.5 text-pink-600" />
+                        <span>Share Product</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* ESTIMATED DELIVERY & PIN CODE CHECKER */}
+              <div className="mt-5 p-4 rounded-2xl bg-white dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40 shadow-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                    <Truck className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                    <span>Check Estimated Delivery & Pincode</span>
+                  </div>
+                  <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold uppercase">
+                    Free over ₹499
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <MapPin className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={pincodeInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        setPincodeInput(val);
+                        if (val.length === 6) {
+                          handleCheckPincode(val);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleCheckPincode();
+                        }
+                      }}
+                      placeholder="Enter 6-digit PIN (e.g. 110001, 400050)"
+                      className="w-full pl-8 pr-3 py-2 text-xs font-semibold rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-neutral-800 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#E60067]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCheckPincode()}
+                    disabled={pincodeLoading}
+                    className="px-3.5 py-2 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-[#E60067] dark:text-pink-300 font-bold text-xs transition cursor-pointer disabled:opacity-50"
+                  >
+                    {pincodeLoading ? 'Checking...' : 'Check'}
+                  </button>
+                </div>
+
+                {pincodeError && (
+                  <p className="text-[11px] text-rose-500 font-medium">
+                    {pincodeError}
+                  </p>
+                )}
+
+                {deliveryInfo && (
+                  <div className="p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 space-y-1 text-xs animate-fadeIn">
+                    <div className="flex items-center justify-between text-emerald-800 dark:text-emerald-300 font-bold">
+                      <span className="flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Deliverable to {deliveryInfo.city}{deliveryInfo.state ? `, ${deliveryInfo.state}` : ''} ({deliveryInfo.pincode})</span>
+                      </span>
+                      <span className="text-[10px] bg-emerald-200 dark:bg-emerald-800/60 text-emerald-900 dark:text-emerald-100 px-2 py-0.5 rounded-full font-black">
+                        Prepaid Verified
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium flex items-center gap-1">
+                      <Clock className="w-3 h-3 shrink-0" />
+                      <span>Estimated delivery by <strong className="font-bold underline">{deliveryInfo.dateRange}</strong> (Express 3–5 Days)</span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* SPECIFICATIONS & HIGHLIGHTS TABS */}
