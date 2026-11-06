@@ -30,6 +30,7 @@ import WhatsAppIcon from './WhatsAppIcon';
 import { lookupPincode } from '../utils/pincodeApi';
 import { saveOrderToStore } from '../utils/orderStore';
 import { usePaymentSettings, buildUpiUri, getQrDisplayUrl } from '../utils/paymentStore';
+import { DEFAULT_PRODUCTS } from '../utils/productStore';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 
@@ -47,7 +48,9 @@ export default function CartDrawer({
   cartItems,
   onUpdateQty,
   onRemoveItem,
-  onClearCart
+  onClearCart,
+  onAddToCart,
+  catalogProducts = []
 }) {
   const [promoCode, setPromoCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -56,6 +59,33 @@ export default function CartDrawer({
   const [userHandle, setUserHandle] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [orderCompleteData, setOrderCompleteData] = useState(null);
+
+  // Curated affordable add-ons to help customers complete the 3-item minimum
+  const bundleAddOns = React.useMemo(() => {
+    const inCartIds = new Set(cartItems.map(it => it.id));
+    const pool = (Array.isArray(catalogProducts) && catalogProducts.length > 0)
+      ? catalogProducts
+      : DEFAULT_PRODUCTS;
+    return pool
+      .filter(p => !p.isScoopTier && !inCartIds.has(p.id) && (p.priceINR || p.price) <= 250)
+      .slice(0, 8);
+  }, [catalogProducts, cartItems]);
+
+  const handleQuickAddBundleItem = (prod) => {
+    soundFX.playPop(650);
+    soundFX.playChime();
+    if (onAddToCart) {
+      onAddToCart(prod);
+    }
+    if (totalItemCount + 1 >= minRequired) {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      soundFX.playSuccess();
+    }
+  };
 
   // Payment Settings & Checkout Step
   const { settings: paymentSettings } = usePaymentSettings();
@@ -947,6 +977,65 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                     );
                   })}
                 </div>
+
+                {/* BUNDLE UNLOCK ASSISTANT: Quick-Add Items to reach 3 items */}
+                {!isMinimumMet && bundleAddOns.length > 0 && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                        <h5 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white">
+                          Add {itemsRemainingForMin} more to unlock checkout!
+                        </h5>
+                      </div>
+                      <span className="text-[10px] font-bold text-[#E60067] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
+                        Pocket-Friendly ✨
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-[#554664] dark:text-[#D5CBE2] font-medium">
+                      Tap to add any cute add-on under ₹250 directly to your bag:
+                    </p>
+
+                    <div className="flex items-stretch gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
+                      {bundleAddOns.map((addon) => (
+                        <div
+                          key={addon.id}
+                          className="w-32 sm:w-36 shrink-0 p-2 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/40 shadow-xs flex flex-col justify-between"
+                        >
+                          <div className="space-y-1">
+                            <div className="w-full aspect-square rounded-lg bg-pink-50/60 dark:bg-neutral-700/60 p-1 overflow-hidden flex items-center justify-center">
+                              <img
+                                src={addon.image || (Array.isArray(addon.images) && addon.images[0]) || '/images/deluxe-giftbox.jpg'}
+                                alt={addon.name}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                }}
+                              />
+                            </div>
+                            <h6 className="font-display font-bold text-[11px] text-[#231733] dark:text-white line-clamp-1">
+                              {addon.name}
+                            </h6>
+                            <div className="text-xs font-black text-[#E60067] dark:text-pink-400">
+                              ₹{addon.priceINR}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAddBundleItem(addon)}
+                            className="mt-2 w-full py-1.5 px-2 rounded-lg bg-[#E60067] hover:bg-[#D8005A] text-white font-display font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer active:scale-95 transition"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* ADDRESS & CONTACT DETAILS FORM */}
                 <div 

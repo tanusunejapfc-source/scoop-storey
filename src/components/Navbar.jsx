@@ -9,7 +9,8 @@ import {
   X,
   ChevronLeft, 
   ChevronRight,
-  Sliders 
+  Sliders,
+  Search 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import InstagramIcon from './InstagramIcon';
@@ -49,12 +50,26 @@ export default function Navbar({
   isDark, 
   onToggleTheme,
   onOpenAdmin,
-  onSelectCategory
+  onSelectCategory,
+  onOpenSearch
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [announcementIndex, setAnnouncementIndex] = useState(0);
+
+  // Keyboard shortcut Ctrl+K / Cmd+K to open search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        onOpenSearch?.();
+        soundFX.playPop(550);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onOpenSearch]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -231,6 +246,22 @@ export default function Navbar({
 
           {/* Action Buttons (Compact, Uniform & Sleek) */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Instant Search Button (Mobile & Desktop) */}
+            <button
+              type="button"
+              onClick={() => {
+                onOpenSearch?.();
+                soundFX.playPop(550);
+              }}
+              className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold shrink-0 cursor-pointer"
+              title="Search products (Ctrl + K)"
+              aria-label="Search Store"
+            >
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E60067] dark:text-pink-400" />
+              <span className="hidden md:inline text-[11px] text-neutral-500 dark:text-neutral-400">Search</span>
+              <kbd className="hidden lg:inline text-[9px] bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 px-1 py-0.5 rounded text-neutral-400 font-mono">⌘K</kbd>
+            </button>
+
             {/* Admin Panel Button (Desktop/Tablet) */}
             <button
               type="button"
@@ -340,6 +371,23 @@ export default function Navbar({
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden mt-3 p-4 rounded-2xl bg-white dark:bg-[#1A1326] border-2 border-pink-200 dark:border-pink-900 shadow-xl space-y-2.5 animate-fadeIn">
+            {/* Mobile Search Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenSearch?.();
+                soundFX.playPop(550);
+              }}
+              className="w-full py-2.5 px-3 rounded-xl bg-pink-50/90 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 flex items-center justify-between text-xs font-semibold cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                <span>Search products, scoops, pendants...</span>
+              </div>
+              <span className="text-[10px] bg-white dark:bg-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-bold">Tap</span>
+            </button>
+
             {/* Quick Controls inside Menu */}
             <div className="grid grid-cols-2 gap-2 pb-1 border-b border-pink-100 dark:border-pink-900/40">
               <button

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
+import GlobalSearchModal from './components/GlobalSearchModal';
 import Hero3DCanvas from './components/Hero3DCanvas';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
@@ -20,6 +21,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeCollection, setActiveCollection] = useState(null);
 
@@ -185,6 +187,7 @@ export default function App() {
         isDark={isDark}
         onToggleTheme={() => setIsDark(!isDark)}
         onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
         onSelectCategory={(category) => {
           setActiveCollection(category);
           const slug = category ? categoryToSlug(category) : 'all';
@@ -380,6 +383,17 @@ export default function App() {
         onUpdateQty={handleUpdateQty}
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
+        onAddToCart={handleAddToCart}
+        catalogProducts={products}
+      />
+
+      {/* GLOBAL INSTANT SEARCH MODAL */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        products={products}
+        onSelectProduct={(prod) => setSelectedProduct(prod)}
+        onAddToCart={handleAddToCart}
       />
 
       {/* FOOTER */}

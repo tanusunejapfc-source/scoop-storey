@@ -238,3 +238,4 @@ export default function CategoryIconsBar({
     </section>
   );
 }
+
