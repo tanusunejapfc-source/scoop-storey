@@ -39,7 +39,7 @@ const FAQS = [
   }
 ];
 
-export default function Footer({ onOpenAdmin }) {
+export default function Footer({ onOpenAdmin, onOpenTracking }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [emailInput, setEmailInput] = useState('');
   const [subscribed, setSubscribed] = useState(false);
@@ -62,17 +62,25 @@ export default function Footer({ onOpenAdmin }) {
       {/* Guarantees Bar (India-Centric) */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 border-b border-pink-100 dark:border-pink-900/30">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-pink-100 dark:bg-neutral-800 text-pink-600 dark:text-pink-400">
+          <button
+            type="button"
+            onClick={() => {
+              onOpenTracking?.();
+              soundFX.playPop(550);
+            }}
+            className="flex items-center justify-center md:justify-start gap-3 text-left hover:opacity-80 transition cursor-pointer group"
+          >
+            <div className="p-2.5 rounded-2xl bg-pink-100 dark:bg-neutral-800 text-pink-600 dark:text-pink-400 group-hover:scale-110 transition-transform">
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                Free Delivery Across India
+              <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-1">
+                <span>Free Delivery Across India</span>
+                <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold underline ml-1">Track ➔</span>
               </div>
               <div className="text-xs text-neutral-500">On all prepaid orders over ₹499</div>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center justify-center md:justify-start gap-3">
             <div className="p-2.5 rounded-2xl bg-purple-100 dark:bg-neutral-800 text-purple-600 dark:text-purple-400">
@@ -223,10 +231,19 @@ export default function Footer({ onOpenAdmin }) {
             {onOpenAdmin && (
               <button
                 onClick={onOpenAdmin}
-                className="text-[#E60067] dark:text-pink-400 font-bold hover:underline flex items-center gap-1"
+                className="text-[#E60067] dark:text-pink-400 font-bold hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Sliders className="w-3 h-3" />
                 <span>Store Manager (Admin)</span>
+              </button>
+            )}
+            {onOpenTracking && (
+              <button
+                onClick={onOpenTracking}
+                className="text-[#E60067] dark:text-pink-400 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Truck className="w-3 h-3" />
+                <span>Track Order</span>
               </button>
             )}
           </div>

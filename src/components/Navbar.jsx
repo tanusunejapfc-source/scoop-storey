@@ -10,7 +10,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   Sliders,
-  Search 
+  Search,
+  Truck 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import InstagramIcon from './InstagramIcon';
@@ -51,7 +52,8 @@ export default function Navbar({
   onToggleTheme,
   onOpenAdmin,
   onSelectCategory,
-  onOpenSearch
+  onOpenSearch,
+  onOpenTracking
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -262,6 +264,21 @@ export default function Navbar({
               <kbd className="hidden lg:inline text-[9px] bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 px-1 py-0.5 rounded text-neutral-400 font-mono">⌘K</kbd>
             </button>
 
+            {/* Track Order Button */}
+            <button
+              type="button"
+              onClick={() => {
+                onOpenTracking?.();
+                soundFX.playPop(550);
+              }}
+              className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold shrink-0 cursor-pointer"
+              title="Track your order status live"
+              aria-label="Track Order"
+            >
+              <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E60067] dark:text-pink-400" />
+              <span className="hidden md:inline text-[11px] text-neutral-600 dark:text-neutral-300">Track</span>
+            </button>
+
             {/* Admin Panel Button (Desktop/Tablet) */}
             <button
               type="button"
@@ -386,6 +403,23 @@ export default function Navbar({
                 <span>Search products, scoops, pendants...</span>
               </div>
               <span className="text-[10px] bg-white dark:bg-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-bold">Tap</span>
+            </button>
+
+            {/* Mobile Track Order Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenTracking?.();
+                soundFX.playPop(550);
+              }}
+              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-between text-xs font-bold cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                <span>Track Your Order & Reel Status</span>
+              </div>
+              <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold">Live ➔</span>
             </button>
 
             {/* Quick Controls inside Menu */}

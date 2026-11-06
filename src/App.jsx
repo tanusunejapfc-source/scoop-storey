@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
 import GlobalSearchModal from './components/GlobalSearchModal';
+import OrderTrackingModal from './components/OrderTrackingModal';
 import Hero3DCanvas from './components/Hero3DCanvas';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
@@ -22,6 +23,7 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeCollection, setActiveCollection] = useState(null);
 
@@ -188,6 +190,7 @@ export default function App() {
         onToggleTheme={() => setIsDark(!isDark)}
         onOpenAdmin={() => setIsAdminOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenTracking={() => setIsTrackingOpen(true)}
         onSelectCategory={(category) => {
           setActiveCollection(category);
           const slug = category ? categoryToSlug(category) : 'all';
@@ -396,8 +399,17 @@ export default function App() {
         onAddToCart={handleAddToCart}
       />
 
+      {/* SELF-SERVICE ORDER TRACKING MODAL */}
+      <OrderTrackingModal
+        isOpen={isTrackingOpen}
+        onClose={() => setIsTrackingOpen(false)}
+      />
+
       {/* FOOTER */}
-      <Footer onOpenAdmin={() => setIsAdminOpen(true)} />
+      <Footer 
+        onOpenAdmin={() => setIsAdminOpen(true)} 
+        onOpenTracking={() => setIsTrackingOpen(true)}
+      />
     </div>
   );
 }
