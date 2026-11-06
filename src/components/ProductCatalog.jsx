@@ -113,9 +113,7 @@ export default function ProductCatalog({
       }
     }
 
-    setTimeout(() => {
-      catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 60);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Build dynamic collections list, merging COLLECTIONS_CONFIG with any custom categories added in Admin
@@ -897,7 +895,7 @@ export default function ProductCatalog({
               className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-300 dark:border-pink-800 font-display font-extrabold text-xs sm:text-sm text-[#E60067] dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>← Back to Home & Collections</span>
+              <span>← Back to Home</span>
             </button>
 
             <span className="text-xs text-neutral-400 font-medium">

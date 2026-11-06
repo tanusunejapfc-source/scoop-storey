@@ -117,8 +117,11 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'instant' });
         }
       } else if (hash === '#collections' || hash === '#menu' || hash === '' || hash === '#') {
-        // Return smoothly to Collections Overview Hub
+        // Return smoothly to Homepage
         setActiveCollection(null);
+        if (!isInitial && (hash === '' || hash === '#')) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       } else if (!isInitial && (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine' || hash === '#faq-section')) {
         // Smooth scroll to dedicated landing page section ONLY on active user navigation, never on initial mount!
         setActiveCollection(null);
@@ -152,7 +155,7 @@ export default function App() {
   const handleSelectCategory = (category) => {
     setActiveCollection(category);
     const slug = category ? categoryToSlug(category) : 'all';
-    const targetHash = category ? `#collection-${slug}` : '#collections';
+    const targetHash = category ? `#collection-${slug}` : '';
     if (window.location.hash !== targetHash) {
       try {
         window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
@@ -160,13 +163,7 @@ export default function App() {
         window.location.hash = targetHash;
       }
     }
-    if (category) {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    } else {
-      setTimeout(() => {
-        document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Cart operations with color variant support
