@@ -194,7 +194,7 @@ export const PRODUCTS = [
     category: 'Bracelets & Anklets',
     badge: 'Insta Viral 🦋',
     priceINR: 199,
-    image: '/images/bracelets-anklets.jpg',
+    image: '/images/bracelets/butterfly-charm-bracelet.png',
     description: 'Dainty links holding iridescent fluttering butterfly charms that catch rainbow pastel hues in daylight.',
     includes: ['Iridescent Acrylic Wings', 'Secure Lobster Lock', 'Adjustable Wrist Fit']
   },

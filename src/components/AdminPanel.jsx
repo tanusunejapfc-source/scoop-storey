@@ -48,6 +48,7 @@ const PRESET_LOCAL_IMAGES = [
   { label: 'Snake Chain Pendant', url: '/images/pendants/snake-chain-pendant.png' },
   { label: 'Pendants Collection', url: '/images/pendants.jpg' },
   { label: 'Bracelets & Anklets', url: '/images/bracelets-anklets.jpg' },
+  { label: 'Butterfly Charm Bracelet', url: '/images/bracelets/butterfly-charm-bracelet.png' },
   { label: 'Charm Bracelets', url: '/images/charm-bracelets.jpg' },
   { label: 'Scoop Bowl', url: '/images/scoop-bowl.jpg' },
   { label: 'Deluxe Gift Box', url: '/images/deluxe-giftbox.jpg' },
@@ -296,14 +297,36 @@ export default function AdminPanel({
         const compressedDataUrl = await compressImage(file, 900, 900, 0.80);
         if (!compressedDataUrl) continue;
 
+        let finalUrl = compressedDataUrl;
+
+        // Auto-save image to public/images/uploads via dev server API when running locally
+        try {
+          const res = await fetch('/api/dev/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: file.name.replace(/\.[^/.]+$/, ''),
+              dataUrl: compressedDataUrl
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.url) {
+              finalUrl = data.url;
+            }
+          }
+        } catch {
+          // Dev API not available (e.g. running on Vercel)
+        }
+
         setFormData(prev => {
           const prevImages = Array.isArray(prev.images) ? prev.images : [];
           // Prepend newly uploaded photo so it becomes the primary image immediately
-          const nextImages = [compressedDataUrl, ...prevImages.filter(x => x !== compressedDataUrl)];
+          const nextImages = [finalUrl, ...prevImages.filter(x => x !== finalUrl)];
           return {
             ...prev,
             images: nextImages,
-            image: compressedDataUrl
+            image: finalUrl
           };
         });
 
@@ -445,6 +468,21 @@ export default function AdminPanel({
       showToast(`Added new product "${payload.name}"!`);
     }
 
+    // Auto-sync catalog to src/data/storeData.js via Vite dev server when running locally
+    try {
+      const updatedCatalog = activeTab === 'edit'
+        ? products.map(p => p.id === payload.id ? payload : p)
+        : [payload, ...products];
+
+      fetch('/api/dev/save-storedata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products: updatedCatalog })
+      }).catch(() => {});
+    } catch {
+      // Ignore in production
+    }
+
     soundFX.playSuccess();
     setActiveTab('products');
   };
@@ -452,6 +490,18 @@ export default function AdminPanel({
   const handleDeleteProduct = (id, name) => {
     if (window.confirm(`Are you sure you want to delete "${name}" from the store catalog?`)) {
       onDeleteProduct(id);
+
+      try {
+        const updatedCatalog = products.filter(p => p.id !== id);
+        fetch('/api/dev/save-storedata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ products: updatedCatalog })
+        }).catch(() => {});
+      } catch {
+        // Ignore
+      }
+
       soundFX.playPop(300);
       showToast(`Product "${name}" deleted.`);
     }
@@ -459,6 +509,13 @@ export default function AdminPanel({
 
   // Export JSON
   const handleExportJSON = () => {
+    // Attempt local auto-sync to codebase
+    fetch('/api/dev/save-storedata', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ products })
+    }).catch(() => {});
+
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(products, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
@@ -466,7 +523,7 @@ export default function AdminPanel({
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast('Catalog exported as JSON!');
+    showToast('Catalog saved & exported! 🎀');
   };
 
   // Import JSON

@@ -131,10 +131,10 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
   };
 });
 
-const STORAGE_KEY = 'bhaskar_store_products_v3';
+const STORAGE_KEY = 'bhaskar_store_products_v4';
 
 // Native IndexedDB for robust large image persistence (no 5MB localStorage quota limit!)
-const IDB_NAME = 'ScoopStoreyDB';
+const IDB_NAME = 'ScoopStoreyDB_v2';
 const IDB_VERSION = 1;
 const IDB_STORE = 'store_catalog';
 
