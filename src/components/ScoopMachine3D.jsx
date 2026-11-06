@@ -638,32 +638,38 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
       {/* 3D Interactive Stage Container (PLACED FIRST: BOWL ABOVE PRICING) */}
       <div className="relative rounded-3xl bg-white/95 dark:bg-[#1E172E]/95 p-4 sm:p-6 md:p-8 shadow-2xl border-2 border-pink-200 dark:border-pink-900/60 overflow-hidden">
-        {/* Top Control Bar: Active Tier & Quick Selectors */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-pink-100 dark:border-pink-900/40">
-          <div className="inline-flex items-center gap-2 bg-pink-50 dark:bg-pink-950/70 px-3.5 py-1.5 rounded-full border border-pink-200 dark:border-pink-800 text-xs font-bold text-[#231733] dark:text-white shadow-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Active Tier: <strong>{selectedTier.name}</strong> (₹{selectedTier.priceINR})</span>
-          </div>
-
-          {/* Quick Tier Switcher Pills */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2] mr-1 hidden sm:inline">Tier:</span>
+        {/* Stylish Centered Tier Switcher (Single row 3-button segmented bar) */}
+        <div className="mb-5 pb-4 border-b border-pink-100 dark:border-pink-900/40 flex items-center justify-center">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full max-w-xl p-1.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50/50 to-pink-50 dark:from-[#251A38] dark:to-[#1E172E] border border-pink-200/80 dark:border-pink-800/50 shadow-inner">
             {SCOOP_TIERS.map((tier) => {
               const isSelected = selectedTier.id === tier.id;
+              const cleanName = tier.name.replace('Scoop Storey - ', '').replace("Bhaskar's Vault ", '');
               return (
                 <button
                   key={tier.id}
+                  type="button"
                   onClick={() => {
                     setSelectedTier(tier);
                     soundFX.playPop(550);
                   }}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                  className={`relative py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl transition-all duration-200 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 text-center cursor-pointer select-none ${
                     isSelected
-                      ? 'bg-[#E60067] text-white shadow-md scale-105'
-                      : 'bg-white dark:bg-[#281F3D] text-[#554664] dark:text-[#D5CBE2] border border-pink-200 dark:border-pink-900/60 hover:border-pink-400'
+                      ? 'bg-gradient-to-r from-[#FF4D8D] to-[#D8005A] text-white shadow-md shadow-pink-500/30 scale-[1.02]'
+                      : 'text-[#554664] dark:text-[#D5CBE2] hover:text-[#231733] dark:hover:text-white hover:bg-white/70 dark:hover:bg-white/5'
                   }`}
                 >
-                  {tier.name.replace('Scoop Storey - ', '').replace("Bhaskar's Vault ", '')} (₹{tier.priceINR})
+                  <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight whitespace-nowrap">
+                    {cleanName}
+                  </span>
+                  <span
+                    className={`text-[11px] sm:text-xs font-black px-1.5 py-0.5 rounded-md ${
+                      isSelected
+                        ? 'bg-white/20 text-yellow-200'
+                        : 'bg-pink-100 dark:bg-pink-950/60 text-[#E60067] dark:text-pink-300'
+                    }`}
+                  >
+                    ₹{tier.priceINR}
+                  </span>
                 </button>
               );
             })}
