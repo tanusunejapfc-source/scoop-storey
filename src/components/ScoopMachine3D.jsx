@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
-import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle } from 'lucide-react';
+import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle, Check } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { disposeThreeScene } from '../utils/threeUtils';
 import { SCOOP_TIERS, CHARM_LOOT_POOL } from '../data/storeData';
@@ -14,6 +14,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const [isScooping, setIsScooping] = useState(false);
   const [scoopResult, setScoopResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [addedTierId, setAddedTierId] = useState(null);
   const spoonRef = useRef(null);
   const charmsInSpoonRef = useRef([]);
   const animTimersRef = useRef([]);
@@ -519,6 +520,38 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     setShowModal(false);
   };
 
+  const handleAddTierToBag = (tier, e) => {
+    if (e) e.stopPropagation();
+    setSelectedTier(tier);
+    soundFX.playPop(650);
+    soundFX.playSuccess();
+
+    // Map tier ID cleanly to store PRODUCTS format
+    const tierId = tier.id.startsWith('scoop-')
+      ? tier.id
+      : `scoop-${tier.id.replace('-scoop', '')}`;
+
+    const cartPayload = {
+      id: tierId,
+      name: tier.name,
+      price: tier.priceINR,
+      priceINR: tier.priceINR,
+      image: tier.id.includes('big') ? '/images/deluxe-giftbox.jpg' : '/images/scoop-bowl.jpg',
+      category: 'Mystery Scoops',
+      qty: 1,
+      isScoopTier: true,
+      badge: tier.badge,
+      description: tier.subtitle || `${tier.itemsCount}. Includes extra free surprise gifts and free shipping across India.`,
+      scoops: tier.scoops
+    };
+
+    onAddToCart(cartPayload);
+    setAddedTierId(tier.id);
+    setTimeout(() => {
+      setAddedTierId(null);
+    }, 1800);
+  };
+
   const handleLootModalWhatsApp = () => {
     if (!scoopResult) return;
     soundFX.playSuccess();
@@ -681,13 +714,14 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             </h3>
           </div>
           <p className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
-            Tap any card to preview & load into 3D machine
+            Tap card to preview in 3D or click "Add to Bag" to order directly
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {SCOOP_TIERS.map((tier) => {
             const isSelected = selectedTier.id === tier.id;
+            const isJustAdded = addedTierId === tier.id;
             return (
               <div
                 key={tier.id}
@@ -708,6 +742,13 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 )}
 
                 <div>
+                  {isSelected && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E60067] text-white text-[10px] font-black uppercase tracking-wide mb-2 shadow-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      <span>Loaded in 3D Scoop Machine</span>
+                    </div>
+                  )}
+
                   <div className="flex items-start justify-between gap-2">
                     <h4 className="font-display font-extrabold text-base text-[#231733] dark:text-white">
                       {tier.name}
@@ -747,18 +788,24 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 <div className="mt-5 pt-3 border-t border-pink-100 dark:border-pink-900/40">
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTier(tier);
-                      soundFX.playPop(550);
-                    }}
-                    className={`w-full text-xs font-black py-2.5 px-4 rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-[#E60067] text-white shadow-md'
-                        : 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 hover:bg-pink-200'
+                    onClick={(e) => handleAddTierToBag(tier, e)}
+                    className={`w-full text-xs sm:text-sm font-display font-extrabold py-3 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
+                      isJustAdded
+                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg scale-[1.02]'
+                        : `${tier.btnClass || 'btn-3d-pink'} text-white`
                     }`}
                   >
-                    {isSelected ? '✓ Selected' : 'Select Tier'}
+                    {isJustAdded ? (
+                      <>
+                        <Check className="w-4 h-4 text-white stroke-[3]" />
+                        <span>Added to Bag! ✓</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4 text-white" />
+                        <span>Add to Bag</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
