@@ -13,6 +13,7 @@ import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
+import { soundFX } from './utils/audio';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -52,9 +53,31 @@ export default function App() {
     }
   }, [isDark]);
 
+  // Prevent mobile browsers from restoring previous scroll offsets & ensure top load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
+      const hash = window.location.hash;
+      if (hash === '#scoop-machine' || hash === '#menu' || hash === '#charm-studio' || hash === '#reels' || !hash || hash === '#') {
+        if (hash && hash !== '#') {
+          try {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          } catch {}
+        }
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        const timer = setTimeout(() => {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }, 50);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
   // Handle URL hash & browser back/forward buttons (popstate & hashchange)
   useEffect(() => {
-    const handleNavigation = () => {
+    const handleNavigation = (isInitial = false) => {
       const hash = window.location.hash;
 
       // 1. Admin Panel
@@ -85,8 +108,8 @@ export default function App() {
       } else if (hash === '#collections' || hash === '#menu' || hash === '' || hash === '#') {
         // Return smoothly to Collections Overview Hub
         setActiveCollection(null);
-      } else if (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine') {
-        // Smooth scroll to dedicated landing page section without resetting collection unexpectedly
+      } else if (!isInitial && (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine')) {
+        // Smooth scroll to dedicated landing page section ONLY on active user navigation, never on initial mount!
         const targetId = hash.slice(1);
         setTimeout(() => {
           document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
@@ -94,12 +117,13 @@ export default function App() {
       }
     };
 
-    handleNavigation();
-    window.addEventListener('hashchange', handleNavigation);
-    window.addEventListener('popstate', handleNavigation);
+    handleNavigation(true);
+    const onNavChange = () => handleNavigation(false);
+    window.addEventListener('hashchange', onNavChange);
+    window.addEventListener('popstate', onNavChange);
     return () => {
-      window.removeEventListener('hashchange', handleNavigation);
-      window.removeEventListener('popstate', handleNavigation);
+      window.removeEventListener('hashchange', onNavChange);
+      window.removeEventListener('popstate', onNavChange);
     };
   }, [products]);
 
@@ -203,6 +227,11 @@ export default function App() {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
               <a
                 href="#scoop-machine"
+                onClick={(e) => {
+                  e.preventDefault();
+                  soundFX.playPop(550);
+                  document.getElementById('scoop-machine')?.scrollIntoView({ behavior: 'smooth' });
+                }}
                 className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl text-center"
               >
                 <span>Dip a 3D Scoop</span>
@@ -211,7 +240,12 @@ export default function App() {
 
               <a
                 href="#menu"
-                onClick={() => setActiveCollection(null)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  soundFX.playPop(500);
+                  setActiveCollection(null);
+                  document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+                }}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 text-[#231733] dark:text-white font-display font-bold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 transition shadow-sm text-center"
               >
                 <span>Browse Collections</span>

@@ -221,11 +221,6 @@ export default function Navbar({
                     if (el) {
                       e.preventDefault();
                       el.scrollIntoView({ behavior: 'smooth' });
-                      try {
-                        window.history.pushState(null, '', link.href);
-                      } catch {
-                        window.location.hash = link.href;
-                      }
                     }
                   }
                 }}
@@ -393,11 +388,6 @@ export default function Navbar({
                     if (el) {
                       e.preventDefault();
                       el.scrollIntoView({ behavior: 'smooth' });
-                      try {
-                        window.history.pushState(null, '', link.href);
-                      } catch {
-                        window.location.hash = link.href;
-                      }
                     }
                   }
                 }}
