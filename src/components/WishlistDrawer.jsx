@@ -54,8 +54,8 @@ export default function WishlistDrawer({
       />
 
       {/* Drawer Panel */}
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <div className="w-screen max-w-md bg-white dark:bg-neutral-900 shadow-2xl flex flex-col border-l border-pink-200/60 dark:border-pink-900/40 relative">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-8">
+        <div className="w-full sm:w-[425px] max-w-full bg-white dark:bg-neutral-900 shadow-2xl flex flex-col border-l border-pink-200/60 dark:border-pink-900/40 relative">
           
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between bg-gradient-to-r from-pink-50/70 to-purple-50/70 dark:from-neutral-900 dark:to-neutral-900">
@@ -205,3 +205,4 @@ export default function WishlistDrawer({
     </div>
   );
 }
+

@@ -547,8 +547,8 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
       />
 
       {/* Drawer Panel */}
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <div className="w-screen max-w-md bg-white dark:bg-neutral-900 shadow-2xl flex flex-col border-l border-pink-200/60 dark:border-pink-900/40 relative">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-8">
+        <div className="w-full sm:w-[425px] max-w-full bg-white dark:bg-neutral-900 shadow-2xl flex flex-col border-l border-pink-200/60 dark:border-pink-900/40 relative">
           
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between bg-gradient-to-r from-pink-50/50 to-purple-50/50 dark:from-neutral-900 dark:to-neutral-900">
@@ -906,8 +906,8 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                 {/* Cart Items */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider px-1">
-                    <span>Items Selected ({totalItemCount})</span>
-                    <span>Price</span>
+                    <span>Items In Bag ({totalItemCount})</span>
+                    <span className="text-[11px] font-medium lowercase text-neutral-400">Total Price</span>
                   </div>
 
                   {cartItems.map((item) => {
@@ -923,9 +923,15 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                           className="w-14 h-14 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
-                            {item.name}
-                          </h5>
+                          <div className="flex items-start justify-between gap-2">
+                            <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
+                              {item.name}
+                            </h5>
+                            <span className="font-display font-black text-xs sm:text-sm text-[#E60067] dark:text-pink-400 shrink-0">
+                              ₹{item.priceINR * item.qty}
+                            </span>
+                          </div>
+
                           {item.selectedColor && (
                             <div className="flex items-center gap-1.5 mt-0.5">
                               {item.selectedColorHex && (
@@ -939,12 +945,9 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                               </span>
                             </div>
                           )}
-                          <div className="text-xs font-extrabold text-pink-600 dark:text-pink-400 mt-0.5">
-                            ₹{item.priceINR * item.qty}
-                          </div>
 
                           {/* Qty controls */}
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center justify-between gap-2 mt-2">
                             <div className="flex items-center rounded-lg bg-pink-100/60 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700">
                               <button
                                 onClick={() => {
@@ -976,7 +979,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                                 onRemoveItem(itemKey);
                                 soundFX.playPop(350);
                               }}
-                              className="text-neutral-400 hover:text-red-500 p-1 transition"
+                              className="text-neutral-400 hover:text-red-500 p-1.5 transition rounded-lg hover:bg-rose-50 dark:hover:bg-neutral-800"
                               aria-label="Remove item"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

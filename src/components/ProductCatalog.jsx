@@ -284,8 +284,8 @@ export default function ProductCatalog({
   return (
     <section id="menu" ref={catalogRef} className="py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto scroll-mt-24">
       {/* Policy Reminder Banner */}
-      <div className="mb-8 p-3 rounded-2xl bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 flex items-center justify-center gap-2 text-xs font-bold text-[#231733] dark:text-[#E0D7EB] text-center shadow-xs">
-        <AlertCircle className="w-4 h-4 shrink-0 text-[#E60067]" />
+      <div className="mb-8 p-3.5 rounded-2xl bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 dark:from-[#261537] dark:via-[#341B49] dark:to-[#261537] border-2 border-pink-300 dark:border-pink-800/80 flex items-center justify-center gap-2 text-xs font-bold text-[#231733] dark:text-pink-100 text-center shadow-xs">
+        <AlertCircle className="w-4 h-4 shrink-0 text-[#E60067] dark:text-pink-400" />
         <span>Order Rule: Minimum 3 Products Required to Checkout • 100% Prepaid Delivery Across India</span>
       </div>
 
