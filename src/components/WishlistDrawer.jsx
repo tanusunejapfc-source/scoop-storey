@@ -97,8 +97,12 @@ export default function WishlistDrawer({
                 </p>
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="mt-2 btn-3d-pink text-white px-5 py-2.5 rounded-2xl font-display font-bold text-xs"
+                  onClick={() => {
+                    onClose?.();
+                    window.location.hash = '';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="mt-2 btn-3d-pink text-white px-5 py-2.5 rounded-2xl font-display font-bold text-xs cursor-pointer"
                 >
                   Explore Collections
                 </button>
@@ -121,7 +125,10 @@ export default function WishlistDrawer({
                         src={item.image || '/images/deluxe-giftbox.jpg'}
                         alt={item.name}
                         className="w-14 h-14 rounded-xl object-contain bg-white dark:bg-neutral-700 p-1 border border-pink-100 dark:border-neutral-700 shrink-0"
-                        onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                        onError={(e) => { 
+                          e.currentTarget.onerror = null; 
+                          e.currentTarget.src = '/brand-avatar.jpg'; 
+                        }}
                       />
                       <div className="min-w-0">
                         <span className="text-[10px] font-bold text-pink-600 dark:text-pink-400 uppercase tracking-wider block truncate">

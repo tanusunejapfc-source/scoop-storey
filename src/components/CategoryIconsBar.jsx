@@ -85,7 +85,7 @@ export const CATEGORY_ICONS_DATA = [
   },
   {
     id: 'all-collections',
-    category: null, // null represents All Items
+    category: 'All Items',
     name: 'All Collections',
     shortName: 'Explore All',
     image: '/images/deluxe-giftbox.jpg',
@@ -160,9 +160,7 @@ export default function CategoryIconsBar({
             className="flex items-start gap-4 sm:gap-6 md:gap-7 overflow-x-auto pb-3.5 pt-2.5 px-3 sm:px-6 scrollbar-none snap-x snap-mandatory scroll-smooth lg:justify-between"
           >
             {CATEGORY_ICONS_DATA.map((item) => {
-              const isSelected = item.category === null 
-                ? (activeCategory === null || activeCategory === 'All Items')
-                : (activeCategory === item.category);
+              const isSelected = activeCategory === item.category;
 
               return (
                 <button

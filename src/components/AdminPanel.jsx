@@ -2972,7 +2972,10 @@ export default function AdminPanel({
                                 src={reel.image || '/images/asmr-packing.jpg'}
                                 alt={reel.title}
                                 className="w-full h-full object-cover"
-                                onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                                onError={(e) => { 
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = '/brand-avatar.jpg'; 
+                                }}
                               />
                             )}
 
@@ -3397,7 +3400,10 @@ export default function AdminPanel({
                           src={reelFormData.image || '/images/asmr-packing.jpg'}
                           alt="Poster preview"
                           className="w-14 h-20 rounded-xl object-cover bg-neutral-900 border border-pink-200 shrink-0"
-                          onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                          onError={(e) => { 
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/brand-avatar.jpg'; 
+                          }}
                         />
 
                         <div className="flex-1 space-y-2">

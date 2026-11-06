@@ -309,7 +309,10 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
                             src={item.image || '/images/deluxe-giftbox.jpg'}
                             alt={item.name}
                             className="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-neutral-700 shrink-0"
-                            onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                            onError={(e) => { 
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = '/brand-avatar.jpg'; 
+                            }}
                           />
                           <div className="min-w-0">
                             <p className="font-bold text-neutral-900 dark:text-white truncate">

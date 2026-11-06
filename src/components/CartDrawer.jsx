@@ -626,13 +626,17 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                 <p className="text-xs text-neutral-500 mt-1 max-w-xs">
                   Pick pendants, charm bracelets, eye masks, or take a 3D mystery scoop to collect happiness!
                 </p>
-                <a
-                  href="#menu"
-                  onClick={onClose}
-                  className="mt-4 btn-3d-pink text-white text-xs font-bold py-2.5 px-4 rounded-xl"
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose?.();
+                    window.location.hash = '';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="mt-4 btn-3d-pink text-white text-xs font-bold py-2.5 px-4 rounded-xl cursor-pointer"
                 >
                   Explore Scoop Menu
-                </a>
+                </button>
               </div>
             ) : checkoutStep === 'upi_payment' ? (
               <div className="space-y-4 animate-fadeIn">

@@ -133,11 +133,13 @@ export default function ProductDetailPage({
   if (!product) return null;
 
   const handlePrevImage = () => {
+    if (images.length <= 1) return;
     soundFX.playPop(450);
     setActiveImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   const handleNextImage = () => {
+    if (images.length <= 1) return;
     soundFX.playPop(550);
     setActiveImageIndex((prev) => (prev + 1) % images.length);
   };

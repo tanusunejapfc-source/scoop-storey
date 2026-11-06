@@ -139,7 +139,10 @@ export default function ReelsShowcase() {
                   src={reel.image || '/images/asmr-packing.jpg'}
                   alt={reel.title}
                   className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
-                  onError={(e) => { e.currentTarget.src = '/brand-avatar.jpg'; }}
+                  onError={(e) => { 
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/brand-avatar.jpg'; 
+                  }}
                 />
               )}
 
