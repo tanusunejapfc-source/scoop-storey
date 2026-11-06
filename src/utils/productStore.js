@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { PRODUCTS as INITIAL_PRODUCTS } from '../data/storeData';
+import { 
+  fetchProductsFromSupabase, 
+  saveProductToSupabase, 
+  deleteProductFromSupabase 
+} from './supabaseClient';
 
 // Enrich default products with multiple images, color variants, specifications, and stock
 export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
@@ -267,10 +272,18 @@ export function useStoreProducts() {
   useEffect(() => {
     let isMounted = true;
 
-    // Load from IndexedDB on refresh to restore full uploaded images
+    // 1. Fetch live products from Supabase Cloud Database first
+    fetchProductsFromSupabase().then((cloudList) => {
+      if (isMounted && Array.isArray(cloudList) && cloudList.length > 0) {
+        setProducts(cloudList);
+        saveStoredProducts(cloudList);
+      }
+    });
+
+    // 2. Load from IndexedDB on refresh to restore cached images
     getIDBProducts().then((idbList) => {
       if (isMounted && idbList && Array.isArray(idbList) && idbList.length > 0) {
-        setProducts(idbList);
+        setProducts((curr) => (curr.length > 0 ? curr : idbList));
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(idbList));
         } catch {
@@ -305,18 +318,21 @@ export function useStoreProducts() {
     const updatedList = products.map(p => p.id === updated.id ? updated : p);
     saveStoredProducts(updatedList);
     setProducts(updatedList);
+    saveProductToSupabase(updated);
   };
 
   const addProduct = (newProduct) => {
     const updatedList = [newProduct, ...products];
     saveStoredProducts(updatedList);
     setProducts(updatedList);
+    saveProductToSupabase(newProduct);
   };
 
   const deleteProduct = (id) => {
     const updatedList = products.filter(p => p.id !== id);
     saveStoredProducts(updatedList);
     setProducts(updatedList);
+    deleteProductFromSupabase(id);
   };
 
   const resetAll = () => {

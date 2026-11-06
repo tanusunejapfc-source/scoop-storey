@@ -35,6 +35,7 @@ import { CATEGORIES } from '../data/storeData';
 import { useStoreOrders } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import { saveStoredProducts } from '../utils/productStore';
+import { uploadImageToSupabase } from '../utils/supabaseClient';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
@@ -299,24 +300,36 @@ export default function AdminPanel({
 
         let finalUrl = compressedDataUrl;
 
-        // Auto-save image to public/images/uploads via dev server API when running locally
+        // 1. Try uploading directly to Supabase Storage (Cloud CDN URL for all visitors)
         try {
-          const res = await fetch('/api/dev/upload-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: file.name.replace(/\.[^/.]+$/, ''),
-              dataUrl: compressedDataUrl
-            })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.url) {
-              finalUrl = data.url;
-            }
+          const sbRes = await uploadImageToSupabase(file);
+          if (sbRes?.success && sbRes?.url) {
+            finalUrl = sbRes.url;
           }
-        } catch {
-          // Dev API not available (e.g. running on Vercel)
+        } catch (e) {
+          console.warn('Supabase upload skipped:', e);
+        }
+
+        // 2. Fallback: Auto-save image to public/images/uploads via dev server API when running locally
+        if (finalUrl === compressedDataUrl) {
+          try {
+            const res = await fetch('/api/dev/upload-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: file.name.replace(/\.[^/.]+$/, ''),
+                dataUrl: compressedDataUrl
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.url) {
+                finalUrl = data.url;
+              }
+            }
+          } catch {
+            // Dev API not available (e.g. running on Vercel)
+          }
         }
 
         setFormData(prev => {

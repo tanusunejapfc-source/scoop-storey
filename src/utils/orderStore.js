@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { saveOrderToSupabase } from './supabaseClient';
 
 const ORDERS_STORAGE_KEY = 'bhaskar_store_orders_v1';
 
@@ -200,6 +201,9 @@ export function saveOrderToStore(order) {
   try {
     const cleanOrder = sanitizeOrder(order);
     if (!cleanOrder) return order;
+
+    // 1. Sync directly to Supabase cloud database
+    saveOrderToSupabase(cleanOrder);
 
     const existing = getStoredOrders();
     const updated = [cleanOrder, ...existing.filter(o => o.orderId !== cleanOrder.orderId)];
