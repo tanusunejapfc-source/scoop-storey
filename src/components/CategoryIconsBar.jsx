@@ -22,7 +22,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Pendants & Chains',
     name: 'Pendants & Chains',
     shortName: 'Pendants',
-    image: '/images/pendants/bow-heart-pendant.png',
+    image: '/images/pendants.jpg',
     emoji: '✨',
     tag: '18K Gold',
     gradient: 'from-amber-400 via-pink-400 to-rose-400',
@@ -33,7 +33,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Bracelets',
     name: 'Bracelets',
     shortName: 'Bracelets',
-    image: '/images/bracelets/butterfly-charm-bracelet.png',
+    image: '/images/charm-bracelets.jpg',
     emoji: '🎀',
     tag: 'Charm Links',
     gradient: 'from-purple-400 via-pink-400 to-indigo-500',
@@ -157,7 +157,7 @@ export default function CategoryIconsBar({
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex items-start gap-4 sm:gap-6 md:gap-7 overflow-x-auto pb-2 pt-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth lg:justify-between"
+            className="flex items-start gap-4 sm:gap-6 md:gap-7 overflow-x-auto pb-3.5 pt-2.5 px-3 sm:px-6 scrollbar-none snap-x snap-mandatory scroll-smooth lg:justify-between"
           >
             {CATEGORY_ICONS_DATA.map((item) => {
               const isSelected = item.category === null 
@@ -181,7 +181,7 @@ export default function CategoryIconsBar({
                       }`}
                     >
                       {/* Inner Circular Card Frame */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-[86px] md:h-[86px] rounded-full overflow-hidden bg-gradient-to-b from-pink-50 via-white to-pink-50/60 dark:from-[#251A38] dark:via-[#1E172E] dark:to-[#181126] p-1.5 flex items-center justify-center shadow-inner relative">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-[86px] md:h-[86px] rounded-full overflow-hidden bg-gradient-to-b from-pink-100 via-white to-pink-50 dark:from-[#251A38] dark:via-[#1E172E] dark:to-[#181126] flex items-center justify-center shadow-inner relative">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -189,7 +189,7 @@ export default function CategoryIconsBar({
                             e.currentTarget.onerror = null;
                             e.currentTarget.src = '/images/deluxe-giftbox.jpg';
                           }}
-                          className="w-full h-full object-contain rounded-full group-hover:scale-110 transition-transform duration-500 drop-shadow-xs"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         
                         {/* Shimmer Light Reflection effect */}
