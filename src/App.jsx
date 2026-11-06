@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
 import GlobalSearchModal from './components/GlobalSearchModal';
 import OrderTrackingModal from './components/OrderTrackingModal';
+import WishlistDrawer from './components/WishlistDrawer';
 import Hero3DCanvas from './components/Hero3DCanvas';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
@@ -25,6 +26,7 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeCollection, setActiveCollection] = useState(null);
 
@@ -192,6 +194,7 @@ export default function App() {
         onOpenAdmin={() => setIsAdminOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenTracking={() => setIsTrackingOpen(true)}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
         onSelectCategory={(category) => {
           setActiveCollection(category);
           const slug = category ? categoryToSlug(category) : 'all';
@@ -407,6 +410,14 @@ export default function App() {
       <OrderTrackingModal
         isOpen={isTrackingOpen}
         onClose={() => setIsTrackingOpen(false)}
+      />
+
+      {/* WISHLIST FAVORITES DRAWER */}
+      <WishlistDrawer
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        onAddToCart={handleAddToCart}
+        onOpenProduct={(prod) => setSelectedProduct(prod)}
       />
 
       {/* FOOTER */}

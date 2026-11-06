@@ -11,9 +11,11 @@ import {
   ChevronRight,
   Sliders,
   Search,
-  Truck 
+  Truck,
+  Heart 
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import { useWishlist } from '../utils/wishlistStore';
 import InstagramIcon from './InstagramIcon';
 import WhatsAppIcon from './WhatsAppIcon';
 
@@ -53,8 +55,10 @@ export default function Navbar({
   onOpenAdmin,
   onSelectCategory,
   onOpenSearch,
-  onOpenTracking
+  onOpenTracking,
+  onOpenWishlist
 }) {
+  const { wishlistCount } = useWishlist();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -352,6 +356,26 @@ export default function Navbar({
               )}
             </button>
 
+            {/* Wishlist Button */}
+            <button
+              type="button"
+              onClick={() => {
+                onOpenWishlist?.();
+                soundFX.playPop(550);
+              }}
+              className="relative h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold shrink-0 cursor-pointer"
+              title="Saved Favorites"
+              aria-label="View Favorites"
+            >
+              <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E60067] dark:text-pink-400 ${wishlistCount > 0 ? 'fill-[#E60067] dark:fill-pink-400' : ''}`} />
+              <span className="hidden xl:inline text-[11px] text-neutral-600 dark:text-neutral-300">Saved</span>
+              {wishlistCount > 0 && (
+                <span className="min-w-[15px] h-3.5 sm:min-w-[17px] sm:h-4 px-1 rounded-full bg-[#E60067] text-white text-[8px] sm:text-[9px] font-black flex items-center justify-center shadow-xs">
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
+
             {/* Cart Button */}
             <button
               type="button"
@@ -421,6 +445,25 @@ export default function Navbar({
                 <span>Track Your Order & Reel Status</span>
               </div>
               <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold">Live ➔</span>
+            </button>
+
+            {/* Mobile Wishlist Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenWishlist?.();
+                soundFX.playPop(550);
+              }}
+              className="w-full py-2.5 px-3 rounded-xl bg-pink-50/70 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-between text-xs font-bold cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-[#E60067] dark:text-pink-400 fill-[#E60067]" />
+                <span>Saved Favorites</span>
+              </div>
+              <span className="text-[10px] bg-pink-100 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-black px-2 py-0.5 rounded-full">
+                {wishlistCount} items
+              </span>
             </button>
 
             {/* Quick Controls inside Menu */}

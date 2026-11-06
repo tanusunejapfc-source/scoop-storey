@@ -14,11 +14,13 @@ import {
   MapPin,
   Sparkles,
   CheckCircle2,
-  Clock
+  Clock,
+  Heart
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { saveOrderToStore } from '../utils/orderStore';
 import { lookupPincode } from '../utils/pincodeApi';
+import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
 export default function ProductDetailPage({
@@ -40,6 +42,7 @@ export default function ProductDetailPage({
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'includes' | 'shipping'
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const { isWishlisted, toggle: toggleWishlist } = useWishlist();
 
   // Delivery & PIN Code Estimator State
   const [pincodeInput, setPincodeInput] = useState(() => {
@@ -498,32 +501,46 @@ export default function ProductDetailPage({
                   <span>Order "{selectedColor?.name || 'Standard'}" on WhatsApp (+91 8199922653)</span>
                 </button>
 
-                {/* Secondary Actions: Drop Gift Hint & Share */}
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                {/* Secondary Actions: Wishlist, Drop Gift Hint & Share */}
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlist(product)}
+                    className={`py-2.5 px-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 ${
+                      isWishlisted(product.id)
+                        ? 'bg-[#E60067] text-white border-[#E60067] shadow-xs'
+                        : 'bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 border-pink-200 dark:border-neutral-700'
+                    }`}
+                    title={isWishlisted(product.id) ? 'Saved in favorites' : 'Save to favorites'}
+                  >
+                    <Heart className={`w-3.5 h-3.5 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
+                    <span className="truncate">{isWishlisted(product.id) ? 'Saved' : 'Wishlist'}</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={handleGiftHint}
-                    className="py-2.5 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
+                    className="py-2.5 px-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
                     title="Send a cute hint to friends or partner on WhatsApp"
                   >
-                    <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                    <span>Drop Gift Hint 🎁</span>
+                    <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                    <span className="truncate">Gift Hint 🎁</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleShare}
-                    className="py-2.5 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
+                    className="py-2.5 px-2 rounded-xl bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
                   >
                     {copiedLink ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-600">Link Copied!</span>
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="text-emerald-600 truncate">Copied!</span>
                       </>
                     ) : (
                       <>
-                        <Share2 className="w-3.5 h-3.5 text-pink-600" />
-                        <span>Share Product</span>
+                        <Share2 className="w-3.5 h-3.5 text-pink-600 shrink-0" />
+                        <span className="truncate">Share</span>
                       </>
                     )}
                   </button>

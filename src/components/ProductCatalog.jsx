@@ -13,12 +13,14 @@ import {
   ArrowRight,
   ChevronRight,
   Layers,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { CATEGORIES, COLLECTIONS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 import { saveOrderToStore } from '../utils/orderStore';
+import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
 
 export { DEFAULT_PRODUCTS as PRODUCTS };
@@ -45,6 +47,7 @@ export default function ProductCatalog({
   const [addedItem, setAddedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
+  const { isWishlisted, toggle: toggleWishlist } = useWishlist();
   const catalogRef = useRef(null);
 
   // Scroll to catalog section when collection is selected and push history entry
@@ -445,6 +448,23 @@ export default function ProductCatalog({
                         <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/95 dark:bg-neutral-900/95 text-[10px] font-black text-[#E60067] shadow-xs">
                           {product.category}
                         </span>
+
+                        {/* Quick Wishlist Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(product);
+                          }}
+                          className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                            isWishlisted(product.id)
+                              ? 'bg-[#E60067] text-white shadow-xs scale-105'
+                              : 'bg-white/90 dark:bg-neutral-900/90 text-neutral-400 hover:text-[#E60067] shadow-xs'
+                          }`}
+                          title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
+                        </button>
                       </div>
 
                       <div>
@@ -683,9 +703,27 @@ export default function ProductCatalog({
                         {product.badge || 'Popular ✨'}
                       </span>
 
+                      {/* Quick Wishlist Heart Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(product);
+                        }}
+                        className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          isWishlisted(product.id)
+                            ? 'bg-[#E60067] text-white shadow-md scale-105'
+                            : 'bg-white/95 dark:bg-neutral-900/95 text-neutral-400 hover:text-[#E60067] shadow-sm'
+                        }`}
+                        title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
+                        aria-label="Save to favorites"
+                      >
+                        <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
+                      </button>
+
                       {/* Multiple Photos Pill */}
                       {imageCount > 1 && (
-                        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-bold text-white shadow-xs">
+                        <div className="absolute top-12 right-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white shadow-xs">
                           <Images className="w-3 h-3 text-pink-300" />
                           <span>{imageCount} Photos</span>
                         </div>
