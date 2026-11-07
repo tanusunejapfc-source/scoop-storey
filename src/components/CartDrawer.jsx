@@ -959,7 +959,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
 
                 {/* BUNDLE UNLOCK ASSISTANT: Quick-Add Items to reach 3 items */}
                 {!isMinimumMet && bundleAddOns.length > 0 && (
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
+                  <div data-bundle-helper className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
@@ -1380,14 +1380,22 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
               {/* Checkout Action Buttons */}
               <div className="space-y-2 pt-1">
                 {!isMinimumMet ? (
-                  /* Quick Explore Collections Button */
+                  /* Locked Payment Warning Button */
                   <button
                     type="button"
-                    onClick={handleGoToCollections}
-                    className="w-full py-3.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer transition active:scale-[0.99]"
+                    onClick={() => {
+                      soundFX.playPop(300);
+                      const helperCard = document.querySelector('[data-bundle-helper]');
+                      if (helperCard) {
+                        helperCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      } else {
+                        handleGoToCollections();
+                      }
+                    }}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-neutral-300 dark:border-neutral-700 cursor-pointer shadow-inner active:scale-[0.99] transition"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>+ Browse & Add More Cute Goodies</span>
+                    <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} to unlock payment</span>
                   </button>
                 ) : (
                   /* Single Primary Prepaid UPI & QR Checkout */
