@@ -120,29 +120,11 @@ export default function CartDrawer({
       pincode: ''
     };
   });
-  const addressErrorsState = useState({});
-  const [addressErrors, setAddressErrors] = addressErrorsState;
+  const [addressErrors, setAddressErrors] = useState({});
   const addressRef = useRef(null);
   const cartContentRef = useRef(null);
 
-  // Return to cart items smoothly and scroll to top
-  const handleBackToCart = () => {
-    soundFX.playPop(500);
-    setCheckoutStep('cart');
-    setTimeout(() => {
-      cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 25);
-  };
-
-  // If cart drops below 3 items while on payment step, return to cart immediately
-  useEffect(() => {
-    if (checkoutStep === 'upi_payment' && !isMinimumMet) {
-      setCheckoutStep('cart');
-    }
-  }, [checkoutStep, isMinimumMet]);
-
-  if (!isOpen) return null;
-
+  // Cart totals & calculations
   const totalItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
   const subtotalINR = cartItems.reduce((acc, item) => acc + item.priceINR * item.qty, 0);
 
@@ -159,6 +141,24 @@ export default function CartDrawer({
   const freeShippingGoal = 499;
   const progressPercent = Math.min(100, Math.round((subtotalINR / freeShippingGoal) * 100));
   const remainingForFreeShipping = Math.max(0, freeShippingGoal - subtotalINR);
+
+  // If cart drops below 3 items while on payment step, return to cart immediately
+  useEffect(() => {
+    if (checkoutStep === 'upi_payment' && !isMinimumMet) {
+      setCheckoutStep('cart');
+    }
+  }, [checkoutStep, isMinimumMet]);
+
+  // Return to cart items smoothly and scroll to top
+  const handleBackToCart = () => {
+    soundFX.playPop(500);
+    setCheckoutStep('cart');
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 25);
+  };
+
+  if (!isOpen) return null;
 
   const handleAddressChange = (field, val) => {
     let cleanVal = val;

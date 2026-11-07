@@ -15,17 +15,20 @@ class ErrorBoundary extends React.Component {
   }
 
   handleReload = () => {
+    try {
+      window.location.hash = '';
+    } catch {}
     window.location.reload();
   };
 
   handleReset = () => {
     try {
-      // Clear any potentially corrupted state
       sessionStorage.clear();
+      window.location.hash = '';
     } catch {
       // ignore
     }
-    window.location.href = '/';
+    window.location.href = window.location.origin + window.location.pathname;
   };
 
   render() {
