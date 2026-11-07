@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   X, 
   Trash2, 
@@ -22,7 +22,8 @@ import {
   Check,
   Upload,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
@@ -119,8 +120,26 @@ export default function CartDrawer({
       pincode: ''
     };
   });
-  const [addressErrors, setAddressErrors] = useState({});
+  const addressErrorsState = useState({});
+  const [addressErrors, setAddressErrors] = addressErrorsState;
   const addressRef = useRef(null);
+  const cartContentRef = useRef(null);
+
+  // Return to cart items smoothly and scroll to top
+  const handleBackToCart = () => {
+    soundFX.playPop(500);
+    setCheckoutStep('cart');
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 25);
+  };
+
+  // If cart drops below 3 items while on payment step, return to cart immediately
+  useEffect(() => {
+    if (checkoutStep === 'upi_payment' && !isMinimumMet) {
+      setCheckoutStep('cart');
+    }
+  }, [checkoutStep, isMinimumMet]);
 
   if (!isOpen) return null;
 
@@ -265,10 +284,10 @@ export default function CartDrawer({
   const handleWhatsAppCheckout = () => {
     if (!isMinimumMet) {
       soundFX.playPop(300);
-      const proceed = window.confirm(
-        `Store policy standard is minimum ${minRequired} products. Would you like to proceed with this WhatsApp order for ${totalItemCount} item(s) anyway?`
+      alert(
+        `⚠️ Order Rule: Minimum 3 products required to place an order.\n\nYou currently have ${totalItemCount} item(s) in your bag. Please add ${itemsRemainingForMin} more product(s) to place an order.`
       );
-      if (!proceed) return;
+      return;
     }
 
     const errors = validateAddress();
@@ -380,10 +399,10 @@ Please send me the UPI QR code for payment! ✨`;
   const handleProceedToUpiPayment = () => {
     if (!isMinimumMet) {
       soundFX.playPop(300);
-      const proceed = window.confirm(
-        `Store policy standard is minimum ${minRequired} products. Would you like to proceed with prepaid UPI checkout for ${totalItemCount} item(s) anyway?`
+      alert(
+        `⚠️ Order Rule: Minimum 3 products required to checkout.\n\nYou currently have ${totalItemCount} item(s) in your bag. Please add ${itemsRemainingForMin} more product(s) to unlock the payment QR code.`
       );
-      if (!proceed) return;
+      return;
     }
 
     const errors = validateAddress();
@@ -400,6 +419,9 @@ Please send me the UPI QR code for payment! ✨`;
     setCurrentOrderId(newId);
     setCheckoutStep('upi_payment');
     setUpiRefError('');
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }, 20);
   };
 
   const handleScreenshotUpload = (e) => {
@@ -551,28 +573,52 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
         <div className="w-full sm:w-[425px] max-w-full bg-white dark:bg-neutral-900 shadow-2xl flex flex-col border-l border-pink-200/60 dark:border-pink-900/40 relative">
           
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between bg-gradient-to-r from-pink-50/50 to-purple-50/50 dark:from-neutral-900 dark:to-neutral-900">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-pink-500 text-white shadow-md">
-                <ShoppingBag className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-base sm:text-lg text-neutral-900 dark:text-white">
-                  Your Scoop Bag
-                </h3>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {totalItemCount} item(s) selected
+          <div className="p-3.5 sm:p-4 border-b border-pink-100 dark:border-pink-900/40 flex items-center justify-between bg-gradient-to-r from-pink-50/70 via-white to-pink-50/40 dark:from-[#231733] dark:to-[#1A1326] sticky top-0 z-30 shadow-xs">
+            {checkoutStep === 'upi_payment' ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleBackToCart}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
+                  title="Return to Cart to add/remove items"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>← Back to Edit Bag</span>
+                </button>
+                <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hidden xs:inline">
+                  Step 2: Pay QR
                 </span>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-600 text-white shadow-md">
+                  <ShoppingBag className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-base sm:text-lg text-neutral-900 dark:text-white">
+                    Your Scoop Bag
+                  </h3>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                    {totalItemCount} item(s) selected
+                  </span>
+                </div>
+              </div>
+            )}
 
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition"
-              aria-label="Close cart"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {checkoutStep === 'upi_payment' && (
+                <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                  ₹{totalINR}
+                </span>
+              )}
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-neutral-500 hover:text-neutral-900 dark:text-neutral-300 transition cursor-pointer"
+                aria-label="Close cart"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* STORE POLICY: MINIMUM 3 PRODUCTS NOTICE */}
@@ -614,7 +660,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
           </div>
 
           {/* Cart Items List & Checkout Form (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+          <div ref={cartContentRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
             {cartItems.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-neutral-400">
                 <div className="w-16 h-16 rounded-full bg-pink-100 dark:bg-neutral-800 flex items-center justify-center text-2xl mb-3">
@@ -640,19 +686,29 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
               </div>
             ) : checkoutStep === 'upi_payment' ? (
               <div className="space-y-4 animate-fadeIn">
-                {/* Back button & Stepper indicator */}
-                <div className="flex items-center justify-between">
+                {/* PROMINENT TOP BACK TO EDIT BANNER CARD */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-[#251A38] dark:via-[#2A1E40] dark:to-[#251A38] border-2 border-pink-200 dark:border-pink-900/60 flex items-center justify-between shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#E60067] dark:text-pink-300 font-bold shrink-0">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                        Need to change items or address?
+                      </div>
+                      <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                        {totalItemCount} item(s) in bag • You can edit anytime
+                      </div>
+                    </div>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setCheckoutStep('cart')}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-600 dark:text-pink-400 hover:underline"
+                    onClick={handleBackToCart}
+                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-800 shrink-0 cursor-pointer flex items-center gap-1 active:scale-95 transition"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to Cart & Address</span>
+                    <span>Edit Cart</span>
                   </button>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-300">
-                    Step 2 of 2: Payment
-                  </span>
                 </div>
 
                 {/* Amount to Pay Banner */}
@@ -898,10 +954,11 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
 
                   <button
                     type="button"
-                    onClick={() => setCheckoutStep('cart')}
-                    className="w-full py-2 rounded-xl text-xs font-semibold text-neutral-500 hover:text-neutral-800 dark:hover:text-white transition"
+                    onClick={handleBackToCart}
+                    className="w-full py-2.5 rounded-xl border-2 border-pink-200 dark:border-pink-900 bg-pink-50/70 hover:bg-pink-100 dark:bg-neutral-800 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-95 shadow-2xs"
                   >
-                    ← Back to Edit Bag & Address
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>← Back to Edit Bag & Address</span>
                   </button>
                 </div>
               </div>
@@ -1390,25 +1447,69 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
 
               {/* Checkout Action Buttons */}
               <div className="space-y-2 pt-1">
-                {/* Primary Prepaid UPI & QR Checkout */}
-                <button
-                  type="button"
-                  onClick={handleProceedToUpiPayment}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition"
-                >
-                  <QrCode className="w-4 h-4" />
-                  <span>Pay ₹{totalINR} via UPI / QR Code</span>
-                </button>
+                {!isMinimumMet ? (
+                  <div className="space-y-2">
+                    {/* Minimum 3 Alert Box */}
+                    <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-700/80 text-amber-900 dark:text-amber-200 text-xs font-semibold space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
+                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span>Minimum 3 Items Required to Checkout</span>
+                      </div>
+                      <p className="text-[11px] text-amber-700 dark:text-amber-300/90 leading-tight">
+                        Single item checkout not available. Please add <strong>{itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''}</strong> ({totalItemCount}/3 selected) to unlock payment QR!
+                      </p>
+                    </div>
 
-                {/* Direct WhatsApp Order Option */}
-                <button
-                  type="button"
-                  onClick={handleWhatsAppCheckout}
-                  className="w-full py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-display font-semibold text-xs flex items-center justify-center gap-2 shadow transition"
-                >
-                  <WhatsAppIcon className="w-3.5 h-3.5" />
-                  <span>Order directly on WhatsApp (+91 8199922653)</span>
-                </button>
+                    {/* Locked Payment Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundFX.playPop(300);
+                        alert(`⚠️ Order Rule: Minimum 3 products required to place an order.\n\nYou currently have ${totalItemCount} item(s) in your bag. Please add ${itemsRemainingForMin} more product(s) to unlock payment.`);
+                      }}
+                      className="w-full py-3.5 px-4 rounded-2xl bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-neutral-300 dark:border-neutral-700 cursor-not-allowed shadow-inner"
+                    >
+                      <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} to unlock payment</span>
+                    </button>
+
+                    {/* Quick Explore Collections Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose?.();
+                        window.location.hash = '#collections';
+                        soundFX.playPop(500);
+                      }}
+                      className="w-full py-2.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>+ Browse & Add More Cute Goodies</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Primary Prepaid UPI & QR Checkout */}
+                    <button
+                      type="button"
+                      onClick={handleProceedToUpiPayment}
+                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
+                    >
+                      <QrCode className="w-4 h-4" />
+                      <span>Pay ₹{totalINR} via UPI / QR Code</span>
+                    </button>
+
+                    {/* Direct WhatsApp Order Option */}
+                    <button
+                      type="button"
+                      onClick={handleWhatsAppCheckout}
+                      className="w-full py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-display font-semibold text-xs flex items-center justify-center gap-2 shadow transition cursor-pointer"
+                    >
+                      <WhatsAppIcon className="w-3.5 h-3.5" />
+                      <span>Order directly on WhatsApp (+91 8199922653)</span>
+                    </button>
+                  </>
+                )}
 
                 {/* Drop a Gift Hint / Share Bag on WhatsApp */}
                 <button
