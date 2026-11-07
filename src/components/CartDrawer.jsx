@@ -942,23 +942,14 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                 </div>
 
                 {/* Final Order Confirmation Button */}
-                <div className="space-y-2 pt-2">
+                <div className="pt-2">
                   <button
                     type="button"
                     onClick={handleConfirmUpiOrder}
-                    className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition"
+                    className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Confirm Order & Send on WhatsApp</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleBackToCart}
-                    className="w-full py-2.5 rounded-xl border-2 border-pink-200 dark:border-pink-900 bg-pink-50/70 hover:bg-pink-100 dark:bg-neutral-800 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-95 shadow-2xs"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>← Back to Edit Bag & Address</span>
                   </button>
                 </div>
               </div>
