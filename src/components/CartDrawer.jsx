@@ -130,18 +130,13 @@ export default function CartDrawer({
   const subtotalINR = cartItems.reduce((acc, item) => acc + item.priceINR * item.qty, 0);
 
   const discountAmountINR = Math.round(subtotalINR * appliedDiscount);
-  const shippingINR = subtotalINR >= 499 ? 0 : 60;
-  const totalINR = Math.max(0, subtotalINR - discountAmountINR + shippingINR);
+  const shippingINR = 0; // 100% Free Shipping on all orders across India
+  const totalINR = Math.max(0, subtotalINR - discountAmountINR);
 
   // Minimum 3 products rule
   const minRequired = 3;
   const isMinimumMet = totalItemCount >= minRequired;
   const itemsRemainingForMin = Math.max(0, minRequired - totalItemCount);
-
-  // Free shipping progress (499 INR)
-  const freeShippingGoal = 499;
-  const progressPercent = Math.min(100, Math.round((subtotalINR / freeShippingGoal) * 100));
-  const remainingForFreeShipping = Math.max(0, freeShippingGoal - subtotalINR);
 
   // If cart drops below 3 items while on payment step, return to cart immediately
   useEffect(() => {
@@ -554,23 +549,15 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
             </div>
           </div>
 
-          {/* Free Shipping Progress (₹499) */}
-          <div className="px-4 py-2.5 bg-pink-50/70 dark:bg-neutral-800/70 border-b border-pink-100 dark:border-pink-900/30">
-            <div className="flex items-center justify-between text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
-              <span className="flex items-center gap-1.5">
-                <Gift className="w-3.5 h-3.5 text-pink-500" />
-                {remainingForFreeShipping > 0
-                  ? `Add ₹${remainingForFreeShipping} more for Free Delivery Across India!`
-                  : '🎉 Free Delivery Unlocked!'}
-              </span>
-              <span className="font-bold text-pink-600 dark:text-pink-400">{progressPercent}%</span>
-            </div>
-            <div className="w-full h-1.5 rounded-full bg-pink-200/60 dark:bg-neutral-700 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-pink-500 to-yellow-400 transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+          {/* 100% Free Shipping Across India */}
+          <div className="px-4 py-2 bg-gradient-to-r from-emerald-50 via-pink-50/60 to-emerald-50 dark:from-emerald-950/40 dark:via-[#261835] dark:to-emerald-950/40 border-b border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-300">
+            <span className="flex items-center gap-1.5">
+              <Gift className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>🎉 100% Free Delivery Across India (All Orders)</span>
+            </span>
+            <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-emerald-200/80 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200">
+              FREE
+            </span>
           </div>
 
           {/* Cart Items List & Checkout Form (Scrollable) */}
@@ -1367,7 +1354,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                 )}
                 <div className="flex justify-between text-neutral-500 dark:text-neutral-400">
                   <span>Delivery (Across India)</span>
-                  <span>{shippingINR === 0 ? 'FREE' : `₹${shippingINR}`}</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
                 </div>
                 <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-2 border-t border-neutral-100 dark:border-neutral-800">
                   <span>Total (Prepaid)</span>

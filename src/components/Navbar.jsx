@@ -35,10 +35,10 @@ const ANNOUNCEMENTS = [
   {
     id: 2,
     icon: '🚚',
-    title: 'Free Delivery Across India on Orders > ₹499',
-    mobileTitle: 'Free Delivery on Orders > ₹499',
+    title: '100% Free Delivery Across India on All Orders',
+    mobileTitle: 'Free Delivery on All Orders',
     sub: '100% Prepaid UPI',
-    mobileSub: 'Prepaid Only'
+    mobileSub: '100% Free'
   },
   {
     id: 3,
@@ -195,7 +195,7 @@ export default function Navbar({
           <span className="text-pink-300">•</span>
           <div className="flex items-center gap-1.5">
             <span>🚚</span>
-            <span>Free Delivery Across India over ₹499 (100% Prepaid)</span>
+            <span>100% Free Delivery Across India on All Orders (Prepaid)</span>
           </div>
           <span className="text-pink-300">•</span>
           <a 

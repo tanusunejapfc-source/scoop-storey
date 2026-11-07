@@ -296,7 +296,7 @@ export default function ProductDetailPage({
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-50/60 dark:bg-neutral-800/60 border border-purple-100 dark:border-neutral-700">
                 <Truck className="w-4 h-4 text-purple-600 shrink-0" />
-                <span>Free Ship &gt; ₹499</span>
+                <span>100% Free Shipping</span>
               </div>
             </div>
           </div>
@@ -501,8 +501,8 @@ export default function ProductDetailPage({
                     <Truck className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
                     <span>Check Estimated Delivery & Pincode</span>
                   </div>
-                  <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold uppercase">
-                    Free over ₹499
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold uppercase">
+                    100% Free Delivery
                   </span>
                 </div>
 
@@ -647,7 +647,7 @@ export default function ProductDetailPage({
                   <div className="p-3 rounded-xl bg-pink-50/70 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700 text-xs space-y-1.5 text-neutral-700 dark:text-neutral-300 animate-fadeIn">
                     <p>• <strong>Order Rule:</strong> Minimum 3 Products Required to place an order.</p>
                     <p>• <strong>Payment:</strong> 100% Prepaid via UPI QR Code only.</p>
-                    <p>• <strong>Delivery:</strong> Free across India on orders above ₹499 (Standard delivery ₹60).</p>
+                    <p>• <strong>Delivery:</strong> 100% Free Express Delivery across India on all prepaid orders.</p>
                     <p>• <strong>Packaging:</strong> Packed with cute ASMR aesthetic on Instagram Reels upon request!</p>
                   </div>
                 )}

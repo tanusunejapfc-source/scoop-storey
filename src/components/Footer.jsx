@@ -78,7 +78,7 @@ export default function Footer({ onOpenAdmin, onOpenTracking }) {
                 <span>Free Delivery Across India</span>
                 <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold underline ml-1">Track ➔</span>
               </div>
-              <div className="text-xs text-neutral-500">On all prepaid orders over ₹499</div>
+              <div className="text-xs text-neutral-500">100% Free on all prepaid orders</div>
             </div>
           </button>
 

@@ -49,7 +49,7 @@ const FAQS_DATA = [
   {
     category: 'orders',
     q: 'Why is there a minimum 3 products requirement to place an order?',
-    a: 'Scoop Storey is a boutique mystery gift & aesthetic accessories studio. To keep our product prices affordable (as low as ₹99–₹199 per piece) while offering Free Express Delivery across India on orders over ₹499, single-item orders cannot be sustained. You can freely mix and match any 3 items from Pendants, Bracelets, Eye Masks, and Mystery Scoops!'
+    a: 'Scoop Storey is a boutique mystery gift & aesthetic accessories studio. To keep our product prices affordable (as low as ₹99–₹199 per piece) while offering 100% Free Express Delivery across India on all orders, single-item orders cannot be sustained. You can freely mix and match any 3 items from Pendants, Bracelets, Eye Masks, and Mystery Scoops!'
   },
   {
     category: 'orders',
