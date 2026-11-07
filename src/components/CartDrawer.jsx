@@ -540,25 +540,6 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
             </div>
           </div>
 
-          {/* STORE POLICY: MINIMUM 3 PRODUCTS NOTICE */}
-          <div className={`px-4 py-2.5 text-xs font-semibold flex items-center justify-between ${
-            isMinimumMet 
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-b border-emerald-200 dark:border-emerald-900'
-              : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 border-b border-amber-200 dark:border-amber-900'
-          }`}>
-            <div className="flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>
-                {isMinimumMet
-                  ? '✅ Minimum order requirement met (3+ items)'
-                  : `⚠️ Minimum 3 items required (Add ${itemsRemainingForMin} more)`}
-              </span>
-            </div>
-            <span className="font-bold text-[11px] px-2 py-0.5 rounded-full bg-white/80 dark:bg-neutral-800 shadow-xs">
-              {totalItemCount} / 3 Items
-            </span>
-          </div>
-
           {/* Free Shipping Progress (₹499) */}
           <div className="px-4 py-2.5 bg-pink-50/70 dark:bg-neutral-800/70 border-b border-pink-100 dark:border-pink-900/30">
             <div className="flex items-center justify-between text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
@@ -1358,45 +1339,19 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
               {/* Checkout Action Buttons */}
               <div className="space-y-2 pt-1">
                 {!isMinimumMet ? (
-                  <div className="space-y-2">
-                    {/* Minimum 3 Alert Box */}
-                    <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-700/80 text-amber-900 dark:text-amber-200 text-xs font-semibold space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
-                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                        <span>Minimum 3 Items Required to Checkout</span>
-                      </div>
-                      <p className="text-[11px] text-amber-700 dark:text-amber-300/90 leading-tight">
-                        Single item checkout not available. Please add <strong>{itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''}</strong> ({totalItemCount}/3 selected) to unlock payment QR!
-                      </p>
-                    </div>
-
-                    {/* Locked Payment Button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundFX.playPop(300);
-                        alert(`⚠️ Order Rule: Minimum 3 products required to place an order.\n\nYou currently have ${totalItemCount} item(s) in your bag. Please add ${itemsRemainingForMin} more product(s) to unlock payment.`);
-                      }}
-                      className="w-full py-3.5 px-4 rounded-2xl bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-neutral-300 dark:border-neutral-700 cursor-not-allowed shadow-inner"
-                    >
-                      <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} to unlock payment</span>
-                    </button>
-
-                    {/* Quick Explore Collections Button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClose?.();
-                        window.location.hash = '#collections';
-                        soundFX.playPop(500);
-                      }}
-                      className="w-full py-2.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>+ Browse & Add More Cute Goodies</span>
-                    </button>
-                  </div>
+                  /* Quick Explore Collections Button */
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose?.();
+                      window.location.hash = '#collections';
+                      soundFX.playPop(500);
+                    }}
+                    className="w-full py-3.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer transition active:scale-[0.99]"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>+ Browse & Add More Cute Goodies</span>
+                  </button>
                 ) : (
                   /* Single Primary Prepaid UPI & QR Checkout */
                   <button
