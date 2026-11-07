@@ -393,11 +393,11 @@ export default function ProductCatalog({
                     className="group rounded-2xl bg-white dark:bg-[#1E172E] border border-pink-200 dark:border-pink-900/60 p-3.5 shadow-sm hover:shadow-lg hover:border-pink-400 transition-all cursor-pointer flex flex-col justify-between"
                   >
                     <div className="space-y-2.5">
-                      <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-pink-50/60 dark:bg-neutral-800/60 p-2">
+                      <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
                         <img
                           src={product.image || product.images?.[0]}
                           alt={product.name}
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/95 dark:bg-neutral-900/95 text-[10px] font-black text-[#E60067] shadow-xs">
                           {product.category}
@@ -653,7 +653,7 @@ export default function ProductCatalog({
                 >
                   <div>
                     {/* 4:5 Standard E-Commerce Ratio Container */}
-                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-b from-pink-50/70 via-white to-pink-50/40 dark:from-[#251A38] dark:via-[#1E172E] dark:to-[#181126] flex items-center justify-center p-3">
+                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
                       <img
                         src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
                         alt={product.name}
@@ -661,7 +661,7 @@ export default function ProductCatalog({
                           e.currentTarget.onerror = null;
                           e.currentTarget.src = '/images/deluxe-giftbox.jpg';
                         }}
-                        className="w-full h-full object-contain drop-shadow-xs group-hover:scale-105 transition-transform duration-500 rounded-xl"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       
                       {/* Badge */}

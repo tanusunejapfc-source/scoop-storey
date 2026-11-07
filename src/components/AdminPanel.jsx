@@ -85,7 +85,8 @@ const PRESET_COLORS = [
 ];
 
 // Lightweight image compression helper for fast device uploads & lean localStorage/IndexedDB persistence
-const compressImage = (file, maxWidth = 900, maxHeight = 900, quality = 0.80) => {
+// Formats product images to standard 4:5 aspect ratio (800 × 1000 px) with clean white background fill
+const compressImage = (file, targetWidth = 800, targetHeight = 1000, quality = 0.85) => {
   return new Promise((resolve) => {
     if (!file || !file.type.startsWith('image/')) {
       resolve(null);
@@ -95,30 +96,35 @@ const compressImage = (file, maxWidth = 900, maxHeight = 900, quality = 0.80) =>
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
         const ctx = canvas.getContext('2d');
 
         // Fill background white so transparent PNGs render cleanly
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
 
-        // Always compress to JPEG at 0.80 (produces compact 30-50KB images that never exceed browser quotas)
+        // Center and cover: maintain aspect ratio, fill canvas, center image
+        const srcAspect = img.width / img.height;
+        const targetAspect = targetWidth / targetHeight;
+
+        let drawWidth, drawHeight, offsetX, offsetY;
+        if (srcAspect > targetAspect) {
+          drawHeight = targetHeight;
+          drawWidth = img.width * (targetHeight / img.height);
+          offsetX = (targetWidth - drawWidth) / 2;
+          offsetY = 0;
+        } else {
+          drawWidth = targetWidth;
+          drawHeight = img.height * (targetWidth / img.width);
+          offsetX = 0;
+          offsetY = (targetHeight - drawHeight) / 2;
+        }
+
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+        // Always compress to JPEG at specified quality (crisp 800x1000 4:5 standard)
         const dataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(dataUrl);
       };
@@ -664,7 +670,7 @@ export default function AdminPanel({
         continue;
       }
       try {
-        const compressedDataUrl = await compressImage(file, 900, 900, 0.80);
+        const compressedDataUrl = await compressImage(file, 800, 1000, 0.85);
         if (!compressedDataUrl) continue;
 
         let finalUrl = compressedDataUrl;
@@ -1945,7 +1951,7 @@ export default function AdminPanel({
                             e.currentTarget.onerror = null;
                             e.currentTarget.src = '/images/deluxe-giftbox.jpg';
                           }}
-                          className="w-16 h-16 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
+                          className="w-14 h-18 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
                         />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
@@ -2115,11 +2121,11 @@ export default function AdminPanel({
 
                   {/* Primary Thumbnail Spotlight Card */}
                   <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50/70 via-purple-50/40 to-pink-50/70 dark:from-pink-950/30 dark:to-neutral-900 border border-pink-200/80 dark:border-pink-900/50 flex flex-col sm:flex-row items-center gap-4">
-                    <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-white dark:bg-neutral-800 border-2 border-pink-400 shadow-sm shrink-0 flex items-center justify-center p-1">
+                    <div className="relative w-20 h-25 aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border-2 border-pink-400 shadow-sm shrink-0 flex items-center justify-center">
                       <img
                         src={formData.image || formData.images[0] || '/images/deluxe-giftbox.jpg'}
                         alt="Primary Preview"
-                        className="w-full h-full object-contain rounded-lg"
+                        className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
                           e.currentTarget.src = '/images/deluxe-giftbox.jpg';
@@ -2164,7 +2170,7 @@ export default function AdminPanel({
                               isMain ? 'border-[#E60067] shadow-md ring-2 ring-pink-400/30' : 'border-pink-200 dark:border-neutral-700 hover:border-pink-300'
                             }`}
                           >
-                            <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-pink-50/50 dark:bg-neutral-800 p-1">
+                            <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
                               <img 
                                 src={img} 
                                 alt={`Gallery ${idx + 1}`} 
@@ -2172,7 +2178,7 @@ export default function AdminPanel({
                                   e.currentTarget.onerror = null;
                                   e.currentTarget.src = '/images/deluxe-giftbox.jpg';
                                 }}
-                                className="w-full h-full object-contain rounded-lg"
+                                className="w-full h-full object-cover rounded-lg"
                               />
 
                               {isMain && (
@@ -3191,7 +3197,7 @@ export default function AdminPanel({
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = '/images/deluxe-giftbox.jpg';
                             }}
-                            className="w-9 h-9 rounded-lg object-contain bg-pink-50/80 dark:bg-neutral-900 border shrink-0"
+                            className="w-9 h-11 rounded-lg object-cover bg-neutral-100 dark:bg-neutral-900 border shrink-0"
                           />
 
                           <div className="min-w-0 flex-1">

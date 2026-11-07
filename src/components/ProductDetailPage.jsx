@@ -213,8 +213,8 @@ export default function ProductDetailPage({
           
           {/* LEFT: Image Gallery (5 cols) */}
           <div className="md:col-span-6 space-y-4">
-            {/* Main Image Stage */}
-            <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-gradient-to-b from-pink-50/70 via-white to-pink-50/30 dark:from-[#251A38] dark:to-[#181126] border border-pink-200/80 dark:border-pink-900/50 flex items-center justify-center p-4 shadow-sm group">
+            {/* Main Image Stage (4:5 Standard E-Commerce Ratio) */}
+            <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/50 shadow-sm group">
               <img
                 src={currentImage}
                 alt={`${product.name} - ${activeImageIndex + 1}`}
@@ -222,7 +222,7 @@ export default function ProductDetailPage({
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = '/images/deluxe-giftbox.jpg';
                 }}
-                className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
 
               {/* Badge */}
@@ -272,7 +272,7 @@ export default function ProductDetailPage({
                       setActiveImageIndex(idx);
                       soundFX.playPop(400);
                     }}
-                    className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all p-1 bg-white dark:bg-neutral-800 ${
+                    className={`relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-neutral-100 dark:bg-neutral-800 ${
                       activeImageIndex === idx
                         ? 'border-[#E60067] ring-2 ring-pink-400/40 scale-105 shadow-md'
                         : 'border-pink-200 dark:border-neutral-700 opacity-70 hover:opacity-100'
@@ -281,7 +281,7 @@ export default function ProductDetailPage({
                     <img
                       src={img}
                       alt={`Thumbnail ${idx + 1}`}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                     />
                   </button>
                 ))}

@@ -207,11 +207,11 @@ export default function GlobalSearchModal({
                     className="p-2.5 rounded-2xl bg-white dark:bg-neutral-800/80 border border-pink-100 dark:border-pink-900/40 hover:border-pink-400 dark:hover:border-pink-500 shadow-xs hover:shadow-md transition-all flex items-center justify-between gap-3 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-pink-50/70 dark:bg-neutral-700/60 p-1 shrink-0 overflow-hidden flex items-center justify-center">
+                      <div className="w-12 h-15 aspect-[4/5] rounded-xl bg-neutral-100 dark:bg-neutral-700/60 shrink-0 overflow-hidden flex items-center justify-center">
                         <img
                           src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
                           alt={product.name}
-                          className="w-full h-full object-contain group-hover:scale-110 transition-transform"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
                             e.currentTarget.src = '/images/deluxe-giftbox.jpg';

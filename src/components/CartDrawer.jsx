@@ -873,7 +873,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-14 h-14 rounded-xl object-contain bg-pink-50/80 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
+                          className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
@@ -970,11 +970,11 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                           className="w-32 sm:w-36 shrink-0 p-2 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/40 shadow-xs flex flex-col justify-between"
                         >
                           <div className="space-y-1">
-                            <div className="w-full aspect-square rounded-lg bg-pink-50/60 dark:bg-neutral-700/60 p-1 overflow-hidden flex items-center justify-center">
+                            <div className="w-full aspect-[4/5] rounded-lg bg-neutral-100 dark:bg-neutral-700 overflow-hidden flex items-center justify-center">
                               <img
                                 src={addon.image || (Array.isArray(addon.images) && addon.images[0]) || '/images/deluxe-giftbox.jpg'}
                                 alt={addon.name}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
                                   e.currentTarget.src = '/images/deluxe-giftbox.jpg';

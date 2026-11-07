@@ -124,7 +124,7 @@ export default function WishlistDrawer({
                       <img
                         src={item.image || '/images/deluxe-giftbox.jpg'}
                         alt={item.name}
-                        className="w-14 h-14 rounded-xl object-contain bg-white dark:bg-neutral-700 p-1 border border-pink-100 dark:border-neutral-700 shrink-0"
+                        className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-700 border border-pink-100 dark:border-neutral-700 shrink-0"
                         onError={(e) => { 
                           e.currentTarget.onerror = null; 
                           e.currentTarget.src = '/brand-avatar.jpg'; 
