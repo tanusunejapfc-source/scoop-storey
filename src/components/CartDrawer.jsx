@@ -23,6 +23,7 @@ import {
   Upload,
   ExternalLink,
   ArrowLeft,
+  ArrowRight,
   Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -282,6 +283,19 @@ export default function CartDrawer({
 
   // Direct WhatsApp Checkout Link with Address & Order Details - REMOVED to prevent unpaid order confirmation bypass.
   // All orders must proceed through UPI QR Code payment first.
+
+  // Navigate to Collections Hub
+  const handleGoToCollections = () => {
+    soundFX.playPop(500);
+    onClose?.();
+    window.location.hash = '#collections';
+    setTimeout(() => {
+      const menuEl = document.getElementById('menu') || document.getElementById('collections');
+      if (menuEl) {
+        menuEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 60);
+  };
 
   const handleCopyText = (text, field) => {
     if (!text) return;
@@ -998,7 +1012,34 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                           </button>
                         </div>
                       ))}
+
+                      {/* Card at end of scroll to view full collection */}
+                      <button
+                        type="button"
+                        onClick={handleGoToCollections}
+                        className="w-32 sm:w-36 shrink-0 p-3 rounded-xl bg-gradient-to-b from-pink-100/90 to-purple-100/90 dark:from-pink-950/70 dark:to-purple-950/70 border-2 border-dashed border-[#E60067]/50 hover:border-[#E60067] flex flex-col items-center justify-center text-center cursor-pointer transition active:scale-95 shadow-xs group"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center text-[#E60067] mb-1.5 shadow-xs group-hover:scale-110 transition">
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                        <span className="font-display font-extrabold text-[11px] text-[#231733] dark:text-white leading-tight">
+                          View Full Collection
+                        </span>
+                        <span className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold mt-1">
+                          Browse All →
+                        </span>
+                      </button>
                     </div>
+
+                    {/* Dedicated Button to View Full Collection in Center Card */}
+                    <button
+                      type="button"
+                      onClick={handleGoToCollections}
+                      className="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-pink-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-800 shadow-xs cursor-pointer transition active:scale-[0.99]"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
+                      <span>View Full Collection & Browse All Goodies →</span>
+                    </button>
                   </div>
                 )}
 
@@ -1342,11 +1383,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                   /* Quick Explore Collections Button */
                   <button
                     type="button"
-                    onClick={() => {
-                      onClose?.();
-                      window.location.hash = '#collections';
-                      soundFX.playPop(500);
-                    }}
+                    onClick={handleGoToCollections}
                     className="w-full py-3.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer transition active:scale-[0.99]"
                   >
                     <Sparkles className="w-4 h-4" />
