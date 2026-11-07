@@ -18,7 +18,7 @@ import {
   Heart
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
-import { saveOrderToStore } from '../utils/orderStore';
+// Direct inquiries on WhatsApp (orders placed strictly via Cart UPI QR)
 import { lookupPincode } from '../utils/pincodeApi';
 import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -173,64 +173,6 @@ export default function ProductDetailPage({
 
   const currentImage = images[activeImageIndex] || product.image;
   const totalPrice = product.priceINR * quantity;
-
-  const handleWhatsAppDirectOrder = () => {
-    soundFX.playSuccess();
-    const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    let savedAddress = null;
-    try {
-      const raw = localStorage.getItem('bhaskar_delivery_address');
-      if (raw) savedAddress = JSON.parse(raw);
-    } catch {
-      // ignore
-    }
-
-    const directOrder = {
-      orderId,
-      timestamp: Date.now(),
-      date: new Date().toLocaleDateString('en-IN', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      source: 'Product Detail Direct WhatsApp',
-      status: 'WhatsApp Inquiry / Order',
-      paymentMethod: 'WhatsApp Direct',
-      customer: savedAddress || {
-        fullName: 'WhatsApp Customer',
-        phone: '',
-        streetAddress: 'To be provided on WhatsApp',
-        city: '',
-        state: 'Maharashtra',
-        pincode: ''
-      },
-      items: [
-        {
-          id: product.id,
-          name: product.name,
-          priceINR: product.priceINR,
-          qty: quantity,
-          image: currentImage || '/images/deluxe-giftbox.jpg',
-          selectedColor: selectedColor?.name || 'Standard',
-          selectedColorHex: selectedColor?.hex || '#FFB6C1'
-        }
-      ],
-      totalItemCount: quantity,
-      subtotalINR: totalPrice,
-      discountAmountINR: 0,
-      shippingINR: totalPrice >= 499 ? 0 : 60,
-      totalINR: totalPrice + (totalPrice >= 499 ? 0 : 60),
-      additionalNotes: `Direct WhatsApp Order: ${product.name} (${selectedColor?.name || 'Standard'}) x${quantity}`
-    };
-
-    saveOrderToStore(directOrder);
-
-    const msg = `Hi Scoop Storey! 🎀 Mujhe yeh product order karna hai (Order ID: ${orderId}):\n\n• ${product.name}\n• Color: ${selectedColor?.name || 'Standard'}\n• Qty: ${quantity}\n• Total: ₹${totalPrice + (totalPrice >= 499 ? 0 : 60)} (Prepaid)\n${savedAddress?.fullName ? `• Name: ${savedAddress.fullName}\n• Address: ${savedAddress.streetAddress}, ${savedAddress.city} (${savedAddress.pincode})\n` : ''}\nPlease send me the UPI QR code for payment! ✨`;
-    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
-  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 md:p-8 animate-fadeIn">
@@ -493,15 +435,18 @@ export default function ProductDetailPage({
                   </button>
                 </div>
 
-                {/* Direct WhatsApp Order Link */}
-                <button
-                  type="button"
-                  onClick={handleWhatsAppDirectOrder}
-                  className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-display font-bold flex items-center justify-center gap-2 shadow-md transition active:scale-[0.99]"
+                {/* Inquire on WhatsApp Link */}
+                <a
+                  href={`https://wa.me/918199922653?text=${encodeURIComponent(
+                    `Hi Scoop Storey! 🎀 Mujhe "${product.name}" (${selectedColor?.name || 'Standard'}) ke baare me inquiry karni hai. (Prepaid Store • Min 3 items)`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-display font-bold flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 transition active:scale-[0.99]"
                 >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  <span>Order "{selectedColor?.name || 'Standard'}" on WhatsApp (+91 8199922653)</span>
-                </button>
+                  <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+                  <span>Inquire about this piece on WhatsApp (+91 8199922653)</span>
+                </a>
 
                 {/* Secondary Actions: Wishlist, Drop Gift Hint & Share */}
                 <div className="grid grid-cols-3 gap-2 pt-1">

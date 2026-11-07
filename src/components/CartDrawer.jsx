@@ -280,102 +280,8 @@ export default function CartDrawer({
     }
   };
 
-  // Direct WhatsApp Checkout Link with Address & Order Details
-  const handleWhatsAppCheckout = () => {
-    if (!isMinimumMet) {
-      soundFX.playPop(300);
-      alert(
-        `⚠️ Order Rule: Minimum 3 products required to place an order.\n\nYou currently have ${totalItemCount} item(s) in your bag. Please add ${itemsRemainingForMin} more product(s) to place an order.`
-      );
-      return;
-    }
-
-    const errors = validateAddress();
-    if (Object.keys(errors).length > 0) {
-      setAddressErrors(errors);
-      soundFX.playPop(300);
-      addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    const cleanItems = cartItems.map(item => ({
-      id: item.id || '',
-      name: item.name || 'Scoop Storey Item',
-      priceINR: Number(item.priceINR || item.price || 0),
-      qty: Number(item.qty || 1),
-      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.jpg',
-      selectedColor: item.selectedColor || null,
-      selectedColorHex: item.selectedColorHex || null
-    }));
-
-    const newOrder = {
-      orderId,
-      timestamp: Date.now(),
-      date: new Date().toLocaleDateString('en-IN', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      source: isMinimumMet ? 'WhatsApp Order' : 'WhatsApp Order (Special Single/Custom)',
-      status: 'WhatsApp Verification Pending',
-      paymentMethod: 'WhatsApp Direct',
-      customer: { ...addressData },
-      items: cleanItems,
-      totalItemCount,
-      subtotalINR,
-      discountAmountINR,
-      shippingINR,
-      totalINR,
-      filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
-      additionalNotes: additionalNotes.trim() || null
-    };
-
-    // 1. Save to persistent orderStore so admin can view order details in Admin Panel!
-    saveOrderToStore(newOrder);
-
-    // 2. Play celebration and audio
-    soundFX.playSuccess();
-    confetti({
-      particleCount: 120,
-      spread: 85,
-      origin: { y: 0.5 },
-      colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
-    });
-
-    // 3. Clear cart so details in cart DO NOT remain filled!
-    onClearCart();
-
-    // 4. Set receipt modal data
-    setOrderCompleteData(newOrder);
-
-    // 5. Open WhatsApp with formatted details
-    const orderItemsSummary = cleanItems
-      .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
-      .join('\n');
-
-    const msg = `Hi Scoop Storey! 🎀 Mera Order ID ${orderId} hai (Prepaid):
-
-🛍️ ITEMS ORDERED:
-${orderItemsSummary}
-
-💰 TOTAL: ₹${totalINR} (${totalItemCount} items)
-${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${additionalNotes.trim() ? `📝 Additional Notes: ${additionalNotes.trim()}\n` : ''}
-📍 DELIVERY ADDRESS & CONTACT:
-• Name: ${addressData.fullName}
-• Mobile/WhatsApp: +91 ${addressData.phone}
-• Address: ${addressData.streetAddress}
-${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
-• PIN Code: ${addressData.pincode}
-
-Please send me the UPI QR code for payment! ✨`;
-
-    const encoded = encodeURIComponent(msg);
-    window.open(`https://wa.me/918199922653?text=${encoded}`, '_blank', 'noopener,noreferrer');
-  };
+  // Direct WhatsApp Checkout Link with Address & Order Details - REMOVED to prevent unpaid order confirmation bypass.
+  // All orders must proceed through UPI QR Code payment first.
 
   const handleCopyText = (text, field) => {
     if (!text) return;
@@ -467,6 +373,19 @@ Please send me the UPI QR code for payment! ✨`;
 
   // Final Order Confirmation with Verified UPI Reference Number
   const handleConfirmUpiOrder = () => {
+    const cleanRef = upiRefNumber.trim();
+    if (!cleanRef && !paymentScreenshot) {
+      setUpiRefError('⚠️ Please enter your 12-digit UPI Ref / UTR number or upload payment screenshot after completing payment.');
+      soundFX.playPop(300);
+      return;
+    }
+
+    if (cleanRef && cleanRef.length < 6 && !paymentScreenshot) {
+      setUpiRefError('⚠️ Please enter a valid UPI Ref / UTR number (usually 12 digits) or upload payment screenshot.');
+      soundFX.playPop(300);
+      return;
+    }
+
     soundFX.playSuccess();
     confetti({
       particleCount: 120,
@@ -475,8 +394,8 @@ Please send me the UPI QR code for payment! ✨`;
       colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
     });
 
-    const hasUtr = Boolean(upiRefNumber.trim() && upiRefNumber.trim().length >= 4);
-    const cleanRef = hasUtr ? upiRefNumber.trim() : 'Shared via WhatsApp Screenshot';
+    const hasUtr = Boolean(cleanRef && cleanRef.length >= 6);
+    const utrDisplay = hasUtr ? cleanRef : 'Screenshot Attached';
 
     const cleanItems = cartItems.map(item => ({
       id: item.id || '',
@@ -499,9 +418,9 @@ Please send me the UPI QR code for payment! ✨`;
         minute: '2-digit'
       }),
       source: 'Prepaid UPI / QR Code',
-      status: hasUtr ? 'Payment Received (Verify UTR)' : 'UPI Verification Pending (Screenshot/Chat)',
+      status: hasUtr ? 'Payment Received (Verify UTR)' : 'UPI Verification Pending (Screenshot)',
       paymentMethod: 'UPI QR Code',
-      upiRefNumber: cleanRef,
+      upiRefNumber: utrDisplay,
       paymentScreenshot: paymentScreenshot || null,
       customer: { ...addressData },
       items: cleanItems,
@@ -533,8 +452,8 @@ Please send me the UPI QR code for payment! ✨`;
 
 Order ID: ${currentOrderId}
 💰 Total Paid: ₹${totalINR} (${totalItemCount} items)
-🔢 UPI Ref / UTR No.: ${cleanRef}
-
+🔢 UPI Ref / UTR No.: ${utrDisplay}
+${paymentScreenshot ? '📸 Payment Screenshot: Attached\n' : ''}
 🛍️ ITEMS ORDERED:
 ${orderItemsSummary}
 ${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${additionalNotes.trim() ? `📝 Additional Notes: ${additionalNotes.trim()}\n` : ''}
@@ -1479,27 +1398,15 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                     </button>
                   </div>
                 ) : (
-                  <>
-                    {/* Primary Prepaid UPI & QR Checkout */}
-                    <button
-                      type="button"
-                      onClick={handleProceedToUpiPayment}
-                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
-                    >
-                      <QrCode className="w-4 h-4" />
-                      <span>Pay ₹{totalINR} via UPI / QR Code</span>
-                    </button>
-
-                    {/* Direct WhatsApp Order Option */}
-                    <button
-                      type="button"
-                      onClick={handleWhatsAppCheckout}
-                      className="w-full py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-display font-semibold text-xs flex items-center justify-center gap-2 shadow transition cursor-pointer"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5" />
-                      <span>Order directly on WhatsApp (+91 8199922653)</span>
-                    </button>
-                  </>
+                  /* Single Primary Prepaid UPI & QR Checkout */
+                  <button
+                    type="button"
+                    onClick={handleProceedToUpiPayment}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>Proceed to Pay ₹{totalINR} (UPI QR Code)</span>
+                  </button>
                 )}
 
                 {/* Drop a Gift Hint / Share Bag on WhatsApp */}
@@ -1512,6 +1419,19 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                   <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                   <span>Drop a Gift Hint / Share Bag on WhatsApp 🎁</span>
                 </button>
+
+                {/* Need help support inquiry link */}
+                <div className="text-center pt-0.5">
+                  <a
+                    href="https://wa.me/918199922653?text=Hi%20Bhaskar!%20I%20have%20a%20question%20about%20my%20Scoop%20Storey%20bag."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+                  >
+                    <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
+                    <span>Need help? Chat with Bhaskar on WhatsApp</span>
+                  </a>
+                </div>
               </div>
             </div>
           )}
@@ -1526,15 +1446,15 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
               🎉
             </div>
             <h3 className="text-2xl font-display font-bold text-neutral-900 dark:text-white">
-              Order Confirmed & Sent!
+              Prepaid Order Confirmed & Sent!
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
-              Order ID: <strong className="text-pink-600">{orderCompleteData.orderId}</strong>
+              Order ID: <strong className="text-pink-600 font-mono">{orderCompleteData.orderId}</strong>
             </p>
 
             <div className="my-5 p-4 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/70 text-left text-xs space-y-2.5 border border-pink-100 dark:border-pink-900/30">
               <div className="flex justify-between">
-                <span className="text-neutral-500">Total Amount:</span>
+                <span className="text-neutral-500">Total Paid (UPI):</span>
                 <span className="font-bold text-neutral-800 dark:text-neutral-100">₹{orderCompleteData.totalINR}</span>
               </div>
               <div className="flex justify-between">
@@ -1542,8 +1462,8 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                 <span className="font-semibold text-neutral-700 dark:text-neutral-300">{orderCompleteData.date}</span>
               </div>
               <div className="flex justify-between text-emerald-600 font-semibold">
-                <span>Order Channel:</span>
-                <span>{orderCompleteData.source}</span>
+                <span>Payment Mode:</span>
+                <span>100% Prepaid UPI Verified</span>
               </div>
 
               {orderCompleteData.upiRefNumber && (
@@ -1598,13 +1518,13 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
             </div>
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
-              Your order has been recorded in our system! If WhatsApp hasn't opened automatically, click the button below to message Bhaskar directly.
+              Your prepaid order and payment details have been recorded! If WhatsApp hasn't opened automatically, click the button below to message Bhaskar directly with your UTR proof.
             </p>
 
             <div className="space-y-2">
               <a
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(
-                  `Hi Bhaskar! 🎀 Mera Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n${orderCompleteData.upiRefNumber ? `🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber}\n` : ''}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\n${orderCompleteData.upiRefNumber ? 'Payment done via UPI!' : 'Please send payment QR code!'}`
+                  `Hi Bhaskar! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber || 'Screenshot Attached'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

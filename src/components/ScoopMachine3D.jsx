@@ -5,7 +5,7 @@ import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle, Check } fr
 import { soundFX } from '../utils/audio';
 import { disposeThreeScene } from '../utils/threeUtils';
 import { SCOOP_TIERS, CHARM_LOOT_POOL } from '../data/storeData';
-import { saveOrderToStore } from '../utils/orderStore';
+// Scoop inquiries on WhatsApp (orders placed strictly via Cart UPI QR)
 import WhatsAppIcon from './WhatsAppIcon';
 
 export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
@@ -552,65 +552,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     }, 1800);
   };
 
-  const handleLootModalWhatsApp = () => {
-    if (!scoopResult) return;
-    soundFX.playSuccess();
-    const orderId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    let savedAddress = null;
-    try {
-      const raw = localStorage.getItem('bhaskar_delivery_address');
-      if (raw) savedAddress = JSON.parse(raw);
-    } catch {
-      // ignore
-    }
-
-    const lootOrder = {
-      orderId,
-      timestamp: Date.now(),
-      date: new Date().toLocaleDateString('en-IN', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      source: '3D Scoop Live Haul WhatsApp',
-      status: 'WhatsApp Inquiry / Order',
-      paymentMethod: 'WhatsApp Direct',
-      customer: savedAddress || {
-        fullName: 'WhatsApp Customer',
-        phone: '',
-        streetAddress: 'To be provided on WhatsApp',
-        city: '',
-        state: 'Maharashtra',
-        pincode: ''
-      },
-      items: [
-        {
-          id: `haul-${Date.now()}`,
-          name: `${scoopResult.tier.name} (${scoopResult.items.length} Charms)`,
-          priceINR: scoopResult.tier.priceINR,
-          qty: 1,
-          image: '/images/scoop-bowl.jpg',
-          selectedColor: `${scoopResult.items.length} Scooped Charms`,
-          selectedColorHex: '#FF6699'
-        }
-      ],
-      totalItemCount: 1,
-      subtotalINR: scoopResult.tier.priceINR,
-      discountAmountINR: 0,
-      shippingINR: scoopResult.tier.priceINR >= 499 ? 0 : 60,
-      totalINR: scoopResult.tier.priceINR + (scoopResult.tier.priceINR >= 499 ? 0 : 60),
-      additionalNotes: `Live Scooped Loot: ${scoopResult.items.map(it => it.name).slice(0, 5).join(', ')}...`
-    };
-
-    saveOrderToStore(lootOrder);
-
-    const msg = `Hi Bhaskar! 🎀 Mujhe mera 3D Scoop result order karna hai (Order ID: ${orderId}):\n\n• ${scoopResult.tier.name}\n• Total Charms: ${scoopResult.items.length}\n• Amount: ₹${scoopResult.tier.priceINR + (scoopResult.tier.priceINR >= 499 ? 0 : 60)} (Prepaid)\n${savedAddress?.fullName ? `• Name: ${savedAddress.fullName}\n• Address: ${savedAddress.streetAddress}, ${savedAddress.city} (${savedAddress.pincode})\n` : ''}\nPlease send QR code for payment! ✨`;
-    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <section id="scoop-machine" className="my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Policy Alert Banner */}
@@ -873,14 +814,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                 <span>Add Haul to Bag (₹{scoopResult.tier.priceINR})</span>
               </button>
 
-              <button
-                type="button"
-                onClick={handleLootModalWhatsApp}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
+              <a
+                href={`https://wa.me/918199922653?text=${encodeURIComponent(
+                  `Hi Bhaskar! 🎀 Mujhe mera 3D Scoop result discuss karna hai (${scoopResult?.tier?.name} - ${scoopResult?.items?.length} charms). (Prepaid Store • Min 3 items)`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs md:text-sm flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer"
               >
-                <WhatsAppIcon className="w-4 h-4" />
-                <span>Direct Order on WhatsApp (+91 8199922653)</span>
-              </button>
+                <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+                <span>Inquire Scoop on WhatsApp (+91 8199922653)</span>
+              </a>
 
               <button
                 onClick={() => setShowModal(false)}
