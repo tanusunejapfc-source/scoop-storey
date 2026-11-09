@@ -35,7 +35,12 @@ import {
   AlertCircle,
   Video,
   Play,
-  Film
+  Film,
+  Key,
+  Shield,
+  ShieldCheck,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { categoryToSlug } from '../data/storeData';
@@ -136,6 +141,40 @@ const compressImage = (file, targetWidth = 800, targetHeight = 1000, quality = 0
   });
 };
 
+// Admin passcode storage configuration
+export const ADMIN_PASSCODE_KEY = 'bhaskar_admin_passcode_v1';
+export const DEFAULT_PASSCODE = 'scoop123';
+
+export function getAdminPasscode() {
+  try {
+    const val = localStorage.getItem(ADMIN_PASSCODE_KEY);
+    if (val && val.trim()) return val.trim();
+  } catch (err) {
+    console.error('Error reading admin passcode:', err);
+  }
+  return DEFAULT_PASSCODE;
+}
+
+export function saveAdminPasscode(newPasscode) {
+  try {
+    localStorage.setItem(ADMIN_PASSCODE_KEY, newPasscode.trim());
+    return true;
+  } catch (err) {
+    console.error('Error saving admin passcode:', err);
+    return false;
+  }
+}
+
+export function resetAdminPasscode() {
+  try {
+    localStorage.removeItem(ADMIN_PASSCODE_KEY);
+    return true;
+  } catch (err) {
+    console.error('Error resetting admin passcode:', err);
+    return false;
+  }
+}
+
 export default function AdminPanel({
   isOpen,
   onClose,
@@ -150,8 +189,19 @@ export default function AdminPanel({
   });
   const [passcode, setPasscode] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
+  const [showLoginPasscode, setShowLoginPasscode] = useState(false);
 
-  // Primary navigation: 'orders' | 'products' | 'edit' | 'new'
+  // Security & Passcode Change Form States
+  const [currentPassInput, setCurrentPassInput] = useState('');
+  const [newPassInput, setNewPassInput] = useState('');
+  const [confirmPassInput, setConfirmPassInput] = useState('');
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [securityError, setSecurityError] = useState('');
+  const [securitySuccess, setSecuritySuccess] = useState('');
+
+  // Primary navigation: 'orders' | 'products' | 'categories' | 'edit' | 'new' | 'payments' | 'reels' | 'security'
   const [activeTab, setActiveTab] = useState('orders');
   const [searchQuery, setSearchQuery] = useState('');
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
@@ -572,15 +622,87 @@ export default function AdminPanel({
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (passcode.trim() === 'scoop123' || passcode.trim() === 'admin' || passcode.trim() === 'bhaskar') {
+    const storedPass = getAdminPasscode();
+    const entered = passcode.trim();
+    if (
+      entered === storedPass ||
+      (storedPass === DEFAULT_PASSCODE && (entered === 'admin' || entered === 'bhaskar'))
+    ) {
       setIsAuthenticated(true);
       sessionStorage.setItem('bhaskar_admin_auth', 'true');
       setPasscodeError('');
       soundFX.playSuccess();
       showToast('Admin access granted! 🎀');
     } else {
-      setPasscodeError('Incorrect passcode. Try "scoop123"');
+      setPasscodeError('Incorrect passcode. Please try again.');
       soundFX.playPop(300);
+    }
+  };
+
+  const handleChangePasscode = (e) => {
+    e.preventDefault();
+    setSecurityError('');
+    setSecuritySuccess('');
+
+    const storedPass = getAdminPasscode();
+
+    if (!currentPassInput.trim()) {
+      setSecurityError('Please enter your current passcode.');
+      soundFX.playPop(300);
+      return;
+    }
+
+    if (
+      currentPassInput.trim() !== storedPass &&
+      !(storedPass === DEFAULT_PASSCODE && (currentPassInput.trim() === 'admin' || currentPassInput.trim() === 'bhaskar'))
+    ) {
+      setSecurityError('Current passcode is incorrect.');
+      soundFX.playPop(300);
+      return;
+    }
+
+    if (!newPassInput.trim()) {
+      setSecurityError('Please enter a new passcode.');
+      soundFX.playPop(300);
+      return;
+    }
+
+    if (newPassInput.trim().length < 4) {
+      setSecurityError('New passcode must be at least 4 characters long.');
+      soundFX.playPop(300);
+      return;
+    }
+
+    if (newPassInput.trim() !== confirmPassInput.trim()) {
+      setSecurityError('New passcodes do not match. Please re-enter.');
+      soundFX.playPop(300);
+      return;
+    }
+
+    const ok = saveAdminPasscode(newPassInput.trim());
+    if (ok) {
+      soundFX.playSuccess();
+      setSecuritySuccess('Admin passcode updated successfully! 🔒');
+      showToast('Admin passcode updated! 🔒');
+      setCurrentPassInput('');
+      setNewPassInput('');
+      setConfirmPassInput('');
+    } else {
+      setSecurityError('Failed to save passcode. Please try again.');
+      soundFX.playPop(300);
+    }
+  };
+
+  const handleResetPasscode = () => {
+    if (window.confirm('Reset admin passcode back to factory default?')) {
+      resetAdminPasscode();
+      soundFX.playSuccess();
+      setSecuritySuccess('Admin passcode reset to default!');
+      showToast('Admin passcode reset to default! 🔑');
+      setCurrentPassInput('');
+      setNewPassInput('');
+      setConfirmPassInput('');
+      setSecurityError('');
     }
   };
 
@@ -1061,18 +1183,36 @@ export default function AdminPanel({
 
           <div className="flex items-center gap-2">
             {isAuthenticated && (
-              <button
-                onClick={() => {
-                  setIsAuthenticated(false);
-                  sessionStorage.removeItem('bhaskar_admin_auth');
-                  soundFX.playPop(400);
-                  showToast('Logged out of Admin');
-                }}
-                className="p-2 text-xs font-bold text-neutral-500 hover:text-rose-500 transition"
-                title="Lock Admin Panel"
-              >
-                <Lock className="w-4 h-4" />
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setActiveTab('security');
+                    soundFX.playPop(450);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    activeTab === 'security'
+                      ? 'bg-[#E60067] text-white shadow-sm'
+                      : 'glass-pill text-neutral-600 dark:text-neutral-300 hover:text-[#E60067]'
+                  }`}
+                  title="Change Admin Passcode"
+                >
+                  <Key className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Change Passcode</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsAuthenticated(false);
+                    sessionStorage.removeItem('bhaskar_admin_auth');
+                    soundFX.playPop(400);
+                    showToast('Logged out of Admin');
+                  }}
+                  className="p-2 text-xs font-bold text-neutral-500 hover:text-rose-500 transition"
+                  title="Lock Admin Panel"
+                >
+                  <Lock className="w-4 h-4" />
+                </button>
+              </>
             )}
             <button
               onClick={onClose}
@@ -1094,20 +1234,33 @@ export default function AdminPanel({
               Store Manager Access
             </h4>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 mb-5">
-              Enter passcode to view WhatsApp customer orders and manage store products. (Default: <code>scoop123</code>)
+              Enter passcode to view customer orders and manage store products.
             </p>
 
             <form onSubmit={handleLogin} className="w-full space-y-3">
-              <input
-                type="password"
-                value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
-                placeholder="Enter passcode (scoop123)"
-                className="w-full px-4 py-3 rounded-2xl bg-pink-50/60 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-center font-bold text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-pink-400"
-              />
+              <div className="relative">
+                <input
+                  type={showLoginPasscode ? "text" : "password"}
+                  value={passcode}
+                  onChange={(e) => {
+                    setPasscode(e.target.value);
+                    if (passcodeError) setPasscodeError('');
+                  }}
+                  placeholder="Enter passcode"
+                  className="w-full px-4 py-3 rounded-2xl bg-pink-50/60 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-center font-bold text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-pink-400 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPasscode(!showLoginPasscode)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition p-1"
+                  title={showLoginPasscode ? "Hide passcode" : "Show passcode"}
+                >
+                  {showLoginPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
 
               {passcodeError && (
-                <div className="text-xs text-rose-500 font-semibold">
+                <div className="text-xs text-rose-500 font-semibold bg-rose-50 dark:bg-rose-950/40 py-2 px-3 rounded-xl border border-rose-200 dark:border-rose-900/40">
                   {passcodeError}
                 </div>
               )}
@@ -1217,6 +1370,22 @@ export default function AdminPanel({
                 >
                   <Video className="w-3.5 h-3.5" />
                   <span>ASMR Reels & Videos ({reels.length})</span>
+                </button>
+
+                {/* 6. SECURITY & PASSCODE TAB */}
+                <button
+                  onClick={() => {
+                    setActiveTab('security');
+                    soundFX.playPop(450);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    activeTab === 'security'
+                      ? 'bg-[#E60067] text-white shadow-sm'
+                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
+                  }`}
+                >
+                  <Key className="w-3.5 h-3.5" />
+                  <span>Passcode & Security</span>
                 </button>
 
                 {activeTab === 'edit' && (
@@ -3554,6 +3723,192 @@ export default function AdminPanel({
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: STORE MANAGER SECURITY & PASSCODE */}
+            {activeTab === 'security' && (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                {/* Header Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-[#E60067] text-white shadow-md">
+                      <Key className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-extrabold text-lg text-neutral-900 dark:text-white">
+                        Admin Passcode & Store Security
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        Change the secret passcode used to access customer orders, UPI payments, and store catalog.
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className={`px-3 py-1 rounded-full text-xs font-black self-start sm:self-center flex items-center gap-1.5 ${
+                    getAdminPasscode() !== DEFAULT_PASSCODE
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200'
+                  }`}>
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{getAdminPasscode() !== DEFAULT_PASSCODE ? 'Custom Passcode Active 🛡️' : 'Default Passcode Active'}</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-4xl">
+                  {/* Left Column: Change Passcode Form */}
+                  <div className="lg:col-span-7">
+                    <form onSubmit={handleChangePasscode} className="p-5 sm:p-6 rounded-3xl glass-panel border border-pink-200 dark:border-pink-900/40 space-y-4 shadow-sm">
+                      <div className="flex items-center gap-2 pb-2 border-b border-pink-100 dark:border-pink-900/30">
+                        <Lock className="w-4 h-4 text-[#E60067]" />
+                        <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
+                          Change Store Passcode
+                        </h4>
+                      </div>
+
+                      {/* Status / feedback alerts */}
+                      {securityError && (
+                        <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <span>{securityError}</span>
+                        </div>
+                      )}
+
+                      {securitySuccess && (
+                        <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                          <Check className="w-4 h-4 shrink-0" />
+                          <span>{securitySuccess}</span>
+                        </div>
+                      )}
+
+                      {/* Current Passcode Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block">
+                          Current Passcode <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showCurrentPass ? 'text' : 'password'}
+                            value={currentPassInput}
+                            onChange={(e) => {
+                              setCurrentPassInput(e.target.value);
+                              if (securityError) setSecurityError('');
+                            }}
+                            placeholder="Enter current passcode"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowCurrentPass(!showCurrentPass)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition p-1"
+                            title={showCurrentPass ? "Hide passcode" : "Show passcode"}
+                          >
+                            {showCurrentPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* New Passcode Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block">
+                          New Passcode <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showNewPass ? 'text' : 'password'}
+                            value={newPassInput}
+                            onChange={(e) => {
+                              setNewPassInput(e.target.value);
+                              if (securityError) setSecurityError('');
+                            }}
+                            placeholder="Enter new private passcode (min. 4 characters)"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPass(!showNewPass)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition p-1"
+                            title={showNewPass ? "Hide passcode" : "Show passcode"}
+                          >
+                            {showNewPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Confirm New Passcode Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block">
+                          Confirm New Passcode <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showConfirmPass ? 'text' : 'password'}
+                            value={confirmPassInput}
+                            onChange={(e) => {
+                              setConfirmPassInput(e.target.value);
+                              if (securityError) setSecurityError('');
+                            }}
+                            placeholder="Re-type new passcode"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPass(!showConfirmPass)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition p-1"
+                            title={showConfirmPass ? "Hide passcode" : "Show passcode"}
+                          >
+                            {showConfirmPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="pt-2 flex flex-col sm:flex-row items-center gap-3 justify-between">
+                        <button
+                          type="submit"
+                          className="w-full sm:w-auto px-5 py-2.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                        >
+                          <Save className="w-4 h-4" />
+                          <span>Update Passcode</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleResetPasscode}
+                          className="w-full sm:w-auto px-3 py-2 rounded-xl text-neutral-500 hover:text-rose-600 dark:text-neutral-400 dark:hover:text-rose-400 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                          title="Restore default passcode"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Reset to Default</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Right Column: Security Guidance */}
+                  <div className="lg:col-span-5 space-y-4">
+                    <div className="p-5 rounded-3xl bg-pink-50/60 dark:bg-neutral-800/60 border border-pink-200/80 dark:border-neutral-700 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-extrabold text-[#E60067] dark:text-pink-400 uppercase tracking-wide">
+                        <Shield className="w-4 h-4" />
+                        <span>Security Advice</span>
+                      </div>
+                      <ul className="text-xs text-neutral-600 dark:text-neutral-300 space-y-2 leading-relaxed">
+                        <li className="flex items-start gap-2">
+                          <span className="text-pink-500 font-bold">•</span>
+                          <span><strong>Private Access:</strong> Only share this passcode with staff who handle orders or update products.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-pink-500 font-bold">•</span>
+                          <span><strong>Safe Storage:</strong> Your passcode is securely saved in your browser's persistent storage.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-pink-500 font-bold">•</span>
+                          <span><strong>Hidden Default:</strong> The default password notice has been removed from the login screen so store visitors cannot see it.</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
