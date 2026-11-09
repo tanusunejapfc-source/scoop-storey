@@ -51,6 +51,61 @@ export const CATEGORY_ICONS_DATA = [
     ringColor: 'from-amber-500 to-orange-500'
   },
   {
+    id: 'makeup',
+    category: 'Make up',
+    name: 'Make up',
+    shortName: 'Make up',
+    image: '/images/eyemasks-skincare.jpg',
+    emoji: '💄',
+    tag: 'Pastel Glow',
+    gradient: 'from-rose-400 via-pink-400 to-fuchsia-400',
+    ringColor: 'from-rose-500 to-pink-500'
+  },
+  {
+    id: 'bottles',
+    category: 'Bottles',
+    name: 'Bottles',
+    shortName: 'Bottles',
+    image: '/images/deluxe-giftbox.jpg',
+    emoji: '🥤',
+    tag: 'Cute Sippers',
+    gradient: 'from-sky-400 via-cyan-400 to-teal-400',
+    ringColor: 'from-sky-500 to-cyan-500'
+  },
+  {
+    id: 'soft-toys',
+    category: 'Soft Toys',
+    name: 'Soft Toys',
+    shortName: 'Soft Toys',
+    image: '/images/korean-wallets.jpg',
+    emoji: '🧸',
+    tag: 'Plushies',
+    gradient: 'from-amber-400 via-rose-400 to-pink-400',
+    ringColor: 'from-amber-500 to-pink-500'
+  },
+  {
+    id: 'keychains',
+    category: 'Key chains',
+    name: 'Key chains',
+    shortName: 'Keychains',
+    image: '/images/charm-bracelets.jpg',
+    emoji: '🗝️',
+    tag: 'Bag Charms',
+    gradient: 'from-purple-400 via-pink-400 to-amber-400',
+    ringColor: 'from-purple-500 to-pink-500'
+  },
+  {
+    id: 'hair-accessories',
+    category: 'Hair Accessories',
+    name: 'Hair Accessories',
+    shortName: 'Hair Clips',
+    image: '/images/bracelets-anklets.jpg',
+    emoji: '🌸',
+    tag: 'Claw Clips',
+    gradient: 'from-pink-400 via-purple-400 to-rose-400',
+    ringColor: 'from-pink-500 to-purple-500'
+  },
+  {
     id: 'eye-masks',
     category: 'Eye Masks',
     name: 'Eye Masks',
@@ -157,7 +212,7 @@ export default function CategoryIconsBar({
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex items-start gap-4 sm:gap-6 md:gap-7 overflow-x-auto pb-3.5 pt-2.5 px-3 sm:px-6 scrollbar-none snap-x snap-mandatory scroll-smooth lg:justify-between"
+            className="flex items-start gap-3.5 sm:gap-5 md:gap-6 overflow-x-auto pb-3.5 pt-2.5 px-2 sm:px-4 scrollbar-none snap-x snap-mandatory scroll-smooth"
           >
             {CATEGORY_ICONS_DATA.map((item) => {
               const isSelected = activeCategory === item.category;

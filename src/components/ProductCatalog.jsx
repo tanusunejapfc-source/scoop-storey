@@ -17,7 +17,7 @@ import {
   Heart
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
-import { CATEGORIES, COLLECTIONS_CONFIG, categoryToSlug } from '../data/storeData';
+import { CATEGORIES, COLLECTIONS_CONFIG, DEPARTMENTS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 // Product inquiries on WhatsApp handled via direct chat links (no unverified orders created)
 import { useWishlist } from '../utils/wishlistStore';
@@ -52,6 +52,7 @@ export default function ProductCatalog({
   // Support both controlled and uncontrolled collection state
   const [internalCollection, setInternalCollection] = useState(null);
   const activeCollection = controlledCollection !== undefined ? controlledCollection : internalCollection;
+  const [selectedDepartment, setSelectedDepartment] = useState('all');
 
   const setActiveCollection = (col) => {
     if (onSelectCollection) {
@@ -207,18 +208,57 @@ export default function ProductCatalog({
     return sorted;
   }, [products, activeCollection, searchQuery, sortBy]);
 
-  // Featured Hot Picks for Home Page (top 4 diverse bestsellers)
+  // Filtered collections by active department
+  const displayedCollections = useMemo(() => {
+    if (selectedDepartment === 'all') return collections;
+    return collections.filter(c => c.department === selectedDepartment);
+  }, [collections, selectedDepartment]);
+
+  // Featured Hot Picks for Home Page (diverse cross-department bestsellers)
   const hotPicks = useMemo(() => {
     const picks = [
       products.find(p => p.id === 'scoop-mini') || products[0],
       products.find(p => p.category === 'Pendants & Chains'),
-      products.find(p => p.category === 'Bracelets') || products.find(p => p.category === 'Anklets'),
-      products.find(p => p.category === 'Korean Wallets') || products.find(p => p.category === 'Eye Masks') || products.find(p => p.category === 'Self-Care')
+      products.find(p => p.category === 'Make up') || products.find(p => p.category === 'Self-Care'),
+      products.find(p => p.category === 'Bottles') || products.find(p => p.category === 'Soft Toys'),
+      products.find(p => p.category === 'Key chains') || products.find(p => p.category === 'Hair Accessories'),
+      products.find(p => p.category === 'Bracelets') || products.find(p => p.category === 'Korean Wallets')
     ].filter(Boolean);
 
     // Ensure distinct items
     return Array.from(new Set(picks));
   }, [products]);
+
+  // Helper for department tags & styling
+  const getDepartmentMeta = (deptId) => {
+    switch (deptId) {
+      case 'scoops':
+        return {
+          label: 'Scoops Studio',
+          chipClass: 'bg-pink-100 text-[#E60067] dark:bg-pink-950/80 dark:text-pink-300 border-pink-200 dark:border-pink-800'
+        };
+      case 'jewelry':
+        return {
+          label: 'Korean Jewels',
+          chipClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+        };
+      case 'beauty':
+        return {
+          label: 'Beauty & Glow',
+          chipClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+        };
+      case 'lifestyle':
+        return {
+          label: 'Kawaii Lifestyle',
+          chipClass: 'bg-purple-100 text-purple-700 dark:bg-purple-950/80 dark:text-purple-300 border-purple-200 dark:border-purple-800'
+        };
+      default:
+        return {
+          label: 'Curation',
+          chipClass: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700'
+        };
+    }
+  };
 
   const handleQuickAdd = (product, e) => {
     e?.stopPropagation();
@@ -247,128 +287,265 @@ export default function ProductCatalog({
       {/* 1. COLLECTIONS HUB VIEW (Home Page Compact Showcase)          */}
       {/* ============================================================ */}
       {!activeCollection && (
-        <div className="space-y-12 animate-fadeIn">
+        <div className="space-y-10 animate-fadeIn">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 text-xs font-extrabold tracking-wider uppercase mb-2 shadow-xs">
                 <Layers className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
-                <span>Shop by Collection</span>
+                <span>Shop by Department & Collection • 12 Curations</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-display font-extrabold text-[#231733] dark:text-white">
                 Explore Our Collections
               </h2>
               <p className="mt-2 text-[#554664] dark:text-[#E0D7EB] font-medium max-w-2xl text-sm md:text-base leading-relaxed">
-                Choose a category to enter its dedicated collection, view all items, customize color finishes, and add pieces to your Scoop order.
+                Browse across our 4 aesthetic realms — Mystery Scoops, Korean Anti-Tarnish Jewelry, Beauty & Makeup, and Kawaii Lifestyle Collectibles.
               </p>
             </div>
 
             {/* Quick Browse All Toggle */}
             <button
               onClick={() => handleEnterCollection('All Items')}
-              className="self-start md:self-end px-4 py-2 rounded-xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-800 text-xs font-bold text-[#E60067] dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 shadow-xs whitespace-nowrap"
+              className="self-start md:self-end px-4 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-800 text-xs font-bold text-[#E60067] dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 shadow-xs whitespace-nowrap cursor-pointer active:scale-95"
             >
               <span>Browse All ({products.length}) Items</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Collections Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
-            {collections.map((col) => (
-              <div
-                key={col.id}
-                onClick={() => handleEnterCollection(col.category)}
-                className="group relative rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-200/90 dark:border-pink-900/60 hover:border-pink-400 dark:hover:border-pink-500 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1.5"
+          {/* Enterprise Segmented Department Tabs Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-none snap-x">
+            {DEPARTMENTS_CONFIG.map((dept) => {
+              const isDeptActive = selectedDepartment === dept.id;
+              const count = dept.id === 'all'
+                ? collections.length
+                : collections.filter(c => c.department === dept.id).length;
+              return (
+                <button
+                  key={dept.id}
+                  type="button"
+                  onClick={() => {
+                    soundFX.playPop(520);
+                    setSelectedDepartment(dept.id);
+                  }}
+                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-display font-extrabold flex items-center gap-2 transition-all cursor-pointer shrink-0 snap-start shadow-xs ${
+                    isDeptActive
+                      ? 'bg-[#E60067] text-white shadow-md shadow-pink-500/30 scale-[1.02]'
+                      : 'bg-white dark:bg-[#1E172E] text-neutral-700 dark:text-neutral-200 border border-pink-200 dark:border-pink-900/60 hover:bg-pink-50 dark:hover:bg-neutral-800'
+                  }`}
+                >
+                  <span className="text-base">{dept.icon}</span>
+                  <span>{dept.name}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                    isDeptActive 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* DUAL SPOTLIGHT FEATURE: Shown when "All Collections" is selected to keep homepage organized & exciting */}
+          {selectedDepartment === 'all' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 pt-1">
+              {/* Spotlight 1: Mystery Scoops Studio (7 cols) */}
+              <div 
+                onClick={() => handleEnterCollection('Mystery Scoops')}
+                className="lg:col-span-7 rounded-3xl bg-gradient-to-br from-pink-500/10 via-purple-500/5 to-rose-500/15 border-2 border-pink-300 dark:border-pink-800/80 p-5 sm:p-7 flex flex-col justify-between shadow-md hover:shadow-xl hover:border-pink-400 transition-all cursor-pointer group"
               >
-                <div>
-                  {/* Collection Cover Image Container (16:10 Ratio) */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-b from-pink-50/70 to-pink-100/40 dark:from-[#251A38] dark:to-[#181126]">
-                    <img
-                      src={col.coverImage}
-                      alt={col.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    
-                    {/* Dark gradient overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-                      <span className="px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-[11px] font-black text-[#E60067] dark:text-pink-400 shadow-xs border border-pink-200/60 dark:border-pink-800 flex items-center gap-1.5">
-                        <span className="flex items-center">{renderCollectionIcon(col, 'w-3.5 h-3.5')}</span>
-                        <span>{col.badge}</span>
-                      </span>
-
-                      <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white font-extrabold text-[11px] shadow-xs">
-                        {col.itemsCount} Items
-                      </span>
-                    </div>
-
-                    {/* Bottom overlay inside image: Starting Price */}
-                    <div className="absolute bottom-3 left-3 z-10">
-                      <span className="px-2.5 py-1 rounded-xl bg-pink-600/90 backdrop-blur-md text-white font-display font-extrabold text-xs shadow-md">
-                        From ₹{col.minPrice}
-                      </span>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-pink-300 dark:border-pink-700 text-xs font-black text-[#E60067] dark:text-pink-300 flex items-center gap-1.5 shadow-xs">
+                      <MiniScoopIcon className="w-4 h-4" />
+                      <span>Featured Studio • Hand-Packed on Instagram Reels</span>
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-[#E60067] text-white text-xs font-extrabold shadow-xs">
+                      From ₹799
+                    </span>
                   </div>
 
-                  {/* Card Content */}
-                  <div className="p-5 sm:p-6 space-y-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl flex items-center">{renderCollectionIcon(col, 'w-5 h-5')}</span>
-                        <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
+                  <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
+                    🍨 Mystery Scoops Studio
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-xl">
+                    Dip directly into hundreds of handcrafted Kawaii resin charms, 18K gold pendants, and VIP mystery blind boxes packed live with free surprise gifts.
+                  </p>
+
+                  {/* Quick scoop preview pills */}
+                  <div className="flex items-center gap-2 flex-wrap pt-1">
+                    <span className="px-2.5 py-1 rounded-xl bg-white/80 dark:bg-neutral-800/80 text-[11px] font-bold text-neutral-700 dark:text-neutral-300 border border-pink-200/60 dark:border-pink-900">
+                      ✨ Mini Scoop (7–8 Items) • ₹799
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-white/80 dark:bg-neutral-800/80 text-[11px] font-bold text-neutral-700 dark:text-neutral-300 border border-pink-200/60 dark:border-pink-900">
+                      🔥 Midi Scoop (12–15 Items) • ₹1299
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-white/80 dark:bg-neutral-800/80 text-[11px] font-bold text-neutral-700 dark:text-neutral-300 border border-pink-200/60 dark:border-pink-900">
+                      👑 Big Scoop (20+ Items) • ₹1799
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-5 flex items-center justify-between gap-3 border-t border-pink-200/60 dark:border-pink-900/40 mt-4">
+                  <span className="text-xs font-bold text-[#E60067] dark:text-pink-400 group-hover:underline flex items-center gap-1">
+                    <span>Enter Mystery Scoops Hub</span>
+                    <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <span className="text-[11px] font-semibold text-neutral-400">
+                    Eligible for ASMR Reel filming 🎬
+                  </span>
+                </div>
+              </div>
+
+              {/* Spotlight 2: New Arrivals Realm (5 cols) */}
+              <div className="lg:col-span-5 rounded-3xl bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-amber-500/10 border-2 border-purple-200 dark:border-purple-900/60 p-5 sm:p-7 flex flex-col justify-between shadow-md">
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-purple-200 dark:border-purple-800 text-xs font-black text-purple-700 dark:text-purple-300 shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    <span>New Arrivals Realm</span>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-display font-extrabold text-[#231733] dark:text-white">
+                    Makeup, Bottles & Soft Toys
+                  </h3>
+                  <p className="text-xs text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed">
+                    Explore newly added aesthetic curations! Fruit lip oils, kawaii bear sippers, huggable plushies, floating keychains, and butterfly hair claws.
+                  </p>
+
+                  {/* Quick jump pills */}
+                  <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                    {[
+                      { label: '💄 Make up', cat: 'Make up' },
+                      { label: '🥤 Bottles', cat: 'Bottles' },
+                      { label: '🧸 Soft Toys', cat: 'Soft Toys' },
+                      { label: '🗝️ Key chains', cat: 'Key chains' },
+                      { label: '🎀 Hair Accessories', cat: 'Hair Accessories' }
+                    ].map((item) => (
+                      <button
+                        key={item.cat}
+                        type="button"
+                        onClick={() => handleEnterCollection(item.cat)}
+                        className="px-2.5 py-1 rounded-xl bg-white dark:bg-neutral-800 text-xs font-bold text-neutral-700 dark:text-neutral-200 hover:text-[#E60067] hover:border-[#E60067] border border-pink-200 dark:border-neutral-700 transition shadow-xs cursor-pointer"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 flex items-center justify-between text-xs font-bold text-purple-700 dark:text-purple-300 border-t border-purple-200/60 dark:border-purple-900/40 mt-4">
+                  <span>Tap any pill to view its pieces</span>
+                  <span>From ₹99 ✨</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Department Banner if filtering by specific department */}
+          {selectedDepartment !== 'all' && (
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-pink-100/60 dark:bg-neutral-800/80 border border-pink-200 dark:border-pink-900/60">
+              <span className="text-xs font-extrabold text-[#231733] dark:text-white flex items-center gap-2">
+                <span>Filtering by:</span>
+                <span className="px-2 py-0.5 rounded-lg bg-[#E60067] text-white">
+                  {DEPARTMENTS_CONFIG.find(d => d.id === selectedDepartment)?.name}
+                </span>
+                <span className="text-neutral-500 font-normal">({displayedCollections.length} Curations)</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedDepartment('all')}
+                className="text-xs font-bold text-[#E60067] dark:text-pink-400 hover:underline cursor-pointer"
+              >
+                Show All 12 Collections →
+              </button>
+            </div>
+          )}
+
+          {/* BOUTIQUE VISUAL COLLECTIONS GRID: 4 columns desktop / 2 columns mobile for compact elegance */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+            {displayedCollections.map((col) => {
+              const deptMeta = getDepartmentMeta(col.department);
+              return (
+                <div
+                  key={col.id}
+                  onClick={() => handleEnterCollection(col.category)}
+                  className="group relative rounded-2xl sm:rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-200/90 dark:border-pink-900/60 hover:border-[#E60067] dark:hover:border-pink-500 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
+                >
+                  <div>
+                    {/* Collection Cover Image Container (4:3 aspect for compact visual density) */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-b from-pink-50 to-pink-100/50 dark:from-[#251A38] dark:to-[#181126]">
+                      <img
+                        src={col.coverImage}
+                        alt={col.name}
+                        className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                        }}
+                      />
+                      {/* Subtle Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+
+                      {/* Top Badges */}
+                      <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 z-10">
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black shadow-xs border ${deptMeta.chipClass}`}>
+                          {deptMeta.label}
+                        </span>
+
+                        <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white font-extrabold text-[9px] sm:text-[10px] shadow-xs">
+                          {col.itemsCount} Items
+                        </span>
+                      </div>
+
+                      {/* Bottom-left: Starting Price Pill */}
+                      <div className="absolute bottom-2 left-2 z-10">
+                        <span className="px-2 py-0.5 rounded-lg bg-pink-600/90 backdrop-blur-md text-white font-display font-extrabold text-[10px] sm:text-xs shadow-xs">
+                          From ₹{col.minPrice}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Details */}
+                    <div className="p-3 sm:p-4 space-y-1 sm:space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base sm:text-lg flex items-center shrink-0">
+                          {renderCollectionIcon(col, 'w-4 h-4')}
+                        </span>
+                        <h3 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors truncate">
                           {col.name}
                         </h3>
                       </div>
-                      <p className="text-xs font-bold text-pink-600 dark:text-pink-400">
+
+                      <p className="text-[10px] sm:text-[11px] font-bold text-pink-600 dark:text-pink-400 truncate">
                         {col.tagline}
                       </p>
+
+                      <p className="text-[10px] text-[#554664] dark:text-[#D5CBE2] line-clamp-1 font-medium hidden sm:block">
+                        {col.description}
+                      </p>
                     </div>
+                  </div>
 
-                    <p className="text-xs text-[#554664] dark:text-[#D5CBE2] leading-relaxed line-clamp-2 font-medium">
-                      {col.description}
-                    </p>
-
-                    {/* Product Preview Thumbnails Strip */}
-                    {col.previews && col.previews.length > 0 && (
-                      <div className="pt-2 flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                          Previews:
-                        </span>
-                        <div className="flex items-center -space-x-1.5 overflow-hidden">
-                          {col.previews.map((thumb, idx) => (
-                            <img
-                              key={idx}
-                              src={thumb}
-                              alt=""
-                              className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-[#1E172E] shadow-xs"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  {/* Action Button Footer */}
+                  <div className="p-3 sm:p-4 pt-0">
+                    <button
+                      type="button"
+                      className="w-full py-1.5 sm:py-2 px-2.5 rounded-xl bg-pink-50 dark:bg-neutral-800 group-hover:bg-[#E60067] text-[#E60067] dark:text-pink-300 group-hover:text-white font-display font-bold text-[10px] sm:text-xs tracking-wide transition-all flex items-center justify-center gap-1 border border-pink-200 dark:border-neutral-700 group-hover:border-[#E60067]"
+                    >
+                      <span>Explore Collection</span>
+                      <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />
+                    </button>
                   </div>
                 </div>
-
-                {/* Card Action Footer */}
-                <div className="p-5 sm:p-6 pt-0">
-                  <button
-                    type="button"
-                    className="w-full py-3 px-4 rounded-2xl bg-pink-50 dark:bg-neutral-800 group-hover:bg-[#E60067] text-[#E60067] dark:text-pink-300 group-hover:text-white font-display font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 border border-pink-200 dark:border-neutral-700 group-hover:border-[#E60067] shadow-xs group-hover:shadow-md"
-                  >
-                    <span>Enter {col.name}</span>
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Featured Hot Picks (Quick preview for instant additions) */}
+          {/* Featured Hot Picks (Quick preview across departments for instant additions) */}
           <div className="pt-8 border-t border-pink-200/60 dark:border-pink-900/40">
-            <div className="flex items-center justify-between gap-4 mb-6">
+            <div className="flex items-center justify-between gap-4 mb-5">
               <div>
                 <div className="inline-flex items-center gap-1.5 text-xs font-black text-[#E60067] dark:text-pink-400 uppercase tracking-wider mb-1">
                   <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
@@ -383,23 +560,23 @@ export default function ProductCatalog({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4.5">
               {hotPicks.map((product) => {
                 const isJustAdded = addedItem === product.id;
                 return (
                   <div
                     key={product.id}
                     onClick={() => onSelectProduct?.(product)}
-                    className="group rounded-2xl bg-white dark:bg-[#1E172E] border border-pink-200 dark:border-pink-900/60 p-3.5 shadow-sm hover:shadow-lg hover:border-pink-400 transition-all cursor-pointer flex flex-col justify-between"
+                    className="group rounded-2xl bg-white dark:bg-[#1E172E] border border-pink-200 dark:border-pink-900/60 p-2.5 sm:p-3 shadow-xs hover:shadow-lg hover:border-pink-400 transition-all cursor-pointer flex flex-col justify-between"
                   >
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
                         <img
                           src={product.image || product.images?.[0]}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/95 dark:bg-neutral-900/95 text-[10px] font-black text-[#E60067] shadow-xs">
+                        <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full bg-white/95 dark:bg-neutral-900/95 text-[9px] font-black text-[#E60067] shadow-xs truncate max-w-[85%]">
                           {product.category}
                         </span>
 
@@ -410,43 +587,43 @@ export default function ProductCatalog({
                             e.stopPropagation();
                             toggleWishlist(product);
                           }}
-                          className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                          className={`absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center transition-all ${
                             isWishlisted(product.id)
                               ? 'bg-[#E60067] text-white shadow-xs scale-105'
                               : 'bg-white/90 dark:bg-neutral-900/90 text-neutral-400 hover:text-[#E60067] shadow-xs'
                           }`}
                           title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
                         >
-                          <Heart className={`w-3.5 h-3.5 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
+                          <Heart className={`w-3 h-3 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
                         </button>
                       </div>
 
                       <div>
-                        <h4 className="font-display font-bold text-xs sm:text-sm text-[#231733] dark:text-white line-clamp-1 group-hover:text-[#E60067] transition-colors">
+                        <h4 className="font-display font-bold text-xs text-[#231733] dark:text-white line-clamp-1 group-hover:text-[#E60067] transition-colors">
                           {product.name}
                         </h4>
-                        <span className="text-sm font-display font-black text-[#E60067] dark:text-pink-400">
+                        <span className="text-xs sm:text-sm font-display font-black text-[#E60067] dark:text-pink-400">
                           ₹{product.priceINR}
                         </span>
                       </div>
                     </div>
 
-                    <div className="pt-2.5 mt-2 border-t border-pink-100 dark:border-neutral-800 flex items-center justify-between gap-2">
+                    <div className="pt-2 mt-2 border-t border-pink-100 dark:border-neutral-800 flex items-center justify-between gap-1.5">
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEnterCollection(product.category);
                         }}
-                        className="text-[11px] font-bold text-neutral-500 hover:text-[#E60067] transition underline underline-offset-2"
+                        className="text-[10px] font-bold text-neutral-500 hover:text-[#E60067] transition truncate"
                       >
-                        Collection →
+                        View →
                       </button>
 
                       <button
                         type="button"
                         onClick={(e) => handleQuickAdd(product, e)}
-                        className={`py-1.5 px-3 rounded-xl font-display font-bold text-xs transition-all flex items-center gap-1 ${
+                        className={`py-1 px-2.5 rounded-xl font-display font-bold text-[11px] transition-all flex items-center gap-1 shrink-0 ${
                           isJustAdded
                             ? 'bg-emerald-600 text-white'
                             : 'btn-3d-pink text-white'

@@ -47,6 +47,41 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       { name: 'Matcha Mint', hex: '#C1E1C1' },
       { name: 'Soft Lilac', hex: '#D8BFD8' }
     ];
+  } else if (p.category === 'Make up') {
+    defaultColors = [
+      { name: 'Blush Cherry', hex: '#FF6B8B' },
+      { name: 'Peach Glaze', hex: '#FFB085' },
+      { name: 'Honey Dew', hex: '#FFEAA7' },
+      { name: 'Berry Plum', hex: '#D68099' }
+    ];
+  } else if (p.category === 'Bottles') {
+    defaultColors = [
+      { name: 'Pastel Pink', hex: '#FFB6C1' },
+      { name: 'Mint Green', hex: '#A8E6CF' },
+      { name: 'Lilac Purple', hex: '#DED2F9' },
+      { name: 'Sunset Ombre', hex: '#FFD3B6' }
+    ];
+  } else if (p.category === 'Soft Toys') {
+    defaultColors = [
+      { name: 'Classic Boba', hex: '#D4A373' },
+      { name: 'Marshmallow White', hex: '#FDFBF7' },
+      { name: 'Pastel Bunny Pink', hex: '#FFCAD4' },
+      { name: 'Calico Peach', hex: '#FFD1BA' }
+    ];
+  } else if (p.category === 'Key chains') {
+    defaultColors = [
+      { name: 'Floating Sparkle Pink', hex: '#FF94C2' },
+      { name: 'Sky Blue Aurora', hex: '#A0E7E5' },
+      { name: 'Lilac Moon', hex: '#D8B4F8' },
+      { name: 'Gold Bear Charm', hex: '#FFD700' }
+    ];
+  } else if (p.category === 'Hair Accessories') {
+    defaultColors = [
+      { name: 'Matte Rose', hex: '#FFAAA6' },
+      { name: 'Cream Ivory', hex: '#FFF5EB' },
+      { name: 'Matcha Green', hex: '#C1E1C1' },
+      { name: 'Pastel Lilac', hex: '#E6E6FA' }
+    ];
   } else {
     // Mystery Scoops
     defaultColors = [
@@ -97,6 +132,41 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       '/images/deluxe-giftbox.jpg',
       '/images/asmr-packing.jpg'
     ];
+  } else if (p.category === 'Make up') {
+    defaultImages = [
+      p.image,
+      '/images/eyemasks-skincare.jpg',
+      '/images/asmr-packing.jpg',
+      '/images/deluxe-giftbox.jpg'
+    ];
+  } else if (p.category === 'Bottles') {
+    defaultImages = [
+      p.image,
+      '/images/deluxe-giftbox.jpg',
+      '/images/scoop-bowl.jpg',
+      '/images/asmr-packing.jpg'
+    ];
+  } else if (p.category === 'Soft Toys') {
+    defaultImages = [
+      p.image,
+      '/images/korean-wallets.jpg',
+      '/images/deluxe-giftbox.jpg',
+      '/images/scoop-bowl.jpg'
+    ];
+  } else if (p.category === 'Key chains') {
+    defaultImages = [
+      p.image,
+      '/images/charm-bracelets.jpg',
+      '/images/pendants.jpg',
+      '/images/scoop-bowl.jpg'
+    ];
+  } else if (p.category === 'Hair Accessories') {
+    defaultImages = [
+      p.image,
+      '/images/bracelets-anklets.jpg',
+      '/images/charm-bracelets.jpg',
+      '/images/eyemasks-skincare.jpg'
+    ];
   } else {
     defaultImages = [
       p.image,
@@ -132,6 +202,44 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       'Length': '8.5 inches + 2 inch extender',
       'Water Resistance': 'Safe for splashes & everyday wear',
       'Skin Friendly': 'Hypoallergenic & Lead-Free'
+    };
+  } else if (p.category === 'Make up') {
+    defaultSpecs = {
+      'Formula': 'Hydrating Non-Sticky Aesthetic Pastel Glaze',
+      'Finish': 'High-Shine Dewy / Iridescent Shimmer',
+      'Skin Friendly': 'Dermatologist Tested, Cruelty-Free & Paraben-Free',
+      'Net Volume': '4.5 ml - 8 ml Portable Wand / Stick',
+      'Packaging': 'Aesthetic Kawaii Acrylic Tube with Box'
+    };
+  } else if (p.category === 'Bottles') {
+    defaultSpecs = {
+      'Material': 'Food-Grade BPA-Free Tritan & 304 Stainless Steel',
+      'Features': 'Leak-Proof Lock Cap with Straw & Adjustable Strap',
+      'Capacity': '350ml - 800ml Ergonomic Everyday Volume',
+      'Thermal Retain': 'Keeps beverages fresh and temperature controlled',
+      'Cleaning': 'Easy Disassemble Wide Mouth Opening'
+    };
+  } else if (p.category === 'Soft Toys') {
+    defaultSpecs = {
+      'Material': 'Ultra-Soft Cloud Velvet Minky & Down Cotton',
+      'Stitching': 'Reinforced Seams with Safe Embroidered Facial Features',
+      'Washable': 'Gentle Hand / Machine Washable in Cold Water',
+      'Safety': '100% Child & Pet Safe, Non-Toxic Fill',
+      'Packaging': 'Sealed Dust-Proof Bag with Kawaii Ribbon'
+    };
+  } else if (p.category === 'Key chains') {
+    defaultSpecs = {
+      'Material': 'Durable High-Grade Resin, Liquid Suspension & Alloy',
+      'Hardware': 'Reinforced Gold-Tone Ring + Quick-Snap Swivel Clasp',
+      'Feature': 'Floating Glitter Charms & Silicone Anti-Loss Strap',
+      'Attachment': 'Perfect for Keys, Mini Bags, Backpacks & Phones'
+    };
+  } else if (p.category === 'Hair Accessories') {
+    defaultSpecs = {
+      'Material': 'Soft-Touch Matte Acrylic, Velvet Plush & Luster Pearls',
+      'Spring': 'Rust-Proof High-Tension Steel Spring (No-Slip Grip)',
+      'Hair Health': 'Anti-Breakage, Zero-Snag & Scalp-Gentle Teeth',
+      'Packaging': 'Set Display Card with Protected Packaging'
     };
   } else if (p.category === 'Eye Masks') {
     defaultSpecs = {
@@ -284,9 +392,17 @@ export function getStoredProducts() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Filter out legacy vault scoop and migrate categories
-        return parsed
+        const migrated = parsed
           .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop')
           .map(migrateLegacyProduct);
+
+        // Seamlessly include new category default products if not yet in stored list
+        const existingIds = new Set(migrated.map(p => p.id));
+        const missingDefaults = DEFAULT_PRODUCTS.filter(dp => !existingIds.has(dp.id));
+        if (missingDefaults.length > 0) {
+          return [...migrated, ...missingDefaults];
+        }
+        return migrated;
       }
     }
   } catch (err) {

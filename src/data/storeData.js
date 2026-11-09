@@ -325,6 +325,166 @@ export const PRODUCTS = [
     image: '/images/korean-wallets.jpg',
     description: 'Chic creamy ivory quilted pocket wallet with durable gold hardware and a cute teddy charm. Fits in any mini bag.',
     includes: ['Smooth Zipper Slider', 'Cash & Card Compartments', 'Aesthetic Pastel Finish']
+  },
+
+  // --- MAKE UP ---
+  {
+    id: 'prod-lip-gloss',
+    name: 'Kawaii Fruit Tinted Lip Gloss Oil',
+    category: 'Make up',
+    badge: 'Viral Glow 💋',
+    priceINR: 149,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'High-shine, non-sticky hydrating lip oil infused with sweet fruit essence and subtle plumping gloss for juicy lips.',
+    includes: ['Non-Sticky Mirror Glaze', 'Fruit Extract Hydration', 'Compact Roller Wand', 'Prepaid Shipping']
+  },
+  {
+    id: 'prod-jelly-blush',
+    name: 'Pastel Jelly Blush & Lip Tint Stick',
+    category: 'Make up',
+    badge: 'Dewy Finish 🌸',
+    priceINR: 199,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Bouncy cooling jelly tint stick that blends effortlessly on cheeks and lips for a fresh watercolor flush.',
+    includes: ['Buildable Watercolor Flush', 'Cooling Jelly Texture', 'Long-Lasting Stain', 'Travel Friendly']
+  },
+  {
+    id: 'prod-glitter-shadow',
+    name: 'Shimmer Glitter Liquid Eyeshadow Wand',
+    category: 'Make up',
+    badge: 'Aurora Shimmer ✨',
+    priceINR: 179,
+    image: '/images/eyemasks-skincare.jpg',
+    description: 'Ultra-reflective liquid shimmer eyeshadow packed with micro-fine iridescent sparkles that glide on smoothly without creasing.',
+    includes: ['Zero-Fallout Glaze', 'Quick-Dry Waterproof Wear', 'Precision Doe-Foot Wand', 'Hypoallergenic Safe']
+  },
+
+  // --- BOTTLES ---
+  {
+    id: 'prod-bear-sipper',
+    name: 'Kawaii Bear Sipper Bottle with Strap (600ml)',
+    category: 'Bottles',
+    badge: 'Viral Sipper 🥤',
+    priceINR: 399,
+    image: '/images/deluxe-giftbox.jpg',
+    description: 'Adorable frosted bear water bottle with soft silicone straw, leak-proof lock lid, and detachable adjustable shoulder strap.',
+    includes: ['BPA-Free Food Grade Tritan', 'One-Click Pop Straw Cap', 'Adjustable Crossbody Strap', 'Leak-Proof Silicone Seal']
+  },
+  {
+    id: 'prod-gradient-bottle',
+    name: 'Pastel Gradient Motivational Bottle (800ml)',
+    category: 'Bottles',
+    badge: 'Hydration Chic 🌸',
+    priceINR: 349,
+    image: '/images/deluxe-giftbox.jpg',
+    description: 'Stunning pastel ombre frosted bottle with hourly hydration markers, ergonomic grip handle, and spill-resistant flip lid.',
+    includes: ['Hourly Time Goal Markers', 'Frosted Velvet Touch Body', 'Durable Carry Loop Handle', 'Wide Mouth for Ice Cubes']
+  },
+  {
+    id: 'prod-thermal-flask',
+    name: 'Mini Pastel Insulated Stainless Steel Flask (350ml)',
+    category: 'Bottles',
+    badge: 'All-Day Cold ❄️',
+    priceINR: 420,
+    image: '/images/deluxe-giftbox.jpg',
+    description: 'Pocket-sized double-wall vacuum insulated stainless steel thermos that keeps drinks cold or hot for over 12 hours.',
+    includes: ['12-Hour Temperature Retain', 'Double-Wall 304 Steel', 'Pocket & Mini-Bag Friendly', 'Powder-Coated Pastel Shell']
+  },
+
+  // --- SOFT TOYS ---
+  {
+    id: 'prod-boba-plush',
+    name: 'Cloud-Soft Cuddle Boba Milk Tea Plushie',
+    category: 'Soft Toys',
+    badge: 'Super Fluffy 🧋',
+    priceINR: 299,
+    image: '/images/korean-wallets.jpg',
+    description: 'Squishy boba milk tea plush with embroidered smiling face, mini plush pearls, and a straw topper for infinite cozy cuddles.',
+    includes: ['Ultra-Squishy Down Cotton', 'Embroidered Facial Details', 'Anti-Deformation Fill', 'Safe for All Ages']
+  },
+  {
+    id: 'prod-bunny-plush',
+    name: 'Long-Eared Kawaii Bunny Snuggle Plushie',
+    category: 'Soft Toys',
+    badge: 'Sweet Snuggle 🐰',
+    priceINR: 349,
+    image: '/images/korean-wallets.jpg',
+    description: 'Extra silky bunny soft toy with floppy ears, pastel cheeks, and soft velvet fur. A customer favorite unboxing surprise.',
+    includes: ['Silky Minky Velvet Fur', 'Floppy Comfort Ears', 'Machine Washable Gentle', 'Gift Ready Packaging']
+  },
+  {
+    id: 'prod-kitten-pillow',
+    name: 'Sleeping Kitten Plush Pillow & Hand Warmer',
+    category: 'Soft Toys',
+    badge: 'Cozy Cloud 🐱',
+    priceINR: 399,
+    image: '/images/korean-wallets.jpg',
+    description: 'Elongated sleeping kitty plush cushion with side hand pockets to keep hands warm while relaxing or watching ASMR reels.',
+    includes: ['Dual Hand Warmer Pockets', 'Ergonomic Nap Contour', 'Plush Cloud Velvet Exterior', 'Stress-Relief Squeeze']
+  },
+
+  // --- KEY CHAINS ---
+  {
+    id: 'prod-floating-bear-key',
+    name: 'Floating Liquid Glitter Kawaii Bear Keychain',
+    category: 'Key chains',
+    badge: 'Floating Glitter ✨',
+    priceINR: 149,
+    image: '/images/charm-bracelets.jpg',
+    description: 'Enchanting liquid-filled acrylic bear charm with floating sparkles, matching silicone wrist strap, and gold lobster clasp.',
+    includes: ['Leak-Proof Oil Suspension', 'Silicone Wrist Strap', 'Gold-Plated Key Ring & Snap', 'Bag & Backpack Charm']
+  },
+  {
+    id: 'prod-sanrio-bell-key',
+    name: 'Sanrio-Style Anime Bell & Strap Keychain',
+    category: 'Key chains',
+    badge: 'Sweet Jingle 🎀',
+    priceINR: 129,
+    image: '/images/charm-bracelets.jpg',
+    description: 'Pastel anime character figure keychain accented with a crisp jingle bell and woven lanyard strap for bags and keys.',
+    includes: ['Crisp Pleasant Mini Bell', 'Heavy-Duty Key Ring', 'Scratch-Proof Matte Resin', 'Cute Daily Companion']
+  },
+  {
+    id: 'prod-wristlet-charm',
+    name: 'Aesthetic Pastel Beaded Wristlet Phone Charm',
+    category: 'Key chains',
+    badge: 'Y2K Aesthetic 🌸',
+    priceINR: 139,
+    image: '/images/charm-bracelets.jpg',
+    description: 'Handcrafted phone and bag wristlet stringed with iridescent hearts, acrylic pearls, and pastel flower beads.',
+    includes: ['Heavy-Duty Braided Cord', 'Iridescent Pearl Beads', 'Universal Phone Case Loop', 'Anti-Drop Wrist Strap']
+  },
+
+  // --- HAIR ACCESSORIES ---
+  {
+    id: 'prod-butterfly-claw',
+    name: 'Matte Butterfly Hair Claw Clip (Duo Set)',
+    category: 'Hair Accessories',
+    badge: 'Non-Slip Hold 🦋',
+    priceINR: 149,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Pair of durable pastel matte butterfly hair claws with reinforced spring tension for effortless half-up or bun hairstyles.',
+    includes: ['Set of 2 Claws', 'Non-Slip Soft-Touch Teeth', 'Rust-Proof Metal Spring', 'Gentle On Scalp']
+  },
+  {
+    id: 'prod-cloud-scrunchie',
+    name: 'Fluffy Cloud Plush Scrunchie Duo Pack',
+    category: 'Hair Accessories',
+    badge: 'Velvet Cloud ☁️',
+    priceINR: 99,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Oversized ultra-soft plush velvet scrunchies that hold your hair firmly without kinks, breakage, or hair pulling.',
+    includes: ['Pack of 2 Soft Scrunchies', 'Zero-Damage Gentle Hold', 'High-Elasticity Core', 'Wearable as Wrist Bracelet']
+  },
+  {
+    id: 'prod-pearl-pins',
+    name: 'Korean Crystal Pearl Decorative Bobby Pin Duo',
+    category: 'Hair Accessories',
+    badge: 'Pearl Glam 🦪',
+    priceINR: 129,
+    image: '/images/bracelets-anklets.jpg',
+    description: 'Hand-wired lustrous pearl and sparkling crystal barrette pins designed to instantly elevate side-parted and braided hair.',
+    includes: ['Duo Set of 2 Pins', 'Hand-Strung Luster Pearls', 'Strong Grip No-Snag Clips', 'Velvet Display Backing']
   }
 ];
 
@@ -334,9 +494,22 @@ export const CATEGORIES = [
   'Pendants & Chains',
   'Bracelets',
   'Anklets',
+  'Make up',
+  'Bottles',
+  'Soft Toys',
+  'Key chains',
+  'Hair Accessories',
   'Eye Masks',
   'Self-Care',
   'Korean Wallets'
+];
+
+export const DEPARTMENTS_CONFIG = [
+  { id: 'all', name: 'All Collections', icon: '🌟', badge: '12 Curations', count: 12 },
+  { id: 'scoops', name: 'Mystery Scoops', icon: '🍨', badge: 'ASMR Hauls', count: 1 },
+  { id: 'jewelry', name: 'Korean Jewels', icon: '💎', badge: 'Anti-Tarnish', count: 3 },
+  { id: 'beauty', name: 'Beauty & Glow', icon: '💄', badge: 'Self-Care', count: 3 },
+  { id: 'lifestyle', name: 'Kawaii Lifestyle', icon: '🧸', badge: 'Cute Goodies', count: 5 }
 ];
 
 export const COLLECTIONS_CONFIG = [
@@ -344,6 +517,7 @@ export const COLLECTIONS_CONFIG = [
     id: 'mystery-scoops',
     category: 'Mystery Scoops',
     name: 'Mystery Scoops',
+    department: 'scoops',
     icon: '🍨',
     badge: 'Popular ASMR Hauls 🎀',
     tagline: 'Hand-Scooped Charms, Keychain & Blind Surprises',
@@ -357,6 +531,7 @@ export const COLLECTIONS_CONFIG = [
     id: 'pendants-chains',
     category: 'Pendants & Chains',
     name: 'Pendants & Chains',
+    department: 'jewelry',
     icon: '✨',
     badge: 'Korean Anti-Tarnish 💖',
     tagline: '18K Yellow & Rose Gold Plated Aesthetic Necklaces',
@@ -370,6 +545,7 @@ export const COLLECTIONS_CONFIG = [
     id: 'bracelets',
     category: 'Bracelets',
     name: 'Bracelets',
+    department: 'jewelry',
     icon: '🎀',
     badge: 'Handcrafted Dainty ✨',
     tagline: 'Romantic Charm Links & Protective Evil Eye Talismans',
@@ -383,6 +559,7 @@ export const COLLECTIONS_CONFIG = [
     id: 'anklets',
     category: 'Anklets',
     name: 'Anklets',
+    department: 'jewelry',
     icon: '💫',
     badge: 'Summer Shimmer ☀️',
     tagline: 'Liquid Gold Snake Chains & Barely-There Stationed Beads',
@@ -393,9 +570,24 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-amber-500 to-orange-500'
   },
   {
+    id: 'makeup',
+    category: 'Make up',
+    name: 'Make up',
+    department: 'beauty',
+    icon: '💄',
+    badge: 'Pastel Glow 💋',
+    tagline: 'Fruit-Tinted Lip Oils, Jelly Blushes & Shimmer Glaze',
+    description: 'Cute aesthetic lip tints, fruit lip oils, jelly blush sticks, and shimmer eyeshadows crafted for everyday pastel glow.',
+    coverImage: '/images/eyemasks-skincare.jpg',
+    gradient: 'from-rose-500/15 via-pink-500/10 to-fuchsia-500/20',
+    borderHover: 'hover:border-rose-400',
+    btnGradient: 'bg-gradient-to-r from-rose-500 to-pink-500'
+  },
+  {
     id: 'eye-masks',
     category: 'Eye Masks',
     name: 'Eye Masks',
+    department: 'beauty',
     icon: '💤',
     badge: 'Sweet Dreams 🌙',
     tagline: 'Ultra-Soft Velvet & Silk Blindfolds for 100% Light Blockout',
@@ -409,6 +601,7 @@ export const COLLECTIONS_CONFIG = [
     id: 'self-care',
     category: 'Self-Care',
     name: 'Self-Care',
+    department: 'beauty',
     icon: '🌸',
     badge: 'Glow Routine ✨',
     tagline: 'Refreshing Pocket Wipes, Pore Purifiers & Beauty Treats',
@@ -419,8 +612,65 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-rose-500 to-teal-500'
   },
   {
+    id: 'bottles',
+    category: 'Bottles',
+    department: 'lifestyle',
+    name: 'Bottles',
+    icon: '🥤',
+    badge: 'Viral Hydration 🌸',
+    tagline: 'Kawaii Bear Sippers, Gradient Flasks & Aesthetic Bottles',
+    description: 'Aesthetic leak-proof bear sipper bottles with strap, frosted gradient time-marker bottles, and mini thermal travel flasks.',
+    coverImage: '/images/deluxe-giftbox.jpg',
+    gradient: 'from-sky-500/15 via-cyan-500/10 to-teal-500/20',
+    borderHover: 'hover:border-sky-400',
+    btnGradient: 'bg-gradient-to-r from-sky-500 to-cyan-500'
+  },
+  {
+    id: 'soft-toys',
+    category: 'Soft Toys',
+    department: 'lifestyle',
+    name: 'Soft Toys',
+    icon: '🧸',
+    badge: 'Super Fluffy ☁️',
+    tagline: 'Cloud-Soft Cuddle Plushies, Boba Cups & Velvet Cuties',
+    description: 'Ultra-soft squishy boba plushies, long-eared bunny cuties, and sleeping kitten pillows that bring instant cozy comfort.',
+    coverImage: '/images/korean-wallets.jpg',
+    gradient: 'from-amber-500/15 via-rose-500/10 to-pink-500/20',
+    borderHover: 'hover:border-amber-400',
+    btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
+  },
+  {
+    id: 'keychains',
+    category: 'Key chains',
+    department: 'lifestyle',
+    name: 'Key chains',
+    icon: '🗝️',
+    badge: 'Kawaii Charms ✨',
+    tagline: 'Liquid Floating Bear Keychains, Sanrio Bells & Phone Charms',
+    description: 'Floating glitter kawaii bear key rings, pastel anime bell strap charms, and aesthetic beaded wristlet phone lanyards.',
+    coverImage: '/images/charm-bracelets.jpg',
+    gradient: 'from-purple-500/15 via-pink-500/10 to-amber-500/20',
+    borderHover: 'hover:border-purple-400',
+    btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'
+  },
+  {
+    id: 'hair-accessories',
+    category: 'Hair Accessories',
+    department: 'lifestyle',
+    name: 'Hair Accessories',
+    icon: '🎀',
+    badge: 'Cute Styling 🌸',
+    tagline: 'Pastel Butterfly Claws, Fluffy Scrunchies & Pearl Pins',
+    description: 'Non-slip matte butterfly hair claws, cloud-plush velvet scrunchies, and iridescent Korean pearl clip pairs.',
+    coverImage: '/images/bracelets-anklets.jpg',
+    gradient: 'from-pink-500/15 via-purple-500/10 to-rose-500/20',
+    borderHover: 'hover:border-pink-400',
+    btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
+  },
+  {
     id: 'korean-wallets',
     category: 'Korean Wallets',
+    department: 'lifestyle',
     name: 'Korean Wallets',
     icon: '👛',
     badge: 'Boutique Hot 🔥',
@@ -439,6 +689,11 @@ export function categoryToSlug(category) {
   if (category === 'Pendants & Chains') return 'pendants-chains';
   if (category === 'Bracelets') return 'bracelets';
   if (category === 'Anklets') return 'anklets';
+  if (category === 'Make up' || category === 'Makeup') return 'makeup';
+  if (category === 'Bottles') return 'bottles';
+  if (category === 'Soft Toys' || category === 'soft toys') return 'soft-toys';
+  if (category === 'Key chains' || category === 'Keychains' || category === 'key chains') return 'keychains';
+  if (category === 'Hair Accessories' || category === 'hair accessories') return 'hair-accessories';
   if (category === 'Eye Masks') return 'eye-masks';
   if (category === 'Self-Care') return 'self-care';
   if (category === 'Korean Wallets') return 'korean-wallets';
@@ -455,6 +710,11 @@ export function slugToCategory(slug, products = []) {
   if (slug === 'bracelets') return 'Bracelets';
   if (slug === 'anklets') return 'Anklets';
   if (slug === 'bracelets-anklets') return 'Bracelets';
+  if (slug === 'makeup' || slug === 'make-up') return 'Make up';
+  if (slug === 'bottles') return 'Bottles';
+  if (slug === 'soft-toys' || slug === 'plushies') return 'Soft Toys';
+  if (slug === 'keychains' || slug === 'key-chains') return 'Key chains';
+  if (slug === 'hair-accessories') return 'Hair Accessories';
   if (slug === 'eye-masks' || slug === 'eyemasks') return 'Eye Masks';
   if (slug === 'self-care' || slug === 'skincare') return 'Self-Care';
   if (slug === 'eyemasks-selfcare') return 'Self-Care';

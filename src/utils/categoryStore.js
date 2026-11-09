@@ -6,6 +6,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'mystery-scoops',
     name: 'Mystery Scoops',
     icon: '🍨',
+    department: 'scoops',
     badge: 'Popular ASMR Hauls 🎀',
     description: 'Hand-curated 3D mystery scoop parcels packed with resin charms, pendants, and surprises.',
     isDefault: true
@@ -14,6 +15,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'pendants-chains',
     name: 'Pendants & Chains',
     icon: '✨',
+    department: 'jewelry',
     badge: 'Anti-Tarnish 💖',
     description: 'Dainty 18K gold and rose-gold plated necklaces, bow hearts, Monalisa gems, and pearls.',
     isDefault: true
@@ -22,6 +24,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'bracelets',
     name: 'Bracelets',
     icon: '🎀',
+    department: 'jewelry',
     badge: 'Handcrafted Dainty ✨',
     description: 'Adjustable charm link bracelets, protective evil eye amulets, and fairy-core pastel glass beads.',
     isDefault: true
@@ -30,14 +33,61 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'anklets',
     name: 'Anklets',
     icon: '💫',
+    department: 'jewelry',
     badge: 'Summer Shimmer ☀️',
     description: 'Sleek, fluid herringbone snake chains and dainty stationed beaded ankle chains.',
+    isDefault: true
+  },
+  {
+    id: 'makeup',
+    name: 'Make up',
+    icon: '💄',
+    department: 'beauty',
+    badge: 'Pastel Glow 💋',
+    description: 'Fruit-tinted lip oils, bouncy jelly blush sticks, and radiant liquid glitter eyeshadows.',
+    isDefault: true
+  },
+  {
+    id: 'bottles',
+    name: 'Bottles',
+    icon: '🥤',
+    department: 'lifestyle',
+    badge: 'Viral Hydration 🌸',
+    description: 'Kawaii frosted bear sippers with strap, gradient time-marked bottles, and mini thermal flasks.',
+    isDefault: true
+  },
+  {
+    id: 'soft-toys',
+    name: 'Soft Toys',
+    icon: '🧸',
+    department: 'lifestyle',
+    badge: 'Super Fluffy ☁️',
+    description: 'Cloud-soft cuddle plushies, squishy boba milk teas, and cute sleeping kitten pillows.',
+    isDefault: true
+  },
+  {
+    id: 'keychains',
+    name: 'Key chains',
+    icon: '🗝️',
+    department: 'lifestyle',
+    badge: 'Kawaii Charms ✨',
+    description: 'Floating liquid glitter bears, Sanrio anime bell straps, and handcrafted beaded phone charms.',
+    isDefault: true
+  },
+  {
+    id: 'hair-accessories',
+    name: 'Hair Accessories',
+    icon: '🎀',
+    department: 'lifestyle',
+    badge: 'Cute Styling 🌸',
+    description: 'Matte pastel butterfly hair claws, velvet plush cloud scrunchies, and pearl barrette duos.',
     isDefault: true
   },
   {
     id: 'eye-masks',
     name: 'Eye Masks',
     icon: '💤',
+    department: 'beauty',
     badge: 'Sweet Dreams 🌙',
     description: 'Ultra-soft cloud velvet and skin-friendly satin sleeping masks with 100% light blockout.',
     isDefault: true
@@ -46,6 +96,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'self-care',
     name: 'Self-Care',
     icon: '🌸',
+    department: 'beauty',
     badge: 'Glow Routine ✨',
     description: 'Refreshing novelty soda-can wet wipes, deep-cleansing blackhead pore strips, and self-care essentials.',
     isDefault: true
@@ -54,6 +105,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'korean-wallets',
     name: 'Korean Wallets',
     icon: '👛',
+    department: 'lifestyle',
     badge: 'Boutique Hot 🔥',
     description: 'Quilted pastel diamond pocket wallets with gold zip accents and mini plush bear charm pulls.',
     isDefault: true
