@@ -48,6 +48,45 @@ export async function uploadImageToSupabase(file) {
 }
 
 /**
+ * Upload a video file to Supabase Storage ('product-images' bucket)
+ * Returns permanent public CDN URL accessible by everyone worldwide
+ */
+export async function uploadVideoToSupabase(file) {
+  if (!supabase) return { success: false, error: 'Supabase not configured' };
+
+  try {
+    const ext = file.name ? file.name.split('.').pop().toLowerCase() : 'mp4';
+    const cleanName = (file.name ? file.name.replace(/\.[^/.]+$/, '') : 'reel-video')
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, '-')
+      .replace(/-+/g, '-');
+    const filePath = `reels/${cleanName}-${Date.now().toString().slice(-6)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, file, {
+        cacheControl: '31536000',
+        upsert: true,
+        contentType: file.type || 'video/mp4'
+      });
+
+    if (uploadError) {
+      console.warn('Supabase video upload error:', uploadError);
+      return { success: false, error: uploadError.message };
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return { success: true, url: urlData.publicUrl };
+  } catch (err) {
+    console.warn('Supabase video upload exception:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
  * Fetch all products from Supabase
  */
 export async function fetchProductsFromSupabase() {

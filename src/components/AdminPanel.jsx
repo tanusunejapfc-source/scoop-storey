@@ -47,7 +47,7 @@ import { categoryToSlug } from '../data/storeData';
 import { useStoreOrders } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import { saveStoredProducts } from '../utils/productStore';
-import { uploadImageToSupabase } from '../utils/supabaseClient';
+import { uploadImageToSupabase, uploadVideoToSupabase } from '../utils/supabaseClient';
 import { useStoreReels, captureVideoPoster } from '../utils/reelsStore';
 import { 
   getStoredCategories, 
@@ -248,6 +248,8 @@ export default function AdminPanel({
   const [posterUploading, setPosterUploading] = useState(false);
   const [quickUploadReelId, setQuickUploadReelId] = useState(null);
   const quickVideoInputRef = useRef(null);
+  const reelModalVideoInputRef = useRef(null);
+  const reelModalImageInputRef = useRef(null);
 
   const handleOpenEditReel = (reel) => {
     soundFX.playPop(520);
@@ -314,53 +316,80 @@ export default function AdminPanel({
 
   const handleReelVideoUpload = async (file, targetId = null) => {
     if (!file || !file.type.startsWith('video/')) {
-      alert('Please select a valid video file (.mp4, .webm, .mov, etc.)');
+      showToast('Please select a valid video file (.mp4, .webm, .mov)');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      alert('This video is over 50MB. Please select a clip under 50MB for smooth mobile playback, or enter an Instagram link directly.');
       return;
     }
 
     setVideoUploading(true);
     soundFX.playPop(520);
+    showToast('Uploading video to Cloud CDN... ☁️');
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const dataUrl = event.target?.result;
+    let videoCdnUrl = null;
+    let posterDataUrl = null;
 
-      let posterDataUrl = null;
-      try {
-        posterDataUrl = await captureVideoPoster(file);
-      } catch {
-        // ignore
+    // 1. Upload to Supabase Storage (Cloud CDN permanent URL)
+    try {
+      const res = await uploadVideoToSupabase(file);
+      if (res?.success && res?.url) {
+        videoCdnUrl = res.url;
       }
+    } catch (e) {
+      console.warn('Supabase video upload failed:', e);
+    }
 
-      if (targetId) {
-        const found = reels.find(r => r.id === targetId);
-        if (found) {
-          updateReel({
-            ...found,
-            videoUrl: dataUrl,
-            image: posterDataUrl || found.image
-          });
-          showToast('Video uploaded and saved to Reel! 🎥');
-          soundFX.playSuccess();
-        }
-      } else {
-        setReelFormData(prev => ({
-          ...prev,
-          videoUrl: dataUrl,
-          image: prev.image || posterDataUrl || ''
-        }));
-        showToast('Video attached! Click Save Reel to confirm.');
+    // 2. Generate cover frame automatically
+    try {
+      posterDataUrl = await captureVideoPoster(file);
+    } catch (e) {
+      console.warn('Poster frame capture error:', e);
+    }
+
+    // 3. Fallback: if Supabase upload failed and file <= 15MB, use data URL safely
+    if (!videoCdnUrl && file.size <= 15 * 1024 * 1024) {
+      try {
+        videoCdnUrl = await new Promise((res) => {
+          const reader = new FileReader();
+          reader.onload = (e) => res(e.target?.result || null);
+          reader.onerror = () => res(null);
+          reader.readAsDataURL(file);
+        });
+      } catch {
+        videoCdnUrl = null;
+      }
+    }
+
+    if (!videoCdnUrl) {
+      showToast('Cloud upload failed. Please enter a video or Instagram link.');
+      setVideoUploading(false);
+      return;
+    }
+
+    if (targetId) {
+      const found = reels.find(r => r.id === targetId);
+      if (found) {
+        updateReel({
+          ...found,
+          videoUrl: videoCdnUrl,
+          image: posterDataUrl || found.image || '/images/asmr-packing.jpg'
+        });
+        showToast('Video saved to Reel! 🎥');
         soundFX.playSuccess();
       }
-      setVideoUploading(false);
-    };
-
-    reader.onerror = () => {
-      alert('Failed to read video file');
-      setVideoUploading(false);
-    };
-
-    reader.readAsDataURL(file);
+    } else {
+      setReelFormData(prev => ({
+        ...prev,
+        videoUrl: videoCdnUrl,
+        image: prev.image && prev.image !== '/images/asmr-packing.jpg' ? prev.image : (posterDataUrl || prev.image || '/images/asmr-packing.jpg')
+      }));
+      showToast('Video attached! Click Save Reel to publish.');
+      soundFX.playSuccess();
+    }
+    setVideoUploading(false);
   };
 
   const handleReelPosterUpload = async (file) => {
@@ -1161,27 +1190,27 @@ export default function AdminPanel({
         )}
 
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/40 bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-neutral-900 dark:to-neutral-900 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-pink-600 to-purple-600 text-white shadow-md">
-              <Sliders className="w-5 h-5" />
+        <div className="p-3 sm:p-5 border-b border-pink-100 dark:border-pink-900/40 bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-neutral-900 dark:to-neutral-900 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-gradient-to-tr from-pink-600 to-purple-600 text-white shadow-md shrink-0">
+              <Sliders className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-display font-extrabold text-base sm:text-lg">
-                  Scoop Storey Admin Panel
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate">
+                  Scoop Storey Admin
                 </h3>
-                <span className="px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-extrabold text-[10px] uppercase tracking-wider">
+                <span className="px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-extrabold text-[9px] sm:text-[10px] uppercase tracking-wider shrink-0">
                   Live Manager
                 </span>
               </div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 hidden sm:block truncate">
                 Track WhatsApp & Online orders, manage product images, colors & specifications
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {isAuthenticated && (
               <>
                 <button
@@ -1189,7 +1218,7 @@ export default function AdminPanel({
                     setActiveTab('security');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
                     activeTab === 'security'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'glass-pill text-neutral-600 dark:text-neutral-300 hover:text-[#E60067]'
@@ -1197,7 +1226,7 @@ export default function AdminPanel({
                   title="Change Admin Passcode"
                 >
                   <Key className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Change Passcode</span>
+                  <span className="hidden sm:inline">Passcode</span>
                 </button>
 
                 <button
@@ -1207,7 +1236,7 @@ export default function AdminPanel({
                     soundFX.playPop(400);
                     showToast('Logged out of Admin');
                   }}
-                  className="p-2 text-xs font-bold text-neutral-500 hover:text-rose-500 transition"
+                  className="p-2 text-xs font-bold text-neutral-500 hover:text-rose-500 transition rounded-xl hover:bg-rose-50 dark:hover:bg-neutral-800"
                   title="Lock Admin Panel"
                 >
                   <Lock className="w-4 h-4" />
@@ -1226,7 +1255,7 @@ export default function AdminPanel({
 
         {/* AUTH CHECK SCREEN */}
         {!isAuthenticated ? (
-          <div className="flex-1 p-8 sm:p-12 flex flex-col items-center justify-center text-center max-w-sm mx-auto">
+          <div className="flex-1 p-6 sm:p-12 flex flex-col items-center justify-center text-center max-w-sm mx-auto">
             <div className="w-16 h-16 rounded-3xl bg-pink-100 dark:bg-neutral-800 flex items-center justify-center text-3xl mb-4 shadow-sm border border-pink-200 dark:border-neutral-700">
               🔐
             </div>
@@ -1276,23 +1305,23 @@ export default function AdminPanel({
           </div>
         ) : (
           <>
-            {/* Navigation Tabs */}
-            <div className="px-4 sm:px-6 py-2.5 bg-pink-50/40 dark:bg-neutral-900/60 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between gap-2 overflow-x-auto">
-              <div className="flex items-center gap-2">
+            {/* Navigation Tabs (Single-line pills on mobile with horizontal scroll) */}
+            <div className="px-3 sm:px-6 py-2 bg-pink-50/50 dark:bg-neutral-900/80 border-b border-pink-100 dark:border-pink-900/40 flex items-center justify-between gap-2 overflow-x-auto scrollbar-none select-none shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {/* 1. ORDERS TAB (PRIMARY) */}
                 <button
                   onClick={() => {
                     setActiveTab('orders');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
                     activeTab === 'orders'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <Receipt className="w-3.5 h-3.5" />
-                  <span>Orders & WhatsApp Hauls ({orders.length})</span>
+                  <Receipt className="w-3.5 h-3.5 shrink-0" />
+                  <span>Orders ({orders.length})</span>
                 </button>
 
                 {/* 2. ALL PRODUCTS TAB */}
@@ -1301,13 +1330,13 @@ export default function AdminPanel({
                     setActiveTab('products');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
                     activeTab === 'products'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <Package className="w-3.5 h-3.5" />
+                  <Package className="w-3.5 h-3.5 shrink-0" />
                   <span>Products ({products.length})</span>
                 </button>
 
@@ -1317,99 +1346,99 @@ export default function AdminPanel({
                     setActiveTab('categories');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
                     activeTab === 'categories'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <Tags className="w-3.5 h-3.5" />
+                  <Tags className="w-3.5 h-3.5 shrink-0" />
                   <span>Categories ({allCategoryNames.length})</span>
                 </button>
 
-                {/* 3. ADD NEW PRODUCT TAB */}
+                {/* 4. ADD NEW PRODUCT TAB */}
                 <button
                   onClick={handleStartNew}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
                     activeTab === 'new'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
                   <span>Add Product</span>
                 </button>
 
-                {/* 4. UPI & QR PAYMENT SETTINGS TAB */}
+                {/* 5. UPI & QR PAYMENT SETTINGS TAB */}
                 <button
                   onClick={() => {
                     setActiveTab('payments');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
                     activeTab === 'payments'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <QrCode className="w-3.5 h-3.5" />
-                  <span>UPI & QR Settings</span>
+                  <QrCode className="w-3.5 h-3.5 shrink-0" />
+                  <span>UPI & QR</span>
                 </button>
 
-                {/* 5. ASMR REELS & VIDEO UPLOADS TAB */}
+                {/* 6. ASMR REELS & VIDEO UPLOADS TAB */}
                 <button
                   onClick={() => {
                     setActiveTab('reels');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none cursor-pointer ${
                     activeTab === 'reels'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <Video className="w-3.5 h-3.5" />
-                  <span>ASMR Reels & Videos ({reels.length})</span>
+                  <Video className="w-3.5 h-3.5 shrink-0" />
+                  <span>Reels ({reels.length})</span>
                 </button>
 
-                {/* 6. SECURITY & PASSCODE TAB */}
+                {/* 7. SECURITY & PASSCODE TAB */}
                 <button
                   onClick={() => {
                     setActiveTab('security');
                     soundFX.playPop(450);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none cursor-pointer ${
                     activeTab === 'security'
                       ? 'bg-[#E60067] text-white shadow-sm'
                       : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
                   }`}
                 >
-                  <Key className="w-3.5 h-3.5" />
-                  <span>Passcode & Security</span>
+                  <Key className="w-3.5 h-3.5 shrink-0" />
+                  <span>Security</span>
                 </button>
 
                 {activeTab === 'edit' && (
                   <button
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E60067] text-white shadow-sm flex items-center gap-1.5"
+                    className="px-3 py-2 rounded-xl text-xs font-bold bg-[#E60067] text-white shadow-sm flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Editing: {formData.name || 'Product'}</span>
+                    <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Edit: {formData.name || 'Product'}</span>
                   </button>
                 )}
               </div>
 
               {/* Reset & Backup Actions */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0 pl-2 border-l border-pink-200/60 dark:border-neutral-800">
                 <button
                   onClick={handleExportJSON}
-                  className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold glass-pill text-neutral-600 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1"
+                  className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold glass-pill text-neutral-600 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1 shrink-0 whitespace-nowrap"
                   title="Export catalog as JSON backup"
                 >
                   <Download className="w-3 h-3" />
                   <span className="hidden sm:inline">Export</span>
                 </button>
 
-                <label className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold glass-pill text-neutral-600 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1 cursor-pointer">
+                <label className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold glass-pill text-neutral-600 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1 cursor-pointer shrink-0 whitespace-nowrap">
                   <Upload className="w-3 h-3" />
                   <span className="hidden sm:inline">Import</span>
                   <input
@@ -1428,7 +1457,7 @@ export default function AdminPanel({
                       showToast('Catalog reset to factory default!');
                     }
                   }}
-                  className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1"
+                  className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1 shrink-0 whitespace-nowrap"
                   title="Reset to original defaults"
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -3120,7 +3149,7 @@ export default function AdminPanel({
                 />
 
                 {/* Reels Grid in Admin */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                   {reels.map((reel, index) => {
                     const hasVideo = Boolean(reel.videoUrl && reel.videoUrl !== '__STORED_IN_INDEXEDDB__');
                     return (
@@ -3155,43 +3184,43 @@ export default function AdminPanel({
                             )}
 
                             {/* Status Badge */}
-                            <div className="absolute top-3 left-3 z-10">
+                            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
                               {hasVideo ? (
-                                <span className="px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[10px] font-black flex items-center gap-1 shadow-xs backdrop-blur-xs">
+                                <span className="px-1.5 py-0.5 rounded-full bg-emerald-600/90 text-white text-[9px] sm:text-[10px] font-black flex items-center gap-1 shadow-xs backdrop-blur-xs">
                                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                  <span>Video Active</span>
+                                  <span>Active</span>
                                 </span>
                               ) : (
-                                <span className="px-2 py-0.5 rounded-full bg-black/60 text-pink-300 text-[10px] font-black flex items-center gap-1 shadow-xs backdrop-blur-xs border border-white/20">
-                                  <ImageIcon className="w-3 h-3" />
-                                  <span>Cover Image Only</span>
+                                <span className="px-1.5 py-0.5 rounded-full bg-black/60 text-pink-300 text-[9px] sm:text-[10px] font-black flex items-center gap-1 shadow-xs backdrop-blur-xs border border-white/20">
+                                  <ImageIcon className="w-2.5 h-2.5" />
+                                  <span>Cover Only</span>
                                 </span>
                               )}
                             </div>
 
                             {/* Slot number */}
-                            <span className="absolute top-3 right-3 z-10 w-6 h-6 rounded-full bg-black/60 text-white text-[11px] font-black flex items-center justify-center border border-white/20">
+                            <span className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-black/60 text-white text-[10px] sm:text-[11px] font-black flex items-center justify-center border border-white/20">
                               #{index + 1}
                             </span>
 
                             {/* Views & Likes stats overlay */}
-                            <div className="absolute bottom-2 left-2 right-2 p-2 rounded-xl bg-black/75 backdrop-blur-md text-white text-[10px] flex items-center justify-between border border-white/10">
-                              <span className="font-bold flex items-center gap-1">
-                                <Play className="w-2.5 h-2.5 fill-white" />
+                            <div className="absolute bottom-1.5 left-1.5 right-1.5 p-1.5 sm:p-2 rounded-xl bg-black/75 backdrop-blur-md text-white text-[9px] sm:text-[10px] flex items-center justify-between border border-white/10">
+                              <span className="font-bold flex items-center gap-0.5 sm:gap-1">
+                                <Play className="w-2.5 h-2.5 fill-white shrink-0" />
                                 <span>{reel.views || '500K'}</span>
                               </span>
-                              <span className="font-bold flex items-center gap-1">
-                                <Heart className="w-2.5 h-2.5 fill-pink-500 text-pink-500" />
+                              <span className="font-bold flex items-center gap-0.5 sm:gap-1">
+                                <Heart className="w-2.5 h-2.5 fill-pink-500 text-pink-500 shrink-0" />
                                 <span>{reel.likes || '45K'}</span>
                               </span>
-                              <span className="text-neutral-400 truncate max-w-[80px]">
+                              <span className="text-neutral-400 truncate max-w-[60px] sm:max-w-[80px]">
                                 {reel.comments || '1.2K'}💬
                               </span>
                             </div>
                           </div>
 
                           {/* Info */}
-                          <div className="p-3.5 space-y-1.5">
+                          <div className="p-2.5 sm:p-3.5 space-y-1 sm:space-y-1.5">
                             <h5 className="font-display font-bold text-xs text-[#231733] dark:text-white line-clamp-2">
                               {reel.title}
                             </h5>
@@ -3205,15 +3234,15 @@ export default function AdminPanel({
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="p-3 pt-0 border-t border-pink-100 dark:border-neutral-800 space-y-2">
-                          <div className="grid grid-cols-2 gap-1.5 pt-2">
+                        <div className="p-2 sm:p-3 pt-0 border-t border-pink-100 dark:border-neutral-800 space-y-1.5 sm:space-y-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-2">
                             <button
                               type="button"
                               onClick={() => handleOpenEditReel(reel)}
-                              className="w-full py-1.5 px-2 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                              className="w-full py-1.5 px-2 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 transition cursor-pointer"
                             >
-                              <Edit3 className="w-3.5 h-3.5" />
-                              <span>Edit Details</span>
+                              <Edit3 className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                              <span>Edit</span>
                             </button>
 
                             <button
@@ -3222,15 +3251,15 @@ export default function AdminPanel({
                                 setQuickUploadReelId(reel.id);
                                 quickVideoInputRef.current?.click();
                               }}
-                              className="w-full py-1.5 px-2 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/80 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                              className="w-full py-1.5 px-2 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/80 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-300 font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 transition cursor-pointer"
                               title="Upload video file directly to this reel"
                             >
-                              <Upload className="w-3.5 h-3.5" />
-                              <span>{hasVideo ? 'Replace Video' : 'Upload Video'}</span>
+                              <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                              <span>{hasVideo ? 'Replace' : 'Upload'}</span>
                             </button>
                           </div>
 
-                          <div className="flex items-center justify-between text-[11px] pt-1">
+                          <div className="flex items-center justify-between text-[10px] sm:text-[11px] pt-1">
                             {reel.instagramUrl && (
                               <a
                                 href={reel.instagramUrl}
@@ -3239,7 +3268,7 @@ export default function AdminPanel({
                                 className="text-pink-600 dark:text-pink-400 font-bold hover:underline flex items-center gap-1"
                               >
                                 <ExternalLink className="w-3 h-3" />
-                                <span>View on IG</span>
+                                <span>IG</span>
                               </a>
                             )}
 
@@ -3418,8 +3447,30 @@ export default function AdminPanel({
               >
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col p-5 sm:p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white overflow-hidden"
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col p-4 sm:p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white overflow-hidden"
                 >
+                  {/* Hidden inputs mounted in DOM for reliable mobile file selection */}
+                  <input
+                    ref={reelModalVideoInputRef}
+                    type="file"
+                    accept="video/mp4,video/webm,video/quicktime,video/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) handleReelVideoUpload(e.target.files[0]);
+                      e.target.value = '';
+                    }}
+                  />
+                  <input
+                    ref={reelModalImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) handleReelPosterUpload(e.target.files[0]);
+                      e.target.value = '';
+                    }}
+                  />
+
                   {/* Modal Header */}
                   <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/40">
                     <div className="flex items-center gap-2.5">
@@ -3477,13 +3528,7 @@ export default function AdminPanel({
                             <button
                               type="button"
                               onClick={() => {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'video/*';
-                                input.onchange = (e) => {
-                                  if (e.target.files?.[0]) handleReelVideoUpload(e.target.files[0]);
-                                };
-                                input.click();
+                                reelModalVideoInputRef.current?.click();
                               }}
                               className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                             >
@@ -3521,13 +3566,7 @@ export default function AdminPanel({
                       ) : (
                         <div
                           onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'video/*';
-                            input.onchange = (e) => {
-                              if (e.target.files?.[0]) handleReelVideoUpload(e.target.files[0]);
-                            };
-                            input.click();
+                            reelModalVideoInputRef.current?.click();
                           }}
                           className="border-2 border-dashed border-pink-300 dark:border-pink-800 rounded-2xl p-6 text-center hover:bg-pink-100/50 dark:hover:bg-neutral-800 transition cursor-pointer space-y-1.5"
                         >
@@ -3585,13 +3624,7 @@ export default function AdminPanel({
                           <button
                             type="button"
                             onClick={() => {
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.accept = 'image/*';
-                              input.onchange = (e) => {
-                                if (e.target.files?.[0]) handleReelPosterUpload(e.target.files[0]);
-                              };
-                              input.click();
+                              reelModalImageInputRef.current?.click();
                             }}
                             className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
                           >

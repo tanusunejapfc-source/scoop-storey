@@ -52,7 +52,7 @@ export const DEFAULT_REELS = [
 ];
 
 const REELS_STORAGE_KEY = 'bhaskar_store_reels_v1';
-const IDB_NAME = 'ScoopStoreyDB_v2';
+const IDB_NAME = 'ScoopStoreyDB_v3';
 const IDB_REELS_STORE = 'store_reels';
 
 let memoryReels = null;
@@ -65,18 +65,28 @@ function openReelsDB() {
       return;
     }
     try {
-      // Version 2 ensures store_reels is created if upgrading from v1
-      const req = indexedDB.open(IDB_NAME, 2);
+      const req = indexedDB.open(IDB_NAME, 3);
       req.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains('store_catalog')) {
-          db.createObjectStore('store_catalog');
-        }
-        if (!db.objectStoreNames.contains(IDB_REELS_STORE)) {
-          db.createObjectStore(IDB_REELS_STORE);
+        try {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('store_catalog')) {
+            db.createObjectStore('store_catalog');
+          }
+          if (!db.objectStoreNames.contains(IDB_REELS_STORE)) {
+            db.createObjectStore(IDB_REELS_STORE);
+          }
+        } catch (err) {
+          console.warn('IDB upgrade error:', err);
         }
       };
-      req.onsuccess = () => resolve(req.result);
+      req.onsuccess = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_REELS_STORE)) {
+          resolve(null);
+        } else {
+          resolve(db);
+        }
+      };
       req.onerror = (e) => {
         console.warn('Reels IndexedDB open error:', e);
         resolve(null);
@@ -93,18 +103,27 @@ export async function getIDBReels() {
     const db = await openReelsDB();
     if (!db) return null;
     return new Promise((resolve) => {
-      const tx = db.transaction(IDB_REELS_STORE, 'readonly');
-      const store = tx.objectStore(IDB_REELS_STORE);
-      const req = store.get('reels');
-      req.onsuccess = () => {
-        const val = req.result;
-        if (Array.isArray(val) && val.length > 0) {
-          resolve(val);
-        } else {
+      try {
+        if (!db.objectStoreNames.contains(IDB_REELS_STORE)) {
           resolve(null);
+          return;
         }
-      };
-      req.onerror = () => resolve(null);
+        const tx = db.transaction(IDB_REELS_STORE, 'readonly');
+        const store = tx.objectStore(IDB_REELS_STORE);
+        const req = store.get('reels');
+        req.onsuccess = () => {
+          const val = req.result;
+          if (Array.isArray(val) && val.length > 0) {
+            resolve(val);
+          } else {
+            resolve(null);
+          }
+        };
+        req.onerror = () => resolve(null);
+      } catch (err) {
+        console.warn('IDB transaction read error:', err);
+        resolve(null);
+      }
     });
   } catch (err) {
     console.warn('IndexedDB read error:', err);
@@ -117,11 +136,20 @@ export async function saveIDBReels(reels) {
     const db = await openReelsDB();
     if (!db) return false;
     return new Promise((resolve) => {
-      const tx = db.transaction(IDB_REELS_STORE, 'readwrite');
-      const store = tx.objectStore(IDB_REELS_STORE);
-      store.put(reels, 'reels');
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => resolve(false);
+      try {
+        if (!db.objectStoreNames.contains(IDB_REELS_STORE)) {
+          resolve(false);
+          return;
+        }
+        const tx = db.transaction(IDB_REELS_STORE, 'readwrite');
+        const store = tx.objectStore(IDB_REELS_STORE);
+        store.put(reels, 'reels');
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+      } catch (err) {
+        console.warn('IDB transaction write error:', err);
+        resolve(false);
+      }
     });
   } catch (err) {
     console.warn('IndexedDB save error:', err);
@@ -193,48 +221,55 @@ export function captureVideoPoster(videoFileOrUrl) {
       video.crossOrigin = 'anonymous';
       video.muted = true;
       video.playsInline = true;
+      video.preload = 'metadata';
 
       let blobUrl = null;
       if (videoFileOrUrl instanceof File || videoFileOrUrl instanceof Blob) {
         blobUrl = URL.createObjectURL(videoFileOrUrl);
         video.src = blobUrl;
-      } else if (typeof videoFileOrUrl === 'string') {
+      } else if (typeof videoFileOrUrl === 'string' && videoFileOrUrl.trim()) {
         video.src = videoFileOrUrl;
       } else {
         resolve(null);
         return;
       }
 
+      let done = false;
+      const finish = (result) => {
+        if (done) return;
+        done = true;
+        if (blobUrl) {
+          try { URL.revokeObjectURL(blobUrl); } catch {}
+        }
+        resolve(result);
+      };
+
       video.onloadeddata = () => {
-        video.currentTime = Math.min(1.0, video.duration / 2 || 0.5);
+        try {
+          video.currentTime = Math.min(1.0, (video.duration || 2) / 2);
+        } catch {
+          finish(null);
+        }
       };
 
       video.onseeked = () => {
         try {
           const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth || 540;
-          canvas.height = video.videoHeight || 960;
+          canvas.width = 540;
+          canvas.height = 960;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-          if (blobUrl) URL.revokeObjectURL(blobUrl);
-          resolve(dataUrl);
+          finish(dataUrl);
         } catch {
-          if (blobUrl) URL.revokeObjectURL(blobUrl);
-          resolve(null);
+          finish(null);
         }
       };
 
-      video.onerror = () => {
-        if (blobUrl) URL.revokeObjectURL(blobUrl);
-        resolve(null);
-      };
+      video.onerror = () => finish(null);
 
-      // Timeout fallback
-      setTimeout(() => {
-        if (blobUrl) URL.revokeObjectURL(blobUrl);
-        resolve(null);
-      }, 4000);
+      // Safe timeout fallback
+      setTimeout(() => finish(null), 3500);
     } catch {
       resolve(null);
     }
