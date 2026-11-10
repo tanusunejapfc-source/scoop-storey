@@ -35,6 +35,7 @@ import {
   AlertCircle,
   Video,
   Play,
+  Heart,
   Film,
   Key,
   Shield,
