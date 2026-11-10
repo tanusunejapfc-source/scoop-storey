@@ -385,24 +385,26 @@ export function migrateLegacyProduct(p) {
   return { ...p, category };
 }
 
+export function mergeWithDefaults(list) {
+  if (!Array.isArray(list) || list.length === 0) return DEFAULT_PRODUCTS;
+  const migrated = list
+    .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop')
+    .map(migrateLegacyProduct);
+  const existingIds = new Set(migrated.map(p => p.id));
+  const missingDefaults = DEFAULT_PRODUCTS.filter(dp => !existingIds.has(dp.id));
+  if (missingDefaults.length > 0) {
+    return [...migrated, ...missingDefaults];
+  }
+  return migrated;
+}
+
 export function getStoredProducts() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Filter out legacy vault scoop and migrate categories
-        const migrated = parsed
-          .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop')
-          .map(migrateLegacyProduct);
-
-        // Seamlessly include new category default products if not yet in stored list
-        const existingIds = new Set(migrated.map(p => p.id));
-        const missingDefaults = DEFAULT_PRODUCTS.filter(dp => !existingIds.has(dp.id));
-        if (missingDefaults.length > 0) {
-          return [...migrated, ...missingDefaults];
-        }
-        return migrated;
+        return mergeWithDefaults(parsed);
       }
     }
   } catch (err) {
@@ -446,19 +448,19 @@ export function useStoreProducts() {
     // 1. Fetch live products from Supabase Cloud Database first
     fetchProductsFromSupabase().then((cloudList) => {
       if (isMounted && Array.isArray(cloudList) && cloudList.length > 0) {
-        const migrated = cloudList.map(migrateLegacyProduct);
-        setProducts(migrated);
-        saveStoredProducts(migrated);
+        const merged = mergeWithDefaults(cloudList);
+        setProducts(merged);
+        saveStoredProducts(merged);
       }
     });
 
     // 2. Load from IndexedDB on refresh to restore cached images
     getIDBProducts().then((idbList) => {
       if (isMounted && idbList && Array.isArray(idbList) && idbList.length > 0) {
-        const migrated = idbList.map(migrateLegacyProduct);
-        setProducts((curr) => (curr.length > 0 ? curr : migrated));
+        const merged = mergeWithDefaults(idbList);
+        setProducts((curr) => (curr.length > 0 ? curr : merged));
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         } catch {
           // Ignore localStorage quota
         }
@@ -471,7 +473,7 @@ export function useStoreProducts() {
       } else {
         getIDBProducts().then((idbList) => {
           if (isMounted) {
-            setProducts(idbList || getStoredProducts());
+            setProducts(idbList ? mergeWithDefaults(idbList) : getStoredProducts());
           }
         });
       }

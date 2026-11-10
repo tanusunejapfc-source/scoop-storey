@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Sparkles, 
   ShoppingBag, 
@@ -19,6 +19,7 @@ import {
 import { soundFX } from '../utils/audio';
 import { CATEGORIES, COLLECTIONS_CONFIG, DEPARTMENTS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
+import { getStoredCategories } from '../utils/categoryStore';
 // Product inquiries on WhatsApp handled via direct chat links (no unverified orders created)
 import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -53,6 +54,17 @@ export default function ProductCatalog({
   const [internalCollection, setInternalCollection] = useState(null);
   const activeCollection = controlledCollection !== undefined ? controlledCollection : internalCollection;
   const [selectedDepartment, setSelectedDepartment] = useState('all');
+  const [categoriesList, setCategoriesList] = useState(getStoredCategories);
+
+  // Sync categoryList with storage on external admin changes
+  useEffect(() => {
+    const handleCatUpdate = (e) => {
+      if (e?.detail) setCategoriesList(e.detail);
+      else setCategoriesList(getStoredCategories());
+    };
+    window.addEventListener('scoop_categories_updated', handleCatUpdate);
+    return () => window.removeEventListener('scoop_categories_updated', handleCatUpdate);
+  }, []);
 
   const setActiveCollection = (col) => {
     if (onSelectCollection) {
@@ -117,74 +129,126 @@ export default function ProductCatalog({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Build dynamic collections list, merging COLLECTIONS_CONFIG with any custom categories added in Admin
+  // Build dynamic collections list, merging COLLECTIONS_CONFIG with any custom categories from categoryStore or products
   const collections = useMemo(() => {
-    const definedCategories = new Set(COLLECTIONS_CONFIG.map(c => c.category));
-    const allUniqueCategories = Array.from(new Set(products.map(p => p.category))).filter(Boolean);
+    const configMap = new Map(COLLECTIONS_CONFIG.map(c => [c.category.toLowerCase(), c]));
+    const list = [];
+    const seenCategories = new Set();
 
-    const configured = COLLECTIONS_CONFIG.map(config => {
-      const items = products.filter(p => p.category === config.category);
-      const prices = items.map(p => p.priceINR).filter(Boolean);
-      const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
-      const previews = items.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
-
-      return {
-        ...config,
-        itemsCount: items.length,
-        minPrice,
-        previews
-      };
-    });
-
-    // Custom categories created by store admin that are not in default config
-    const custom = allUniqueCategories
-      .filter(cat => !definedCategories.has(cat))
-      .map(cat => {
-        const items = products.filter(p => p.category === cat);
+    // 1. Process all categories stored in categoryStore (including user-created ones like "Stationery and bags")
+    for (const catMeta of categoriesList) {
+      const lower = catMeta.name.toLowerCase();
+      if (!seenCategories.has(lower)) {
+        seenCategories.add(lower);
+        const config = configMap.get(lower);
+        const items = products.filter(p => p.category && p.category.toLowerCase() === lower);
         const prices = items.map(p => p.priceINR).filter(Boolean);
         const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
         const previews = items.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
 
-        return {
-          id: cat.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          category: cat,
-          name: cat,
-          icon: '✨',
-          badge: 'Exclusive Curation 🎀',
-          tagline: `Explore our ${cat} collection`,
-          description: `Handpicked selection of items curated under ${cat}.`,
-          coverImage: items[0]?.image || '/images/deluxe-giftbox.jpg',
-          gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
-          borderHover: 'hover:border-pink-400',
-          btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
-          itemsCount: items.length,
-          minPrice,
-          previews
-        };
-      });
+        if (config) {
+          list.push({
+            ...config,
+            badge: catMeta.badge || config.badge,
+            description: catMeta.description || config.description,
+            icon: catMeta.icon || config.icon,
+            itemsCount: items.length,
+            minPrice,
+            previews
+          });
+        } else {
+          // Custom category created in Admin Panel!
+          list.push({
+            id: catMeta.id || catMeta.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            category: catMeta.name,
+            name: catMeta.name,
+            department: catMeta.department || 'lifestyle',
+            icon: catMeta.icon || '🎀',
+            badge: catMeta.badge || 'New Drop 🎀',
+            tagline: catMeta.description ? catMeta.description.slice(0, 60) : `Cute ${catMeta.name} collection`,
+            description: catMeta.description || `Explore our handpicked ${catMeta.name} curation.`,
+            coverImage: items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
+            gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
+            borderHover: 'hover:border-pink-400',
+            btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
+            itemsCount: items.length,
+            minPrice,
+            previews
+          });
+        }
+      }
+    }
 
-    return [...configured, ...custom];
-  }, [products]);
+    // 2. Also check any categories that exist in products but were somehow not in categoriesList
+    for (const p of products) {
+      if (p.category) {
+        const lower = p.category.toLowerCase();
+        if (!seenCategories.has(lower)) {
+          seenCategories.add(lower);
+          const config = configMap.get(lower);
+          const items = products.filter(item => item.category && item.category.toLowerCase() === lower);
+          const prices = items.map(item => item.priceINR).filter(Boolean);
+          const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
+          const previews = items.slice(0, 4).map(item => item.image || item.images?.[0]).filter(Boolean);
+
+          if (config) {
+            list.push({
+              ...config,
+              itemsCount: items.length,
+              minPrice,
+              previews
+            });
+          } else {
+            list.push({
+              id: p.category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+              category: p.category,
+              name: p.category,
+              department: 'lifestyle',
+              icon: '✨',
+              badge: 'Curated 🎀',
+              tagline: `Explore our ${p.category} collection`,
+              description: `Handpicked selection of items curated under ${p.category}.`,
+              coverImage: items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
+              gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
+              borderHover: 'hover:border-pink-400',
+              btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
+              itemsCount: items.length,
+              minPrice,
+              previews
+            });
+          }
+        }
+      }
+    }
+
+    return list;
+  }, [products, categoriesList]);
 
   // Active collection metadata object
   const currentCollectionMeta = useMemo(() => {
     if (!activeCollection || activeCollection === 'All Items') return null;
-    return collections.find(c => c.category === activeCollection) || {
+    const found = collections.find(c => c.category?.toLowerCase() === activeCollection.toLowerCase());
+    if (found) return found;
+
+    // Check categoriesList for custom category
+    const catMeta = categoriesList.find(c => c.name?.toLowerCase() === activeCollection.toLowerCase());
+    return {
       name: activeCollection,
       category: activeCollection,
-      icon: '✨',
-      badge: 'Curated Category',
+      icon: catMeta?.icon || '🎀',
+      badge: catMeta?.badge || 'New Drop 🎀',
       tagline: `Exclusive ${activeCollection} selection`,
-      description: `Explore authentic products under ${activeCollection}.`,
+      description: catMeta?.description || `Explore authentic products under ${activeCollection}.`,
       coverImage: '/images/deluxe-giftbox.jpg'
     };
-  }, [activeCollection, collections]);
+  }, [activeCollection, collections, categoriesList]);
 
   // Filtered & Sorted products for active collection view
   const activeProducts = useMemo(() => {
     let list = products;
     if (activeCollection && activeCollection !== 'All Items') {
-      list = products.filter(p => p.category === activeCollection);
+      const targetLower = activeCollection.toLowerCase();
+      list = products.filter(p => p.category && p.category.toLowerCase() === targetLower);
     }
 
     if (searchQuery.trim()) {
@@ -293,7 +357,7 @@ export default function ProductCatalog({
             <div>
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 text-xs font-extrabold tracking-wider uppercase mb-2 shadow-xs">
                 <Layers className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
-                <span>Shop by Department & Collection • 12 Curations</span>
+                <span>Shop by Department & Collection • {collections.length} Curations</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-display font-extrabold text-[#231733] dark:text-white">
                 Explore Our Collections
@@ -458,7 +522,7 @@ export default function ProductCatalog({
                 onClick={() => setSelectedDepartment('all')}
                 className="text-xs font-bold text-[#E60067] dark:text-pink-400 hover:underline cursor-pointer"
               >
-                Show All 12 Collections →
+                Show All {collections.length} Collections →
               </button>
             </div>
           )}
@@ -737,10 +801,10 @@ export default function ProductCatalog({
               <span>All Collections</span>
             </button>
 
-            {CATEGORIES.map((cat) => {
+            {collections.map((col) => {
+              const cat = col.category;
               if (cat === 'All Items') return null;
-              const isSelected = activeCollection === cat;
-              const count = products.filter(p => p.category === cat).length;
+              const isSelected = activeCollection?.toLowerCase() === cat.toLowerCase();
               return (
                 <button
                   key={cat}
@@ -753,9 +817,10 @@ export default function ProductCatalog({
                       : 'bg-white dark:bg-[#1E172E] text-[#231733] dark:text-[#E0D7EB] border-pink-200/80 dark:border-pink-900 hover:bg-pink-50 dark:hover:bg-neutral-800'
                   }`}
                 >
+                  <span className="flex items-center">{renderCollectionIcon(col, 'w-3.5 h-3.5')}</span>
                   <span>{cat}</span>
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300'}`}>
-                    {count}
+                    {col.itemsCount}
                   </span>
                 </button>
               );
@@ -796,22 +861,48 @@ export default function ProductCatalog({
             </div>
           )}
 
-          {/* Empty search results state */}
+          {/* Empty search results / empty collection state */}
           {activeProducts.length === 0 && (
-            <div className="text-center py-16 p-8 rounded-3xl bg-pink-50/50 dark:bg-neutral-900/50 border border-pink-200 dark:border-neutral-800 space-y-3">
-              <div className="text-4xl">🔍</div>
-              <h3 className="font-display font-bold text-lg text-neutral-800 dark:text-neutral-200">
-                No products found matching "{searchQuery}"
+            <div className="text-center py-16 p-8 rounded-3xl bg-pink-50/50 dark:bg-[#1E172E]/60 border border-pink-200 dark:border-pink-900/60 space-y-4 max-w-xl mx-auto shadow-xs">
+              <div className="w-16 h-16 mx-auto rounded-full bg-pink-100 dark:bg-pink-950 flex items-center justify-center text-3xl shadow-inner">
+                {searchQuery ? '🔍' : (renderCollectionIcon(currentCollectionMeta, 'w-8 h-8') || '✨')}
+              </div>
+              <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white">
+                {searchQuery 
+                  ? `No products found matching "${searchQuery}"`
+                  : `✨ ${activeCollection} Collection Arriving Soon!`}
               </h3>
-              <p className="text-xs text-neutral-500">
-                Try searching with a different term or clear the filter.
+              <p className="text-xs sm:text-sm text-[#554664] dark:text-[#E0D7EB] max-w-md mx-auto leading-relaxed font-medium">
+                {searchQuery
+                  ? 'Try searching with a different keyword or browse our full collection catalog.'
+                  : `Our team is currently hand-curating pieces for ${activeCollection}. New drops will appear here shortly! You can also add products directly from the Admin Panel.`}
               </p>
-              <button
-                onClick={() => setSearchQuery('')}
-                className="px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold hover:opacity-90 transition"
-              >
-                Clear Search
-              </button>
+              <div className="flex items-center justify-center gap-3 pt-2">
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="px-4 py-2 rounded-xl btn-3d-pink text-white text-xs font-bold transition cursor-pointer"
+                  >
+                    Clear Search
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleBackToCollections}
+                      className="px-4 py-2.5 rounded-xl btn-3d-pink text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Browse Other Collections</span>
+                    </button>
+                    <a
+                      href="#admin"
+                      className="px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-800 text-neutral-700 dark:text-neutral-200 hover:text-[#E60067] text-xs font-bold transition shadow-xs cursor-pointer"
+                    >
+                      + Add Products in Admin
+                    </a>
+                  </>
+                )}
+              </div>
             </div>
           )}
 

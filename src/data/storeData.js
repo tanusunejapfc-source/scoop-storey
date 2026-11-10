@@ -720,6 +720,21 @@ export function slugToCategory(slug, products = []) {
   if (slug === 'eyemasks-selfcare') return 'Self-Care';
   if (slug === 'korean-wallets' || slug === 'wallets') return 'Korean Wallets';
   
+  // 1. Check custom categories stored in localStorage (created in Admin Panel)
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = localStorage.getItem('bhaskar_custom_categories_v2');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const match = parsed.find(c => c.name && categoryToSlug(c.name) === slug);
+          if (match) return match.name;
+        }
+      }
+    } catch {}
+  }
+
+  // 2. Check categories in products list
   if (Array.isArray(products)) {
     const found = products.find(p => p.category && categoryToSlug(p.category) === slug);
     if (found) return found.category;

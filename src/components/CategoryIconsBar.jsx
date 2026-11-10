@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import MiniScoopIcon from './MiniScoopIcon';
+import { getStoredCategories } from '../utils/categoryStore';
 
 // Curated Category Icons matching Scoop Storey Kawaii Luxury Aesthetic
 export const CATEGORY_ICONS_DATA = [
@@ -157,6 +158,60 @@ export default function CategoryIconsBar({
   className = ''
 }) {
   const scrollContainerRef = useRef(null);
+  const [categoriesList, setCategoriesList] = useState(getStoredCategories);
+
+  useEffect(() => {
+    const handleCatUpdate = (e) => {
+      if (e?.detail) setCategoriesList(e.detail);
+      else setCategoriesList(getStoredCategories());
+    };
+    window.addEventListener('scoop_categories_updated', handleCatUpdate);
+    return () => window.removeEventListener('scoop_categories_updated', handleCatUpdate);
+  }, []);
+
+  // Dynamically merge presets with any user-created categories from Admin Panel (e.g. "Stationery and bags")
+  const displayItems = useMemo(() => {
+    const iconDataMap = new Map(CATEGORY_ICONS_DATA.map(i => [i.category.toLowerCase(), i]));
+    const list = [];
+    const seen = new Set();
+
+    // 1. Process all categories stored in categoryStore
+    for (const cat of categoriesList) {
+      const lower = cat.name.toLowerCase();
+      if (!seen.has(lower)) {
+        seen.add(lower);
+        const preset = iconDataMap.get(lower);
+        if (preset) {
+          list.push({
+            ...preset,
+            tag: cat.badge || preset.tag,
+            emoji: cat.icon || preset.emoji
+          });
+        } else {
+          // Custom category created in Admin Panel!
+          list.push({
+            id: cat.id || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            category: cat.name,
+            name: cat.name,
+            shortName: cat.name,
+            image: '/images/deluxe-giftbox.jpg',
+            emoji: cat.icon || '🎀',
+            tag: cat.badge || 'New Drop',
+            gradient: 'from-pink-400 via-purple-400 to-rose-400',
+            ringColor: 'from-pink-500 to-purple-600'
+          });
+        }
+      }
+    }
+
+    // 2. Always append "All Collections" at the end
+    const allPreset = CATEGORY_ICONS_DATA.find(i => i.category === 'All Items');
+    if (allPreset && !seen.has('all items')) {
+      list.push(allPreset);
+    }
+
+    return list;
+  }, [categoriesList]);
 
   const handleScroll = (direction) => {
     if (!scrollContainerRef.current) return;
@@ -214,7 +269,7 @@ export default function CategoryIconsBar({
             ref={scrollContainerRef}
             className="flex items-start gap-3.5 sm:gap-5 md:gap-6 overflow-x-auto pb-3.5 pt-2.5 px-2 sm:px-4 scrollbar-none snap-x snap-mandatory scroll-smooth"
           >
-            {CATEGORY_ICONS_DATA.map((item) => {
+            {displayItems.map((item) => {
               const isSelected = activeCategory === item.category;
 
               return (
