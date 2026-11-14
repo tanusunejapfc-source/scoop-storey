@@ -238,10 +238,10 @@ export default function ProductDetailPage({
     handleSelectImageIndex(nextIdx);
   };
 
-  // Touch & Finger Swipe for Image Carousel
+  // Ultra-Smooth Touch & Finger Swipe for Image Carousel
   const [touchDelta, setTouchDelta] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
-  const touchStartRef = useRef({ x: 0, y: 0, isHorizontal: null });
+  const touchStartRef = useRef({ x: 0, y: 0, time: 0, isHorizontal: null });
 
   const handleTouchStart = (e) => {
     if (images.length <= 1) return;
@@ -249,6 +249,7 @@ export default function ProductDetailPage({
     touchStartRef.current = {
       x: touch.clientX,
       y: touch.clientY,
+      time: Date.now(),
       isHorizontal: null
     };
     setIsSwiping(true);
@@ -262,28 +263,47 @@ export default function ProductDetailPage({
     const diffY = touch.clientY - touchStartRef.current.y;
 
     if (touchStartRef.current.isHorizontal === null) {
-      if (Math.abs(diffX) >= 8 || Math.abs(diffY) >= 8) {
+      if (Math.abs(diffX) >= 6 || Math.abs(diffY) >= 6) {
         touchStartRef.current.isHorizontal = Math.abs(diffX) > Math.abs(diffY);
       }
     }
 
     if (touchStartRef.current.isHorizontal) {
-      const maxDrag = 130;
-      const clamped = Math.max(-maxDrag, Math.min(maxDrag, diffX));
-      setTouchDelta(clamped);
+      // Elastic rubber-band resistance at boundaries
+      const isAtFirst = activeImageIndex === 0 && diffX > 0;
+      const isAtLast = activeImageIndex === images.length - 1 && diffX < 0;
+
+      let effectiveDelta = diffX;
+      if (isAtFirst || isAtLast) {
+        effectiveDelta = diffX * 0.32;
+      }
+      setTouchDelta(effectiveDelta);
     }
   };
 
   const handleTouchEnd = () => {
     if (!isSwiping) return;
     setIsSwiping(false);
-    const threshold = 35;
 
     if (touchStartRef.current.isHorizontal) {
-      if (touchDelta < -threshold) {
-        handleNextImage();
-      } else if (touchDelta > threshold) {
-        handlePrevImage();
+      const elapsed = Date.now() - touchStartRef.current.time;
+      const isQuickFlick = elapsed < 260 && Math.abs(touchDelta) > 25;
+      const isPastThreshold = Math.abs(touchDelta) > 45;
+
+      if (isQuickFlick || isPastThreshold) {
+        if (touchDelta < 0 && activeImageIndex < images.length - 1) {
+          soundFX.playPop(550);
+          handleSelectImageIndex(activeImageIndex + 1);
+        } else if (touchDelta > 0 && activeImageIndex > 0) {
+          soundFX.playPop(450);
+          handleSelectImageIndex(activeImageIndex - 1);
+        } else if (touchDelta < 0 && activeImageIndex === images.length - 1 && images.length > 1) {
+          soundFX.playPop(550);
+          handleSelectImageIndex(0);
+        } else if (touchDelta > 0 && activeImageIndex === 0 && images.length > 1) {
+          soundFX.playPop(450);
+          handleSelectImageIndex(images.length - 1);
+        }
       }
     }
 
@@ -296,6 +316,7 @@ export default function ProductDetailPage({
     touchStartRef.current = {
       x: e.clientX,
       y: e.clientY,
+      time: Date.now(),
       isHorizontal: true
     };
     setIsSwiping(true);
@@ -305,9 +326,13 @@ export default function ProductDetailPage({
   const handleMouseMove = (e) => {
     if (!isSwiping || images.length <= 1 || !touchStartRef.current.isHorizontal) return;
     const diffX = e.clientX - touchStartRef.current.x;
-    const maxDrag = 130;
-    const clamped = Math.max(-maxDrag, Math.min(maxDrag, diffX));
-    setTouchDelta(clamped);
+    const isAtFirst = activeImageIndex === 0 && diffX > 0;
+    const isAtLast = activeImageIndex === images.length - 1 && diffX < 0;
+    let effectiveDelta = diffX;
+    if (isAtFirst || isAtLast) {
+      effectiveDelta = diffX * 0.32;
+    }
+    setTouchDelta(effectiveDelta);
   };
 
   const handleMouseUp = () => {
@@ -413,23 +438,28 @@ export default function ProductDetailPage({
               onMouseLeave={handleMouseUp}
               className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/50 shadow-sm group select-none touch-pan-y cursor-grab active:cursor-grabbing"
             >
+              {/* Horizontal Filmstrip of Images */}
               <div 
-                className="w-full h-full"
+                className="flex h-full w-full"
                 style={{
-                  transform: `translateX(${touchDelta}px)`,
-                  transition: isSwiping ? 'none' : 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)'
+                  transform: `translateX(calc(-${activeImageIndex * 100}% + ${touchDelta}px))`,
+                  transition: isSwiping ? 'none' : 'transform 0.34s cubic-bezier(0.2, 0.85, 0.25, 1)'
                 }}
               >
-                <img
-                  src={currentImage}
-                  alt={`${product.name} - ${activeImageIndex + 1}`}
-                  draggable={false}
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = '/images/deluxe-giftbox.jpg';
-                  }}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
-                />
+                {images.map((img, i) => (
+                  <div key={i} className="w-full h-full shrink-0 relative">
+                    <img
+                      src={img}
+                      alt={`${product.name} - ${i + 1}`}
+                      draggable={false}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                      }}
+                      className="w-full h-full object-cover pointer-events-none select-none"
+                    />
+                  </div>
+                ))}
               </div>
 
               {/* Badge */}
