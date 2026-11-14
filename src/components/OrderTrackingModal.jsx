@@ -243,6 +243,37 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
                     </span>
                   </div>
                 )}
+
+                {/* Live Courier Tracking AWB Card if Shipped */}
+                {matchedOrder.trackingNumber && (
+                  <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:to-teal-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-emerald-600 text-white">
+                        <Truck className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                          Shipped via {matchedOrder.courierName || 'Express Courier'}
+                        </div>
+                        <div className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                          AWB / Tracking: {matchedOrder.trackingNumber}
+                        </div>
+                      </div>
+                    </div>
+
+                    {matchedOrder.trackingUrl && (
+                      <a
+                        href={matchedOrder.trackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer self-start sm:self-center"
+                      >
+                        <span>Track on Courier Site</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Progress Stepper */}

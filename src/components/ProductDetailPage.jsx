@@ -26,7 +26,9 @@ import WhatsAppIcon from './WhatsAppIcon';
 export default function ProductDetailPage({
   product,
   onClose,
-  onAddToCart
+  onAddToCart,
+  allProducts = [],
+  onSelectProduct
 }) {
   const baseImages = (product?.images && product.images.length > 0)
     ? product.images
@@ -91,6 +93,14 @@ export default function ProductDetailPage({
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const { isWishlisted, toggle: toggleWishlist } = useWishlist();
+
+  // Related products from same or complementary categories
+  const relatedProducts = useMemo(() => {
+    if (!product || !Array.isArray(allProducts) || allProducts.length === 0) return [];
+    const sameCat = allProducts.filter(p => p.id !== product.id && p.category === product.category);
+    const otherCat = allProducts.filter(p => p.id !== product.id && p.category !== product.category);
+    return [...sameCat, ...otherCat].slice(0, 4);
+  }, [product, allProducts]);
 
   // Delivery & PIN Code Estimator State
   const [pincodeInput, setPincodeInput] = useState(() => {
@@ -950,6 +960,53 @@ export default function ProductDetailPage({
                 )}
               </div>
             </div>
+
+            {/* You May Also Love (Related Products) */}
+            {relatedProducts.length > 0 && (
+              <div className="pt-5 border-t border-pink-100 dark:border-neutral-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-display font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-white flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-[#E60067]" />
+                    <span>You May Also Love</span>
+                  </h4>
+                  <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold">
+                    Matches with this piece ✨
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {relatedProducts.map((rel) => (
+                    <div
+                      key={rel.id}
+                      onClick={() => {
+                        soundFX.playPop(520);
+                        if (onSelectProduct) onSelectProduct(rel);
+                      }}
+                      className="group p-2 rounded-2xl bg-pink-50/50 hover:bg-pink-100/70 dark:bg-neutral-800/60 dark:hover:bg-neutral-800 border border-pink-200/60 dark:border-neutral-700 cursor-pointer transition text-left"
+                    >
+                      <div className="aspect-square rounded-xl overflow-hidden bg-white dark:bg-neutral-900 mb-1.5 border border-pink-100 dark:border-neutral-800">
+                        <img
+                          src={rel.image || (rel.images?.[0]) || '/images/deluxe-giftbox.jpg'}
+                          alt={rel.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="font-display font-bold text-[11px] text-neutral-800 dark:text-neutral-200 truncate leading-tight">
+                        {rel.name}
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="font-black text-xs text-[#E60067] dark:text-pink-400">
+                          ₹{rel.priceINR || rel.price}
+                        </span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 group-hover:bg-[#E60067] group-hover:text-white group-hover:border-transparent transition">
+                          View
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Bottom mini helper */}
             <div className="pt-2 text-center text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">

@@ -171,8 +171,141 @@ export function sanitizeOrder(order) {
     shippingINR: Number(order.shippingINR || 0),
     totalINR: Number(order.totalINR || 0),
     filmOnReel: order.filmOnReel || null,
-    additionalNotes: order.additionalNotes ? String(order.additionalNotes).trim() : null
+    additionalNotes: order.additionalNotes ? String(order.additionalNotes).trim() : null,
+    courierName: order.courierName || null,
+    trackingNumber: order.trackingNumber || null,
+    trackingUrl: order.trackingUrl || (order.trackingNumber ? getCourierTrackingUrl(order.courierName, order.trackingNumber) : null)
   };
+}
+
+/**
+ * Generate direct live tracking link for major Indian logistics partners
+ */
+export function getCourierTrackingUrl(courier, awb) {
+  if (!awb) return '';
+  const cleanAwb = String(awb).trim();
+  const c = String(courier || '').toLowerCase();
+
+  if (c.includes('delhivery')) {
+    return `https://www.delhivery.com/track/package/${cleanAwb}`;
+  }
+  if (c.includes('blue') || c.includes('dart')) {
+    return `https://www.bluedart.com/tracking?trackNumber=${cleanAwb}`;
+  }
+  if (c.includes('dtdc')) {
+    return `https://www.dtdc.in/tracking/shipment-tracking.asp?strCnno=${cleanAwb}`;
+  }
+  if (c.includes('india') || c.includes('post')) {
+    return `https://www.indiapost.gov.in/_layouts/15/dpt.cpt.etracking/trackconsignment.aspx`;
+  }
+  return `https://shiprocket.co/tracking/${cleanAwb}`;
+}
+
+/**
+ * Update order courier tracking & delivery status
+ */
+export function updateOrderTrackingInStore(orderId, { status, courierName, trackingNumber }) {
+  try {
+    const existing = getStoredOrders();
+    const cleanTrackingUrl = trackingNumber ? getCourierTrackingUrl(courierName, trackingNumber) : null;
+    const updated = existing.map(ord => {
+      if (ord.orderId === orderId) {
+        return {
+          ...ord,
+          status: status || ord.status,
+          courierName: courierName !== undefined ? courierName : ord.courierName,
+          trackingNumber: trackingNumber !== undefined ? trackingNumber : ord.trackingNumber,
+          trackingUrl: cleanTrackingUrl !== undefined ? cleanTrackingUrl : ord.trackingUrl
+        };
+      }
+      return ord;
+    });
+
+    memoryOrders = updated;
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
+    return true;
+  } catch (err) {
+    console.error('Failed to update order tracking:', err);
+    return false;
+  }
+}
+
+/**
+ * Export orders formatted for Shiprocket / Indian Couriers Bulk Upload CSV
+ */
+export function exportOrdersToCourierCSV(ordersList) {
+  if (!Array.isArray(ordersList) || ordersList.length === 0) return false;
+
+  const headers = [
+    'Order ID',
+    'Order Date',
+    'Customer Name',
+    'Customer Phone',
+    'Shipping Address',
+    'Landmark',
+    'City',
+    'State',
+    'Pincode',
+    'Country',
+    'Ordered Items',
+    'Total Items',
+    'Total Amount INR',
+    'Payment Mode',
+    'UPI Ref UTR',
+    'Status',
+    'Courier Name',
+    'Tracking AWB',
+    'Reel Handle',
+    'Customer Notes'
+  ];
+
+  const escapeCSV = (str) => {
+    if (str === null || str === undefined) return '""';
+    const clean = String(str).replace(/"/g, '""').replace(/\r?\n/g, ' ');
+    return `"${clean}"`;
+  };
+
+  const rows = ordersList.map(order => {
+    const cust = order.customer || {};
+    const itemsSummary = (order.items || [])
+      .map(it => `${it.name}${it.selectedColor ? ` [${it.selectedColor}]` : ''} (x${it.qty})`)
+      .join(' + ');
+
+    return [
+      escapeCSV(order.orderId),
+      escapeCSV(order.date),
+      escapeCSV(cust.fullName),
+      escapeCSV(cust.phone),
+      escapeCSV(cust.streetAddress),
+      escapeCSV(cust.landmark),
+      escapeCSV(cust.city),
+      escapeCSV(cust.state),
+      escapeCSV(cust.pincode),
+      escapeCSV('India'),
+      escapeCSV(itemsSummary),
+      escapeCSV(order.totalItemCount || order.items?.length || 1),
+      escapeCSV(order.totalINR),
+      escapeCSV('Prepaid UPI'),
+      escapeCSV(order.upiRefNumber || 'N/A'),
+      escapeCSV(order.status),
+      escapeCSV(order.courierName || 'Pending'),
+      escapeCSV(order.trackingNumber || 'Pending'),
+      escapeCSV(order.filmOnReel || ''),
+      escapeCSV(order.additionalNotes || '')
+    ].join(',');
+  });
+
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Scoop_Storey_Courier_Orders_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  return true;
 }
 
 export function getStoredOrders() {
@@ -352,6 +485,11 @@ export function useStoreOrders() {
     refreshOrders();
   };
 
+  const updateTracking = (orderId, trackingData) => {
+    updateOrderTrackingInStore(orderId, trackingData);
+    refreshOrders();
+  };
+
   const deleteOrder = (orderId) => {
     deleteOrderFromStore(orderId);
     refreshOrders();
@@ -367,6 +505,7 @@ export function useStoreOrders() {
     refreshOrders,
     addOrder,
     updateStatus,
+    updateTracking,
     deleteOrder,
     clearOrders
   };

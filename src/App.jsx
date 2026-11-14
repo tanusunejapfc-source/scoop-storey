@@ -16,6 +16,9 @@ import Testimonials from './components/Testimonials';
 import StoreFAQ from './components/StoreFAQ';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
+import SocialProofToast from './components/SocialProofToast';
+import PolicyModal from './components/PolicyModal';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
 import { soundFX } from './utils/audio';
@@ -27,6 +30,8 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isPolicyOpen, setIsPolicyOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState('shipping');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeCollection, setActiveCollection] = useState(null);
 
@@ -401,6 +406,17 @@ export default function App() {
           }
         }}
         onAddToCart={handleAddToCart}
+        allProducts={products}
+        onSelectProduct={(prod) => {
+          setSelectedProduct(prod);
+          if (prod) {
+            try {
+              window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
+            } catch {
+              window.location.hash = `#product-${prod.id}`;
+            }
+          }
+        }}
       />
 
       {/* STORE ADMIN PANEL */}
@@ -449,10 +465,30 @@ export default function App() {
         onOpenProduct={(prod) => setSelectedProduct(prod)}
       />
 
+      {/* OFFICIAL STORE POLICY & SUPPORT MODAL */}
+      <PolicyModal
+        isOpen={isPolicyOpen}
+        onClose={() => setIsPolicyOpen(false)}
+        initialTab={policyTab}
+      />
+
+      {/* FLOATING WHATSAPP SUPPORT WIDGET */}
+      <FloatingWhatsApp />
+
+      {/* RECENT VERIFIED PURCHASES / SOCIAL PROOF TOAST */}
+      <SocialProofToast
+        products={products}
+        onSelectProduct={(prod) => setSelectedProduct(prod)}
+      />
+
       {/* FOOTER */}
       <Footer 
         onOpenAdmin={() => setIsAdminOpen(true)} 
         onOpenTracking={() => setIsTrackingOpen(true)}
+        onOpenPolicy={(tab) => {
+          setPolicyTab(tab || 'shipping');
+          setIsPolicyOpen(true);
+        }}
       />
     </div>
   );

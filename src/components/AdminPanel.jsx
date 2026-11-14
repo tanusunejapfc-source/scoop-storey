@@ -47,11 +47,13 @@ import {
   Mail,
   Send,
   Volume2,
-  Smartphone
+  Smartphone,
+  Printer,
+  Truck
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { categoryToSlug } from '../data/storeData';
-import { useStoreOrders } from '../utils/orderStore';
+import { useStoreOrders, exportOrdersToCourierCSV } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import { 
   getNotificationSettings, 
@@ -227,8 +229,140 @@ export default function AdminPanel({
   const [copiedOrderId, setCopiedOrderId] = useState(null);
 
   // Orders store hook
-  const { orders, refreshOrders, updateStatus, deleteOrder, clearOrders } = useStoreOrders();
+  const { orders, refreshOrders, updateStatus, updateTracking, deleteOrder, clearOrders } = useStoreOrders();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [trackingDrafts, setTrackingDrafts] = useState({});
+
+  const handleUpdateTrackingDraft = (orderId, field, value) => {
+    setTrackingDrafts(prev => ({
+      ...prev,
+      [orderId]: {
+        ...(prev[orderId] || {}),
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveTracking = (orderId) => {
+    const draft = trackingDrafts[orderId] || {};
+    const ord = orders.find(o => o.orderId === orderId);
+    if (!ord) return;
+
+    const courier = draft.courierName !== undefined ? draft.courierName : (ord.courierName || 'Delhivery');
+    const awb = draft.trackingNumber !== undefined ? draft.trackingNumber.trim() : (ord.trackingNumber || '');
+
+    updateTracking(orderId, {
+      status: awb ? 'Dispatched / In Transit' : ord.status,
+      courierName: courier,
+      trackingNumber: awb
+    });
+
+    soundFX.playSuccess();
+    showToast(`Tracking saved for #${orderId}! 🚚`);
+  };
+
+  const handleExportCourierCSV = () => {
+    if (orders.length === 0) {
+      showToast('No orders to export!');
+      return;
+    }
+    soundFX.playPop(520);
+    exportOrdersToCourierCSV(filteredOrders.length > 0 ? filteredOrders : orders);
+    showToast('Downloaded Courier / Shiprocket CSV! 📦');
+  };
+
+  const handlePrintPackingSlip = (order) => {
+    soundFX.playPop(500);
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    const itemsHtml = (order.items || []).map((it, i) => `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${i + 1}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>${it.name}</strong>${it.selectedColor ? ` <span style="color:#666;">(${it.selectedColor})</span>` : ''}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${it.qty}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">₹${it.priceINR * it.qty}</td>
+      </tr>
+    `).join('');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Packing Slip - ${order.orderId}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #222; }
+            .header { border-bottom: 2px solid #E60067; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+            .badge { background: #ffe6ef; color: #E60067; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+            th { text-align: left; padding: 8px; background: #fdf2f7; font-weight: bold; border-bottom: 2px solid #f8bbd0; }
+            .box { background: #fafafa; border: 1px solid #eee; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h2 style="margin: 0; color: #E60067;">Scoop Storey 🎀</h2>
+              <p style="margin: 2px 0 0; font-size: 12px; color: #666;">Collect Happiness In Every Single Scoop • Prepaid Delivery</p>
+            </div>
+            <div style="text-align: right;">
+              <span class="badge">PREPAID ORDER</span>
+              <div style="font-weight: bold; font-size: 16px; margin-top: 4px;">#${order.orderId}</div>
+              <div style="font-size: 11px; color: #777;">Date: ${order.date}</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 20px;">
+            <div class="box" style="flex: 1;">
+              <strong>DELIVER TO:</strong><br />
+              <div style="font-size: 14px; font-weight: bold; margin-top: 4px;">${order.customer?.fullName || 'Customer'}</div>
+              <div>Phone: +91 ${order.customer?.phone || ''}</div>
+              <div style="margin-top: 4px;">
+                ${order.customer?.streetAddress || ''}${order.customer?.landmark ? `<br/>Near ${order.customer?.landmark}` : ''}<br />
+                <strong>${order.customer?.city || ''}, ${order.customer?.state || ''} - ${order.customer?.pincode || ''}</strong>
+              </div>
+            </div>
+
+            <div class="box" style="flex: 1;">
+              <strong>PAYMENT & COURIER:</strong><br />
+              <div>Mode: <strong>100% Prepaid UPI</strong></div>
+              <div>UPI UTR: <code>${order.upiRefNumber || 'Verified'}</code></div>
+              ${order.courierName ? `<div>Courier: <strong>${order.courierName}</strong></div>` : ''}
+              ${order.trackingNumber ? `<div>AWB: <code>${order.trackingNumber}</code></div>` : ''}
+              ${order.filmOnReel ? `<div style="margin-top: 4px; color: #9c27b0;"><strong>🎬 IG Reel Packing:</strong> ${order.filmOnReel}</div>` : ''}
+              ${order.additionalNotes ? `<div style="margin-top: 4px; color: #555;"><strong>Note:</strong> <i>${order.additionalNotes}</i></div>` : ''}
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 30px;">#</th>
+                <th>Item Description & Selected Variant</th>
+                <th style="width: 60px; text-align: center;">Qty</th>
+                <th style="width: 90px; text-align: right;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="text-align: right; padding: 12px; font-weight: bold; font-size: 14px;">Total Amount:</td>
+                <td style="text-align: right; padding: 12px; font-weight: 900; font-size: 16px; color: #E60067;">₹${order.totalINR}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="margin-top: 30px; text-align: center; font-size: 11px; color: #888; border-top: 1px dashed #ccc; padding-top: 12px;">
+            Thank you for shopping at Scoop Storey! 🎀 For unboxing assistance, WhatsApp us: +91 8199922653
+          </div>
+          <script>
+            window.onload = function() { window.print(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
   // Auto-refresh orders whenever Admin Panel opens
   useEffect(() => {
@@ -1815,7 +1949,17 @@ export default function AdminPanel({
                     />
                   </div>
 
-                  <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1">
+                  <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1">
+                    <button
+                      type="button"
+                      onClick={handleExportCourierCSV}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow-sm transition shrink-0 cursor-pointer"
+                      title="Download orders CSV formatted for Shiprocket or courier bulk shipping"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Export Courier CSV</span>
+                    </button>
+
                     {['All', 'UPI QR', 'WhatsApp', 'Online'].map((st) => (
                       <button
                         key={st}
@@ -1966,6 +2110,16 @@ export default function AdminPanel({
                                     </>
                                   )}
                                 </button>
+
+                                {/* Print Thermal / A4 Packing Slip */}
+                                <button
+                                  onClick={() => handlePrintPackingSlip(ord)}
+                                  className="px-2.5 py-1 rounded-lg glass-pill font-bold text-[11px] text-neutral-700 dark:text-neutral-300 hover:text-purple-600 flex items-center gap-1 transition"
+                                  title="Print thermal or A4 packing slip for packaging box"
+                                >
+                                  <Printer className="w-3 h-3 text-purple-500" />
+                                  <span>Print Slip</span>
+                                </button>
                               </div>
                             </div>
 
@@ -2096,6 +2250,68 @@ export default function AdminPanel({
                               <span className="text-[#E60067] dark:text-pink-400">
                                 ₹{ord.totalINR}
                               </span>
+                            </div>
+                          </div>
+
+                          {/* Courier Fulfillment & AWB Tracking Form */}
+                          <div className="mt-2.5 p-3 rounded-2xl bg-neutral-50/80 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700/80 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-black uppercase tracking-wider text-neutral-600 dark:text-neutral-300 flex items-center gap-1.5">
+                                <Truck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                <span>Courier Dispatch & Live AWB Tracking</span>
+                              </span>
+                              {ord.trackingNumber && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                                  Live AWB Active
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                              <div className="sm:col-span-4">
+                                <select
+                                  value={trackingDrafts[ord.orderId]?.courierName !== undefined ? trackingDrafts[ord.orderId].courierName : (ord.courierName || 'Delhivery')}
+                                  onChange={(e) => handleUpdateTrackingDraft(ord.orderId, 'courierName', e.target.value)}
+                                  className="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                >
+                                  <option value="Delhivery">Delhivery</option>
+                                  <option value="Blue Dart">Blue Dart</option>
+                                  <option value="DTDC">DTDC</option>
+                                  <option value="India Post">India Post Speed Post</option>
+                                  <option value="Shiprocket">Shiprocket Express</option>
+                                </select>
+                              </div>
+
+                              <div className="sm:col-span-5">
+                                <input
+                                  type="text"
+                                  value={trackingDrafts[ord.orderId]?.trackingNumber !== undefined ? trackingDrafts[ord.orderId].trackingNumber : (ord.trackingNumber || '')}
+                                  onChange={(e) => handleUpdateTrackingDraft(ord.orderId, 'trackingNumber', e.target.value)}
+                                  placeholder="Enter AWB / Tracking No."
+                                  className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                />
+                              </div>
+
+                              <div className="sm:col-span-3 flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveTracking(ord.orderId)}
+                                  className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition cursor-pointer text-center"
+                                >
+                                  Save AWB
+                                </button>
+                                {ord.trackingUrl && (
+                                  <a
+                                    href={ord.trackingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1.5 rounded-xl bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 transition"
+                                    title="Open live courier tracking site"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -4422,380 +4638,6 @@ export default function AdminPanel({
                           <span><strong>Hidden Default:</strong> The default password notice has been removed from the login screen so store visitors cannot see it.</span>
                         </li>
                       </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 8: ORDER NOTIFICATIONS & ALERTS */}
-            {activeTab === 'alerts' && (
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-                {/* Header Banner */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-2xl bg-[#E60067] text-white shadow-md">
-                      <Bell className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-display font-extrabold text-lg text-neutral-900 dark:text-white flex items-center gap-2">
-                        Order Alerts & Instant Push
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-pink-100 text-[#E60067] dark:bg-pink-950/60 dark:text-pink-300">
-                          Real-Time
-                        </span>
-                      </h3>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                        Receive instant phone notifications on Telegram, Gmail inbox summaries, and live cash register sound chimes whenever a customer places an order.
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleSaveNotifications}
-                    className="px-4 py-2 rounded-2xl bg-[#E60067] text-white text-xs font-black shadow-md hover:brightness-110 active:scale-95 transition flex items-center gap-2 self-start sm:self-center shrink-0 cursor-pointer"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>Save All Preferences</span>
-                  </button>
-                </div>
-
-                {/* 3 Channels Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-5xl">
-                  {/* Left Column: Telegram Bot & Sound Settings */}
-                  <div className="lg:col-span-7 space-y-6">
-                    {/* CARD 1: TELEGRAM BOT NOTIFICATIONS */}
-                    <div className="p-5 sm:p-6 rounded-3xl glass-panel border border-pink-200 dark:border-pink-900/40 space-y-4 shadow-sm">
-                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/30">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold">
-                            <Send className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
-                              Telegram Bot Push Alert
-                              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">
-                                Instant & Free
-                              </span>
-                            </h4>
-                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                              Sends push notifications with sound to your phone the exact second an order is made.
-                            </p>
-                          </div>
-                        </div>
-
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={notifSettings.telegram?.enabled ?? true}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                telegram: { ...prev.telegram, enabled: e.target.checked }
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
-                        </label>
-                      </div>
-
-                      <div className="space-y-3.5">
-                        <div>
-                          <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                            Telegram Bot Token <span className="text-rose-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={notifSettings.telegram?.botToken || ''}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                telegram: { ...prev.telegram, botToken: e.target.value.trim() }
-                              }))
-                            }
-                            placeholder="e.g. 7123456789:AAHq_Abc123XyZ..."
-                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-mono font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                            Your Telegram Chat ID <span className="text-rose-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={notifSettings.telegram?.chatId || ''}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                telegram: { ...prev.telegram, chatId: e.target.value.trim() }
-                              }))
-                            }
-                            placeholder="e.g. 562145892 (Numeric Chat ID or Channel ID)"
-                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-mono font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
-                          />
-                        </div>
-
-                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                          <button
-                            type="button"
-                            onClick={handleTestTelegram}
-                            disabled={testingTelegram}
-                            className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
-                          >
-                            {testingTelegram ? (
-                              <>
-                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                <span>Pinging Telegram...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Send className="w-3.5 h-3.5" />
-                                <span>Send Test Alert to Telegram 📲</span>
-                              </>
-                            )}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleSaveNotifications}
-                            className="px-3.5 py-2.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/40 dark:hover:bg-pink-900/60 text-[#E60067] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <Save className="w-3.5 h-3.5" />
-                            <span>Save Token</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Telegram Guide Box */}
-                      <div className="p-3.5 rounded-2xl bg-sky-50/70 dark:bg-neutral-900/70 border border-sky-100 dark:border-neutral-800 space-y-2">
-                        <p className="text-[11px] font-black text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
-                          <span>⚡ How to get your Bot Token & Chat ID in 60 seconds (100% Free):</span>
-                        </p>
-                        <ol className="text-[11px] text-neutral-600 dark:text-neutral-400 space-y-1 list-decimal list-inside leading-relaxed">
-                          <li>Open Telegram, search for <strong>@BotFather</strong>, send <code>/newbot</code>, choose a name (e.g. <em>ScoopStoreyBot</em>) and copy the provided <strong>API Token</strong>.</li>
-                          <li>Search for <strong>@userinfobot</strong> on Telegram and tap <em>Start</em> to immediately get your numeric <strong>Id</strong> (Chat ID).</li>
-                          <li>Open your newly created bot in Telegram, press <strong>Start</strong>, paste both into this form and click <strong>Send Test Alert</strong>!</li>
-                        </ol>
-                      </div>
-                    </div>
-
-                    {/* CARD 2: REAL-TIME ADMIN PANEL SOUND CHIME */}
-                    <div className="p-5 sm:p-6 rounded-3xl glass-panel border border-pink-200 dark:border-pink-900/40 space-y-4 shadow-sm">
-                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/30">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                            <Volume2 className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
-                              Admin Panel Cash Register Chime 🔔
-                            </h4>
-                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                              Rings a cheerful "Cha-Ching!" bell whenever a new order is received while Admin Panel is open.
-                            </p>
-                          </div>
-                        </div>
-
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={notifSettings.sound?.enabled ?? true}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                sound: { ...prev.sound, enabled: e.target.checked }
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                        </label>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                        <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-neutral-700 dark:text-neutral-300">
-                          <input
-                            type="checkbox"
-                            checked={notifSettings.sound?.vibrate ?? true}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                sound: { ...prev.sound, vibrate: e.target.checked }
-                              }))
-                            }
-                            className="w-4 h-4 text-emerald-600 rounded border-neutral-300 focus:ring-emerald-400"
-                          />
-                          <Smartphone className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>Vibrate phone on new order</span>
-                        </label>
-
-                        <button
-                          type="button"
-                          onClick={handleTestChime}
-                          className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          <Volume2 className="w-3.5 h-3.5" />
-                          <span>Test Sound Chime 🔔</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Instant Email Alerts */}
-                  <div className="lg:col-span-5 space-y-6">
-                    {/* CARD 3: EMAIL NOTIFICATIONS */}
-                    <div className="p-5 sm:p-6 rounded-3xl glass-panel border border-pink-200 dark:border-pink-900/40 space-y-4 shadow-sm">
-                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/30">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
-                            <Mail className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
-                              Instant Email Alert
-                            </h4>
-                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                              Sends order details directly to your Gmail inbox.
-                            </p>
-                          </div>
-                        </div>
-
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={notifSettings.email?.enabled ?? true}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                email: { ...prev.email, enabled: e.target.checked }
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E60067]"></div>
-                        </label>
-                      </div>
-
-                      <div className="space-y-3.5">
-                        <div>
-                          <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                            Destination Email Address <span className="text-rose-500">*</span>
-                          </label>
-                          <input
-                            type="email"
-                            value={notifSettings.email?.recipientEmail || ''}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                email: { ...prev.email, recipientEmail: e.target.value.trim() }
-                              }))
-                            }
-                            placeholder="bhaskar.scoopstorey@gmail.com"
-                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                            Email Delivery Gateway
-                          </label>
-                          <select
-                            value={notifSettings.email?.provider || 'web3forms'}
-                            onChange={(e) =>
-                              setNotifSettings((prev) => ({
-                                ...prev,
-                                email: { ...prev.email, provider: e.target.value }
-                              }))
-                            }
-                            className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
-                          >
-                            <option value="web3forms">Web3Forms Gateway (Recommended & Built-in)</option>
-                            <option value="formspree">Formspree Endpoint</option>
-                            <option value="custom">Custom Webhook / Zapier</option>
-                          </select>
-                        </div>
-
-                        {notifSettings.email?.provider === 'formspree' && (
-                          <div>
-                            <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                              Formspree Endpoint URL
-                            </label>
-                            <input
-                              type="url"
-                              value={notifSettings.email?.formspreeUrl || ''}
-                              onChange={(e) =>
-                                setNotifSettings((prev) => ({
-                                  ...prev,
-                                  email: { ...prev.email, formspreeUrl: e.target.value.trim() }
-                                }))
-                              }
-                              placeholder="https://formspree.io/f/xbjnvq..."
-                              className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
-                            />
-                          </div>
-                        )}
-
-                        {notifSettings.email?.provider === 'custom' && (
-                          <div>
-                            <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                              Custom Webhook URL
-                            </label>
-                            <input
-                              type="url"
-                              value={notifSettings.email?.customWebhookUrl || ''}
-                              onChange={(e) =>
-                                setNotifSettings((prev) => ({
-                                  ...prev,
-                                  email: { ...prev.email, customWebhookUrl: e.target.value.trim() }
-                                }))
-                              }
-                              placeholder="https://hook.eu1.make.com/... or Zapier"
-                              className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
-                            />
-                          </div>
-                        )}
-
-                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                          <button
-                            type="button"
-                            onClick={handleTestEmail}
-                            disabled={testingEmail}
-                            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-[#E60067] hover:brightness-110 active:scale-95 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
-                          >
-                            {testingEmail ? (
-                              <>
-                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                <span>Sending Email...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Mail className="w-3.5 h-3.5" />
-                                <span>Send Test Email to Gmail 📬</span>
-                              </>
-                            )}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleSaveNotifications}
-                            className="px-3.5 py-2.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/40 dark:hover:bg-pink-900/60 text-[#E60067] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <Save className="w-3.5 h-3.5" />
-                            <span>Save Email</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-900/70 border border-pink-100 dark:border-neutral-800 space-y-1.5">
-                        <p className="text-[11px] font-black text-[#E60067] dark:text-pink-300 flex items-center gap-1">
-                          <span>ℹ️ Zero-Configuration Gmail Alerts:</span>
-                        </p>
-                        <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                          Every incoming order delivers customer name, phone, shipping address, UPI transaction UTR, and purchased items straight to your specified email with zero server setup required.
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>

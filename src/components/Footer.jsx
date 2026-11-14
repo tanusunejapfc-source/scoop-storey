@@ -39,7 +39,7 @@ const FAQS = [
   }
 ];
 
-export default function Footer({ onOpenAdmin, onOpenTracking }) {
+export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [emailInput, setEmailInput] = useState('');
   const [subscribed, setSubscribed] = useState(false);
@@ -222,6 +222,41 @@ export default function Footer({ onOpenAdmin, onOpenTracking }) {
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Policy Links Row */}
+        <div className="mt-8 pt-6 border-t border-pink-100 dark:border-pink-900/30 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-bold text-neutral-600 dark:text-neutral-400">
+          <button
+            type="button"
+            onClick={() => onOpenPolicy?.('shipping')}
+            className="hover:text-[#E60067] dark:hover:text-pink-400 transition cursor-pointer"
+          >
+            Shipping Policy
+          </button>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => onOpenPolicy?.('returns')}
+            className="hover:text-[#E60067] dark:hover:text-pink-400 transition cursor-pointer"
+          >
+            Returns & Replacements
+          </button>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => onOpenPolicy?.('contact')}
+            className="hover:text-[#E60067] dark:hover:text-pink-400 transition cursor-pointer"
+          >
+            Contact & Support
+          </button>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => onOpenPolicy?.('terms')}
+            className="hover:text-[#E60067] dark:hover:text-pink-400 transition cursor-pointer"
+          >
+            Terms & Privacy
+          </button>
         </div>
 
         {/* Bottom Sub-footer */}

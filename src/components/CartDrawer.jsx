@@ -858,6 +858,56 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
               </div>
             ) : (
               <>
+                {/* REWARD & PROGRESS BAR */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-neutral-900 dark:text-white flex items-center gap-1.5">
+                      <Gift className="w-3.5 h-3.5 text-[#E60067]" />
+                      <span>
+                        {!isMinimumMet 
+                          ? `Add ${itemsRemainingForMin} more item to unlock Checkout & Free Shipping!`
+                          : totalINR < 599
+                            ? `Add ₹${599 - totalINR} more to unlock a Free Mystery Charm Pack! 🎁`
+                            : totalINR < 999
+                              ? `Add ₹${999 - totalINR} more for VIP Deluxe Box Packaging! 👑`
+                              : `🎉 All VIP Milestone Rewards Unlocked!`}
+                      </span>
+                    </span>
+                    <span className="text-[11px] font-black text-[#E60067] dark:text-pink-400">
+                      {!isMinimumMet ? `${totalItemCount}/3 Items` : totalINR >= 999 ? 'VIP Unlocked' : `₹${totalINR}`}
+                    </span>
+                  </div>
+
+                  {/* Progress track */}
+                  <div className="w-full h-2 rounded-full bg-pink-100 dark:bg-neutral-800 overflow-hidden relative">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-[#E60067] via-purple-500 to-pink-500 transition-all duration-500"
+                      style={{
+                        width: !isMinimumMet
+                          ? `${Math.min(100, (totalItemCount / 3) * 60)}%`
+                          : totalINR < 599
+                            ? `${60 + Math.min(25, ((totalINR - 300) / 300) * 25)}%`
+                            : totalINR < 999
+                              ? `${85 + Math.min(15, ((totalINR - 599) / 400) * 15)}%`
+                              : '100%'
+                      }}
+                    />
+                  </div>
+
+                  {/* Milestone Icons */}
+                  <div className="flex items-center justify-between text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 pt-0.5">
+                    <span className={isMinimumMet ? 'text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1' : ''}>
+                      {isMinimumMet ? '✓ 100% Free Shipping' : '3 Items (Min)'}
+                    </span>
+                    <span className={totalINR >= 599 ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
+                      {totalINR >= 599 ? '✓ Free Charm Pack' : '₹599 Free Charm'}
+                    </span>
+                    <span className={totalINR >= 999 ? 'text-amber-600 dark:text-amber-400 font-bold' : ''}>
+                      {totalINR >= 999 ? '✓ VIP Deluxe Box' : '₹999 VIP Box'}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Cart Items */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider px-1">
