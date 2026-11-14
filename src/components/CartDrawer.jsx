@@ -31,6 +31,7 @@ import { soundFX } from '../utils/audio';
 import WhatsAppIcon from './WhatsAppIcon';
 import { lookupPincode } from '../utils/pincodeApi';
 import { saveOrderToStore } from '../utils/orderStore';
+import { dispatchAllOrderNotifications } from '../utils/notificationService';
 import { usePaymentSettings, buildUpiUri, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 
@@ -442,8 +443,9 @@ export default function CartDrawer({
       additionalNotes: additionalNotes.trim() || null
     };
 
-    // 1. Save to persistent order store
+    // 1. Save to persistent order store & dispatch Telegram, Email, and Chime alerts
     saveOrderToStore(newOrder);
+    dispatchAllOrderNotifications(newOrder);
 
     // 2. Clear cart
     onClearCart();

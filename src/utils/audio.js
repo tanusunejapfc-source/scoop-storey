@@ -130,6 +130,54 @@ class SoundFXManager {
     if (!this.enabled) return;
     this.playChime([523.25, 659.25, 783.99, 1046.50, 1318.51]);
   }
+
+  // Cash Register Cha-Ching for New Order alerts
+  playCashRegister() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+
+      // 1. Mechanical cash drawer lever clink
+      const oscClick = this.ctx.createOscillator();
+      const gainClick = this.ctx.createGain();
+      oscClick.type = 'triangle';
+      oscClick.frequency.setValueAtTime(360, now);
+      oscClick.frequency.exponentialRampToValueAtTime(90, now + 0.05);
+
+      gainClick.gain.setValueAtTime(0.24, now);
+      gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+      oscClick.connect(gainClick);
+      gainClick.connect(this.ctx.destination);
+      oscClick.start(now);
+      oscClick.stop(now + 0.06);
+
+      // 2. Twin high-pitched silver bell chime ("Cha-Ching!")
+      const bellPitches = [987.77, 1318.51, 1975.53]; // B5, E6, B6
+      bellPitches.forEach((pitch, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + 0.05 + i * 0.07;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(pitch, start);
+
+        gain.gain.setValueAtTime(0.22, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.55);
+      });
+    } catch {
+      // Audio fallback silent
+    }
+  }
 }
 
 export const soundFX = new SoundFXManager();
