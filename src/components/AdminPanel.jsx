@@ -7,6 +7,7 @@ import {
   Save, 
   RotateCcw, 
   Image as ImageIcon, 
+  Images, 
   Palette, 
   ListChecks, 
   Package, 
@@ -742,22 +743,39 @@ export default function AdminPanel({
   };
 
   const handleStartEdit = (prod) => {
+    if (!prod) return;
+
+    // Normalize images safely
+    const rawImages = Array.isArray(prod.images) ? prod.images.filter(Boolean) : (prod.image ? [prod.image] : []);
+    const validImages = rawImages.length > 0 ? rawImages : ['/images/deluxe-giftbox.jpg'];
+
+    // Normalize colors safely (handle string elements, missing hex, missing name)
+    let validColors = [{ name: 'Standard', hex: '#E5C158', image: null }];
+    if (Array.isArray(prod.colors) && prod.colors.length > 0) {
+      validColors = prod.colors.map(c => {
+        if (typeof c === 'string') {
+          return { name: c, hex: '#E5C158', image: null };
+        }
+        return {
+          name: c?.name || 'Standard',
+          hex: (typeof c?.hex === 'string' && c.hex.startsWith('#')) ? c.hex : '#E5C158',
+          image: c?.image || null
+        };
+      });
+    }
+
     setFormData({
-      id: prod.id,
-      name: prod.name,
-      category: prod.category,
-      priceINR: prod.priceINR,
+      id: prod.id || `custom-item-${Date.now()}`,
+      name: prod.name || '',
+      category: prod.category || 'Pendants & Chains',
+      priceINR: prod.priceINR || 199,
       badge: prod.badge || '',
       description: prod.description || '',
-      image: prod.image || (prod.images?.[0] || ''),
-      images: prod.images ? [...prod.images] : [prod.image],
-      colors: prod.colors ? prod.colors.map(c => ({
-        name: c.name || 'Standard',
-        hex: c.hex || '#E5C158',
-        image: c.image || null
-      })) : [{ name: 'Standard', hex: '#E5C158', image: null }],
-      specifications: prod.specifications ? { ...prod.specifications } : {},
-      includes: prod.includes ? [...prod.includes] : [],
+      image: prod.image || validImages[0],
+      images: validImages,
+      colors: validColors,
+      specifications: prod.specifications && typeof prod.specifications === 'object' ? { ...prod.specifications } : {},
+      includes: Array.isArray(prod.includes) ? [...prod.includes] : [],
       inStock: prod.inStock !== false
     });
     setActiveTab('edit');
@@ -2500,16 +2518,16 @@ export default function AdminPanel({
                               )}
 
                               {/* Color Variant Badge if linked */}
-                              {formData.colors.find(c => c.image === img) && (
+                              {Array.isArray(formData.colors) && formData.colors.find(c => c && c.image === img) && (
                                 <span 
                                   className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-white text-[9px] font-black uppercase shadow-xs flex items-center gap-1 backdrop-blur-md bg-black/70"
-                                  title={`Linked to ${formData.colors.find(c => c.image === img)?.name}`}
+                                  title={`Linked to ${formData.colors.find(c => c && c.image === img)?.name}`}
                                 >
                                   <span 
                                     className="w-2 h-2 rounded-full border border-white"
-                                    style={{ backgroundColor: formData.colors.find(c => c.image === img)?.hex }}
+                                    style={{ backgroundColor: formData.colors.find(c => c && c.image === img)?.hex || '#E5C158' }}
                                   />
-                                  <span>{formData.colors.find(c => c.image === img)?.name}</span>
+                                  <span>{formData.colors.find(c => c && c.image === img)?.name}</span>
                                 </span>
                               )}
                             </div>
@@ -2542,20 +2560,20 @@ export default function AdminPanel({
                             </div>
 
                             {/* Color Selector for this Photo */}
-                            {formData.colors.length > 0 && (
+                            {Array.isArray(formData.colors) && formData.colors.length > 0 && (
                               <div className="mt-1.5 pt-1 border-t border-pink-100/70 dark:border-neutral-800">
                                 <div className="flex items-center gap-1">
                                   <span className="text-[9px] font-bold text-neutral-400">Color:</span>
                                   <select
-                                    value={formData.colors.find(c => c.image === img)?.name || ''}
+                                    value={formData.colors.find(c => c && c.image === img)?.name || ''}
                                     onChange={(e) => handleAssignImageToColor(img, e.target.value)}
                                     className="text-[10px] py-0.5 px-1 rounded-md bg-pink-50/80 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 font-bold text-[#E60067] dark:text-pink-300 w-full focus:outline-none focus:ring-1 focus:ring-pink-400 cursor-pointer"
                                     title="Link this photo to a color variant"
                                   >
                                     <option value="">(None / General)</option>
                                     {formData.colors.map((c, cIdx) => (
-                                      <option key={cIdx} value={c.name}>
-                                        {c.name} {c.image === img ? '✓' : ''}
+                                      <option key={cIdx} value={c?.name || ''}>
+                                        {c?.name} {c?.image === img ? '✓' : ''}
                                       </option>
                                     ))}
                                   </select>
@@ -2670,10 +2688,13 @@ export default function AdminPanel({
                   </div>
 
                   {/* Color Variant Cards */}
-                  {formData.colors.length > 0 ? (
+                  {Array.isArray(formData.colors) && formData.colors.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                       {formData.colors.map((c, idx) => {
+                        if (!c) return null;
                         const isLinked = Boolean(c.image);
+                        const safeHex = (typeof c.hex === 'string' && c.hex.startsWith('#')) ? c.hex : '#E5C158';
+                        const safeName = c.name || `Color ${idx + 1}`;
                         return (
                           <div
                             key={idx}
@@ -2689,7 +2710,7 @@ export default function AdminPanel({
                                 <div className="relative shrink-0">
                                   <input
                                     type="color"
-                                    value={c.hex}
+                                    value={safeHex}
                                     onChange={(e) => {
                                       const val = e.target.value;
                                       setFormData(prev => ({
@@ -2705,7 +2726,7 @@ export default function AdminPanel({
                                 <div className="flex-1 min-w-0">
                                   <input
                                     type="text"
-                                    value={c.name}
+                                    value={safeName}
                                     onChange={(e) => {
                                       const val = e.target.value;
                                       setFormData(prev => ({
@@ -2716,7 +2737,7 @@ export default function AdminPanel({
                                     className="text-xs font-display font-extrabold text-neutral-800 dark:text-neutral-100 px-2 py-1 rounded-lg border border-pink-100 dark:border-neutral-700 bg-pink-50/40 dark:bg-neutral-800/60 focus:bg-white dark:focus:bg-neutral-900 focus:border-pink-400 focus:outline-none w-full"
                                     placeholder="Color Name (e.g. Yellow, Pink)"
                                   />
-                                  <div className="text-[10px] font-mono text-neutral-400 px-1 mt-0.5">{c.hex}</div>
+                                  <div className="text-[10px] font-mono text-neutral-400 px-1 mt-0.5">{safeHex}</div>
                                 </div>
                               </div>
 
@@ -2735,7 +2756,7 @@ export default function AdminPanel({
                               <div className="flex items-center justify-between">
                                 <span className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
                                   <Images className="w-3.5 h-3.5 text-[#E60067]" />
-                                  <span>Image for {c.name}:</span>
+                                  <span>Image for {safeName}:</span>
                                 </span>
 
                                 {isLinked ? (
@@ -2756,7 +2777,7 @@ export default function AdminPanel({
                                   <div className="relative w-14 h-16 rounded-xl overflow-hidden border-2 border-emerald-500 shrink-0 bg-neutral-100 shadow-xs">
                                     <img
                                       src={c.image}
-                                      alt={c.name}
+                                      alt={safeName}
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
                                         e.currentTarget.onerror = null;
@@ -2767,7 +2788,7 @@ export default function AdminPanel({
 
                                   <div className="flex-1 min-w-0 space-y-1.5">
                                     <div className="text-[10px] text-neutral-500 font-mono truncate" title={c.image}>
-                                      {c.image.split('/').pop()}
+                                      {c.image ? String(c.image).split('/').pop() : ''}
                                     </div>
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                       <button
@@ -2794,7 +2815,7 @@ export default function AdminPanel({
                                   {formData.images.length > 0 && (
                                     <div>
                                       <span className="text-[10px] text-neutral-500 font-semibold block mb-1">
-                                        Tap a gallery photo below to link to {c.name}:
+                                        Tap a gallery photo below to link to {safeName}:
                                       </span>
                                       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                                         {formData.images.map((gImg, gIdx) => (
@@ -2803,7 +2824,7 @@ export default function AdminPanel({
                                             type="button"
                                             onClick={() => handleSetColorImage(idx, gImg)}
                                             className="relative w-11 h-13 rounded-lg overflow-hidden border-2 border-pink-200 hover:border-[#E60067] hover:scale-105 transition-all shrink-0 bg-neutral-100 shadow-xs cursor-pointer group"
-                                            title={`Link this image to ${c.name}`}
+                                            title={`Link this image to ${safeName}`}
                                           >
                                             <img src={gImg} alt="Gallery" className="w-full h-full object-cover" />
                                             <span className="absolute inset-0 bg-[#E60067]/0 group-hover:bg-[#E60067]/30 flex items-center justify-center transition">
@@ -2822,7 +2843,7 @@ export default function AdminPanel({
                                       className="px-2.5 py-1.5 rounded-xl bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 border border-pink-300 dark:border-pink-800 text-[10px] font-extrabold flex items-center gap-1 hover:bg-pink-200 dark:hover:bg-pink-900 transition shadow-xs cursor-pointer"
                                     >
                                       <Upload className="w-3 h-3" />
-                                      <span>Upload Photo for {c.name}</span>
+                                      <span>Upload Photo for {safeName}</span>
                                     </button>
                                   </div>
                                 </div>
