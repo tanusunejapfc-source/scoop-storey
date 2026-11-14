@@ -89,7 +89,7 @@ export default function GlobalSearchModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-10 flex items-start justify-center animate-fadeIn">
+    <div className="fixed inset-0 z-50 overflow-y-auto p-2 sm:p-6 md:p-10 flex items-start justify-center animate-fadeIn">
       {/* Backdrop */}
       <div 
         onClick={onClose}
@@ -97,7 +97,7 @@ export default function GlobalSearchModal({
       />
 
       {/* Search Modal Box */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-[#1E172E] rounded-3xl shadow-2xl border-2 border-pink-200 dark:border-pink-900/60 overflow-hidden z-10 my-4 sm:my-8 animate-scaleUp">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#1E172E] rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-pink-200 dark:border-pink-900/60 overflow-hidden z-10 my-2 sm:my-8 animate-scaleUp">
         
         {/* Search Header Input */}
         <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/40 bg-gradient-to-r from-pink-50/50 via-white to-purple-50/50 dark:from-[#251A38] dark:to-[#1E172E]">

@@ -377,11 +377,11 @@ export default function Navbar({
 
           {/* Slide-in Panel from Right */}
           <aside 
-            className="absolute inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10 focus:outline-none"
+            className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 focus:outline-none"
             role="dialog"
             aria-label="Navigation & Store Controls"
           >
-            <div className="w-[320px] sm:w-[380px] max-w-full bg-white dark:bg-[#1A1326] shadow-2xl flex flex-col border-l-2 border-pink-200 dark:border-pink-900/60 relative animate-slide-left h-full">
+            <div className="w-full sm:w-[380px] max-w-[88vw] sm:max-w-full bg-white dark:bg-[#1A1326] shadow-2xl flex flex-col border-l-2 border-pink-200 dark:border-pink-900/60 relative animate-slide-left h-full">
               
               {/* Drawer Header */}
               <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/40 flex items-center justify-between bg-gradient-to-r from-pink-50/70 via-white to-pink-50/30 dark:from-[#231733] dark:to-[#1A1326]">

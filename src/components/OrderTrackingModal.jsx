@@ -99,9 +99,12 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
   const currentStep = matchedOrder ? getStepIndex(matchedOrder.status) : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md animate-fadeIn"
+    >
       <div 
-        className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl bg-white dark:bg-[#1A1326] border-2 border-pink-200 dark:border-pink-900/60 shadow-2xl overflow-hidden animate-scaleUp"
+        className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[92vh] flex flex-col rounded-none sm:rounded-3xl bg-white dark:bg-[#1A1326] border-0 sm:border-2 border-pink-200 dark:border-pink-900/60 shadow-2xl overflow-hidden animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}

@@ -1307,11 +1307,14 @@ export default function AdminPanel({
   const pendingOrdersCount = orders.filter(o => o.status?.includes('Pending') || o.status?.includes('New')).length;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 md:p-8 animate-fadeIn">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 md:p-6 lg:p-8 animate-fadeIn"
+    >
       {/* Modal Container */}
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-[#1E172E] rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-hidden shadow-2xl border-2 border-pink-300 dark:border-pink-800 flex flex-col animate-scaleUp text-[#231733] dark:text-white"
+        className="relative bg-white dark:bg-[#1E172E] rounded-none sm:rounded-3xl max-w-5xl w-full h-full sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-2xl border-0 sm:border-2 border-pink-300 dark:border-pink-800 flex flex-col animate-scaleUp text-[#231733] dark:text-white"
       >
         {/* Toast Alert */}
         {toastMessage && (

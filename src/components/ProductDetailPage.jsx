@@ -275,24 +275,35 @@ export default function ProductDetailPage({
   const totalPrice = product.priceINR * quantity;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 md:p-8 animate-fadeIn">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 overflow-y-auto sm:overflow-hidden bg-black/75 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 md:p-6 lg:p-8 animate-fadeIn"
+    >
       {/* Modal Card */}
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-[#1E172E] rounded-3xl max-w-4xl w-full max-h-[94vh] overflow-y-auto shadow-2xl border-2 border-pink-200 dark:border-pink-900/60 flex flex-col animate-scaleUp"
+        className="relative bg-white dark:bg-[#1E172E] rounded-none sm:rounded-3xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[92vh] md:max-h-[94vh] overflow-y-auto shadow-2xl border-0 sm:border-2 border-pink-200 dark:border-pink-900/60 flex flex-col animate-scaleUp"
       >
         {/* Top Header Actions */}
-        <div className="sticky top-0 z-20 flex items-center justify-between p-4 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-b border-pink-100 dark:border-pink-900/40">
-          <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-            <span>Shop</span>
-            <span>/</span>
-            <span className="text-[#E60067] dark:text-pink-400 font-bold">{product.category}</span>
+        <div className="sticky top-0 z-20 flex items-center justify-between px-3.5 py-3 sm:p-4 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-b border-pink-100 dark:border-pink-900/40">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 min-w-0">
+            <button
+              onClick={onClose}
+              type="button"
+              className="sm:hidden -ml-1 mr-1 p-1.5 rounded-xl bg-pink-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-pink-100 dark:hover:bg-neutral-700 transition cursor-pointer"
+              aria-label="Back to store"
+            >
+              <ChevronLeft className="w-4 h-4 text-[#E60067]" />
+            </button>
+            <span className="hidden xs:inline">Shop</span>
+            <span className="hidden xs:inline">/</span>
+            <span className="text-[#E60067] dark:text-pink-400 font-bold truncate max-w-[140px] sm:max-w-none">{product.category}</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition text-xs flex items-center gap-1.5"
+              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition text-xs flex items-center gap-1.5 cursor-pointer"
               title="Share Link"
             >
               <Share2 className="w-4 h-4" />
@@ -300,7 +311,7 @@ export default function ProductDetailPage({
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 transition"
+              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 transition cursor-pointer"
               aria-label="Close Product Page"
             >
               <X className="w-5 h-5" />
@@ -309,7 +320,7 @@ export default function ProductDetailPage({
         </div>
 
         {/* Content Body: 2 Columns on Desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-4 sm:p-6 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 p-3.5 sm:p-6 md:p-8 flex-1">
           
           {/* LEFT: Image Gallery (5 cols) */}
           <div className="md:col-span-6 space-y-4">
@@ -517,20 +528,20 @@ export default function ProductDetailPage({
 
               {/* QUANTITY & ACTIONS */}
               <div className="mt-5 space-y-3">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3">
                   {/* Quantity Counter */}
-                  <div className="flex items-center rounded-2xl bg-pink-100/70 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 p-1">
+                  <div className="flex items-center rounded-2xl bg-pink-100/70 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 p-1 shrink-0">
                     <button
                       onClick={() => {
                         setQuantity(Math.max(1, quantity - 1));
                         soundFX.playPop(420);
                       }}
-                      className="w-8 h-8 rounded-xl bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white shadow-xs hover:bg-pink-50 transition"
+                      className="w-8 h-8 rounded-xl bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white shadow-xs hover:bg-pink-50 transition cursor-pointer"
                       aria-label="Decrease quantity"
                     >
                       -
                     </button>
-                    <span className="w-10 text-center font-display font-extrabold text-sm text-neutral-900 dark:text-white">
+                    <span className="w-8 sm:w-10 text-center font-display font-extrabold text-sm text-neutral-900 dark:text-white">
                       {quantity}
                     </span>
                     <button
@@ -538,7 +549,7 @@ export default function ProductDetailPage({
                         setQuantity(quantity + 1);
                         soundFX.playPop(520);
                       }}
-                      className="w-8 h-8 rounded-xl bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white shadow-xs hover:bg-pink-50 transition"
+                      className="w-8 h-8 rounded-xl bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white shadow-xs hover:bg-pink-50 transition cursor-pointer"
                       aria-label="Increase quantity"
                     >
                       +
@@ -548,7 +559,7 @@ export default function ProductDetailPage({
                   {/* Add to Bag Primary Button */}
                   <button
                     onClick={handleAdd}
-                    className={`flex-1 py-3 px-5 rounded-2xl font-display font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg ${
+                    className={`flex-1 py-3 px-3 sm:px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wide transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg cursor-pointer ${
                       justAdded
                         ? 'bg-emerald-600 text-white'
                         : 'btn-3d-pink text-white'
@@ -556,13 +567,13 @@ export default function ProductDetailPage({
                   >
                     {justAdded ? (
                       <>
-                        <Check className="w-4 h-4 text-white" />
-                        <span>Added to Bag! (₹{totalPrice})</span>
+                        <Check className="w-4 h-4 text-white shrink-0" />
+                        <span className="truncate">Added to Bag! (₹{totalPrice})</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="w-4 h-4 text-white" />
-                        <span>Add to Bag • ₹{totalPrice}</span>
+                        <ShoppingBag className="w-4 h-4 text-white shrink-0" />
+                        <span className="truncate">Add to Bag • ₹{totalPrice}</span>
                       </>
                     )}
                   </button>
@@ -792,6 +803,56 @@ export default function ProductDetailPage({
               Every parcel is hand-packed by Bhaskar with love & surprises 🎀
             </div>
           </div>
+        </div>
+
+        {/* Mobile Sticky Quick Add to Bag Bottom Bar */}
+        <div className="sm:hidden sticky bottom-0 z-20 px-4 py-2.5 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-t border-pink-200 dark:border-pink-900/60 shadow-[0_-8px_20px_rgba(0,0,0,0.08)] flex items-center gap-2.5">
+          <div className="flex items-center rounded-xl bg-pink-100/70 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 p-0.5 shrink-0">
+            <button
+              onClick={() => {
+                setQuantity(Math.max(1, quantity - 1));
+                soundFX.playPop(420);
+              }}
+              className="w-7 h-7 rounded-lg bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white text-xs shadow-xs"
+              aria-label="Decrease quantity"
+            >
+              -
+            </button>
+            <span className="w-7 text-center font-display font-extrabold text-xs text-neutral-900 dark:text-white">
+              {quantity}
+            </span>
+            <button
+              onClick={() => {
+                setQuantity(quantity + 1);
+                soundFX.playPop(520);
+              }}
+              className="w-7 h-7 rounded-lg bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white text-xs shadow-xs"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            onClick={handleAdd}
+            className={`flex-1 py-2.5 px-4 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer ${
+              justAdded
+                ? 'bg-emerald-600 text-white'
+                : 'btn-3d-pink text-white'
+            }`}
+          >
+            {justAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                <span className="truncate">Added to Bag! (₹{totalPrice})</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5 text-white shrink-0" />
+                <span className="truncate">Add to Bag • ₹{totalPrice}</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
