@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   X, 
   ShoppingBag, 
@@ -238,6 +238,83 @@ export default function ProductDetailPage({
     handleSelectImageIndex(nextIdx);
   };
 
+  // Touch & Finger Swipe for Image Carousel
+  const [touchDelta, setTouchDelta] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const touchStartRef = useRef({ x: 0, y: 0, isHorizontal: null });
+
+  const handleTouchStart = (e) => {
+    if (images.length <= 1) return;
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      isHorizontal: null
+    };
+    setIsSwiping(true);
+    setTouchDelta(0);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isSwiping || images.length <= 1) return;
+    const touch = e.touches[0];
+    const diffX = touch.clientX - touchStartRef.current.x;
+    const diffY = touch.clientY - touchStartRef.current.y;
+
+    if (touchStartRef.current.isHorizontal === null) {
+      if (Math.abs(diffX) >= 8 || Math.abs(diffY) >= 8) {
+        touchStartRef.current.isHorizontal = Math.abs(diffX) > Math.abs(diffY);
+      }
+    }
+
+    if (touchStartRef.current.isHorizontal) {
+      const maxDrag = 130;
+      const clamped = Math.max(-maxDrag, Math.min(maxDrag, diffX));
+      setTouchDelta(clamped);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwiping) return;
+    setIsSwiping(false);
+    const threshold = 35;
+
+    if (touchStartRef.current.isHorizontal) {
+      if (touchDelta < -threshold) {
+        handleNextImage();
+      } else if (touchDelta > threshold) {
+        handlePrevImage();
+      }
+    }
+
+    setTouchDelta(0);
+    touchStartRef.current.isHorizontal = null;
+  };
+
+  const handleMouseDown = (e) => {
+    if (images.length <= 1) return;
+    touchStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      isHorizontal: true
+    };
+    setIsSwiping(true);
+    setTouchDelta(0);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isSwiping || images.length <= 1 || !touchStartRef.current.isHorizontal) return;
+    const diffX = e.clientX - touchStartRef.current.x;
+    const maxDrag = 130;
+    const clamped = Math.max(-maxDrag, Math.min(maxDrag, diffX));
+    setTouchDelta(clamped);
+  };
+
+  const handleMouseUp = () => {
+    if (!isSwiping) return;
+    handleTouchEnd();
+  };
+
   const handleSelectColor = (color) => {
     soundFX.playPop(600);
     setSelectedColor(color);
@@ -324,20 +401,39 @@ export default function ProductDetailPage({
           
           {/* LEFT: Image Gallery (5 cols) */}
           <div className="md:col-span-6 space-y-4">
-            {/* Main Image Stage (4:5 Standard E-Commerce Ratio) */}
-            <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/50 shadow-sm group">
-              <img
-                src={currentImage}
-                alt={`${product.name} - ${activeImageIndex + 1}`}
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+            {/* Main Image Stage (4:5 Standard E-Commerce Ratio) with Touch Swipe Support */}
+            <div 
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/50 shadow-sm group select-none touch-pan-y cursor-grab active:cursor-grabbing"
+            >
+              <div 
+                className="w-full h-full"
+                style={{
+                  transform: `translateX(${touchDelta}px)`,
+                  transition: isSwiping ? 'none' : 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+              >
+                <img
+                  src={currentImage}
+                  alt={`${product.name} - ${activeImageIndex + 1}`}
+                  draggable={false}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                  }}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
+                />
+              </div>
 
               {/* Badge */}
-              <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800">
+              <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
                 {product.badge || 'Kawaii Favorite ✨'}
               </span>
 
@@ -345,15 +441,21 @@ export default function ProductDetailPage({
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={handlePrevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 text-neutral-700 dark:text-white shadow-md hover:bg-pink-100 dark:hover:bg-neutral-800 transition"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 text-neutral-700 dark:text-white shadow-md hover:bg-pink-100 dark:hover:bg-neutral-800 transition z-10 cursor-pointer"
                     aria-label="Previous image"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={handleNextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 text-neutral-700 dark:text-white shadow-md hover:bg-pink-100 dark:hover:bg-neutral-800 transition"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 dark:bg-neutral-900/90 text-neutral-700 dark:text-white shadow-md hover:bg-pink-100 dark:hover:bg-neutral-800 transition z-10 cursor-pointer"
                     aria-label="Next image"
                   >
                     <ChevronRight className="w-4 h-4" />
@@ -361,21 +463,37 @@ export default function ProductDetailPage({
                 </>
               )}
 
+              {/* Slide Dots Indicator */}
+              {images.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md pointer-events-none">
+                  {images.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`transition-all rounded-full ${
+                        i === activeImageIndex 
+                          ? 'w-4 h-1.5 bg-[#E60067]' 
+                          : 'w-1.5 h-1.5 bg-white/60'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+
               {/* Image Counter Pill */}
-              <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[11px] font-bold text-white">
+              <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[11px] font-bold text-white z-10 pointer-events-none">
                 {activeImageIndex + 1} / {images.length}
               </div>
 
               {/* Reel Tag */}
-              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs">
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs z-10 pointer-events-none">
                 <Video className="w-3 h-3 text-pink-400" />
                 <span>IG Reel Packing</span>
               </div>
             </div>
 
-            {/* Thumbnail Strip */}
+            {/* Thumbnail Strip (Color Variants & Gallery) */}
             {images.length > 1 && (
-              <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
+              <div className="flex items-center gap-3 overflow-x-auto py-2.5 px-2 scrollbar-none">
                 {images.map((img, idx) => {
                   const isSelected = activeImageIndex === idx;
                   const matchedColor = colors.find(c => c.image === img);
@@ -384,28 +502,30 @@ export default function ProductDetailPage({
                       key={idx}
                       type="button"
                       onClick={() => handleSelectImageIndex(idx)}
-                      className={`relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-neutral-100 dark:bg-neutral-800 cursor-pointer ${
+                      className={`relative w-16 h-20 rounded-xl p-0.5 shrink-0 transition-all bg-white dark:bg-neutral-800 cursor-pointer ${
                         isSelected
-                          ? 'border-[#E60067] ring-2 ring-pink-400/40 scale-105 shadow-md'
-                          : 'border-pink-200 dark:border-neutral-700 opacity-70 hover:opacity-100'
+                          ? 'ring-2 ring-[#E60067] shadow-lg shadow-pink-500/25'
+                          : 'ring-1 ring-pink-200/80 dark:ring-neutral-700 opacity-75 hover:opacity-100 hover:ring-pink-400'
                       }`}
                     >
-                      <img
-                        src={img}
-                        alt={`Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
-                        }}
-                      />
-                      {matchedColor && (
-                        <span 
-                          className="absolute bottom-1 right-1 w-3 h-3 rounded-full border border-white shadow-xs"
-                          style={{ backgroundColor: matchedColor.hex }}
-                          title={`Color: ${matchedColor.name}`}
+                      <div className="w-full h-full rounded-[10px] overflow-hidden bg-neutral-100 dark:bg-neutral-800 relative">
+                        <img
+                          src={img}
+                          alt={`Thumbnail ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
                         />
-                      )}
+                        {matchedColor && (
+                          <span 
+                            className="absolute bottom-1 right-1 w-3 h-3 rounded-full border border-white shadow-xs"
+                            style={{ backgroundColor: matchedColor.hex }}
+                            title={`Color: ${matchedColor.name}`}
+                          />
+                        )}
+                      </div>
                     </button>
                   );
                 })}
@@ -474,7 +594,7 @@ export default function ProductDetailPage({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap">
+                <div className="flex items-center gap-2.5 flex-wrap p-1">
                   {colors.map((c, i) => {
                     const isSelected = (selectedColor?.name || colors[0]?.name) === c.name;
                     const colorTargetIdx = findImageIndexForColor(c);
@@ -486,7 +606,7 @@ export default function ProductDetailPage({
                         onClick={() => handleSelectColor(c)}
                         className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-[#E60067] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30 scale-[1.02]'
+                            ? 'border-[#E60067] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30'
                             : 'border-pink-200 dark:border-neutral-700 bg-white/70 dark:bg-neutral-900/60 hover:border-pink-300'
                         }`}
                       >
