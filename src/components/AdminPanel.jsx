@@ -83,6 +83,8 @@ const PRESET_COLORS = [
   { name: '18K Yellow Gold', hex: '#E5C158' },
   { name: 'Rose Gold', hex: '#E0A899' },
   { name: 'Silver Shimmer', hex: '#D8D8D8' },
+  { name: 'Baby Pink', hex: '#FFCAD4' },
+  { name: 'Yellow', hex: '#FACC15' },
   { name: 'Blush Pink', hex: '#FFB6C1' },
   { name: 'Ivory White', hex: '#FFFDD0' },
   { name: 'Lavender Mist', hex: '#E6E6FA' },
@@ -426,6 +428,7 @@ export default function AdminPanel({
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newColorName, setNewColorName] = useState('');
   const [newColorHex, setNewColorHex] = useState('#E5C158');
+  const [newColorImage, setNewColorImage] = useState('');
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecVal, setNewSpecVal] = useState('');
   const [newIncludeText, setNewIncludeText] = useState('');
@@ -435,6 +438,8 @@ export default function AdminPanel({
   const [paymentForm, setPaymentForm] = useState(paymentSettings);
   const qrFileInputRef = useRef(null);
   const productFileInputRef = useRef(null);
+  const colorFileInputRef = useRef(null);
+  const [uploadingColorIdx, setUploadingColorIdx] = useState(null);
 
   // Category Store & Management
   const [categoryList, setCategoryList] = useState(getStoredCategories);
@@ -746,7 +751,11 @@ export default function AdminPanel({
       description: prod.description || '',
       image: prod.image || (prod.images?.[0] || ''),
       images: prod.images ? [...prod.images] : [prod.image],
-      colors: prod.colors ? [...prod.colors] : [{ name: 'Standard', hex: '#E5C158' }],
+      colors: prod.colors ? prod.colors.map(c => ({
+        name: c.name || 'Standard',
+        hex: c.hex || '#E5C158',
+        image: c.image || null
+      })) : [{ name: 'Standard', hex: '#E5C158', image: null }],
       specifications: prod.specifications ? { ...prod.specifications } : {},
       includes: prod.includes ? [...prod.includes] : [],
       inStock: prod.inStock !== false
@@ -767,8 +776,8 @@ export default function AdminPanel({
       image: '/images/pendants.jpg',
       images: ['/images/pendants.jpg', '/images/asmr-packing.jpg'],
       colors: [
-        { name: '18K Yellow Gold', hex: '#E5C158' },
-        { name: 'Rose Gold', hex: '#E0A899' }
+        { name: '18K Yellow Gold', hex: '#E5C158', image: null },
+        { name: 'Rose Gold', hex: '#E0A899', image: null }
       ],
       specifications: {
         'Material': 'Anti-Tarnish Alloy',
@@ -907,19 +916,27 @@ export default function AdminPanel({
     showToast('Primary thumbnail updated!');
   };
 
-  // Color actions
-  const handleAddColor = (name, hex) => {
+  // Color actions with image variant support
+  const handleAddColor = (name, hex, image) => {
     const colName = (name || newColorName).trim();
     const colHex = hex || newColorHex;
+    const colImg = image !== undefined ? image : (newColorImage || null);
     if (!colName) {
       showToast('Please enter a color name');
       return;
     }
-    setFormData(prev => ({
-      ...prev,
-      colors: [...prev.colors, { name: colName, hex: colHex }]
-    }));
+    setFormData(prev => {
+      const nextColors = [...prev.colors, { name: colName, hex: colHex, image: colImg || null }];
+      const prevImages = Array.isArray(prev.images) ? prev.images : [];
+      const nextImages = (colImg && !prevImages.includes(colImg)) ? [...prevImages, colImg] : prevImages;
+      return {
+        ...prev,
+        colors: nextColors,
+        images: nextImages
+      };
+    });
     setNewColorName('');
+    setNewColorImage('');
     soundFX.playPop(600);
     showToast(`Color "${colName}" added!`);
   };
@@ -930,6 +947,97 @@ export default function AdminPanel({
       colors: prev.colors.filter((_, i) => i !== index)
     }));
     soundFX.playPop(400);
+  };
+
+  const handleSetColorImage = (colorIdx, imgUrl) => {
+    setFormData(prev => {
+      const nextColors = prev.colors.map((c, i) => i === colorIdx ? { ...c, image: imgUrl || null } : c);
+      const prevImages = Array.isArray(prev.images) ? prev.images : [];
+      const nextImages = (imgUrl && !prevImages.includes(imgUrl)) ? [...prevImages, imgUrl] : prevImages;
+      return {
+        ...prev,
+        colors: nextColors,
+        images: nextImages
+      };
+    });
+    soundFX.playPop(550);
+    showToast(imgUrl ? 'Image linked to color!' : 'Color image unlinked');
+  };
+
+  const handleTriggerColorUpload = (idx) => {
+    setUploadingColorIdx(idx);
+    colorFileInputRef.current?.click();
+  };
+
+  const handleColorFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || uploadingColorIdx === null) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file');
+      return;
+    }
+
+    try {
+      showToast('Uploading color photo...');
+      const compressedDataUrl = await compressImage(file, 800, 1000, 0.85);
+      if (!compressedDataUrl) return;
+
+      let finalUrl = compressedDataUrl;
+      try {
+        const sbRes = await uploadImageToSupabase(file);
+        if (sbRes?.success && sbRes?.url) {
+          finalUrl = sbRes.url;
+        }
+      } catch (err) {
+        console.warn('Supabase upload skipped:', err);
+      }
+
+      if (finalUrl === compressedDataUrl) {
+        try {
+          const res = await fetch('/api/dev/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: `${file.name.replace(/\.[^/.]+$/, '')}-${formData.colors[uploadingColorIdx]?.name || 'color'}`,
+              dataUrl: compressedDataUrl
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.url) finalUrl = data.url;
+          }
+        } catch {}
+      }
+
+      handleSetColorImage(uploadingColorIdx, finalUrl);
+      showToast(`Photo uploaded for "${formData.colors[uploadingColorIdx]?.name}"! ✨`);
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to upload image');
+    } finally {
+      setUploadingColorIdx(null);
+    }
+  };
+
+  const handleAssignImageToColor = (imgUrl, colorName) => {
+    setFormData(prev => {
+      const nextColors = prev.colors.map(c => {
+        if (colorName && c.name === colorName) {
+          return { ...c, image: imgUrl };
+        }
+        if (!colorName && c.image === imgUrl) {
+          return { ...c, image: null };
+        }
+        return c;
+      });
+      return {
+        ...prev,
+        colors: nextColors
+      };
+    });
+    soundFX.playPop(500);
+    showToast(colorName ? `Assigned to "${colorName}"!` : 'Unassigned from color');
   };
 
   // Specification actions
@@ -997,7 +1105,12 @@ export default function AdminPanel({
       ...formData,
       priceINR: Number(formData.priceINR) || 199,
       image: primaryImage,
-      images: allImages
+      images: allImages,
+      colors: formData.colors.map(c => ({
+        name: c.name,
+        hex: c.hex,
+        image: c.image || null
+      }))
     };
 
     if (activeTab === 'edit') {
@@ -2385,6 +2498,20 @@ export default function AdminPanel({
                                   Primary
                                 </span>
                               )}
+
+                              {/* Color Variant Badge if linked */}
+                              {formData.colors.find(c => c.image === img) && (
+                                <span 
+                                  className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-white text-[9px] font-black uppercase shadow-xs flex items-center gap-1 backdrop-blur-md bg-black/70"
+                                  title={`Linked to ${formData.colors.find(c => c.image === img)?.name}`}
+                                >
+                                  <span 
+                                    className="w-2 h-2 rounded-full border border-white"
+                                    style={{ backgroundColor: formData.colors.find(c => c.image === img)?.hex }}
+                                  />
+                                  <span>{formData.colors.find(c => c.image === img)?.name}</span>
+                                </span>
+                              )}
                             </div>
 
                             {/* Mobile-friendly action buttons */}
@@ -2413,6 +2540,28 @@ export default function AdminPanel({
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
+
+                            {/* Color Selector for this Photo */}
+                            {formData.colors.length > 0 && (
+                              <div className="mt-1.5 pt-1 border-t border-pink-100/70 dark:border-neutral-800">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[9px] font-bold text-neutral-400">Color:</span>
+                                  <select
+                                    value={formData.colors.find(c => c.image === img)?.name || ''}
+                                    onChange={(e) => handleAssignImageToColor(img, e.target.value)}
+                                    className="text-[10px] py-0.5 px-1 rounded-md bg-pink-50/80 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 font-bold text-[#E60067] dark:text-pink-300 w-full focus:outline-none focus:ring-1 focus:ring-pink-400 cursor-pointer"
+                                    title="Link this photo to a color variant"
+                                  >
+                                    <option value="">(None / General)</option>
+                                    {formData.colors.map((c, cIdx) => (
+                                      <option key={cIdx} value={c.name}>
+                                        {c.name} {c.image === img ? '✓' : ''}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -2499,50 +2648,207 @@ export default function AdminPanel({
                   </div>
                 </div>
 
-                {/* 3. COLOR / VARIANT MANAGER */}
+                {/* Hidden Native File Input for Color Variant Photo Upload */}
+                <input
+                  type="file"
+                  ref={colorFileInputRef}
+                  accept="image/*"
+                  onChange={handleColorFileUpload}
+                  className="hidden"
+                />
+
+                {/* 3. COLOR / VARIANT MANAGER WITH PHOTO LINKING */}
                 <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/40 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <div className="flex items-center gap-2 font-display font-extrabold text-sm text-[#E60067] dark:text-pink-400">
                       <Palette className="w-4 h-4" />
-                      <span>Color / Finish Variants ({formData.colors.length})</span>
+                      <span>Color / Finish Variants & Photos ({formData.colors.length})</span>
                     </div>
-                    <span className="text-[11px] text-neutral-500">Customer can pick from these colors</span>
+                    <span className="text-[11px] text-neutral-500 font-medium">
+                      Link specific product photos to each color variant (e.g. Yellow, Pink)
+                    </span>
                   </div>
 
-                  {/* Active Colors Chips */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {formData.colors.map((c, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-pink-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xs"
-                      >
-                        <span
-                          className="w-4 h-4 rounded-full border border-black/20 shadow-xs"
-                          style={{ backgroundColor: c.hex }}
-                        />
-                        <span className="text-xs font-bold">{c.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveColor(idx)}
-                          className="p-0.5 hover:text-rose-500 transition"
-                          title="Remove color"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Color Variant Cards */}
+                  {formData.colors.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {formData.colors.map((c, idx) => {
+                        const isLinked = Boolean(c.image);
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-3.5 rounded-2xl border-2 transition-all bg-white dark:bg-neutral-900 shadow-xs space-y-3 ${
+                              isLinked 
+                                ? 'border-pink-300 dark:border-pink-800' 
+                                : 'border-neutral-200 dark:border-neutral-700'
+                            }`}
+                          >
+                            {/* Top: Swatch, Name, Hex & Delete */}
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                                <div className="relative shrink-0">
+                                  <input
+                                    type="color"
+                                    value={c.hex}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        colors: prev.colors.map((col, i) => i === idx ? { ...col, hex: val } : col)
+                                      }));
+                                    }}
+                                    className="w-8 h-8 rounded-xl cursor-pointer border border-black/15 p-0 bg-transparent shadow-xs"
+                                    title="Click to adjust color hex"
+                                  />
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <input
+                                    type="text"
+                                    value={c.name}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        colors: prev.colors.map((col, i) => i === idx ? { ...col, name: val } : col)
+                                      }));
+                                    }}
+                                    className="text-xs font-display font-extrabold text-neutral-800 dark:text-neutral-100 px-2 py-1 rounded-lg border border-pink-100 dark:border-neutral-700 bg-pink-50/40 dark:bg-neutral-800/60 focus:bg-white dark:focus:bg-neutral-900 focus:border-pink-400 focus:outline-none w-full"
+                                    placeholder="Color Name (e.g. Yellow, Pink)"
+                                  />
+                                  <div className="text-[10px] font-mono text-neutral-400 px-1 mt-0.5">{c.hex}</div>
+                                </div>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveColor(idx)}
+                                className="p-1.5 rounded-xl text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shrink-0 cursor-pointer"
+                                title="Delete this color"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            {/* Color Photo Mapping Section */}
+                            <div className="p-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700/60 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                                  <Images className="w-3.5 h-3.5 text-[#E60067]" />
+                                  <span>Image for {c.name}:</span>
+                                </span>
+
+                                {isLinked ? (
+                                  <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[10px] font-black flex items-center gap-1">
+                                    <Check className="w-3 h-3" />
+                                    <span>Photo Linked</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
+                                    No photo linked
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* If an image is linked to this color */}
+                              {isLinked ? (
+                                <div className="flex items-center gap-3">
+                                  <div className="relative w-14 h-16 rounded-xl overflow-hidden border-2 border-emerald-500 shrink-0 bg-neutral-100 shadow-xs">
+                                    <img
+                                      src={c.image}
+                                      alt={c.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className="flex-1 min-w-0 space-y-1.5">
+                                    <div className="text-[10px] text-neutral-500 font-mono truncate" title={c.image}>
+                                      {c.image.split('/').pop()}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleTriggerColorUpload(idx)}
+                                        className="px-2 py-1 rounded-lg bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-[10px] font-bold hover:bg-pink-50 dark:hover:bg-neutral-800 transition flex items-center gap-1 cursor-pointer"
+                                      >
+                                        <Upload className="w-3 h-3 text-[#E60067]" />
+                                        <span>Replace</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSetColorImage(idx, null)}
+                                        className="px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-[10px] font-bold transition cursor-pointer"
+                                      >
+                                        Unlink
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                /* If no image linked yet */
+                                <div className="space-y-2">
+                                  {formData.images.length > 0 && (
+                                    <div>
+                                      <span className="text-[10px] text-neutral-500 font-semibold block mb-1">
+                                        Tap a gallery photo below to link to {c.name}:
+                                      </span>
+                                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                                        {formData.images.map((gImg, gIdx) => (
+                                          <button
+                                            key={gIdx}
+                                            type="button"
+                                            onClick={() => handleSetColorImage(idx, gImg)}
+                                            className="relative w-11 h-13 rounded-lg overflow-hidden border-2 border-pink-200 hover:border-[#E60067] hover:scale-105 transition-all shrink-0 bg-neutral-100 shadow-xs cursor-pointer group"
+                                            title={`Link this image to ${c.name}`}
+                                          >
+                                            <img src={gImg} alt="Gallery" className="w-full h-full object-cover" />
+                                            <span className="absolute inset-0 bg-[#E60067]/0 group-hover:bg-[#E60067]/30 flex items-center justify-center transition">
+                                              <Plus className="w-3 h-3 text-white opacity-0 group-hover:opacity-100 drop-shadow" />
+                                            </span>
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  <div className="flex items-center gap-2 pt-0.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleTriggerColorUpload(idx)}
+                                      className="px-2.5 py-1.5 rounded-xl bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 border border-pink-300 dark:border-pink-800 text-[10px] font-extrabold flex items-center gap-1 hover:bg-pink-200 dark:hover:bg-pink-900 transition shadow-xs cursor-pointer"
+                                    >
+                                      <Upload className="w-3 h-3" />
+                                      <span>Upload Photo for {c.name}</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-5 border-2 border-dashed border-pink-200 dark:border-neutral-800 rounded-2xl text-xs text-neutral-400">
+                      No color variants added yet. Add colors below (e.g. Yellow, Baby pink).
+                    </div>
+                  )}
 
                   {/* Add Color Form */}
-                  <div className="pt-2 border-t border-pink-100 dark:border-neutral-800 space-y-2">
-                    <label className="block text-[11px] font-bold">Add New Color</label>
+                  <div className="pt-3 border-t border-pink-100 dark:border-neutral-800 space-y-2">
+                    <label className="block text-[11px] font-bold">Add New Color Variant</label>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <div className="flex items-center gap-1.5 p-1 rounded-xl border border-pink-200 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                      <div className="flex items-center gap-1.5 p-1 rounded-xl border border-pink-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xs">
                         <input
                           type="color"
                           value={newColorHex}
                           onChange={(e) => setNewColorHex(e.target.value)}
                           className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent"
+                          title="Pick color"
                         />
                         <span className="text-xs font-mono pr-2">{newColorHex}</span>
                       </div>
@@ -2551,14 +2857,20 @@ export default function AdminPanel({
                         type="text"
                         value={newColorName}
                         onChange={(e) => setNewColorName(e.target.value)}
-                        placeholder="e.g. Rose Gold, 18K Gold, Silver..."
-                        className="w-48 px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddColor();
+                          }
+                        }}
+                        placeholder="e.g. Yellow, Baby pink, Silver, Mint..."
+                        className="w-52 px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
                       />
 
                       <button
                         type="button"
                         onClick={() => handleAddColor()}
-                        className="px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 transition flex items-center gap-1.5"
+                        className="px-4 py-2 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add Color</span>
@@ -2573,7 +2885,7 @@ export default function AdminPanel({
                           key={i}
                           type="button"
                           onClick={() => handleAddColor(pc.name, pc.hex)}
-                          className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-pink-50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 flex items-center gap-1 hover:border-pink-400 transition"
+                          className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-pink-50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 flex items-center gap-1 hover:border-pink-400 transition cursor-pointer"
                         >
                           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: pc.hex }} />
                           <span>+ {pc.name}</span>

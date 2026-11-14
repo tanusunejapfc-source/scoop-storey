@@ -329,8 +329,10 @@ export default function ProductCatalog({
     soundFX.playPop(650);
     soundFX.playChime();
     const defaultColor = product.colors?.[0]?.name || 'Standard';
+    const defaultImage = product.colors?.[0]?.image || product.image || product.images?.[0];
     onAddToCart({
       ...product,
+      image: defaultImage,
       selectedColor: defaultColor,
       selectedColorHex: product.colors?.[0]?.hex,
       qty: 1

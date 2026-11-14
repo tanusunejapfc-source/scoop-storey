@@ -178,7 +178,7 @@ export default function App() {
       if (existing) {
         return prev.map(item =>
           (item.cartKey || item.id) === itemKey 
-            ? { ...item, qty: item.qty + addQuantity } 
+            ? { ...item, qty: item.qty + addQuantity, image: product.image || item.image } 
             : item
         );
       }

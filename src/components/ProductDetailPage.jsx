@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   ShoppingBag, 
@@ -28,15 +28,63 @@ export default function ProductDetailPage({
   onClose,
   onAddToCart
 }) {
-  const images = (product?.images && product.images.length > 0)
+  const baseImages = (product?.images && product.images.length > 0)
     ? product.images
     : (product?.image ? [product.image] : []);
 
-  const colors = (product?.colors && product.colors.length > 0)
-    ? product.colors
-    : [{ name: 'Standard', hex: '#E5C158' }];
+  const colors = useMemo(() => {
+    return (product?.colors && product.colors.length > 0)
+      ? product.colors
+      : [{ name: 'Standard', hex: '#E5C158' }];
+  }, [product?.colors]);
 
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  // Build complete images array including any custom images linked to specific colors
+  const images = useMemo(() => {
+    const list = [...baseImages];
+    if (Array.isArray(colors)) {
+      for (const col of colors) {
+        if (col.image && !list.includes(col.image)) {
+          list.push(col.image);
+        }
+      }
+    }
+    return list.length > 0 ? list : ['/images/deluxe-giftbox.jpg'];
+  }, [baseImages, colors]);
+
+  // Helper: locate matching image index for any color variant (exact, keyword, or positional)
+  const findImageIndexForColor = (color) => {
+    if (!color) return 0;
+
+    // 1. Explicitly assigned image on color object
+    if (color.image) {
+      const idx = images.findIndex(img => img === color.image);
+      if (idx !== -1) return idx;
+    }
+
+    // 2. Keyword/Name match: check if any image URL/filename contains color name
+    const colorName = color.name?.toLowerCase().trim();
+    if (colorName && colorName !== 'standard') {
+      const foundIdx = images.findIndex(img => {
+        const lower = img.toLowerCase();
+        if (lower.includes(colorName)) return true;
+        const words = colorName.split(/[\s-_/]+/).filter(w => w.length > 2);
+        return words.some(w => lower.includes(w));
+      });
+      if (foundIdx !== -1) return foundIdx;
+    }
+
+    // 3. Positional fallback (e.g. 2nd color matches 2nd photo if image count aligns)
+    const colorIdx = colors.findIndex(c => c.name === color.name);
+    if (colorIdx !== -1 && colorIdx < images.length) {
+      return colorIdx;
+    }
+
+    return 0;
+  };
+
+  const [activeImageIndex, setActiveImageIndex] = useState(() => {
+    return findImageIndexForColor(colors[0]);
+  });
   const [selectedColor, setSelectedColor] = useState(() => colors[0]);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'includes' | 'shipping'
@@ -130,30 +178,82 @@ export default function ProductDetailPage({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [product, onClose]);
 
+  // When product changes, align selected color and gallery image
+  useEffect(() => {
+    if (!product) return;
+    const initialColor = colors[0];
+    setSelectedColor(initialColor);
+    const initialIdx = findImageIndexForColor(initialColor);
+    setActiveImageIndex(initialIdx);
+  }, [product?.id, colors]);
+
   if (!product) return null;
+
+  const handleSelectImageIndex = (idx) => {
+    setActiveImageIndex(idx);
+    soundFX.playPop(400);
+
+    const targetImg = images[idx];
+    if (!targetImg) return;
+
+    // 1. Direct match with color.image
+    const directColor = colors.find(c => c.image === targetImg);
+    if (directColor) {
+      setSelectedColor(directColor);
+      return;
+    }
+
+    // 2. Keyword match
+    const lower = targetImg.toLowerCase();
+    const keywordColor = colors.find(c => {
+      const cName = c.name?.toLowerCase().trim();
+      if (!cName || cName === 'standard') return false;
+      if (lower.includes(cName)) return true;
+      const words = cName.split(/[\s-_/]+/).filter(w => w.length > 2);
+      return words.some(w => lower.includes(w));
+    });
+    if (keywordColor) {
+      setSelectedColor(keywordColor);
+      return;
+    }
+
+    // 3. Positional fallback if no explicit images assigned to colors
+    const anyHasAssigned = colors.some(c => c.image);
+    if (!anyHasAssigned && idx < colors.length) {
+      setSelectedColor(colors[idx]);
+    }
+  };
 
   const handlePrevImage = () => {
     if (images.length <= 1) return;
     soundFX.playPop(450);
-    setActiveImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    const nextIdx = (activeImageIndex - 1 + images.length) % images.length;
+    handleSelectImageIndex(nextIdx);
   };
 
   const handleNextImage = () => {
     if (images.length <= 1) return;
     soundFX.playPop(550);
-    setActiveImageIndex((prev) => (prev + 1) % images.length);
+    const nextIdx = (activeImageIndex + 1) % images.length;
+    handleSelectImageIndex(nextIdx);
   };
 
   const handleSelectColor = (color) => {
     soundFX.playPop(600);
     setSelectedColor(color);
+    const targetIdx = findImageIndexForColor(color);
+    if (targetIdx !== -1) {
+      setActiveImageIndex(targetIdx);
+    }
   };
 
   const handleAdd = () => {
     soundFX.playPop(700);
     soundFX.playSuccess();
+    const variantImage = selectedColor?.image || images[activeImageIndex] || product.image;
     onAddToCart({
       ...product,
+      image: variantImage,
       selectedColor: selectedColor?.name || 'Standard',
       selectedColorHex: selectedColor?.hex,
       qty: quantity
@@ -265,26 +365,39 @@ export default function ProductDetailPage({
             {/* Thumbnail Strip */}
             {images.length > 1 && (
               <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
-                {images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setActiveImageIndex(idx);
-                      soundFX.playPop(400);
-                    }}
-                    className={`relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-neutral-100 dark:bg-neutral-800 ${
-                      activeImageIndex === idx
-                        ? 'border-[#E60067] ring-2 ring-pink-400/40 scale-105 shadow-md'
-                        : 'border-pink-200 dark:border-neutral-700 opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {images.map((img, idx) => {
+                  const isSelected = activeImageIndex === idx;
+                  const matchedColor = colors.find(c => c.image === img);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectImageIndex(idx)}
+                      className={`relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all bg-neutral-100 dark:bg-neutral-800 cursor-pointer ${
+                        isSelected
+                          ? 'border-[#E60067] ring-2 ring-pink-400/40 scale-105 shadow-md'
+                          : 'border-pink-200 dark:border-neutral-700 opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                        }}
+                      />
+                      {matchedColor && (
+                        <span 
+                          className="absolute bottom-1 right-1 w-3 h-3 rounded-full border border-white shadow-xs"
+                          style={{ backgroundColor: matchedColor.hex }}
+                          title={`Color: ${matchedColor.name}`}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -353,21 +466,41 @@ export default function ProductDetailPage({
                 <div className="flex items-center gap-2.5 flex-wrap">
                   {colors.map((c, i) => {
                     const isSelected = (selectedColor?.name || colors[0]?.name) === c.name;
+                    const colorTargetIdx = findImageIndexForColor(c);
+                    const colorThumb = c.image || (colorTargetIdx !== -1 ? images[colorTargetIdx] : null);
                     return (
                       <button
                         key={i}
                         type="button"
                         onClick={() => handleSelectColor(c)}
-                        className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${
+                        className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-[#E60067] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30'
+                            ? 'border-[#E60067] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30 scale-[1.02]'
                             : 'border-pink-200 dark:border-neutral-700 bg-white/70 dark:bg-neutral-900/60 hover:border-pink-300'
                         }`}
                       >
-                        <span 
-                          className="w-4 h-4 rounded-full border border-black/20 shadow-xs shrink-0" 
-                          style={{ backgroundColor: c.hex }}
-                        />
+                        {colorThumb ? (
+                          <div className="relative w-5 h-5 rounded-md overflow-hidden border border-black/15 shrink-0 bg-neutral-100">
+                            <img
+                              src={colorThumb}
+                              alt={c.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                            <span 
+                              className="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white"
+                              style={{ backgroundColor: c.hex }}
+                            />
+                          </div>
+                        ) : (
+                          <span 
+                            className="w-4 h-4 rounded-full border border-black/20 shadow-xs shrink-0" 
+                            style={{ backgroundColor: c.hex }}
+                          />
+                        )}
                         <span className={`text-xs font-bold ${
                           isSelected ? 'text-[#E60067] dark:text-pink-400' : 'text-neutral-700 dark:text-neutral-300'
                         }`}>
