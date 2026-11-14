@@ -594,7 +594,7 @@ export default function ProductDetailPage({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap p-1">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2.5 p-1">
                   {colors.map((c, i) => {
                     const isSelected = (selectedColor?.name || colors[0]?.name) === c.name;
                     const colorTargetIdx = findImageIndexForColor(c);
@@ -604,41 +604,43 @@ export default function ProductDetailPage({
                         key={i}
                         type="button"
                         onClick={() => handleSelectColor(c)}
-                        className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all cursor-pointer ${
+                        className={`group relative flex items-center justify-between gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer w-full text-left ${
                           isSelected
                             ? 'border-[#E60067] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30'
-                            : 'border-pink-200 dark:border-neutral-700 bg-white/70 dark:bg-neutral-900/60 hover:border-pink-300'
+                            : 'border-pink-200/90 dark:border-neutral-700 bg-white/70 dark:bg-neutral-900/60 hover:border-pink-300'
                         }`}
                       >
-                        {colorThumb ? (
-                          <div className="relative w-5 h-5 rounded-md overflow-hidden border border-black/15 shrink-0 bg-neutral-100">
-                            <img
-                              src={colorThumb}
-                              alt={c.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {colorThumb ? (
+                            <div className="relative w-5 h-5 rounded-md overflow-hidden border border-black/15 shrink-0 bg-neutral-100">
+                              <img
+                                src={colorThumb}
+                                alt={c.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                              <span 
+                                className="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white"
+                                style={{ backgroundColor: c.hex }}
+                              />
+                            </div>
+                          ) : (
                             <span 
-                              className="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white"
+                              className="w-4 h-4 rounded-full border border-black/20 shadow-xs shrink-0" 
                               style={{ backgroundColor: c.hex }}
                             />
-                          </div>
-                        ) : (
-                          <span 
-                            className="w-4 h-4 rounded-full border border-black/20 shadow-xs shrink-0" 
-                            style={{ backgroundColor: c.hex }}
-                          />
-                        )}
-                        <span className={`text-xs font-bold ${
-                          isSelected ? 'text-[#E60067] dark:text-pink-400' : 'text-neutral-700 dark:text-neutral-300'
-                        }`}>
-                          {c.name}
-                        </span>
+                          )}
+                          <span className={`text-xs font-bold truncate ${
+                            isSelected ? 'text-[#E60067] dark:text-pink-400' : 'text-neutral-700 dark:text-neutral-300'
+                          }`}>
+                            {c.name}
+                          </span>
+                        </div>
                         {isSelected && (
-                          <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
+                          <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0 ml-1" />
                         )}
                       </button>
                     );
@@ -648,7 +650,8 @@ export default function ProductDetailPage({
 
               {/* QUANTITY & ACTIONS */}
               <div className="mt-5 space-y-3">
-                <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* Desktop In-Flow Add to Bag Button (Hidden on Mobile, where the sticky bottom bar is used) */}
+                <div className="hidden sm:flex items-center gap-2.5 sm:gap-3">
                   {/* Quantity Counter */}
                   <div className="flex items-center rounded-2xl bg-pink-100/70 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 p-1 shrink-0">
                     <button
