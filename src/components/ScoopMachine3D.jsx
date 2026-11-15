@@ -146,43 +146,44 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     // 1. Physical Materials with Studio HDR Reflections
     const scoopBodyMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFFAEC4,
-      metalness: 0.68,
-      roughness: 0.14,
+      color: 0xDE3C74, // Rich vibrant luxury rose gold
+      metalness: 0.82,
+      roughness: 0.16,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
+      clearcoatRoughness: 0.05,
       reflectivity: 0.95,
-      sheen: 0.6,
-      sheenColor: 0xFFD6E7,
+      sheen: 0.9,
+      sheenColor: 0xFF80AB,
       side: THREE.DoubleSide
     });
 
     const goldTrimMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFFCC33,
-      metalness: 0.85,
+      color: 0xF59E0B, // Genuine 24K Gold
+      metalness: 0.92,
       roughness: 0.12,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
+      clearcoatRoughness: 0.03,
       reflectivity: 0.95
     });
 
     const handleMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFFD8E6,
-      metalness: 0.25,
-      roughness: 0.15,
+      color: 0xCC2B62, // Deep pearlescent rose lacquer
+      metalness: 0.35,
+      roughness: 0.14,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
-      reflectivity: 0.8
+      clearcoatRoughness: 0.04,
+      reflectivity: 0.9
     });
 
     const gemMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFF1493,
-      emissive: 0x330015,
+      color: 0xFF007F, // Vivid ruby magenta crystal
+      emissive: 0x880033,
+      emissiveIntensity: 0.55,
       metalness: 0.1,
       roughness: 0.05,
-      transmission: 0.75,
-      thickness: 0.9,
-      ior: 1.6,
+      transmission: 0.65,
+      thickness: 1.2,
+      ior: 1.65,
       clearcoat: 1.0
     });
 
@@ -337,7 +338,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
+    renderer.toneMappingExposure = 1.05; // Photographic exposure, prevents blowout
     rendererRef.current = renderer;
     container.appendChild(renderer.domElement);
 
@@ -369,23 +370,55 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     updateCameraFraming(width, height);
 
     // Studio Lighting
-    const ambient = new THREE.AmbientLight(isDark ? 0xb0a0d0 : 0xffffff, isDark ? 1.5 : 1.9);
+    const ambient = new THREE.AmbientLight(isDark ? 0xb0a0d0 : 0xffedf4, isDark ? 0.85 : 1.05);
     scene.add(ambient);
 
-    const keyLight = new THREE.DirectionalLight(0xfff5ea, 2.4);
-    keyLight.position.set(4, 9, 6);
+    const keyLight = new THREE.DirectionalLight(0xfff5ea, 1.85);
+    keyLight.position.set(4, 8, 5.5);
     scene.add(keyLight);
 
-    const goldSpot = new THREE.PointLight(0xffe680, 2.2, 12);
-    goldSpot.position.set(0, 3.5, 4);
+    const goldSpot = new THREE.PointLight(0xffd54f, 1.5, 12);
+    goldSpot.position.set(0, 3.8, 3.5);
     scene.add(goldSpot);
 
-    // Shared Materials
+    // Rim / Backlight (Creates glowing 3D rim halo separating items from backdrop)
+    const rimLight = new THREE.DirectionalLight(0xff69b4, 1.5);
+    rimLight.position.set(-4, 6, -5);
+    scene.add(rimLight);
+
+    // Soft Lavender Fill Light
+    const fillLight = new THREE.DirectionalLight(0xc4b5fd, 0.75);
+    fillLight.position.set(-3.5, 2, 3);
+    scene.add(fillLight);
+
+    // Shared 24K Gold Materials
     const goldMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0xFFCC33, 
-      metalness: 0.85, 
-      roughness: 0.12,
-      clearcoat: 1.0 
+      color: 0xF59E0B, // Genuine warm 24K imperial gold
+      metalness: 0.92, 
+      roughness: 0.14,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04
+    });
+
+    // Procedural Contact Shadow Texture for realistic ground contact
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = 128;
+    shadowCanvas.height = 128;
+    const sCtx = shadowCanvas.getContext('2d');
+    const shadowGrad = sCtx.createRadialGradient(64, 64, 12, 64, 64, 64);
+    shadowGrad.addColorStop(0, isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(180, 20, 80, 0.40)');
+    shadowGrad.addColorStop(0.5, isDark ? 'rgba(0, 0, 0, 0.35)' : 'rgba(210, 40, 100, 0.18)');
+    shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    sCtx.fillStyle = shadowGrad;
+    sCtx.fillRect(0, 0, 128, 128);
+    const contactShadowTexture = new THREE.CanvasTexture(shadowCanvas);
+
+    const shadowPlaneGeo = new THREE.PlaneGeometry(4.2, 4.2);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      map: contactShadowTexture,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false
     });
 
     // -------------------------------------------------------------
@@ -396,28 +429,36 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     scene.add(bowlGroup);
     bowlGroupRef.current = bowlGroup;
 
-    const bowlLight = new THREE.PointLight(0xfff0f5, 3.2, 14);
-    bowlLight.position.set(0, 4.2, 2.2);
+    // Contact shadow underneath bowl
+    const bowlContactShadow = new THREE.Mesh(shadowPlaneGeo, shadowMat);
+    bowlContactShadow.rotation.x = -Math.PI / 2;
+    bowlContactShadow.position.y = -0.34;
+    bowlGroup.add(bowlContactShadow);
+
+    const bowlLight = new THREE.PointLight(0xffe4ec, 1.8, 12);
+    bowlLight.position.set(0, 4.0, 2.0);
     bowlGroup.add(bowlLight);
 
-    // Base Pedestal for Bowl
-    const bowlBaseGeo = new THREE.CylinderGeometry(1.6, 1.85, 0.35, 36);
-    const baseMat = new THREE.MeshStandardMaterial({
-      color: isDark ? 0x221833 : 0xffedf4,
-      roughness: 0.35,
-      metalness: 0.1
+    // Multi-tiered Luxury Pedestal for Bowl
+    const bowlBaseGeo = new THREE.CylinderGeometry(1.65, 1.9, 0.32, 48);
+    const baseMat = new THREE.MeshPhysicalMaterial({
+      color: isDark ? 0x2A1538 : 0xDE3C74,
+      metalness: 0.35,
+      roughness: 0.18,
+      clearcoat: 0.9,
+      clearcoatRoughness: 0.04
     });
     const bowlBase = new THREE.Mesh(bowlBaseGeo, baseMat);
-    bowlBase.position.y = -0.175;
+    bowlBase.position.y = -0.16;
     bowlGroup.add(bowlBase);
 
-    const bowlBaseRingGeo = new THREE.TorusGeometry(1.62, 0.04, 16, 48);
+    const bowlBaseRingGeo = new THREE.TorusGeometry(1.68, 0.05, 16, 48);
     const bowlBaseRing = new THREE.Mesh(bowlBaseRingGeo, goldMat);
     bowlBaseRing.rotation.x = Math.PI / 2;
     bowlBaseRing.position.y = 0.01;
     bowlGroup.add(bowlBaseRing);
 
-    // Sculpted Crystal Compote Glass Bowl
+    // Sculpted Crystal Compote Glass Bowl (Rich Rose Quartz Crystal)
     const compotePoints = [
       new THREE.Vector2(0.9, 0.0),
       new THREE.Vector2(1.05, 0.06),
@@ -433,25 +474,25 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     compoteGeo.computeVertexNormals();
 
     const bowlMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFFF0F5,
-      roughness: 0.06,
-      metalness: 0.05,
-      transmission: 0.90,
-      ior: 1.52,
-      thickness: 1.4,
+      color: 0xF472B6, // Vibrant warm rose quartz
+      roughness: 0.08,
+      metalness: 0.08,
+      transmission: 0.58, // Substantial crystal presence - NOT bleached/transparent!
+      ior: 1.62,
+      thickness: 2.2,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.02,
-      attenuationColor: 0xFFAEC4,
-      attenuationDistance: 2.0,
+      clearcoatRoughness: 0.03,
+      attenuationColor: 0xE60067, // Rich deep magenta-rose prismatic core
+      attenuationDistance: 0.85,
       transparent: true,
-      opacity: 0.95,
+      opacity: 1.0,
       side: THREE.DoubleSide
     });
     const bowlMesh = new THREE.Mesh(compoteGeo, bowlMat);
     bowlGroup.add(bowlMesh);
 
-    // 24K Gold Rim on Bowl
-    const bowlRimGeo = new THREE.TorusGeometry(1.90, 0.06, 16, 48);
+    // 24K Gold Crown Rim on Bowl
+    const bowlRimGeo = new THREE.TorusGeometry(1.90, 0.075, 16, 48);
     const bowlRim = new THREE.Mesh(bowlRimGeo, goldMat);
     bowlRim.rotation.x = Math.PI / 2;
     bowlRim.position.y = 1.65;
@@ -468,7 +509,19 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const heartGeo = createHeartGeometry();
     const gemGeo = new THREE.OctahedronGeometry(0.18, 0);
 
-    const charmColors = [0xFF6B97, 0xB388FF, 0xFFD166, 0x48CAE4, 0xFFAAA6, 0x70D6FF, 0xFFC6FF, 0xFF99C8, 0xFCF6BD, 0xD0F4DE];
+    const charmColors = [
+      0xFF1493, // Deep pink
+      0x8A2BE2, // Purple amethyst
+      0xF59E0B, // Amber gold
+      0x00B4D8, // Aquamarine
+      0xFF4081, // Hot rose
+      0x10B981, // Emerald jade
+      0xFF007F, // Ruby
+      0x7209B7, // Royal plum
+      0xFFB703, // Sunshine topaz
+      0x06D6A0, // Mint tourmaline
+      0xEC4899  // Bubblegum
+    ];
 
     for (let i = 0; i < 150; i++) {
       const y = 0.35 + Math.random() * 1.15;
@@ -488,10 +541,10 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
       const mat = new THREE.MeshPhysicalMaterial({
         color: charmColors[i % charmColors.length],
-        roughness: 0.16,
-        metalness: 0.15,
-        clearcoat: 0.9,
-        clearcoatRoughness: 0.05
+        roughness: 0.12,
+        metalness: 0.22,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.04
       });
 
       const charm = new THREE.Mesh(geo, mat);
@@ -512,14 +565,20 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     scene.add(plateGroup);
     plateGroupRef.current = plateGroup;
 
-    const plateLight = new THREE.PointLight(0xfff8ee, 3.2, 14);
-    plateLight.position.set(0, 4.2, 2.2);
+    // Contact shadow underneath plate
+    const plateContactShadow = new THREE.Mesh(shadowPlaneGeo, shadowMat);
+    plateContactShadow.rotation.x = -Math.PI / 2;
+    plateContactShadow.position.y = -0.12;
+    plateGroup.add(plateContactShadow);
+
+    const plateLight = new THREE.PointLight(0xfff4e6, 1.8, 12);
+    plateLight.position.set(0, 4.0, 2.0);
     plateGroup.add(plateLight);
 
     // Plush Velvet Base Mat
     const velvetMatGeo = new THREE.CylinderGeometry(1.65, 1.72, 0.12, 48);
     const velvetMat = new THREE.MeshStandardMaterial({
-      color: isDark ? 0x2d1738 : 0xFFE4EE,
+      color: isDark ? 0x2A1538 : 0xDE3C74,
       roughness: 0.85,
       metalness: 0.05
     });
@@ -541,18 +600,18 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     plateGeo.computeVertexNormals();
 
     const luxuryPlateMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFFFAFD,
-      roughness: 0.12,
-      metalness: 0.08,
+      color: 0xFFFAFE,
+      roughness: 0.10,
+      metalness: 0.12,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
-      reflectivity: 0.95
+      clearcoatRoughness: 0.03,
+      reflectivity: 0.98
     });
     const plateMesh = new THREE.Mesh(plateGeo, luxuryPlateMat);
     plateGroup.add(plateMesh);
 
     // 24K Mirrored Gold Fluted Rim on Plate
-    const plateRimGeo = new THREE.TorusGeometry(1.55, 0.045, 16, 48);
+    const plateRimGeo = new THREE.TorusGeometry(1.55, 0.05, 16, 48);
     const plateRim = new THREE.Mesh(plateRimGeo, goldMat);
     plateRim.rotation.x = Math.PI / 2;
     plateRim.position.y = 0.25;
@@ -950,9 +1009,10 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         const hexCol = item.color ? parseInt(item.color.replace('#', '0x')) : 0xFF6B97;
         const mat = new THREE.MeshPhysicalMaterial({
           color: hexCol,
-          roughness: 0.15,
-          metalness: 0.2,
-          clearcoat: 1.0
+          roughness: 0.12,
+          metalness: 0.25,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.04
         });
 
         // Charm in spoon
@@ -1182,7 +1242,25 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         </div>
 
         {/* 3D WebGL Canvas Stage */}
-        <div className="relative w-full h-[380px] sm:h-[440px] md:h-[480px] rounded-2xl overflow-hidden bg-gradient-to-b from-pink-50/50 via-white to-pink-50/30 dark:from-[#171024] dark:via-[#1A1326] dark:to-[#171024]">
+        <div className="relative w-full h-[400px] sm:h-[460px] md:h-[500px] rounded-[28px] sm:rounded-[36px] overflow-hidden border-2 border-pink-200/90 dark:border-pink-900/60 shadow-[0_20px_50px_-15px_rgba(230,0,103,0.20)] dark:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl bg-gradient-to-b from-[#FFF5F8] via-[#FFEBF2] to-[#FFF0F6] dark:from-[#1B1126] dark:via-[#160D20] dark:to-[#12091A]">
+          
+          {/* Studio Stage Atmospheric Lighting & Vignette */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-to-tr from-pink-400/25 via-rose-300/20 to-purple-300/25 dark:from-pink-600/20 dark:via-purple-600/15 dark:to-rose-500/15 blur-3xl pointer-events-none animate-pulse" />
+          <div className="absolute -top-14 -left-14 w-64 h-64 rounded-full bg-gradient-to-br from-pink-400/25 to-amber-200/20 dark:from-purple-900/30 dark:to-pink-900/20 blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-14 -right-14 w-64 h-64 rounded-full bg-gradient-to-tl from-purple-400/25 to-pink-300/20 dark:from-purple-950/40 dark:to-pink-950/30 blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-pink-200/40 via-pink-100/15 to-transparent dark:from-black/50 dark:to-transparent pointer-events-none" />
+
+          {/* Boutique Trust Pills on 3D Stage */}
+          <div className="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-pink-200/80 dark:border-pink-800/80 shadow-xs text-[10px] sm:text-xs font-black text-[#E60067] dark:text-pink-300">
+            <span className="w-2 h-2 rounded-full bg-[#E60067] animate-ping shrink-0" />
+            <span className="truncate">Live ASMR Mystery Studio</span>
+          </div>
+
+          <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-amber-200 dark:border-amber-800/80 shadow-xs text-[10px] sm:text-xs font-black text-amber-700 dark:text-amber-300">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+            <span className="truncate">18K PVD & Rose Quartz</span>
+          </div>
+
           <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
           {/* Prompt if loot is already resting on plate */}
