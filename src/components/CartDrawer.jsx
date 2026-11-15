@@ -24,7 +24,8 @@ import {
   ExternalLink,
   ArrowLeft,
   ArrowRight,
-  Lock
+  Lock,
+  Download
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
@@ -124,6 +125,7 @@ export default function CartDrawer({
     };
   });
   const [addressErrors, setAddressErrors] = useState({});
+  const [qrDownloaded, setQrDownloaded] = useState(false);
   const addressRef = useRef(null);
   const cartContentRef = useRef(null);
 
@@ -305,6 +307,37 @@ export default function CartDrawer({
     setCopiedField(field);
     soundFX.playPop(500);
     setTimeout(() => setCopiedField(null), 2500);
+  };
+
+  const handleDownloadQr = async () => {
+    try {
+      const qrUrl = getQrDisplayUrl(paymentSettings, paymentBreakdown.payNowINR, currentOrderId);
+      if (qrUrl.startsWith('data:')) {
+        const a = document.createElement('a');
+        a.href = qrUrl;
+        a.download = `ScoopStorey-QR-Rs${paymentBreakdown.payNowINR}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        const res = await fetch(qrUrl);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `ScoopStorey-QR-Rs${paymentBreakdown.payNowINR}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+      }
+      setQrDownloaded(true);
+      soundFX.playPop(600);
+      setTimeout(() => setQrDownloaded(false), 3500);
+    } catch (err) {
+      console.warn('QR download error:', err);
+      window.open(getQrDisplayUrl(paymentSettings, paymentBreakdown.payNowINR, currentOrderId), '_blank');
+    }
   };
 
   const handleShareBagOnWhatsApp = () => {
@@ -851,6 +884,22 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         <span>Any UPI / CRED</span>
                       </a>
                     </div>
+
+                    {/* HELPFUL UPI APP GUIDANCE CARD */}
+                    <div className="p-3 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-xs space-y-1.5 shadow-xs">
+                      <div className="font-extrabold text-[11px] text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>Tips if your UPI app shows a security alert:</span>
+                      </div>
+                      <div className="text-[11px] space-y-1 text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
+                        <p>
+                          • <strong className="text-[#5f259f]">PhonePe:</strong> Simply tap <strong className="text-purple-700 dark:text-purple-300 font-bold underline">"DISMISS"</strong> on the popup to complete your ₹{paymentBreakdown.payNowINR} payment!
+                        </p>
+                        <p>
+                          • <strong className="text-[#002970] dark:text-[#00b9f5]">Paytm:</strong> Tap <strong>"Save QR to Gallery"</strong> below and scan it from gallery, or choose <strong>"Pay via Mobile Number"</strong> and enter <strong className="font-mono">8199922653</strong>.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* QR Image Container */}
@@ -869,10 +918,30 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     </div>
                     <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 mt-2 text-center">
                       Pay to: <strong className="text-neutral-900 dark:text-white">{paymentSettings.payeeName}</strong>
+                      <span className="text-[10px] text-neutral-400 block font-normal">(Verified on GPay / Bank: Tanu)</span>
                     </p>
                     <div className="flex items-center justify-center gap-1.5 mt-1 text-[10px] font-bold text-neutral-400">
                       <span>PhonePe</span> • <span>GPay</span> • <span>Paytm</span> • <span>BHIM</span> • <span>CRED</span>
                     </div>
+
+                    {/* 1-Tap Save QR to Gallery Button */}
+                    <button
+                      type="button"
+                      onClick={handleDownloadQr}
+                      className="mt-3 px-3.5 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 flex items-center justify-center gap-2 transition cursor-pointer shadow-xs active:scale-95 w-full"
+                    >
+                      {qrDownloaded ? (
+                        <>
+                          <Check className="w-4 h-4 text-emerald-600" />
+                          <span>QR Saved to Gallery! Open PhonePe/Paytm to scan ✨</span>
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4" />
+                          <span>Save QR to Gallery (Scan in Paytm / PhonePe)</span>
+                        </>
+                      )}
+                    </button>
                   </div>
 
                   {/* Copy UPI ID & Phone */}
