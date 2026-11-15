@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient';
 
 const PAYMENT_SETTINGS_KEY = 'bhaskar_payment_settings_v1';
 const PAYMENT_SETTINGS_EVENT = 'bhaskar_payment_settings_updated';
+const CLOUD_SETTINGS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/payment-settings.json';
 
 export const DEFAULT_PAYMENT_SETTINGS = {
-  upiId: '8199922653@upi',
+  upiId: 'scoopstorey77@okaxis',
   upiPhone: '8199922653',
-  payeeName: 'Bhaskar - Scoop Storey',
+  payeeName: 'Scoop Storey',
   qrImage: '', // Base64 data URL or external image URL uploaded by admin
   instructions: 'Scan QR with GPay / PhonePe / Paytm or pay using UPI ID / Phone. Then enter your 12-digit UPI Ref/UTR No. to confirm order!',
   // Partial COD Settings
@@ -23,6 +25,13 @@ export function getPaymentSettings() {
     const raw = localStorage.getItem(PAYMENT_SETTINGS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      // Automatically migrate from any old hardcoded values
+      if (parsed.upiId === '8199922653@upi') {
+        parsed.upiId = DEFAULT_PAYMENT_SETTINGS.upiId;
+      }
+      if (parsed.payeeName === 'Bhaskar - Scoop Storey') {
+        parsed.payeeName = DEFAULT_PAYMENT_SETTINGS.payeeName;
+      }
       return { ...DEFAULT_PAYMENT_SETTINGS, ...parsed };
     }
   } catch (err) {
@@ -31,11 +40,55 @@ export function getPaymentSettings() {
   return DEFAULT_PAYMENT_SETTINGS;
 }
 
-export function savePaymentSettings(newSettings) {
+export async function fetchPaymentSettingsFromCloud() {
   try {
-    const merged = { ...getPaymentSettings(), ...newSettings };
+    const res = await fetch(`${CLOUD_SETTINGS_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const cloud = await res.json();
+      if (cloud && typeof cloud === 'object') {
+        if (cloud.upiId === '8199922653@upi') {
+          cloud.upiId = DEFAULT_PAYMENT_SETTINGS.upiId;
+        }
+        if (cloud.payeeName === 'Bhaskar - Scoop Storey') {
+          cloud.payeeName = DEFAULT_PAYMENT_SETTINGS.payeeName;
+        }
+        const merged = { ...DEFAULT_PAYMENT_SETTINGS, ...cloud };
+        try {
+          localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(merged));
+        } catch (_) {}
+        window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: merged }));
+        return merged;
+      }
+    }
+  } catch (err) {
+    // Non-blocking fallback
+  }
+  return null;
+}
+
+export async function savePaymentSettings(newSettings) {
+  try {
+    const current = getPaymentSettings();
+    const merged = { ...current, ...newSettings };
     localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: merged }));
+    window.dispatchEvent(new Event('storage'));
+
+    // Asynchronously push to Supabase storage bucket so all devices see the new settings
+    if (supabase) {
+      try {
+        const jsonBlob = new Blob([JSON.stringify(merged)], { type: 'application/json' });
+        await supabase.storage
+          .from('product-images')
+          .upload('config/payment-settings.json', jsonBlob, {
+            contentType: 'application/json',
+            upsert: true
+          });
+      } catch (cloudErr) {
+        console.warn('Could not sync payment settings to cloud storage:', cloudErr);
+      }
+    }
+
     return merged;
   } catch (err) {
     console.error('Error saving payment settings to localStorage:', err);
@@ -43,10 +96,22 @@ export function savePaymentSettings(newSettings) {
   }
 }
 
-export function resetPaymentSettings() {
+export async function resetPaymentSettings() {
   try {
     localStorage.removeItem(PAYMENT_SETTINGS_KEY);
     window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: DEFAULT_PAYMENT_SETTINGS }));
+    window.dispatchEvent(new Event('storage'));
+    if (supabase) {
+      try {
+        const jsonBlob = new Blob([JSON.stringify(DEFAULT_PAYMENT_SETTINGS)], { type: 'application/json' });
+        await supabase.storage
+          .from('product-images')
+          .upload('config/payment-settings.json', jsonBlob, {
+            contentType: 'application/json',
+            upsert: true
+          });
+      } catch (_) {}
+    }
   } catch (err) {
     console.error('Error resetting payment settings:', err);
   }
@@ -57,8 +122,13 @@ export function usePaymentSettings() {
   const [settings, setSettings] = useState(getPaymentSettings);
 
   useEffect(() => {
+    // Fetch latest cloud settings in background so customer/admin gets any remote changes
+    fetchPaymentSettingsFromCloud().then(cloudSettings => {
+      if (cloudSettings) setSettings(cloudSettings);
+    });
+
     const handleUpdate = (e) => {
-      if (e.detail) {
+      if (e?.detail) {
         setSettings(e.detail);
       } else {
         setSettings(getPaymentSettings());
@@ -72,14 +142,16 @@ export function usePaymentSettings() {
     };
   }, []);
 
-  const updateSettings = (partial) => {
-    const saved = savePaymentSettings(partial);
+  const updateSettings = async (partial) => {
+    const saved = await savePaymentSettings(partial);
     setSettings(saved);
+    return saved;
   };
 
-  const reset = () => {
-    const res = resetPaymentSettings();
+  const reset = async () => {
+    const res = await resetPaymentSettings();
     setSettings(res);
+    return res;
   };
 
   return { settings, updateSettings, reset };

@@ -773,7 +773,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         {paymentBreakdown.isPartialCod ? `Pay ₹${paymentBreakdown.payNowINR} Advance via UPI` : 'Scan & Pay via any UPI App'}
                       </h4>
                     </div>
-                    {paymentSettings.customQrImage && (
+                    {(paymentSettings.qrImage || paymentSettings.customQrImage) && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
                         Official Store QR
                       </span>
@@ -979,9 +979,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     </div>
                   </div>
 
-                  {paymentSettings.customNote && (
+                  {(paymentSettings.instructions || paymentSettings.customNote) && (
                     <p className="text-[11px] text-pink-600 dark:text-pink-400 font-medium italic bg-pink-50 dark:bg-pink-950/30 p-2 rounded-lg">
-                      💡 Note: {paymentSettings.customNote}
+                      💡 Note: {paymentSettings.instructions || paymentSettings.customNote}
                     </p>
                   )}
                 </div>

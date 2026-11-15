@@ -700,6 +700,13 @@ export default function AdminPanel({
   // Payment & QR Settings State
   const { settings: paymentSettings, updateSettings: updatePaymentSettings, reset: resetPaymentSettings } = usePaymentSettings();
   const [paymentForm, setPaymentForm] = useState(paymentSettings);
+
+  // Sync paymentForm whenever paymentSettings change or load from Supabase / localStorage
+  useEffect(() => {
+    if (paymentSettings) {
+      setPaymentForm(paymentSettings);
+    }
+  }, [paymentSettings]);
   const [previewPaymentTab, setPreviewPaymentTab] = useState('partial'); // 'partial' | 'prepaid'
   const qrFileInputRef = useRef(null);
   const productFileInputRef = useRef(null);
@@ -1553,7 +1560,7 @@ export default function AdminPanel({
     setTimeout(() => setCopiedOrderId(null), 2500);
   };
 
-  const handleQrFileUpload = (e) => {
+  const handleQrFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -1564,6 +1571,20 @@ export default function AdminPanel({
       showToast('Image size should be under 5MB');
       return;
     }
+
+    // Try uploading to Supabase Storage for global CDN availability
+    showToast('Uploading QR code image... ⏳');
+    try {
+      const uploadRes = await uploadImageToSupabase(file);
+      if (uploadRes?.success && uploadRes.url) {
+        setPaymentForm(prev => ({ ...prev, qrImage: uploadRes.url }));
+        soundFX.playPop(600);
+        showToast('QR Code uploaded to cloud! Click "Save Payment Settings" to apply. ✨');
+        return;
+      }
+    } catch (_) {}
+
+    // Fallback to data URL
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result;
@@ -1580,9 +1601,9 @@ export default function AdminPanel({
     showToast('Custom QR removed. System will use auto-generated UPI QR.');
   };
 
-  const handleSavePaymentSettings = (e) => {
+  const handleSavePaymentSettings = async (e) => {
     e?.preventDefault();
-    updatePaymentSettings(paymentForm);
+    await updatePaymentSettings(paymentForm);
     soundFX.playSuccess();
     showToast('UPI & QR settings saved successfully! ✨');
   };
@@ -2446,8 +2467,9 @@ export default function AdminPanel({
                   </div>
 
                   <button
+                    type="button"
                     onClick={handleSavePaymentSettings}
-                    className="px-5 py-2.5 rounded-xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-md transition self-start sm:self-center"
+                    className="px-5 py-2.5 rounded-xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-md transition self-start sm:self-center cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
                     <span>Save Payment Settings</span>
@@ -2544,7 +2566,7 @@ export default function AdminPanel({
                             type="text"
                             value={paymentForm.upiId}
                             onChange={(e) => setPaymentForm(prev => ({ ...prev, upiId: e.target.value }))}
-                            placeholder="e.g. 8199922653@upi or bhaskar@okaxis"
+                            placeholder="e.g. scoopstorey77@okaxis"
                             className="w-full px-3 py-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-mono tracking-wide focus:outline-none focus:ring-1 focus:ring-pink-400"
                           />
                           <span className="text-[10px] text-neutral-400 mt-1 block">
@@ -2582,7 +2604,7 @@ export default function AdminPanel({
                             type="text"
                             value={paymentForm.payeeName}
                             onChange={(e) => setPaymentForm(prev => ({ ...prev, payeeName: e.target.value }))}
-                            placeholder="e.g. Bhaskar - Scoop Storey"
+                            placeholder="e.g. Scoop Storey"
                             className="w-full px-3 py-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400 font-medium"
                           />
                         </div>
@@ -2813,9 +2835,10 @@ export default function AdminPanel({
 
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           if (window.confirm('Reset all payment settings back to defaults?')) {
-                            resetPaymentSettings();
+                            const res = await resetPaymentSettings();
+                            setPaymentForm(res);
                             showToast('Reset to default UPI settings');
                           }
                         }}
@@ -2930,7 +2953,7 @@ export default function AdminPanel({
                             <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
                               <div>
                                 <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI ID</span>
-                                <span className="font-mono font-bold text-xs">{paymentForm.upiId || '8199922653@upi'}</span>
+                                <span className="font-mono font-bold text-xs">{paymentForm.upiId || 'scoopstorey77@okaxis'}</span>
                               </div>
                               <span className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
                             </div>
@@ -2945,7 +2968,7 @@ export default function AdminPanel({
                           </div>
 
                           <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-center text-xs text-emerald-800 dark:text-emerald-300 font-medium">
-                            Payee: <strong>{paymentForm.payeeName}</strong>
+                            Payee: <strong>{paymentForm.payeeName || 'Scoop Storey'}</strong>
                           </div>
                         </div>
                       );
