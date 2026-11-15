@@ -137,6 +137,7 @@ export default function ProductCatalog({
 
     // 1. Process all categories stored in categoryStore (including user-created ones like "Stationery and bags")
     for (const catMeta of categoriesList) {
+      if (!catMeta || typeof catMeta.name !== 'string' || !catMeta.name.trim()) continue;
       const lower = catMeta.name.toLowerCase();
       if (!seenCategories.has(lower)) {
         seenCategories.add(lower);

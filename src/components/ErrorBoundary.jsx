@@ -3,7 +3,7 @@ import React from 'react';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -12,6 +12,7 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Scoop Storey uncaught UI error:', error, errorInfo);
+    this.setState({ errorInfo });
   }
 
   handleReload = () => {
@@ -29,6 +30,20 @@ class ErrorBoundary extends React.Component {
       // ignore
     }
     window.location.href = window.location.origin + window.location.pathname;
+  };
+
+  handleClearAndReset = () => {
+    try {
+      // Clear all app cache & storage that might hold old schema
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => caches.delete(name));
+        });
+      }
+    } catch {}
+    window.location.href = window.location.origin + window.location.pathname + '?clear=' + Date.now();
   };
 
   render() {
@@ -105,19 +120,39 @@ class ErrorBoundary extends React.Component {
               >
                 Return to Home 🏠
               </button>
+              <button
+                onClick={this.handleClearAndReset}
+                style={{
+                  background: '#fff',
+                  color: '#6b7280',
+                  border: '1px dashed #d1d5db',
+                  borderRadius: '9999px',
+                  padding: '10px 18px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Clear Cache & Fresh Start 🧹
+              </button>
             </div>
             {this.state.error && (
-              <details style={{ marginTop: '20px', textAlign: 'left', fontSize: '11px', color: '#9ca3af' }}>
-                <summary style={{ cursor: 'pointer' }}>Error Details (Diagnostic)</summary>
+              <details open style={{ marginTop: '20px', textAlign: 'left', fontSize: '11px', color: '#e11d48' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 700 }}>Error Details (Diagnostic):</summary>
                 <pre style={{
                   marginTop: '8px',
-                  padding: '8px',
-                  background: '#f9fafb',
+                  padding: '10px',
+                  background: '#fff1f2',
+                  border: '1px solid #fecdd3',
                   borderRadius: '8px',
                   overflowX: 'auto',
-                  whiteSpace: 'pre-wrap'
+                  whiteSpace: 'pre-wrap',
+                  color: '#be123c',
+                  fontFamily: 'monospace',
+                  fontSize: '12px'
                 }}>
                   {this.state.error.toString()}
+                  {this.state.errorInfo?.componentStack ? '\n\nComponent Stack:' + this.state.errorInfo.componentStack : ''}
                 </pre>
               </details>
             )}

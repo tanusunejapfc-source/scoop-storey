@@ -229,6 +229,11 @@ export default function AdminPanel({
   const [toastMessage, setToastMessage] = useState('');
   const [copiedOrderId, setCopiedOrderId] = useState(null);
 
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
   // Orders store hook
   const { orders, refreshOrders, updateStatus, updateTracking, deleteOrder, clearOrders } = useStoreOrders();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -953,11 +958,6 @@ export default function AdminPanel({
   };
 
   if (!isOpen) return null;
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
-  };
 
   const handleLogin = (e) => {
     e.preventDefault();

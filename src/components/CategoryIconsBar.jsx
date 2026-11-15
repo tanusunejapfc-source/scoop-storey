@@ -177,6 +177,7 @@ export default function CategoryIconsBar({
 
     // 1. Process all categories stored in categoryStore
     for (const cat of categoriesList) {
+      if (!cat || typeof cat.name !== 'string' || !cat.name.trim()) continue;
       const lower = cat.name.toLowerCase();
       if (!seen.has(lower)) {
         seen.add(lower);

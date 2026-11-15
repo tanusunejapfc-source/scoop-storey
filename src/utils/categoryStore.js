@@ -139,7 +139,7 @@ export function getStoredCategories() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Migration: If legacy combined categories exist in storage, remove them
-        const cleaned = parsed.filter(c => c.name !== 'Bracelets & Anklets' && c.name !== 'Eye Masks & Self-Care');
+        const cleaned = parsed.filter(c => c && typeof c.name === 'string' && c.name.trim() !== '' && c.name !== 'Bracelets & Anklets' && c.name !== 'Eye Masks & Self-Care');
         
         // Ensure new separated categories exist in the list
         const existingNames = new Set(cleaned.map(c => c.name));
@@ -152,7 +152,7 @@ export function getStoredCategories() {
         // Backfill image for any category that is missing an image
         const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase(), d]));
         return cleaned.map(c => {
-          const def = defMap.get(c.name.toLowerCase());
+          const def = c.name ? defMap.get(c.name.toLowerCase()) : null;
           return {
             ...c,
             image: c.image || def?.image || '/images/deluxe-giftbox.jpg'
