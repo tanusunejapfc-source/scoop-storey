@@ -250,9 +250,12 @@ export function calculatePaymentBreakdown(totalINR, paymentMode = 'full_prepaid'
     advancePct = orderWithFee > 0 ? Math.round((advanceINR / orderWithFee) * 100) : 0;
   } else {
     // Percentage mode
-    const pct = Number(mergedSettings.partialCodPercentage || 20);
-    advancePct = Math.min(90, Math.max(5, pct));
-    advanceINR = Math.round((orderWithFee * advancePct) / 100);
+    let pct = Number(mergedSettings.partialCodPercentage);
+    if (isNaN(pct) || pct <= 0 || pct >= 100) {
+      pct = 20;
+    }
+    advancePct = pct;
+    advanceINR = Math.max(1, Math.round((orderWithFee * advancePct) / 100));
   }
 
   const balanceINR = Math.max(0, orderWithFee - advanceINR);

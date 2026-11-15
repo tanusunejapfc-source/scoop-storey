@@ -138,6 +138,15 @@ export default function CartDrawer({
   const totalINR = Math.max(0, subtotalINR - discountAmountINR);
 
   // Partial COD & Payment Breakdown
+  // Dedicated Partial COD preview (always calculated with 'partial_cod' mode)
+  const partialCodPreview = useMemo(() => {
+    return calculatePaymentBreakdown(totalINR, 'partial_cod', {
+      ...paymentSettings,
+      partialCodEnabled: true
+    });
+  }, [totalINR, paymentSettings]);
+
+  // Active payment breakdown based on selected paymentMode
   const paymentBreakdown = useMemo(() => {
     return calculatePaymentBreakdown(totalINR, paymentMode, paymentSettings);
   }, [totalINR, paymentMode, paymentSettings]);
@@ -728,11 +737,11 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           )}
                         </div>
                         <div className="font-display font-black text-sm mt-1 text-purple-700 dark:text-purple-300">
-                          ₹{paymentBreakdown.payNowINR} <span className="text-[10px] font-normal text-neutral-500">now</span>
+                          ₹{partialCodPreview.payNowINR} <span className="text-[10px] font-normal text-neutral-500">now ({partialCodPreview.advancePercentage}%)</span>
                         </div>
                       </div>
                       <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold mt-1 block">
-                        🚚 ₹{paymentBreakdown.balanceCodINR} on Delivery
+                        🚚 ₹{partialCodPreview.balanceCodINR} on Delivery
                       </span>
                     </button>
                   </div>
