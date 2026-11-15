@@ -4,18 +4,36 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import confetti from 'canvas-confetti';
 import { 
   Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle, 
-  Check, X, Camera, List, Volume2, VolumeX, Eye
+  Check, X, Camera, List, Volume2, VolumeX, Eye, ArrowRight
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { disposeThreeScene } from '../utils/threeUtils';
 import { SCOOP_TIERS, CHARM_LOOT_POOL, MYSTERY_SCOOP_CATEGORIES } from '../data/storeData';
 import WhatsAppIcon from './WhatsAppIcon';
 
+// Helper to determine exact random item count based on scoop tier description
+export const getTierCharmsCount = (tierId) => {
+  if (tierId === 'mini-scoop' || tierId === 'scoop-mini') {
+    // Description: "7–8 Products + Free Gifts" -> strictly 7 or 8 charms
+    return Math.floor(Math.random() * 2) + 7;
+  }
+  if (tierId === 'midi-scoop' || tierId === 'scoop-midi') {
+    // Description: "12–15 Products + Free Gifts" -> strictly 12 to 15 charms
+    return Math.floor(Math.random() * 4) + 12;
+  }
+  if (tierId === 'big-scoop' || tierId === 'scoop-big') {
+    // Description: "Over 20 Items (20+ Items)" -> strictly 20 to 24 charms
+    return Math.floor(Math.random() * 5) + 20;
+  }
+  return 8;
+};
+
 export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const containerRef = useRef(null);
-  const [selectedTier, setSelectedTier] = useState(SCOOP_TIERS[1]);
+  // Default to Mini Scoop (popular starter tier)
+  const [selectedTier, setSelectedTier] = useState(SCOOP_TIERS[0]);
   const [isScooping, setIsScooping] = useState(false);
-  const [scoopStatusText, setScoopStatusText] = useState('');
+  const [scoopStepInfo, setScoopStepInfo] = useState({ step: 0, text: '' });
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [scoopResult, setScoopResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -26,11 +44,16 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const [selectedChartPhoto, setSelectedChartPhoto] = useState(null);
 
   // 3D Scene Refs
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
   const spoonRef = useRef(null);
-  const charmsInSpoonRef = useRef([]);
+  const charmsInSpoonRef = useRef(null);
+  const plateCharmsRef = useRef(null);
   const bowlCharmsRef = useRef(null);
-  const scoopAnimStateRef = useRef({ active: false, startTime: 0 });
+  const scoopAnimStateRef = useRef({ active: false, startTime: 0, duration: 5.6 });
   const mousePosRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const plateGroupRef = useRef(null);
 
   // Procedural Geometries for Charms
   const createHeartGeometry = () => {
@@ -86,7 +109,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const spoon = new THREE.Group();
 
     // 1. Physical Materials with Studio HDR Reflections
-    // Liquid Mirrored Rose-Gold
     const scoopBodyMat = new THREE.MeshPhysicalMaterial({
       color: 0xFFAEC4,
       metalness: 0.68,
@@ -99,7 +121,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       side: THREE.DoubleSide
     });
 
-    // 24K Mirrored Yellow Gold (Rims, Ferrule, Rings, Crown)
     const goldTrimMat = new THREE.MeshPhysicalMaterial({
       color: 0xFFCC33,
       metalness: 0.85,
@@ -109,7 +130,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       reflectivity: 0.95
     });
 
-    // Ergonomic Pearlescent Blush Handle Lacquer
     const handleMat = new THREE.MeshPhysicalMaterial({
       color: 0xFFD8E6,
       metalness: 0.25,
@@ -119,7 +139,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       reflectivity: 0.8
     });
 
-    // Faceted Sparkling Ruby Gem Pommel
     const gemMat = new THREE.MeshPhysicalMaterial({
       color: 0xFF1493,
       emissive: 0x330015,
@@ -139,7 +158,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const indices = [];
 
     const getPoint = (u, v) => {
-      // z: -0.75 (back dome) to 0.85 (front shovel lip)
       const z = -0.75 + v * 1.6;
       let r = 0.58;
       let backDomeZ = 0;
@@ -219,20 +237,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     // 4. Handle Assembly with Turned Collar & Ergonomic Grip
     const handleGroup = new THREE.Group();
 
-    // 24K Gold Turned Ferrule / Collar
     const collarGeo = new THREE.CylinderGeometry(0.13, 0.09, 0.38, 24);
     const collar = new THREE.Mesh(collarGeo, goldTrimMat);
     collar.position.y = 0.19;
     handleGroup.add(collar);
 
-    // Turned Gold Bead
     const ringGeo = new THREE.TorusGeometry(0.12, 0.024, 12, 24);
     const lowerRing = new THREE.Mesh(ringGeo, goldTrimMat);
     lowerRing.rotation.x = Math.PI / 2;
     lowerRing.position.y = 0.38;
     handleGroup.add(lowerRing);
 
-    // Ergonomic Contoured Grip (Hourglass palm swell)
     const gripPoints = [
       new THREE.Vector2(0.09, 0.38),
       new THREE.Vector2(0.11, 0.65),
@@ -246,19 +261,16 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const grip = new THREE.Mesh(gripGeo, handleMat);
     handleGroup.add(grip);
 
-    // Upper Gold Trim Ring
     const upperRing = new THREE.Mesh(ringGeo, goldTrimMat);
     upperRing.rotation.x = Math.PI / 2;
     upperRing.position.y = 2.25;
     handleGroup.add(upperRing);
 
-    // 24K Gold Crown Cap
     const crownGeo = new THREE.CylinderGeometry(0.12, 0.08, 0.22, 24);
     const crown = new THREE.Mesh(crownGeo, goldTrimMat);
     crown.position.y = 2.38;
     handleGroup.add(crown);
 
-    // Faceted Ruby Crystal Gem Pommel
     const pommelGeo = new THREE.OctahedronGeometry(0.24, 1);
     pommelGeo.scale(1.0, 1.35, 0.85);
     const pommel = new THREE.Mesh(pommelGeo, gemMat);
@@ -266,7 +278,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     handleGroup.add(pommel);
 
     handleGroup.position.set(0, 0.05, -0.78);
-    handleGroup.rotation.x = -Math.PI / 2 + 0.38; // Elegant candy scoop handle angle
+    handleGroup.rotation.x = -Math.PI / 2 + 0.38;
     spoon.add(handleGroup);
 
     return spoon;
@@ -280,13 +292,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     // 3D Scene Setup
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
+
     const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.3;
+    rendererRef.current = renderer;
     container.appendChild(renderer.domElement);
 
     // PMREM RoomEnvironment for Photorealistic Metallic & Glass Reflections
@@ -296,18 +312,19 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const envTexture = pmremGenerator.fromScene(roomEnv, 0.04).texture;
     scene.environment = envTexture;
 
+    // Responsive Camera Framing (Frames both the Bowl on the Left and Plate on the Right)
     const updateCameraFraming = (w, h) => {
       if (!camera || !renderer) return;
       camera.aspect = w / h;
       const isMobile = w < 640;
       if (isMobile) {
-        camera.fov = 48;
-        camera.position.set(0, 3.5, 9.6);
-        camera.lookAt(0, 1.15, 0);
+        camera.fov = 46;
+        camera.position.set(0, 3.8, 10.5);
+        camera.lookAt(0, 0.95, 0);
       } else {
-        camera.fov = 36;
-        camera.position.set(0, 3.4, 8.4);
-        camera.lookAt(0, 1.1, 0);
+        camera.fov = 38;
+        camera.position.set(0, 3.4, 9.2);
+        camera.lookAt(0, 0.95, 0);
       }
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -316,57 +333,71 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     updateCameraFraming(width, height);
 
     // Studio Lighting
-    const ambient = new THREE.AmbientLight(isDark ? 0xb0a0d0 : 0xffffff, isDark ? 1.4 : 1.8);
+    const ambient = new THREE.AmbientLight(isDark ? 0xb0a0d0 : 0xffffff, isDark ? 1.5 : 1.9);
     scene.add(ambient);
 
-    const keyLight = new THREE.DirectionalLight(0xfff5ea, 2.2);
-    keyLight.position.set(5, 9, 6);
+    const keyLight = new THREE.DirectionalLight(0xfff5ea, 2.4);
+    keyLight.position.set(4, 9, 6);
     scene.add(keyLight);
 
-    const spoonLight = new THREE.PointLight(0xfff0f5, 3.5, 14);
-    spoonLight.position.set(0, 5.0, 3.5);
-    scene.add(spoonLight);
+    const bowlLight = new THREE.PointLight(0xfff0f5, 3.0, 14);
+    bowlLight.position.set(-1.6, 4.5, 2.5);
+    scene.add(bowlLight);
 
-    const rimLight = new THREE.PointLight(0xff66cc, 2.8, 15);
-    rimLight.position.set(-5, 3.5, -4);
-    scene.add(rimLight);
+    const plateLight = new THREE.PointLight(0xfff8ee, 3.2, 14);
+    plateLight.position.set(1.6, 4.5, 2.5);
+    scene.add(plateLight);
 
     const goldSpot = new THREE.PointLight(0xffe680, 2.2, 12);
-    goldSpot.position.set(3, 3, 3);
+    goldSpot.position.set(0, 3.5, 4);
     scene.add(goldSpot);
 
-    // Tiered Pedestal Base with 24K Gold Trim
-    const baseGeo = new THREE.CylinderGeometry(3.3, 3.7, 0.45, 48);
+    // Shared Materials
+    const goldMat = new THREE.MeshPhysicalMaterial({ 
+      color: 0xFFCC33, 
+      metalness: 0.85, 
+      roughness: 0.12,
+      clearcoat: 1.0 
+    });
+
+    // -------------------------------------------------------------
+    // LEFT SIDE: CHARM COMPOTE BOWL (Position: x = -1.65)
+    // -------------------------------------------------------------
+    const bowlGroup = new THREE.Group();
+    bowlGroup.position.set(-1.65, 0, -0.15);
+    scene.add(bowlGroup);
+
+    // Base Pedestal for Bowl
+    const bowlBaseGeo = new THREE.CylinderGeometry(1.6, 1.85, 0.35, 36);
     const baseMat = new THREE.MeshStandardMaterial({
-      color: isDark ? 0x1f1733 : 0xffedf4,
+      color: isDark ? 0x221833 : 0xffedf4,
       roughness: 0.35,
       metalness: 0.1
     });
-    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-    baseMesh.position.y = -0.22;
-    scene.add(baseMesh);
+    const bowlBase = new THREE.Mesh(bowlBaseGeo, baseMat);
+    bowlBase.position.y = -0.175;
+    bowlGroup.add(bowlBase);
 
-    const baseRingGeo = new THREE.TorusGeometry(3.32, 0.05, 16, 48);
-    const goldMat = new THREE.MeshPhysicalMaterial({ color: 0xFFCC33, metalness: 0.85, roughness: 0.12 });
-    const baseRing = new THREE.Mesh(baseRingGeo, goldMat);
-    baseRing.rotation.x = Math.PI / 2;
-    baseRing.position.y = 0.02;
-    scene.add(baseRing);
+    const bowlBaseRingGeo = new THREE.TorusGeometry(1.62, 0.04, 16, 48);
+    const bowlBaseRing = new THREE.Mesh(bowlBaseRingGeo, goldMat);
+    bowlBaseRing.rotation.x = Math.PI / 2;
+    bowlBaseRing.position.y = 0.01;
+    bowlGroup.add(bowlBaseRing);
 
-    // Sculpted Luxury Crystal Glass Compote Bowl
-    const bowlPoints = [
-      new THREE.Vector2(1.2, 0.0),
-      new THREE.Vector2(1.4, 0.08),
-      new THREE.Vector2(1.25, 0.22),
-      new THREE.Vector2(1.15, 0.35),
-      new THREE.Vector2(1.35, 0.6),
-      new THREE.Vector2(1.75, 0.95),
-      new THREE.Vector2(2.15, 1.35),
-      new THREE.Vector2(2.45, 1.7),
-      new THREE.Vector2(2.48, 1.78)
+    // Sculpted Crystal Compote Glass Bowl
+    const compotePoints = [
+      new THREE.Vector2(0.9, 0.0),
+      new THREE.Vector2(1.05, 0.06),
+      new THREE.Vector2(0.95, 0.18),
+      new THREE.Vector2(0.85, 0.30),
+      new THREE.Vector2(1.05, 0.55),
+      new THREE.Vector2(1.35, 0.88),
+      new THREE.Vector2(1.65, 1.25),
+      new THREE.Vector2(1.88, 1.58),
+      new THREE.Vector2(1.90, 1.65)
     ];
-    const bowlGeo = new THREE.LatheGeometry(bowlPoints, 48);
-    bowlGeo.computeVertexNormals();
+    const compoteGeo = new THREE.LatheGeometry(compotePoints, 40);
+    compoteGeo.computeVertexNormals();
 
     const bowlMat = new THREE.MeshPhysicalMaterial({
       color: 0xFFF0F5,
@@ -374,7 +405,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       metalness: 0.05,
       transmission: 0.90,
       ior: 1.52,
-      thickness: 1.5,
+      thickness: 1.4,
       clearcoat: 1.0,
       clearcoatRoughness: 0.02,
       attenuationColor: 0xFFAEC4,
@@ -383,40 +414,33 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       opacity: 0.95,
       side: THREE.DoubleSide
     });
-    const bowl = new THREE.Mesh(bowlGeo, bowlMat);
-    scene.add(bowl);
+    const bowlMesh = new THREE.Mesh(compoteGeo, bowlMat);
+    bowlGroup.add(bowlMesh);
 
     // 24K Gold Rim on Bowl
-    const rimGeo = new THREE.TorusGeometry(2.48, 0.08, 16, 64);
-    const bowlRim = new THREE.Mesh(rimGeo, goldMat);
+    const bowlRimGeo = new THREE.TorusGeometry(1.90, 0.06, 16, 48);
+    const bowlRim = new THREE.Mesh(bowlRimGeo, goldMat);
     bowlRim.rotation.x = Math.PI / 2;
-    bowlRim.position.y = 1.78;
-    scene.add(bowlRim);
-
-    // Bowl Bottom Disc
-    const discGeo = new THREE.CircleGeometry(1.2, 32);
-    const discMesh = new THREE.Mesh(discGeo, bowlMat);
-    discMesh.rotation.x = -Math.PI / 2;
-    discMesh.position.y = 0.01;
-    scene.add(discMesh);
+    bowlRim.position.y = 1.65;
+    bowlGroup.add(bowlRim);
 
     // Charms filling the bowl
     const bowlCharmsGroup = new THREE.Group();
-    scene.add(bowlCharmsGroup);
+    bowlGroup.add(bowlCharmsGroup);
     bowlCharmsRef.current = bowlCharmsGroup;
 
-    const beadGeo = new THREE.SphereGeometry(0.18, 16, 16);
-    const cubeGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
+    const beadGeo = new THREE.SphereGeometry(0.16, 16, 16);
+    const cubeGeo = new THREE.BoxGeometry(0.18, 0.18, 0.18);
     const starGeo = createStarGeometry();
     const heartGeo = createHeartGeometry();
-    const gemGeo = new THREE.OctahedronGeometry(0.2, 0);
+    const gemGeo = new THREE.OctahedronGeometry(0.18, 0);
 
     const charmColors = [0xFF6B97, 0xB388FF, 0xFFD166, 0x48CAE4, 0xFFAAA6, 0x70D6FF, 0xFFC6FF, 0xFF99C8, 0xFCF6BD, 0xD0F4DE];
 
-    for (let i = 0; i < 180; i++) {
-      const y = 0.4 + Math.random() * 1.25;
-      const bowlRadiusAtY = 1.15 + ((y - 0.35) / 1.4) * (2.45 - 1.15);
-      const radius = Math.random() * (bowlRadiusAtY - 0.24);
+    for (let i = 0; i < 150; i++) {
+      const y = 0.35 + Math.random() * 1.15;
+      const radiusAtY = 0.85 + ((y - 0.3) / 1.35) * (1.85 - 0.85);
+      const radius = Math.random() * (radiusAtY - 0.22);
       const angle = Math.random() * Math.PI * 2;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
@@ -440,50 +464,86 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       const charm = new THREE.Mesh(geo, mat);
       charm.position.set(x, y, z);
       charm.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-      charm.scale.setScalar(0.72 + Math.random() * 0.42);
-      charm.userData = { baseY: y, baseRotX: charm.rotation.x, baseRotY: charm.rotation.y };
+      charm.scale.setScalar(0.70 + Math.random() * 0.35);
+      charm.userData = { baseY: y };
       bowlCharmsGroup.add(charm);
     }
 
-    // Realistic Rose-Gold Scoop Shovel
+    // -------------------------------------------------------------
+    // RIGHT SIDE: LUXURY EMPTY PRESENTATION PLATE (Position: x = 1.65)
+    // -------------------------------------------------------------
+    const plateGroup = new THREE.Group();
+    plateGroup.position.set(1.65, 0, 0.15);
+    scene.add(plateGroup);
+    plateGroupRef.current = plateGroup;
+
+    // Plush Velvet Base Mat
+    const velvetMatGeo = new THREE.CylinderGeometry(1.65, 1.72, 0.12, 48);
+    const velvetMat = new THREE.MeshStandardMaterial({
+      color: isDark ? 0x2d1738 : 0xFFE4EE,
+      roughness: 0.85,
+      metalness: 0.05
+    });
+    const velvetBase = new THREE.Mesh(velvetMatGeo, velvetMat);
+    velvetBase.position.y = -0.06;
+    plateGroup.add(velvetBase);
+
+    // Luxury Italian Carrara White Marble / Porcelain Dish
+    const platePoints = [
+      new THREE.Vector2(0.0, 0.06),
+      new THREE.Vector2(1.25, 0.06),
+      new THREE.Vector2(1.44, 0.14),
+      new THREE.Vector2(1.55, 0.26),
+      new THREE.Vector2(1.58, 0.22),
+      new THREE.Vector2(1.54, 0.02),
+      new THREE.Vector2(0.0, 0.0)
+    ];
+    const plateGeo = new THREE.LatheGeometry(platePoints, 48);
+    plateGeo.computeVertexNormals();
+
+    const luxuryPlateMat = new THREE.MeshPhysicalMaterial({
+      color: 0xFFFAFD,
+      roughness: 0.12,
+      metalness: 0.08,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      reflectivity: 0.95
+    });
+    const plateMesh = new THREE.Mesh(plateGeo, luxuryPlateMat);
+    plateGroup.add(plateMesh);
+
+    // 24K Mirrored Gold Fluted Rim on Plate
+    const plateRimGeo = new THREE.TorusGeometry(1.55, 0.045, 16, 48);
+    const plateRim = new THREE.Mesh(plateRimGeo, goldMat);
+    plateRim.rotation.x = Math.PI / 2;
+    plateRim.position.y = 0.25;
+    plateGroup.add(plateRim);
+
+    // Container for Charms Poured onto the Luxury Plate
+    const plateCharmsGroup = new THREE.Group();
+    plateGroup.add(plateCharmsGroup);
+    plateCharmsRef.current = plateCharmsGroup;
+
+    // -------------------------------------------------------------
+    // REALISTIC ROSE-GOLD SCOOP SHOVEL (Starts above the bowl on Left)
+    // -------------------------------------------------------------
     const spoon = createRealisticScoopSpoon();
-    spoon.position.set(0, 2.85, 0.1);
+    spoon.position.set(-1.65, 2.85, -0.15);
     spoon.rotation.set(0.36, -0.2, 0.1);
     scene.add(spoon);
     spoonRef.current = spoon;
 
-    // Mini charms inside the scoop shovel
+    // Mini charms group sitting inside the scoop shovel during scooping
     const spoonLootGroup = new THREE.Group();
     spoon.add(spoonLootGroup);
     charmsInSpoonRef.current = spoonLootGroup;
 
-    const spoonLootOriginalPositions = [];
-    for (let j = 0; j < 18; j++) {
-      const geo = j % 4 === 0 ? heartGeo : (j % 4 === 1 ? beadGeo : (j % 4 === 2 ? starGeo : gemGeo));
-      const mat = new THREE.MeshPhysicalMaterial({
-        color: charmColors[j % charmColors.length],
-        roughness: 0.15,
-        metalness: 0.2,
-        clearcoat: 1.0
-      });
-      const c = new THREE.Mesh(geo, mat);
-      const px = (Math.random() - 0.5) * 0.55;
-      const py = -0.05 + Math.random() * 0.22;
-      const pz = -0.3 + Math.random() * 0.75;
-      c.position.set(px, py, pz);
-      c.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-      c.scale.set(0, 0, 0); // hidden initially
-      spoonLootOriginalPositions.push({ x: px, y: py, z: pz });
-      spoonLootGroup.add(c);
-    }
-    spoonLootGroup.userData = { initialPositions: spoonLootOriginalPositions };
-
-    // Sparkling Ambient Stardust
+    // Ambient Stardust Particles
     const particleGeo = new THREE.BufferGeometry();
     const particleCount = 80;
     const posArray = new Float32Array(particleCount * 3);
     for (let k = 0; k < particleCount * 3; k += 3) {
-      posArray[k] = (Math.random() - 0.5) * 8.5;
+      posArray[k] = (Math.random() - 0.5) * 9.5;
       posArray[k + 1] = Math.random() * 5.5;
       posArray[k + 2] = (Math.random() - 0.5) * 8.5;
     }
@@ -528,159 +588,180 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       mousePosRef.current.x += (mousePosRef.current.targetX - mousePosRef.current.x) * 0.05;
       mousePosRef.current.y += (mousePosRef.current.targetY - mousePosRef.current.y) * 0.05;
 
-      // Bowl slow rotation
-      bowl.rotation.y = time * 0.08;
-      bowlCharmsGroup.rotation.y = time * 0.08;
-      particles.rotation.y = time * 0.03;
+      // Slow ambient rotations
+      bowlMesh.rotation.y = time * 0.06;
+      bowlCharmsGroup.rotation.y = time * 0.06;
+      particles.rotation.y = time * 0.02;
 
       const animState = scoopAnimStateRef.current;
 
       if (!animState.active) {
-        // IDLE STATE: Gentle breathing float & subtle tilt tracking
+        // IDLE STATE: Gentle breathing float above the bowl
         if (spoonRef.current) {
-          const hoverY = 2.85 + Math.sin(time * 2.2) * 0.07;
-          spoonRef.current.position.y = hoverY;
-          spoonRef.current.position.x = mousePosRef.current.x * 0.3;
-          spoonRef.current.rotation.y = -0.2 + Math.cos(time * 1.5) * 0.06 + mousePosRef.current.x * 0.15;
-          spoonRef.current.rotation.x = 0.36 + mousePosRef.current.y * 0.1;
+          const hoverY = 2.85 + Math.sin(time * 2.2) * 0.06;
+          spoonRef.current.position.set(
+            -1.65 + mousePosRef.current.x * 0.2,
+            hoverY,
+            -0.15
+          );
+          spoonRef.current.rotation.set(
+            0.36 + mousePosRef.current.y * 0.1,
+            -0.2 + Math.cos(time * 1.5) * 0.05 + mousePosRef.current.x * 0.15,
+            0.1
+          );
         }
       } else {
-        // ACTIVE ASMR SCOOP TIMELINE (4.2 seconds of silky smooth motion)
+        // ACTIVE ASMR STEP-BY-STEP ANIMATION SEQUENCE (5.6 seconds total)
         const elapsed = (performance.now() - animState.startTime) / 1000;
         const spoon = spoonRef.current;
+        const pulledItems = animState.pulledItems || [];
+        const count = pulledItems.length;
 
-        // PHASE 1: Windup & Aim (0.0s - 0.5s)
-        if (elapsed < 0.5) {
-          const p = easeInOutQuad(elapsed / 0.5);
-          spoon.position.set(0, THREE.MathUtils.lerp(2.85, 3.15, p), THREE.MathUtils.lerp(0.1, -0.1, p));
+        // STEP 1: Position Rose-Gold Scoop over Bowl (0.0s – 0.6s)
+        if (elapsed < 0.6) {
+          const p = easeInOutQuad(elapsed / 0.6);
+          spoon.position.set(-1.65, THREE.MathUtils.lerp(2.85, 3.15, p), -0.15);
           spoon.rotation.set(THREE.MathUtils.lerp(0.36, 0.22, p), -0.2, 0.1);
-          setScoopStatusText('✨ Positioning rose-gold scoop...');
+          setScoopStepInfo({ step: 1, text: `Readying Rose-Gold Scoop for ${animState.tier?.name}... ✨` });
         }
-        // PHASE 2: Deep Digging Swoop into Bowl (0.5s - 1.5s)
-        else if (elapsed < 1.5) {
-          const t = (elapsed - 0.5) / 1.0;
-          setScoopStatusText('🥄 Digging deep into charm mound...');
+        // STEP 2: Deep Dig & Scoop Charms from Bowl (0.6s – 1.8s)
+        else if (elapsed < 1.8) {
+          const t = (elapsed - 0.6) / 1.2;
+          setScoopStepInfo({ step: 2, text: `Scooping ${count} lucky charms from the bowl! 🥄` });
 
-          // Curved 3D scooping arc
+          // Curved 3D scooping arc down into the bowl
           const dipY = 3.15 - 2.45 * Math.sin(t * Math.PI * 0.85);
-          const dipZ = THREE.MathUtils.lerp(-0.1, 0.55, t);
+          const dipZ = THREE.MathUtils.lerp(-0.15, 0.45, t);
           const rotX = THREE.MathUtils.lerp(0.22, 0.82, Math.sin(t * Math.PI));
 
-          spoon.position.set(0, dipY, dipZ);
-          spoon.rotation.x = rotX;
-          spoon.rotation.y = -0.2 + Math.sin(t * Math.PI) * 0.12;
+          spoon.position.set(-1.65, dipY, dipZ);
+          spoon.rotation.set(rotX, -0.2 + Math.sin(t * Math.PI) * 0.12, 0.1);
 
-          // Charms in spoon scale in
-          if (charmsInSpoonRef.current && t > 0.4) {
-            const scaleP = Math.min((t - 0.4) / 0.6, 1);
+          // Charms inside spoon scale in according to count
+          if (charmsInSpoonRef.current && t > 0.35) {
+            const scaleP = Math.min((t - 0.35) / 0.65, 1);
             charmsInSpoonRef.current.children.forEach(c => c.scale.setScalar(scaleP));
           }
 
-          // Ripples on bowl charms near scoop
+          // Ripples on bowl charms
           if (bowlCharmsRef.current) {
             bowlCharmsRef.current.children.forEach((c, idx) => {
-              if (c.position.y > 0.6) {
+              if (c.position.y > 0.5) {
                 c.position.y = c.userData.baseY + Math.sin(time * 16 + idx) * 0.02;
               }
             });
           }
         }
-        // PHASE 3: Heave & Tilt-Back (1.5s - 2.4s)
-        else if (elapsed < 2.4) {
-          const t = (elapsed - 1.5) / 0.9;
-          setScoopStatusText('💖 Heaving your overflowing lucky haul...');
+        // STEP 3: Lift Overflowing Shovel & Glide Across to Luxury Plate (1.8s – 3.2s)
+        else if (elapsed < 3.2) {
+          const t = (elapsed - 1.8) / 1.4;
+          setScoopStepInfo({ step: 3, text: `Carrying ${count} surprise treasures to the luxury plate... ✨` });
 
-          const liftY = THREE.MathUtils.lerp(0.75, 3.58, easeOutBack(t));
-          const liftZ = THREE.MathUtils.lerp(0.55, 0.05, t);
-          const rotX = THREE.MathUtils.lerp(0.82, 0.16, easeOutCubic(t));
-          const rotZ = THREE.MathUtils.lerp(0.1, 0.22, t);
+          // Tilt back to cradle charms
+          const rotX = THREE.MathUtils.lerp(0.82, 0.15, easeOutCubic(t));
+          // Lift high
+          const liftY = THREE.MathUtils.lerp(0.85, 3.45, easeOutBack(Math.min(t * 1.5, 1)));
+          // Glide from bowl (x = -1.65) to luxury plate (x = 1.65)
+          const travelX = THREE.MathUtils.lerp(-1.65, 1.65, easeInOutQuad(t));
+          const travelZ = THREE.MathUtils.lerp(0.45, 0.15, t);
 
-          spoon.position.set(0, liftY, liftZ);
-          spoon.rotation.set(rotX, -0.2, rotZ);
+          spoon.position.set(travelX, liftY, travelZ);
+          spoon.rotation.set(rotX, -0.1, 0.1);
 
           if (charmsInSpoonRef.current) {
             charmsInSpoonRef.current.children.forEach(c => c.scale.setScalar(1));
           }
         }
-        // PHASE 4: Showcase & Shimmer (2.4s - 3.2s)
-        else if (elapsed < 3.2) {
-          const t = (elapsed - 2.4) / 0.8;
-          setScoopStatusText('🌟 Inspecting your glittering treasures...');
+        // STEP 4: Cascade Pour onto the Luxury Empty Plate (3.2s – 4.4s)
+        else if (elapsed < 4.4) {
+          const t = (elapsed - 3.2) / 1.2;
+          setScoopStepInfo({ step: 4, text: `Pouring ${count} charms onto the luxury gold-rimmed plate! 🎁` });
 
-          const pivotY = -0.2 + Math.sin(t * Math.PI * 2) * 0.24;
-          const bobY = 3.58 + Math.sin(t * Math.PI * 2) * 0.05;
+          // Shovel tilts forward to dump charms
+          const pourRotX = THREE.MathUtils.lerp(0.15, 1.35, easeInOutQuad(Math.min(t * 1.3, 1)));
+          const pourY = THREE.MathUtils.lerp(3.45, 2.95, t);
 
-          spoon.position.set(0, bobY, 0.05);
-          spoon.rotation.set(0.16, pivotY, 0.22);
-        }
-        // PHASE 5: Cascade Pour (3.2s - 3.9s)
-        else if (elapsed < 3.9) {
-          const t = (elapsed - 3.2) / 0.7;
-          setScoopStatusText('🎁 Pouring into your mystery box...');
+          spoon.position.set(1.65, pourY, 0.15);
+          spoon.rotation.set(pourRotX, -0.05, -0.15);
 
-          // Spoon tips forward
-          const pourRotX = THREE.MathUtils.lerp(0.16, 1.25, easeInOutQuad(t));
-          const pourY = THREE.MathUtils.lerp(3.58, 2.95, t);
-
-          spoon.position.set(0, pourY, 0.05);
-          spoon.rotation.set(pourRotX, -0.1, 0.05);
-
-          // Charms tumble forward out of shovel
+          // Charms tumble out of shovel and land on the luxury plate
           if (charmsInSpoonRef.current) {
-            const initialPos = charmsInSpoonRef.current.userData.initialPositions || [];
-            charmsInSpoonRef.current.children.forEach((c, idx) => {
-              const base = initialPos[idx] || { x: 0, y: 0, z: 0 };
-              c.position.z = base.z + t * 0.9;
-              c.position.y = base.y - t * 0.7;
-              c.scale.setScalar(Math.max(1 - t * 1.2, 0));
+            const spoonChildren = charmsInSpoonRef.current.children;
+            spoonChildren.forEach((c, idx) => {
+              const delay = (idx / count) * 0.35;
+              if (t > delay) {
+                const dropT = Math.min((t - delay) / 0.5, 1);
+                c.scale.setScalar(Math.max(1 - dropT * 1.2, 0));
+              }
+            });
+          }
+
+          // Progressively reveal charms landing on the plate with ASMR bounce
+          if (plateCharmsRef.current) {
+            const plateChildren = plateCharmsRef.current.children;
+            plateChildren.forEach((c, idx) => {
+              const delay = 0.15 + (idx / count) * 0.45;
+              if (t > delay) {
+                const landT = Math.min((t - delay) / 0.35, 1);
+                // Land with subtle bounce
+                const bounce = Math.sin(landT * Math.PI) * 0.15;
+                c.position.y = c.userData.targetY + bounce * (1 - landT);
+                c.scale.setScalar(THREE.MathUtils.lerp(0, 1, landT));
+              }
             });
           }
         }
-        // PHASE 6: Return to Idle & Trigger Modal (3.9s - 4.2s)
-        else if (elapsed < 4.2) {
-          const t = (elapsed - 3.9) / 0.3;
-          spoon.position.set(0, THREE.MathUtils.lerp(2.95, 2.85, t), THREE.MathUtils.lerp(0.05, 0.1, t));
-          spoon.rotation.set(THREE.MathUtils.lerp(1.25, 0.36, t), -0.2, 0.1);
-        } else {
-          // Animation Complete
+        // STEP 5: Camera Glides to Focus on Won Charms (4.4s – 5.4s)
+        else if (elapsed < 5.4) {
+          const t = (elapsed - 4.4) / 1.0;
+          setScoopStepInfo({ step: 5, text: `✨ Inspecting your ${count} won treasures! 💎` });
+
+          // Scoop floats back to resting position above the bowl
+          const returnP = easeInOutQuad(t);
+          spoon.position.set(
+            THREE.MathUtils.lerp(1.65, -1.65, returnP),
+            THREE.MathUtils.lerp(2.95, 2.85, returnP),
+            THREE.MathUtils.lerp(0.15, -0.15, returnP)
+          );
+          spoon.rotation.set(
+            THREE.MathUtils.lerp(1.35, 0.36, returnP),
+            -0.2,
+            0.1
+          );
+
+          // Ensure all plate charms are settled
+          if (plateCharmsRef.current) {
+            plateCharmsRef.current.children.forEach(c => {
+              c.position.y = c.userData.targetY;
+              c.scale.setScalar(1);
+            });
+          }
+        }
+        // STEP 6: Complete & Reveal Won Treasures (5.4s+)
+        else {
           animState.active = false;
-          spoon.position.set(0, 2.85, 0.1);
+          spoon.position.set(-1.65, 2.85, -0.15);
           spoon.rotation.set(0.36, -0.2, 0.1);
 
-          // Reset loot charms in spoon
+          // Clear spoon loot
           if (charmsInSpoonRef.current) {
-            const initialPos = charmsInSpoonRef.current.userData.initialPositions || [];
-            charmsInSpoonRef.current.children.forEach((c, idx) => {
-              const base = initialPos[idx] || { x: 0, y: 0, z: 0 };
-              c.position.set(base.x, base.y, base.z);
-              c.scale.set(0, 0, 0);
-            });
+            charmsInSpoonRef.current.children.forEach(c => c.scale.setScalar(0));
           }
 
-          setScoopStatusText('');
+          setScoopStepInfo({ step: 0, text: '' });
           setIsScooping(false);
 
-          // Confetti explosion
+          // Confetti Celebration
           confetti({
-            particleCount: 90,
-            spread: 75,
+            particleCount: 95,
+            spread: 80,
             origin: { y: 0.6 },
             colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FFFFFF']
           });
 
-          // Generate Pulled Loot
-          const pulledItems = [];
-          const itemCount = selectedTier.productCount || (selectedTier.scoops * 7);
-          for (let m = 0; m < itemCount; m++) {
-            const randItem = CHARM_LOOT_POOL[Math.floor(Math.random() * CHARM_LOOT_POOL.length)];
-            pulledItems.push({
-              ...randItem,
-              id: `${randItem.name}-${m}-${Date.now()}`
-            });
-          }
-
+          // Show Haul Modal
           setScoopResult({
-            tier: selectedTier,
+            tier: animState.tier,
             items: pulledItems,
             timestamp: new Date().toLocaleTimeString()
           });
@@ -716,38 +797,127 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     };
   }, [isDark]);
 
-  // TRIGGER 3D SCOOP ANIMATION SEQUENCE
+  // TRIGGER STEP-BY-STEP ASMR SCOOP ANIMATION
   const handlePerformScoop = useCallback(() => {
     if (isScooping || !spoonRef.current) return;
 
     setIsScooping(true);
     soundFX.playPop(520);
 
-    // Audio Timings synced to visual phases
+    // 1. Calculate EXACT random charms count strictly conforming to tier description:
+    // Mini: 7–8 charms | Midi: 12–15 charms | Big: 20–24 charms
+    const itemCount = getTierCharmsCount(selectedTier.id);
+
+    // 2. Roll the exact pulled items from pool
+    const pulledItems = [];
+    for (let m = 0; m < itemCount; m++) {
+      const randItem = CHARM_LOOT_POOL[Math.floor(Math.random() * CHARM_LOOT_POOL.length)];
+      pulledItems.push({
+        ...randItem,
+        id: `${randItem.name}-${m}-${Date.now()}`
+      });
+    }
+
+    // 3. Clear previous charms on the plate
+    if (plateCharmsRef.current) {
+      while (plateCharmsRef.current.children.length > 0) {
+        const obj = plateCharmsRef.current.children[0];
+        plateCharmsRef.current.remove(obj);
+        if (obj.geometry) obj.geometry.dispose();
+      }
+    }
+
+    // 4. Clear and recreate matching charms inside the spoon trough
+    if (charmsInSpoonRef.current) {
+      while (charmsInSpoonRef.current.children.length > 0) {
+        const obj = charmsInSpoonRef.current.children[0];
+        charmsInSpoonRef.current.remove(obj);
+      }
+
+      const beadGeo = new THREE.SphereGeometry(0.16, 16, 16);
+      const cubeGeo = new THREE.BoxGeometry(0.18, 0.18, 0.18);
+      const starGeo = createStarGeometry();
+      const heartGeo = createHeartGeometry();
+      const gemGeo = new THREE.OctahedronGeometry(0.18, 0);
+
+      pulledItems.forEach((item, idx) => {
+        let geo;
+        const typeChoice = idx % 5;
+        if (typeChoice === 0) geo = heartGeo;
+        else if (typeChoice === 1) geo = beadGeo;
+        else if (typeChoice === 2) geo = starGeo;
+        else if (typeChoice === 3) geo = gemGeo;
+        else geo = cubeGeo;
+
+        const hexCol = item.color ? parseInt(item.color.replace('#', '0x')) : 0xFF6B97;
+        const mat = new THREE.MeshPhysicalMaterial({
+          color: hexCol,
+          roughness: 0.15,
+          metalness: 0.2,
+          clearcoat: 1.0
+        });
+
+        // Charm in spoon
+        const spoonMesh = new THREE.Mesh(geo, mat);
+        spoonMesh.position.set(
+          (Math.random() - 0.5) * 0.55,
+          -0.05 + Math.random() * 0.22,
+          -0.3 + Math.random() * 0.75
+        );
+        spoonMesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+        spoonMesh.scale.set(0, 0, 0);
+        charmsInSpoonRef.current.add(spoonMesh);
+
+        // Matching charm on luxury plate (initially hidden, revealed upon pour)
+        if (plateCharmsRef.current) {
+          const plateMesh = new THREE.Mesh(geo, mat);
+          // Scatter across the luxury plate surface (radius < 1.1)
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 1.05;
+          const targetX = Math.cos(angle) * dist;
+          const targetZ = Math.sin(angle) * dist;
+          const targetY = 0.14 + (idx * 0.012) % 0.12;
+
+          plateMesh.position.set(targetX, targetY, targetZ);
+          plateMesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+          plateMesh.scale.set(0, 0, 0);
+          plateMesh.userData = { targetY };
+          plateCharmsRef.current.add(plateMesh);
+        }
+      });
+    }
+
+    // 5. Synced ASMR Sound Effects
     if (soundEnabled) {
-      setTimeout(() => soundFX.playScoopSound(), 600); // Digging into charms
+      setTimeout(() => soundFX.playScoopSound(), 700); // Dig into bowl
       setTimeout(() => {
         soundFX.playPop(980);
         soundFX.playPop(1250);
-      }, 1600); // Heavy haul lift
+      }, 1900); // Lift heavy haul
       setTimeout(() => {
-        soundFX.playChime([783.99, 987.77, 1174.66, 1567.98]);
-      }, 2500); // Showcase glint
-      setTimeout(() => soundFX.playSuccess(), 3300); // Cascade pour celebration
+        // Rapid cascade bead clatter on plate
+        [800, 1100, 1400, 950, 1300, 1550].forEach((f, i) => {
+          setTimeout(() => soundFX.playPop(f), i * 90);
+        });
+      }, 3400); // Pour onto luxury plate
+      setTimeout(() => soundFX.playSuccess(), 4600); // Plate inspection fanfare
+      setTimeout(() => soundFX.playCashRegister(), 5400); // Haul reveal cha-ching!
     }
 
     scoopAnimStateRef.current = {
       active: true,
-      startTime: performance.now()
+      startTime: performance.now(),
+      tier: selectedTier,
+      pulledItems
     };
-  }, [isScooping, soundEnabled]);
+  }, [isScooping, selectedTier, soundEnabled]);
 
   const handleClaimLoot = () => {
     if (!scoopResult) return;
     soundFX.playPop(620);
     const customItem = {
       id: `custom-scoop-${Date.now()}`,
-      name: `${scoopResult.tier.name} (Live Haul)`,
+      name: `${scoopResult.tier.name} (${scoopResult.items.length} Won Items)`,
       price: scoopResult.tier.priceINR,
       priceINR: scoopResult.tier.priceINR,
       image: '/images/scoop-bowl.jpg',
@@ -791,6 +961,14 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     }, 1800);
   };
 
+  // Group won items by rarity for stylish stats
+  const rarityCounts = scoopResult?.items ? {
+    legendary: scoopResult.items.filter(i => i.rarity === 'Legendary').length,
+    epic: scoopResult.items.filter(i => i.rarity === 'Epic').length,
+    rare: scoopResult.items.filter(i => i.rarity === 'Rare').length,
+    common: scoopResult.items.filter(i => i.rarity === 'Common').length,
+  } : null;
+
   return (
     <section id="scoop-machine" className="my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Policy Alert Banner */}
@@ -805,14 +983,14 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-xs tracking-wider uppercase mb-3 shadow-xs">
           <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-          <span>India's 1st Virtual 3D Mystery Scoop Experience</span>
+          <span>India's 1st Interactive ASMR Mystery Scoop Studio</span>
         </div>
         <h2 className="text-3xl md:text-5xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white">
           Dip The Rose-Gold Scoop. <br />
-          <span className="shimmer-text">Collect Your Mystery Happiness.</span>
+          <span className="shimmer-text">Pour Onto The Luxury Plate.</span>
         </h2>
         <p className="mt-3 text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-body font-medium">
-          Watch the handcrafted 3D rose-gold scoop plunge into the charm bowl and reveal your personalized mystery haul!
+          Watch the scoop dip into the charm bowl, take your lucky treasures according to your scoop size, and cascade them onto the luxury gold-rimmed plate!
         </p>
         <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
           <button
@@ -831,10 +1009,13 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
       {/* 3D Interactive Stage Container */}
       <div className="relative rounded-3xl bg-white/95 dark:bg-[#1E172E]/95 p-4 sm:p-6 md:p-8 shadow-2xl border-2 border-pink-200 dark:border-pink-900/60 overflow-hidden">
-        {/* Centered Tier Switcher with Audio Toggle */}
+        {/* Tier Selector & Audio Toggle */}
         <div className="mb-5 pb-4 border-b border-pink-100 dark:border-pink-900/40 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="hidden sm:block text-xs font-bold text-neutral-500">
-            Interactive 3D ASMR Studio
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300">
+              Selected: <strong className="text-[#E60067] dark:text-pink-300">{selectedTier.name}</strong> ({selectedTier.itemsCount})
+            </span>
           </div>
 
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full max-w-xl p-1.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50/50 to-pink-50 dark:from-[#251A38] dark:to-[#1E172E] border border-pink-200/80 dark:border-pink-800/50 shadow-inner">
@@ -880,7 +1061,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               setSoundEnabled(newState);
               if (newState) soundFX.playPop(650);
             }}
-            className="px-3 py-1.5 rounded-xl bg-pink-50 dark:bg-neutral-800 text-pink-700 dark:text-pink-300 text-xs font-bold border border-pink-200 dark:border-neutral-700 flex items-center gap-1.5 hover:bg-pink-100 transition cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-pink-50 dark:bg-neutral-800 text-pink-700 dark:text-pink-300 text-xs font-bold border border-pink-200 dark:border-neutral-700 flex items-center gap-1.5 hover:bg-pink-100 transition cursor-pointer shrink-0"
             title="Toggle Tactile ASMR Sounds"
           >
             {soundEnabled ? (
@@ -897,32 +1078,59 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           </button>
         </div>
 
-        {/* 3D WebGL Canvas */}
-        <div className="relative w-full h-[360px] sm:h-[420px] md:h-[460px] rounded-2xl overflow-hidden bg-gradient-to-b from-pink-50/50 via-white to-pink-50/30 dark:from-[#171024] dark:via-[#1A1326] dark:to-[#171024]">
+        {/* 3D WebGL Canvas Stage */}
+        <div className="relative w-full h-[380px] sm:h-[440px] md:h-[480px] rounded-2xl overflow-hidden bg-gradient-to-b from-pink-50/50 via-white to-pink-50/30 dark:from-[#171024] dark:via-[#1A1326] dark:to-[#171024]">
           <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
           
-          {/* Live Action Status Overlay */}
-          {scoopStatusText && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border border-pink-300 dark:border-pink-800 shadow-xl text-xs sm:text-sm font-extrabold text-[#E60067] dark:text-pink-300 flex items-center gap-2 animate-bounce pointer-events-none">
-              <Sparkles className="w-4 h-4 text-yellow-500 fill-yellow-400" />
-              <span>{scoopStatusText}</span>
+          {/* Stage Labels: Bowl (Left) & Luxury Plate (Right) */}
+          <div className="absolute top-3 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xs border border-pink-200 dark:border-pink-800/60 text-[10px] sm:text-xs font-extrabold text-[#554664] dark:text-pink-200 shadow-xs flex items-center gap-1.5 pointer-events-none">
+            <span>🥣</span>
+            <span>1. Charm Compote Bowl</span>
+          </div>
+
+          <div className="absolute top-3 right-4 px-3 py-1 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xs border border-pink-200 dark:border-pink-800/60 text-[10px] sm:text-xs font-extrabold text-[#554664] dark:text-pink-200 shadow-xs flex items-center gap-1.5 pointer-events-none">
+            <span>✨</span>
+            <span>2. Luxury Vanity Plate</span>
+          </div>
+
+          {/* Live Step-by-Step Progress Overlay Banner */}
+          {scoopStepInfo.text && (
+            <div className="absolute top-12 left-1/2 -translate-x-1/2 max-w-[90%] px-4 sm:px-6 py-2 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-2 border-pink-400 dark:border-pink-600 shadow-2xl text-xs sm:text-sm font-extrabold text-[#E60067] dark:text-pink-300 flex items-center gap-2.5 animate-bounce pointer-events-none">
+              <span className="px-2 py-0.5 rounded-full bg-[#E60067] text-white text-[10px] font-black uppercase">
+                Step {scoopStepInfo.step} / 4
+              </span>
+              <span className="truncate">{scoopStepInfo.text}</span>
+            </div>
+          )}
+
+          {/* Prompt if loot is already resting on plate */}
+          {scoopResult && !isScooping && (
+            <div className="absolute bottom-3 right-4 z-10">
+              <button
+                type="button"
+                onClick={() => setShowModal(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 text-xs font-bold shadow-lg flex items-center gap-1.5 hover:scale-105 transition cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5 text-[#E60067]" />
+                <span>Inspect Plate Haul ({scoopResult.items.length} items)</span>
+              </button>
             </div>
           )}
         </div>
 
-        {/* Scoop Action Button & ASMR Hint */}
+        {/* Scoop Action Button */}
         <div className="mt-5 text-center max-w-md mx-auto px-2">
           <button
             disabled={isScooping}
             onClick={handlePerformScoop}
             className={`w-full py-4 px-6 rounded-2xl font-display font-extrabold text-lg md:text-xl text-white tracking-wide shadow-2xl transition-all flex items-center justify-center gap-3 ${
               selectedTier.btnClass
-            } ${isScooping ? 'opacity-80 cursor-not-allowed animate-pulse' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
+            } ${isScooping ? 'opacity-85 cursor-not-allowed animate-pulse' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
           >
             {isScooping ? (
               <>
                 <RotateCcw className="w-5 h-5 animate-spin" />
-                <span>Scooping Live In Real-Time...</span>
+                <span>Scooping & Pouring In Progress...</span>
               </>
             ) : (
               <>
@@ -932,7 +1140,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             )}
           </button>
           <p className="mt-2 text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold flex items-center justify-center gap-1.5">
-            <span>✨ Drag or hover over the 3D stage to inspect the rose-gold scoop & crystal bowl!</span>
+            <span>✨ Automatically scoops {selectedTier.id === 'mini-scoop' ? '7–8' : selectedTier.id === 'midi-scoop' ? '12–15' : '20+'} charms & pours onto the luxury plate!</span>
           </p>
         </div>
       </div>
@@ -949,7 +1157,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             </h3>
           </div>
           <p className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
-            Tap card to preview in 3D or click "Add to Bag" to order directly
+            Tap card to load in 3D or click "Add to Bag" to order directly
           </p>
         </div>
 
@@ -980,7 +1188,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   {isSelected && (
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E60067] text-white text-[10px] font-black uppercase tracking-wide mb-2 shadow-xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      <span>Loaded in 3D Scoop Machine</span>
+                      <span>Loaded in 3D Studio</span>
                     </div>
                   )}
 
@@ -1048,35 +1256,68 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         </div>
       </div>
 
-      {/* REVEAL LOOT MODAL */}
+      {/* LUXURY HAUL REVEAL MODAL */}
       {showModal && scoopResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
-          <div className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border-2 border-pink-400 dark:border-pink-700 relative overflow-hidden animate-scaleUp">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-md animate-fadeIn">
+          <div className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border-2 border-pink-400 dark:border-pink-600 relative overflow-hidden animate-scaleUp">
+            {/* Top Badges */}
             <div className="text-center">
               <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xs font-bold tracking-wide uppercase shadow-md mb-2">
                 <Trophy className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
-                <span>Scoop Complete!</span>
+                <span>Poured Onto Luxury Plate!</span>
               </div>
-              <h3 className="text-2xl md:text-3xl font-display font-extrabold text-[#231733] dark:text-white">
+              <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-[#231733] dark:text-white">
                 {scoopResult.tier.name}
               </h3>
-              <p className="text-xs md:text-sm text-[#554664] dark:text-[#D5CBE2] font-semibold mt-1">
-                You scooped <strong className="text-[#E60067] font-bold">{scoopResult.items.length} surprise treasures</strong>!
+              <p className="text-xs sm:text-sm text-[#554664] dark:text-[#D5CBE2] font-semibold mt-1">
+                You scooped <strong className="text-[#E60067] font-extrabold">{scoopResult.items.length} surprise treasures</strong> matching your scoop size!
               </p>
+
+              {/* Rarity breakdown pills */}
+              {rarityCounts && (
+                <div className="flex items-center justify-center gap-2 flex-wrap mt-3">
+                  {rarityCounts.legendary > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-purple-950 text-[10px] font-black shadow-xs">
+                      ✨ {rarityCounts.legendary} Legendary
+                    </span>
+                  )}
+                  {rarityCounts.epic > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-black shadow-xs">
+                      💜 {rarityCounts.epic} Epic
+                    </span>
+                  )}
+                  {rarityCounts.rare > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-pink-600 text-white text-[10px] font-black shadow-xs">
+                      💎 {rarityCounts.rare} Rare
+                    </span>
+                  )}
+                  {rarityCounts.common > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-[10px] font-bold">
+                      🌸 {rarityCounts.common} Common
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="my-6 max-h-56 overflow-y-auto pr-2 space-y-2">
-              {scoopResult.items.map((item) => (
+            {/* Won Items List */}
+            <div className="my-5 max-h-60 overflow-y-auto pr-2 space-y-2">
+              {scoopResult.items.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800/80 border border-pink-200 dark:border-pink-900/40 text-xs md:text-sm font-semibold text-[#231733] dark:text-neutral-100"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800/80 border border-pink-200 dark:border-pink-900/40 text-xs sm:text-sm font-semibold text-[#231733] dark:text-neutral-100"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-xl shrink-0">{item.icon}</span>
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0 shadow-xs border border-white dark:border-neutral-700"
+                      style={{ backgroundColor: `${item.color || '#E60067'}30` }}
+                    >
+                      {item.icon || '✨'}
+                    </div>
                     <div className="min-w-0 text-left">
                       <span className="font-bold block truncate">{item.name}</span>
                       <span className="text-[10px] text-pink-600 dark:text-pink-300 font-semibold block truncate">
-                        {item.category} • {item.charm}
+                        Charm Bead: {item.charm} • {item.category}
                       </span>
                     </div>
                   </div>
@@ -1097,33 +1338,38 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               ))}
             </div>
 
+            {/* Actions */}
             <div className="flex flex-col gap-2.5">
               <button
                 onClick={handleClaimLoot}
-                className="w-full btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm md:text-base flex items-center justify-center gap-2 shadow-lg"
+                className="w-full btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm md:text-base flex items-center justify-center gap-2 shadow-lg cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4 text-white" />
-                <span>Add Haul to Bag (₹{scoopResult.tier.priceINR})</span>
+                <span>Add This Exact Haul to Bag (₹{scoopResult.tier.priceINR})</span>
               </button>
 
-              <a
-                href={`https://api.whatsapp.com/send?phone=918199922653&text=${encodeURIComponent(
-                  `Hi Bhaskar! 🎀 Mujhe mera 3D Scoop result discuss karna hai (${scoopResult?.tier?.name} - ${scoopResult?.items?.length} charms). (Prepaid Store • Min 3 items)`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs md:text-sm flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer"
-              >
-                <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
-                <span>Inquire Scoop on WhatsApp (+91 8199922653)</span>
-              </a>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-pink-100 dark:bg-pink-950/60 hover:bg-pink-200 text-[#E60067] dark:text-pink-300 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Inspect On Plate</span>
+                </button>
 
-              <button
-                onClick={() => setShowModal(false)}
-                className="py-2 text-xs text-[#554664] hover:text-[#231733] dark:text-neutral-400 dark:hover:text-neutral-200 font-bold transition"
-              >
-                Close
-              </button>
+                <a
+                  href={`https://api.whatsapp.com/send?phone=918199922653&text=${encodeURIComponent(
+                    `Hi Bhaskar! 🎀 Maine Scoop Storey 3D Scoop se ${scoopResult.items.length} items scoop kiye hain (${scoopResult.tier.name} - ₹${scoopResult.tier.priceINR})! Mera order confirm karna hai.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>WhatsApp Inquire</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -1162,7 +1408,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               </button>
             </div>
 
-            {/* View Mode Switcher: Items Grid vs Physical Board Photos */}
+            {/* View Mode Switcher */}
             <div className="flex items-center justify-between gap-2 py-3 border-b border-pink-100 dark:border-pink-900/40 shrink-0 flex-wrap">
               <div className="flex items-center gap-1.5 p-1 rounded-xl bg-pink-50 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-neutral-700">
                 <button
@@ -1229,7 +1475,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             {/* Modal Body */}
             <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
               {activeChartTab === 'photos' ? (
-                /* Physical Board Photos */
                 <div className="space-y-4">
                   <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
                     These are the actual printed boards used by Scoop Storey during Instagram live scoops! Tap on any photo to inspect beads:
@@ -1271,7 +1516,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   </div>
                 </div>
               ) : (
-                /* Items Grid */
                 <div className="space-y-6">
                   {MYSTERY_SCOOP_CATEGORIES
                     .filter(cat => activeChartCategory === 'all' || cat.id === activeChartCategory)
