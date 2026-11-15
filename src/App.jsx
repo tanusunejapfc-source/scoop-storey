@@ -137,10 +137,12 @@ export default function App() {
         }
       } else if (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine' || hash === '#faq-section' || hash === '#story' || hash === '#reviews') {
         setActiveCollection(null);
-        const targetId = hash.slice(1);
-        setTimeout(() => {
-          document.getElementById(targetId)?.scrollIntoView({ behavior: isInitial ? 'instant' : 'smooth' });
-        }, isInitial ? 250 : 50);
+        if (!isInitial) {
+          const targetId = hash.slice(1);
+          setTimeout(() => {
+            document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+          }, 50);
+        }
       }
     };
 

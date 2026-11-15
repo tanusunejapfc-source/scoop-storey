@@ -336,7 +336,7 @@ export default function CartDrawer({
       setTimeout(() => setQrDownloaded(false), 3500);
     } catch (err) {
       console.warn('QR download error:', err);
-      window.open(getQrDisplayUrl(paymentSettings, paymentBreakdown.payNowINR, currentOrderId), '_blank');
+      window.open(getQrDisplayUrl(paymentSettings, paymentBreakdown.payNowINR, currentOrderId), '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -347,7 +347,7 @@ export default function CartDrawer({
       .map(item => `• ${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
     const msg = `Hey! 💖 Here are the cute jewelry finds I saved in my cart on Scoop Storey:\n\n${itemList}\n\n💰 Total: ₹${totalINR} (${totalItemCount} items)\n✨ Look at them here: https://scoop-storey-1du8.vercel.app/\nWould make the dreamiest gift or surprise! 🎁✨`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   // Transition to UPI & QR Payment Step
@@ -1029,6 +1029,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           <img
                             src={paymentScreenshot}
                             alt="Payment Proof"
+                            onError={() => setPaymentScreenshot(null)}
                             className="w-10 h-10 object-cover rounded-lg border border-black/10"
                           />
                           <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
@@ -1137,8 +1138,12 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
                       >
                         <img
-                          src={item.image}
+                          src={item.image || '/images/deluxe-giftbox.jpg'}
                           alt={item.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
                           className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
                         />
                         <div className="flex-1 min-w-0">

@@ -545,8 +545,12 @@ export default function ProductCatalog({
                     <div className="space-y-2">
                       <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
                         <img
-                          src={product.image || product.images?.[0]}
+                          src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
                           alt={product.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full bg-white/95 dark:bg-neutral-900/95 text-[9px] font-black text-[#E60067] shadow-xs truncate max-w-[85%]">

@@ -182,7 +182,7 @@ export default function ProductDetailPage({
     soundFX.playPop(520);
     const shareUrl = window.location.href;
     const msg = `Hey! 💖 I saw this gorgeous "${product.name}" (${selectedColor?.name || 'Standard'}) on Scoop Storey and totally loved it: ${shareUrl} ✨ Would make the dreamiest gift!`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   // Handle ESC key to close
@@ -1045,6 +1045,10 @@ export default function ProductDetailPage({
                         <img
                           src={rel.image || (rel.images?.[0]) || '/images/deluxe-giftbox.jpg'}
                           alt={rel.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>

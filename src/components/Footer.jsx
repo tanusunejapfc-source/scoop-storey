@@ -102,7 +102,7 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
                 Prepaid UPI & Partial COD Guarantee
               </div>
-              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Verified QR & 1-Click Pay • WhatsApp: +91 8199922653</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Verified QR Scanner & UPI • WhatsApp: +91 8199922653</div>
             </div>
           </div>
         </div>

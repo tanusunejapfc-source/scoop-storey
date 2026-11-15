@@ -220,7 +220,7 @@ export default function Navbar({
           
           {/* Logo & Brand Identity */}
           <a 
-            href="#" 
+            href="/" 
             onClick={(e) => {
               e.preventDefault();
               onSelectCategory?.(null);

@@ -50,9 +50,6 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
       if (initialQuery) {
         setQuery(initialQuery);
         handleLookup(initialQuery, orders);
-      } else if (orders.length > 0 && !matchedOrder) {
-        // Pre-select latest order for quick preview
-        setQuery(orders[0].orderId);
       }
     }
   }, [isOpen, initialQuery]);

@@ -42,7 +42,7 @@ export default function WishlistDrawer({
       .map(item => `• ${item.name} - ₹${item.priceINR}`)
       .join('\n');
     const msg = `Hey! 💖 Here are my favorite jewelry pieces saved on Scoop Storey:\n\n${itemList}\n\nTotal: ₹${totalValue}\nCheck it out here: https://scoop-storey-1du8.vercel.app/ ✨🎁`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
