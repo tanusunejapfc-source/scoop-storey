@@ -50,9 +50,22 @@ import {
   Volume2,
   Smartphone,
   Printer,
-  Truck
+  Truck,
+  Menu,
+  BarChart3,
+  TrendingUp,
+  Users,
+  Boxes,
+  Percent
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
+import AdminSidebar from './admin/AdminSidebar';
+import AdminDashboardOverview from './admin/AdminDashboardOverview';
+import AdminCommandPalette from './admin/AdminCommandPalette';
+import AdminCustomerCRM from './admin/AdminCustomerCRM';
+import AdminInventoryStock from './admin/AdminInventoryStock';
+import AdminPackingSlipModal from './admin/AdminPackingSlipModal';
+import AdminDiscountsCMS from './admin/AdminDiscountsCMS';
 import { categoryToSlug } from '../data/storeData';
 import { useStoreOrders, exportOrdersToCourierCSV } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
@@ -221,14 +234,39 @@ export default function AdminPanel({
   const [securityError, setSecurityError] = useState('');
   const [securitySuccess, setSecuritySuccess] = useState('');
 
-  // Primary navigation: 'orders' | 'products' | 'categories' | 'edit' | 'new' | 'payments' | 'reels' | 'security'
-  const [activeTab, setActiveTab] = useState('orders');
+  // Primary navigation: 'dashboard' | 'orders' | 'products' | 'categories' | 'edit' | 'new' | 'payments' | 'reels' | 'security' | 'alerts'
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [toastMessage, setToastMessage] = useState('');
   const [copiedOrderId, setCopiedOrderId] = useState(null);
+  const [printingOrder, setPrintingOrder] = useState(null);
+
+  // Global Ctrl+K / Cmd+K Spotlight Listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleSpotlightNavigate = (tab, itemId) => {
+    setActiveTab(tab);
+    if (tab === 'orders' && itemId) {
+      setOrderSearchQuery(itemId);
+    } else if (tab === 'products' && itemId) {
+      setSearchQuery(itemId);
+    }
+  };
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -239,6 +277,13 @@ export default function AdminPanel({
   const { orders, refreshOrders, updateStatus, updateTracking, deleteOrder, clearOrders } = useStoreOrders();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [trackingDrafts, setTrackingDrafts] = useState({});
+
+  const pendingOrdersCount = useMemo(() => {
+    return orders.filter(o => {
+      const st = (o.status || '').toLowerCase();
+      return !st.includes('delivered') && !st.includes('cancelled');
+    }).length;
+  }, [orders]);
 
   const handleUpdateTrackingDraft = (orderId, field, value) => {
     setTrackingDrafts(prev => ({
@@ -280,104 +325,7 @@ export default function AdminPanel({
 
   const handlePrintPackingSlip = (order) => {
     soundFX.playPop(500);
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    const itemsHtml = (order.items || []).map((it, i) => `
-      <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #eee;">${i + 1}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>${it.name}</strong>${it.selectedColor ? ` <span style="color:#666;">(${it.selectedColor})</span>` : ''}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${it.qty}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">₹${it.priceINR * it.qty}</td>
-      </tr>
-    `).join('');
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Packing Slip - ${order.orderId}</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #222; }
-            .header { border-bottom: 2px solid #E60067; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-            .badge { background: #ffe6ef; color: #E60067; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
-            th { text-align: left; padding: 8px; background: #fdf2f7; font-weight: bold; border-bottom: 2px solid #f8bbd0; }
-            .box { background: #fafafa; border: 1px solid #eee; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div>
-              <h2 style="margin: 0; color: #E60067;">Scoop Storey 🎀</h2>
-              <p style="margin: 2px 0 0; font-size: 12px; color: #666;">Collect Happiness In Every Single Scoop • Prepaid Delivery</p>
-            </div>
-            <div style="text-align: right;">
-              <span class="badge" style="${order.isPartialCod ? 'background: #fff3e0; color: #e65100; border: 1px solid #ffb74d;' : ''}">
-                ${order.isPartialCod ? 'PARTIAL COD ORDER' : 'PREPAID ORDER'}
-              </span>
-              <div style="font-weight: bold; font-size: 16px; margin-top: 4px;">#${order.orderId}</div>
-              <div style="font-size: 11px; color: #777;">Date: ${order.date}</div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 20px;">
-            <div class="box" style="flex: 1;">
-              <strong>DELIVER TO:</strong><br />
-              <div style="font-size: 14px; font-weight: bold; margin-top: 4px;">${order.customer?.fullName || 'Customer'}</div>
-              <div>Phone: +91 ${order.customer?.phone || ''}</div>
-              <div style="margin-top: 4px;">
-                ${order.customer?.streetAddress || ''}${order.customer?.landmark ? `<br/>Near ${order.customer?.landmark}` : ''}<br />
-                <strong>${order.customer?.city || ''}, ${order.customer?.state || ''} - ${order.customer?.pincode || ''}</strong>
-              </div>
-            </div>
-
-            <div class="box" style="flex: 1;">
-              <strong>PAYMENT & COURIER:</strong><br />
-              <div>Mode: <strong>${order.isPartialCod ? 'Partial COD (Advance Paid)' : '100% Prepaid UPI'}</strong></div>
-              ${order.isPartialCod ? `
-                <div style="margin-top: 6px; padding: 8px; background: #fff8e1; border: 1.5px dashed #ffa000; border-radius: 6px;">
-                  <strong style="color: #d84315; font-size: 14px; display: block;">💵 CASH TO COLLECT ON DELIVERY: ₹${order.balanceDueOnDeliveryINR ?? 0}</strong>
-                  <span style="font-size: 11px; color: #555;">Advance Paid: ₹${order.advancePaidINR ?? 0} (UPI UTR: ${order.upiRefNumber || 'Verified'})</span>
-                </div>
-              ` : `
-                <div>UPI UTR: <code>${order.upiRefNumber || 'Verified'}</code></div>
-              `}
-              ${order.courierName ? `<div>Courier: <strong>${order.courierName}</strong></div>` : ''}
-              ${order.trackingNumber ? `<div>AWB: <code>${order.trackingNumber}</code></div>` : ''}
-              ${order.filmOnReel ? `<div style="margin-top: 4px; color: #9c27b0;"><strong>🎬 IG Reel Packing:</strong> ${order.filmOnReel}</div>` : ''}
-              ${order.additionalNotes ? `<div style="margin-top: 4px; color: #555;"><strong>Note:</strong> <i>${order.additionalNotes}</i></div>` : ''}
-            </div>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 30px;">#</th>
-                <th>Item Description & Selected Variant</th>
-                <th style="width: 60px; text-align: center;">Qty</th>
-                <th style="width: 90px; text-align: right;">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="3" style="text-align: right; padding: 12px; font-weight: bold; font-size: 14px;">Total Amount:</td>
-                <td style="text-align: right; padding: 12px; font-weight: 900; font-size: 16px; color: #E60067;">₹${order.totalINR}</td>
-              </tr>
-            </tfoot>
-          </table>
-
-          <div style="margin-top: 30px; text-align: center; font-size: 11px; color: #888; border-top: 1px dashed #ccc; padding-top: 12px;">
-            Thank you for shopping at Scoop Storey! 🎀 For unboxing assistance, WhatsApp us: +91 8199922653
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
+    setPrintingOrder(order);
   };
 
   // Auto-refresh orders whenever Admin Panel opens
@@ -1740,7 +1688,7 @@ export default function AdminPanel({
   // Total revenue stats
   const totalOrdersCount = orders.length;
   const totalRevenueINR = orders.reduce((acc, o) => acc + (o.totalINR || 0), 0);
-  const pendingOrdersCount = orders.filter(o => o.status?.includes('Pending') || o.status?.includes('New')).length;
+  // pendingOrdersCount is already computed above
 
   return (
     <div 
@@ -1750,7 +1698,9 @@ export default function AdminPanel({
       {/* Modal Container */}
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-[#1E172E] rounded-none sm:rounded-3xl max-w-5xl w-full h-full sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-2xl border-0 sm:border-2 border-pink-300 dark:border-pink-800 flex flex-col animate-scaleUp text-[#231733] dark:text-white"
+        className={`relative bg-white dark:bg-[#160E22] rounded-none sm:rounded-3xl w-full h-full sm:h-[95vh] overflow-hidden shadow-2xl border-0 sm:border-2 border-pink-300 dark:border-pink-800 flex flex-col animate-scaleUp text-[#231733] dark:text-white ${
+          isAuthenticated ? 'max-w-7xl' : 'max-w-md sm:h-auto'
+        }`}
       >
         {/* Toast Alert */}
         {toastMessage && (
@@ -1760,97 +1710,26 @@ export default function AdminPanel({
           </div>
         )}
 
-        {/* Top Header */}
-        <div className="p-3 sm:p-5 border-b border-pink-100 dark:border-pink-900/40 bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-neutral-900 dark:to-neutral-900 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="p-2 sm:p-2.5 rounded-2xl bg-gradient-to-tr from-pink-600 to-purple-600 text-white shadow-md shrink-0">
-              <Sliders className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-display font-extrabold text-sm sm:text-base md:text-lg truncate">
-                  Scoop Storey Admin
-                </h3>
-                <span className="px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-extrabold text-[9px] sm:text-[10px] uppercase tracking-wider shrink-0">
-                  Live Manager
-                </span>
-              </div>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 hidden sm:block truncate">
-                Track WhatsApp & Online orders, manage product images, colors & specifications
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {isAuthenticated && (
-              <>
-                <button
-                  onClick={() => {
-                    setActiveTab('security');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                    activeTab === 'security'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'glass-pill text-neutral-600 dark:text-neutral-300 hover:text-[#E60067]'
-                  }`}
-                  title="Change Admin Passcode"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Passcode</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab('alerts');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                    activeTab === 'alerts'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'glass-pill text-neutral-600 dark:text-neutral-300 hover:text-[#E60067]'
-                  }`}
-                  title="Configure Telegram & Email Alerts"
-                >
-                  <Bell className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Alerts</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setIsAuthenticated(false);
-                    sessionStorage.removeItem('bhaskar_admin_auth');
-                    soundFX.playPop(400);
-                    showToast('Logged out of Admin');
-                  }}
-                  className="p-2 text-xs font-bold text-neutral-500 hover:text-rose-500 transition rounded-xl hover:bg-rose-50 dark:hover:bg-neutral-800"
-                  title="Lock Admin Panel"
-                >
-                  <Lock className="w-4 h-4" />
-                </button>
-              </>
-            )}
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition"
-              aria-label="Close Admin Panel"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
         {/* AUTH CHECK SCREEN */}
         {!isAuthenticated ? (
-          <div className="flex-1 p-6 sm:p-12 flex flex-col items-center justify-center text-center max-w-sm mx-auto">
+          <div className="p-6 sm:p-10 flex flex-col items-center justify-center text-center">
+            <div className="w-full flex justify-end mb-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1.5 rounded-xl hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <div className="w-16 h-16 rounded-3xl bg-pink-100 dark:bg-neutral-800 flex items-center justify-center text-3xl mb-4 shadow-sm border border-pink-200 dark:border-neutral-700">
               🔐
             </div>
             <h4 className="font-display font-extrabold text-xl text-neutral-900 dark:text-white">
-              Store Manager Access
+              Scoop Storey OS Access
             </h4>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 mb-5">
-              Enter passcode to view customer orders and manage store products.
+              Enter admin passcode to unlock the enterprise management center.
             </p>
 
             <form onSubmit={handleLogin} className="w-full space-y-3">
@@ -1891,183 +1770,201 @@ export default function AdminPanel({
             </form>
           </div>
         ) : (
-          <>
-            {/* Navigation Tabs (Single-line pills on mobile with horizontal scroll) */}
-            <div className="px-3 sm:px-6 py-2 bg-pink-50/50 dark:bg-neutral-900/80 border-b border-pink-100 dark:border-pink-900/40 flex items-center justify-between gap-2 overflow-x-auto scrollbar-none select-none shrink-0">
-              <div className="flex items-center gap-1.5 shrink-0">
-                {/* 1. ORDERS TAB (PRIMARY) */}
-                <button
-                  onClick={() => {
-                    setActiveTab('orders');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
-                    activeTab === 'orders'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
+          <div className="flex-1 flex overflow-hidden">
+            
+            {/* Mobile Slide-Out Drawer */}
+            {isMobileMenuOpen && (
+              <div 
+                className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden flex animate-fadeIn" 
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <div 
+                  className="w-72 h-full bg-white dark:bg-[#160E22] shadow-2xl" 
+                  onClick={e => e.stopPropagation()}
                 >
-                  <Receipt className="w-3.5 h-3.5 shrink-0" />
-                  <span>Orders ({orders.length})</span>
-                </button>
-
-                {/* 2. ALL PRODUCTS TAB */}
-                <button
-                  onClick={() => {
-                    setActiveTab('products');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
-                    activeTab === 'products'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <Package className="w-3.5 h-3.5 shrink-0" />
-                  <span>Products ({products.length})</span>
-                </button>
-
-                {/* 3. MANAGE CATEGORIES TAB */}
-                <button
-                  onClick={() => {
-                    setActiveTab('categories');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
-                    activeTab === 'categories'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <Tags className="w-3.5 h-3.5 shrink-0" />
-                  <span>Categories ({allCategoryNames.length})</span>
-                </button>
-
-                {/* 4. ADD NEW PRODUCT TAB */}
-                <button
-                  onClick={handleStartNew}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
-                    activeTab === 'new'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <Plus className="w-3.5 h-3.5 shrink-0" />
-                  <span>Add Product</span>
-                </button>
-
-                {/* 5. UPI & QR PAYMENT SETTINGS TAB */}
-                <button
-                  onClick={() => {
-                    setActiveTab('payments');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none ${
-                    activeTab === 'payments'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <QrCode className="w-3.5 h-3.5 shrink-0" />
-                  <span>UPI & QR</span>
-                </button>
-
-                {/* 6. ASMR REELS & VIDEO UPLOADS TAB */}
-                <button
-                  onClick={() => {
-                    setActiveTab('reels');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none cursor-pointer ${
-                    activeTab === 'reels'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <Video className="w-3.5 h-3.5 shrink-0" />
-                  <span>Reels ({reels.length})</span>
-                </button>
-
-                {/* 7. SECURITY & PASSCODE TAB */}
-                <button
-                  onClick={() => {
-                    setActiveTab('security');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none cursor-pointer ${
-                    activeTab === 'security'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <Key className="w-3.5 h-3.5 shrink-0" />
-                  <span>Security</span>
-                </button>
-
-                {/* 8. ALERTS & NOTIFICATIONS TAB */}
-                <button
-                  onClick={() => {
-                    setActiveTab('alerts');
-                    soundFX.playPop(450);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none cursor-pointer ${
-                    activeTab === 'alerts'
-                      ? 'bg-[#E60067] text-white shadow-sm'
-                      : 'hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
-                  }`}
-                >
-                  <Bell className="w-3.5 h-3.5 shrink-0" />
-                  <span>Alerts ({notifSettings.telegram?.enabled ? 'Telegram' : 'Off'})</span>
-                </button>
-
-                {activeTab === 'edit' && (
-                  <button
-                    className="px-3 py-2 rounded-xl text-xs font-bold bg-[#E60067] text-white shadow-sm flex items-center gap-1.5 shrink-0 whitespace-nowrap leading-none"
-                  >
-                    <Edit3 className="w-3.5 h-3.5 shrink-0" />
-                    <span>Edit: {formData.name || 'Product'}</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Reset & Backup Actions */}
-              <div className="flex items-center gap-1.5 shrink-0 pl-2 border-l border-pink-200/60 dark:border-neutral-800">
-                <button
-                  onClick={handleExportJSON}
-                  className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold glass-pill text-neutral-600 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1 shrink-0 whitespace-nowrap"
-                  title="Export catalog as JSON backup"
-                >
-                  <Download className="w-3 h-3" />
-                  <span className="hidden sm:inline">Export</span>
-                </button>
-
-                <label className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold glass-pill text-neutral-600 dark:text-neutral-300 hover:text-pink-600 flex items-center gap-1 cursor-pointer shrink-0 whitespace-nowrap">
-                  <Upload className="w-3 h-3" />
-                  <span className="hidden sm:inline">Import</span>
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={handleImportJSON}
-                    className="hidden"
+                  <AdminSidebar
+                    activeTab={activeTab}
+                    onSelectTab={(tab) => {
+                      setActiveTab(tab);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    orders={orders}
+                    products={products}
+                    reels={reels}
+                    categoriesCount={allCategoryNames.length}
+                    pendingOrdersCount={pendingOrdersCount}
+                    isCollapsed={false}
+                    onToggleCollapse={() => {}}
+                    onOpenCommandPalette={() => {
+                      setIsMobileMenuOpen(false);
+                      setIsCommandPaletteOpen(true);
+                    }}
+                    onLock={() => {
+                      setIsAuthenticated(false);
+                      sessionStorage.removeItem('bhaskar_admin_auth');
+                      soundFX.playPop(400);
+                      showToast('Logged out of Admin');
+                    }}
+                    onClose={onClose}
                   />
-                </label>
-
-                <button
-                  onClick={() => {
-                    if (window.confirm('Reset all products back to original factory defaults? Any custom added products will be cleared.')) {
-                      onResetDefaults();
-                      soundFX.playPop(300);
-                      showToast('Catalog reset to factory default!');
-                    }
-                  }}
-                  className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1 shrink-0 whitespace-nowrap"
-                  title="Reset to original defaults"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span className="hidden sm:inline">Reset Defaults</span>
-                </button>
+                </div>
               </div>
+            )}
+
+            {/* Desktop / Tablet Enterprise Sidebar */}
+            <div className="hidden md:flex h-full shrink-0">
+              <AdminSidebar
+                activeTab={activeTab}
+                onSelectTab={(tab) => {
+                  setActiveTab(tab);
+                }}
+                orders={orders}
+                products={products}
+                reels={reels}
+                categoriesCount={allCategoryNames.length}
+                pendingOrdersCount={pendingOrdersCount}
+                isCollapsed={isSidebarCollapsed}
+                onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
+                onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onLock={() => {
+                  setIsAuthenticated(false);
+                  sessionStorage.removeItem('bhaskar_admin_auth');
+                  soundFX.playPop(400);
+                  showToast('Logged out of Admin');
+                }}
+                onClose={onClose}
+              />
             </div>
+
+            {/* Main Content Workspace Column */}
+            <div className="flex-1 flex flex-col min-w-0 bg-pink-50/20 dark:bg-[#120B1C] overflow-hidden">
+              
+              {/* Enterprise Top Navigation & Command Bar */}
+              <div className="p-3 sm:p-4 border-b border-pink-100 dark:border-pink-900/40 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md flex items-center justify-between gap-3 shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    className="md:hidden p-2 rounded-xl bg-pink-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:text-[#E60067] cursor-pointer"
+                    aria-label="Open Navigation"
+                  >
+                    <Menu className="w-5 h-5 text-[#E60067]" />
+                  </button>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 font-semibold">
+                      <span>Scoop Storey OS</span>
+                      <span>/</span>
+                      <span className="font-extrabold text-[#E60067] dark:text-pink-400 capitalize">{activeTab}</span>
+                    </div>
+                    <h2 className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white truncate">
+                      {activeTab === 'dashboard' ? 'Executive Revenue Dashboard' :
+                       activeTab === 'orders' ? 'Orders & Fulfillment Telemetry' :
+                       activeTab === 'products' ? 'Merchandise & Products Catalog' :
+                       activeTab === 'categories' ? 'Category & Merging Hub' :
+                       activeTab === 'new' ? 'Create New Merchandise' :
+                       activeTab === 'edit' ? `Editing: ${formData.name || 'Product'}` :
+                       activeTab === 'payments' ? 'UPI & QR Payment Gateway' :
+                       activeTab === 'reels' ? 'ASMR Reels Video Studio' :
+                       activeTab === 'alerts' ? 'Notification Alert Webhooks' :
+                       activeTab === 'security' ? 'Security & Passcode Access' : 'Store Settings'}
+                    </h2>
+                  </div>
+                </div>
+
+                {/* Right Action Tools */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsCommandPaletteOpen(true)}
+                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-pink-50 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-xs font-bold text-neutral-600 dark:text-neutral-300 hover:border-[#E60067] transition shadow-xs cursor-pointer"
+                    title="Spotlight Search (Ctrl+K)"
+                  >
+                    <Search className="w-3.5 h-3.5 text-[#E60067]" />
+                    <span>Search</span>
+                    <kbd className="px-1.5 py-0.2 rounded bg-white dark:bg-neutral-900 text-[10px] font-mono text-neutral-400">Ctrl+K</kbd>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleStartNew}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition cursor-pointer"
+                    title="Add new product"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Add Product</span>
+                  </button>
+
+                  <div className="hidden sm:flex items-center gap-1 pl-1 border-l border-pink-200/80 dark:border-neutral-800">
+                    <button
+                      type="button"
+                      onClick={handleExportJSON}
+                      className="px-2 py-1.5 rounded-xl text-[11px] font-bold text-neutral-500 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-800 transition flex items-center gap-1 cursor-pointer"
+                      title="Export catalog backup (JSON)"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span className="hidden md:inline">Export</span>
+                    </button>
+
+                    <label className="px-2 py-1.5 rounded-xl text-[11px] font-bold text-neutral-500 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-800 transition flex items-center gap-1 cursor-pointer">
+                      <Upload className="w-3 h-3" />
+                      <span className="hidden md:inline">Import</span>
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportJSON}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="p-2 rounded-xl text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-pink-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+                    title="Close Admin Panel"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* TAB 0: EXECUTIVE DASHBOARD */}
+              {activeTab === 'dashboard' && (
+                <AdminDashboardOverview
+                  orders={orders}
+                  products={products}
+                  onNavigate={(tab, id) => handleSpotlightNavigate(tab, id)}
+                  onStartNewProduct={handleStartNew}
+                  onRefreshOrders={refreshOrders}
+                />
+              )}
+
+              {/* TAB: CUSTOMER CRM DIRECTORY & LTV */}
+              {activeTab === 'customers' && (
+                <AdminCustomerCRM
+                  orders={orders}
+                  onNavigateToOrder={(ordId) => {
+                    setActiveTab('orders');
+                    setOrderSearchQuery(ordId);
+                  }}
+                />
+              )}
+
+              {/* TAB: INVENTORY & STOCK MANAGEMENT */}
+              {activeTab === 'inventory' && (
+                <AdminInventoryStock
+                  products={products}
+                  onUpdateProduct={onUpdateProduct}
+                  allCategoryNames={allCategoryNames}
+                />
+              )}
+
+              {/* TAB: COUPONS, DISCOUNTS & STOREFRONT CMS */}
+              {activeTab === 'discounts' && (
+                <AdminDiscountsCMS />
+              )}
 
             {/* TAB 1: ORDERS & INVOICES MANAGEMENT */}
             {activeTab === 'orders' && (
@@ -2516,7 +2413,7 @@ export default function AdminPanel({
                                 />
                               </div>
 
-                              <div className="sm:col-span-3 flex items-center gap-1.5">
+                              <div className="sm:col-span-3 flex items-center gap-1.5 flex-wrap">
                                 <button
                                   type="button"
                                   onClick={() => handleSaveTracking(ord.orderId)}
@@ -2535,6 +2432,18 @@ export default function AdminPanel({
                                     <ExternalLink className="w-3.5 h-3.5" />
                                   </a>
                                 )}
+                                <a
+                                  href={`https://wa.me/91${(ord.customer?.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                    `Hi ${ord.customer?.fullName || 'there'}! 🎀\n\nYour Scoop Storey order #${ord.orderId} has been packed with love! ✨\n\n📦 Courier: ${trackingDrafts[ord.orderId]?.courierName || ord.courierName || 'Delhivery'}\n🚚 Tracking AWB: ${trackingDrafts[ord.orderId]?.trackingNumber || ord.trackingNumber || 'Available shortly'}\n🔗 Track Online: ${ord.trackingUrl || `https://scoop-storey-1du8.vercel.app/#tracking-${ord.orderId}`}\n\nThank you for shopping with Scoop Storey India! 💖`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="py-1.5 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center gap-1 border border-emerald-300 dark:border-emerald-800 transition"
+                                  title="Dispatch tracking update to customer on WhatsApp"
+                                >
+                                  <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span className="hidden sm:inline">WhatsApp</span>
+                                </a>
                               </div>
                             </div>
                           </div>
@@ -5847,9 +5756,29 @@ export default function AdminPanel({
                 </div>
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Command Palette (Ctrl+K) */}
+      <AdminCommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onNavigate={(tab, id) => handleSpotlightNavigate(tab, id)}
+        orders={orders}
+        products={products}
+        onStartNewProduct={handleStartNew}
+        onExportJSON={handleExportJSON}
+        onResetDefaults={onResetDefaults}
+      />
+
+      {/* 1-Click Printable Thermal / PDF Packing Slip Modal */}
+      <AdminPackingSlipModal
+        order={printingOrder}
+        isOpen={!!printingOrder}
+        onClose={() => setPrintingOrder(null)}
+      />
     </div>
-  );
+  </div>
+);
 }

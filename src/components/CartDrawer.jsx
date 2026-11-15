@@ -58,6 +58,7 @@ export default function CartDrawer({
 }) {
   const [promoCode, setPromoCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [promoMessage, setPromoMessage] = useState('');
   const [filmOnReel, setFilmOnReel] = useState(false);
   const [userHandle, setUserHandle] = useState('');
@@ -133,7 +134,18 @@ export default function CartDrawer({
   const totalItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
   const subtotalINR = cartItems.reduce((acc, item) => acc + item.priceINR * item.qty, 0);
 
-  const discountAmountINR = Math.round(subtotalINR * appliedDiscount);
+  const discountAmountINR = useMemo(() => {
+    if (appliedCoupon) {
+      if (appliedCoupon.type === 'percent') {
+        return Math.round(subtotalINR * (Number(appliedCoupon.value) / 100));
+      }
+      if (appliedCoupon.type === 'flat') {
+        return Math.min(subtotalINR, Number(appliedCoupon.value) || 0);
+      }
+      return 0;
+    }
+    return Math.round(subtotalINR * appliedDiscount);
+  }, [subtotalINR, appliedCoupon, appliedDiscount]);
   const shippingINR = 0; // 100% Free Shipping on all orders across India
   const totalINR = Math.max(0, subtotalINR - discountAmountINR);
 
@@ -280,16 +292,55 @@ export default function CartDrawer({
   const handleApplyPromo = (e) => {
     e.preventDefault();
     const clean = promoCode.trim().toUpperCase();
+    if (!clean) return;
+
+    // 1. Check live merchant coupons configured in Admin Discounts CMS
+    let storeCoupons = [];
+    try {
+      const saved = localStorage.getItem('bhaskar_store_coupons_v1');
+      if (saved) storeCoupons = JSON.parse(saved);
+    } catch {}
+
+    const matched = storeCoupons.find(c => c.code === clean && c.active !== false);
+
+    if (matched) {
+      if (matched.minSpend && subtotalINR < matched.minSpend) {
+        setPromoMessage(`⚠️ Min order of ₹${matched.minSpend} required for code ${matched.code}`);
+        soundFX.playPop(350);
+        return;
+      }
+      setAppliedCoupon(matched);
+      if (matched.type === 'percent') {
+        setAppliedDiscount(matched.value / 100);
+        setPromoMessage(`✨ ${matched.value}% discount applied! (${matched.code})`);
+      } else if (matched.type === 'flat') {
+        setAppliedDiscount(0);
+        setPromoMessage(`✨ ₹${matched.value} flat discount applied! (${matched.code})`);
+      } else if (matched.type === 'shipping') {
+        setPromoMessage(`✨ Free Express Priority Courier unlocked! (${matched.code})`);
+      }
+      soundFX.playSuccess();
+      return;
+    }
+
+    // 2. Built-in promo codes fallback
     if (clean === 'SCOOP10') {
+      setAppliedCoupon(null);
       setAppliedDiscount(0.10);
       setPromoMessage('✨ 10% discount applied!');
       soundFX.playSuccess();
     } else if (clean === 'HAPPINESS') {
+      setAppliedCoupon(null);
       setAppliedDiscount(0.15);
       setPromoMessage('💖 15% VIP Happiness discount applied!');
       soundFX.playSuccess();
+    } else if (clean === 'PINK10') {
+      setAppliedCoupon(null);
+      setAppliedDiscount(0.10);
+      setPromoMessage('🌸 10% Pink Club discount applied!');
+      soundFX.playSuccess();
     } else {
-      setPromoMessage('❌ Invalid code. Try SCOOP10 or HAPPINESS');
+      setPromoMessage('❌ Invalid code. Try SCOOP10 or PINK10');
       soundFX.playPop(300);
     }
   };
@@ -1620,9 +1671,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   <span>Subtotal ({totalItemCount} items)</span>
                   <span>₹{subtotalINR}</span>
                 </div>
-                {appliedDiscount > 0 && (
+                {discountAmountINR > 0 && (
                   <div className="flex justify-between text-emerald-600 font-semibold">
-                    <span>Discount ({appliedDiscount * 100}%)</span>
+                    <span>Discount {appliedCoupon?.code ? `(${appliedCoupon.code})` : appliedDiscount > 0 ? `(${Math.round(appliedDiscount * 100)}%)` : ''}</span>
                     <span>-₹{discountAmountINR}</span>
                   </div>
                 )}

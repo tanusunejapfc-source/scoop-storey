@@ -67,6 +67,25 @@ export default function Navbar({
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [announcementIndex, setAnnouncementIndex] = useState(0);
+  const [customAnnouncement, setCustomAnnouncement] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bhaskar_announcement_cms_v1');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Listen to live announcement updates from Admin CMS
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail) {
+        setCustomAnnouncement(e.detail);
+      }
+    };
+    window.addEventListener('scoop_announcement_updated', handleUpdate);
+    return () => window.removeEventListener('scoop_announcement_updated', handleUpdate);
+  }, []);
 
   // Keyboard shortcut Ctrl+K / Cmd+K to open search
   useEffect(() => {
@@ -138,75 +157,96 @@ export default function Navbar({
   ];
 
   const activeAnnouncement = ANNOUNCEMENTS[announcementIndex];
+  const hasCustom = customAnnouncement && customAnnouncement.enabled && customAnnouncement.text?.trim();
+
+  const themeGradients = {
+    pink: 'from-pink-600 via-rose-500 to-pink-600 text-white',
+    purple: 'from-purple-800 via-fuchsia-700 to-purple-800 text-white',
+    gold: 'from-amber-600 via-yellow-500 to-amber-600 text-neutral-950 font-black',
+    black: 'from-neutral-950 via-slate-900 to-neutral-950 text-pink-300'
+  };
+
+  const tickerBg = hasCustom && themeGradients[customAnnouncement.bgTheme]
+    ? themeGradients[customAnnouncement.bgTheme]
+    : 'from-pink-600 via-purple-600 to-pink-600 text-white';
 
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
       {/* Top Ticker Announcement */}
-      <div className="bg-gradient-to-r from-pink-600 via-purple-600 to-pink-600 text-white text-[11px] md:text-xs font-bold py-2 px-3 text-center tracking-wide overflow-hidden shadow-sm">
-        {/* Mobile: auto-cycling announcement */}
-        <div className="flex sm:hidden items-center justify-between w-full max-w-full px-1">
-          <button
-            type="button"
-            onClick={() => setAnnouncementIndex((prev) => (prev - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length)}
-            className="p-1 text-white/90 hover:text-white transition shrink-0"
-            aria-label="Previous notice"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-          </button>
-
-          <div className="flex-1 min-w-0 px-1 text-center overflow-hidden">
-            {activeAnnouncement.href ? (
-              <a
-                href={activeAnnouncement.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 text-[11px] leading-tight hover:underline max-w-full truncate"
+      <div className={`bg-gradient-to-r ${tickerBg} text-[11px] md:text-xs font-bold py-2 px-3 text-center tracking-wide overflow-hidden shadow-sm transition-colors duration-300`}>
+        {hasCustom ? (
+          <div className="flex items-center justify-center gap-2 px-2 py-0.5 text-center">
+            <span className="animate-bounce shrink-0">📢</span>
+            <span className="font-bold tracking-wide leading-tight truncate max-w-[92vw] sm:max-w-none">{customAnnouncement.text}</span>
+          </div>
+        ) : (
+          <>
+            {/* Mobile: auto-cycling announcement */}
+            <div className="flex sm:hidden items-center justify-between w-full max-w-full px-1">
+              <button
+                type="button"
+                onClick={() => setAnnouncementIndex((prev) => (prev - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length)}
+                className="p-1 text-white/90 hover:text-white transition shrink-0"
+                aria-label="Previous notice"
               >
-                <span className="shrink-0">{activeAnnouncement.icon}</span>
-                <span className="font-extrabold truncate">{activeAnnouncement.mobileTitle || activeAnnouncement.title}</span>
-                <span className="text-[10px] text-pink-200 font-medium shrink-0">• {activeAnnouncement.mobileSub || activeAnnouncement.sub}</span>
-              </a>
-            ) : (
-              <div className="inline-flex items-center justify-center gap-1 text-[11px] leading-tight max-w-full truncate">
-                <span className="shrink-0">{activeAnnouncement.icon}</span>
-                <span className="font-extrabold truncate">{activeAnnouncement.mobileTitle || activeAnnouncement.title}</span>
-                <span className="text-[10px] text-pink-200 font-medium shrink-0">• {activeAnnouncement.mobileSub || activeAnnouncement.sub}</span>
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+
+              <div className="flex-1 min-w-0 px-1 text-center overflow-hidden">
+                {activeAnnouncement.href ? (
+                  <a
+                    href={activeAnnouncement.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1 text-[11px] leading-tight hover:underline max-w-full truncate"
+                  >
+                    <span className="shrink-0">{activeAnnouncement.icon}</span>
+                    <span className="font-extrabold truncate">{activeAnnouncement.mobileTitle || activeAnnouncement.title}</span>
+                    <span className="text-[10px] text-pink-200 font-medium shrink-0">• {activeAnnouncement.mobileSub || activeAnnouncement.sub}</span>
+                  </a>
+                ) : (
+                  <div className="inline-flex items-center justify-center gap-1 text-[11px] leading-tight max-w-full truncate">
+                    <span className="shrink-0">{activeAnnouncement.icon}</span>
+                    <span className="font-extrabold truncate">{activeAnnouncement.mobileTitle || activeAnnouncement.title}</span>
+                    <span className="text-[10px] text-pink-200 font-medium shrink-0">• {activeAnnouncement.mobileSub || activeAnnouncement.sub}</span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <button
-            type="button"
-            onClick={() => setAnnouncementIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length)}
-            className="p-1 text-white/90 hover:text-white transition shrink-0"
-            aria-label="Next notice"
-          >
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+              <button
+                type="button"
+                onClick={() => setAnnouncementIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length)}
+                className="p-1 text-white/90 hover:text-white transition shrink-0"
+                aria-label="Next notice"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
 
-        {/* Desktop: Full Horizontal Inline Notice */}
-        <div className="hidden sm:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span>✨</span>
-            <span><strong>Notice:</strong> Minimum 3 Products Required to Order</span>
-          </div>
-          <span className="text-pink-300">•</span>
-          <div className="flex items-center gap-1.5">
-            <span>🚚</span>
-            <span>100% Free Delivery Across India on All Orders (Prepaid)</span>
-          </div>
-          <span className="text-pink-300">•</span>
-          <a 
-            href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-yellow-200 transition font-black"
-          >
-            <WhatsAppIcon className="w-3.5 h-3.5" />
-            <span>WhatsApp: +91 8199922653</span>
-          </a>
-        </div>
+            {/* Desktop: Full Horizontal Inline Notice */}
+            <div className="hidden sm:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <span>✨</span>
+                <span><strong>Notice:</strong> Minimum 3 Products Required to Order</span>
+              </div>
+              <span className="text-pink-300">•</span>
+              <div className="flex items-center gap-1.5">
+                <span>🚚</span>
+                <span>100% Free Delivery Across India on All Orders (Prepaid)</span>
+              </div>
+              <span className="text-pink-300">•</span>
+              <a 
+                href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-yellow-200 transition font-black"
+              >
+                <WhatsAppIcon className="w-3.5 h-3.5" />
+                <span>WhatsApp: +91 8199922653</span>
+              </a>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main Glass Nav */}
