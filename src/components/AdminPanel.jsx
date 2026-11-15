@@ -2932,22 +2932,6 @@ export default function AdminPanel({
                             />
                           </div>
 
-                          {/* 1-Click App Buttons Simulation */}
-                          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
-                            <div className="p-2 rounded-lg bg-gradient-to-r from-[#5f259f] to-[#7b2cbf] text-white flex items-center justify-center gap-1">
-                              <span>PhonePe</span>
-                            </div>
-                            <div className="p-2 rounded-lg bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-700 flex items-center justify-center gap-1">
-                              <span>Google Pay</span>
-                            </div>
-                            <div className="p-2 rounded-lg bg-gradient-to-r from-[#002970] to-[#00b9f5] text-white flex items-center justify-center gap-1">
-                              <span>Paytm</span>
-                            </div>
-                            <div className="p-2 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 text-white flex items-center justify-center gap-1">
-                              <span>Any UPI</span>
-                            </div>
-                          </div>
-
                           {/* Copyable Pills Preview */}
                           <div className="space-y-1.5 text-xs">
                             <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">

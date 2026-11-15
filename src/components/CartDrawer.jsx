@@ -33,7 +33,7 @@ import WhatsAppIcon from './WhatsAppIcon';
 import { lookupPincode } from '../utils/pincodeApi';
 import { saveOrderToStore } from '../utils/orderStore';
 import { dispatchAllOrderNotifications } from '../utils/notificationService';
-import { usePaymentSettings, buildAppUpiUri, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
+import { usePaymentSettings, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 
 const INDIAN_STATES = [
@@ -801,7 +801,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         1
                       </div>
                       <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                        {paymentBreakdown.isPartialCod ? `Pay ₹${paymentBreakdown.payNowINR} Advance via UPI` : 'Scan & Pay via any UPI App'}
+                        {paymentBreakdown.isPartialCod ? `Pay ₹${paymentBreakdown.payNowINR} Advance via Scanner, UPI ID, or Number` : 'Scan QR Code or Pay via UPI ID / Number'}
                       </h4>
                     </div>
                     {(paymentSettings.qrImage || paymentSettings.customQrImage) && (
@@ -811,99 +811,17 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     )}
                   </div>
 
-                  {/* 1-Click Mobile UPI App Direct Buttons (PhonePe, GPay, Paytm, Any UPI) */}
-                  <div className="space-y-1.5 pt-0.5">
-                    <div className="flex items-center justify-between text-xs font-bold text-neutral-700 dark:text-neutral-300">
-                      <span>⚡ 1-Click Pay on Installed App:</span>
-                      <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold">Auto-fills ₹{paymentBreakdown.payNowINR}</span>
+                  {/* QR Image Container (Scanner Option) */}
+                  <div className="flex flex-col items-center justify-center p-4 bg-white dark:bg-neutral-800 rounded-2xl border-2 border-dashed border-pink-300 dark:border-pink-700 shadow-inner">
+                    <div className="text-center mb-2.5">
+                      <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 block">
+                        📸 Option 1: Scan QR Code with any UPI App
+                      </span>
+                      <span className="text-[10px] text-neutral-400 block">
+                        Open Google Pay, PhonePe, Paytm, or BHIM & scan directly
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* PhonePe */}
-                      <a
-                        href={buildAppUpiUri('phonepe', {
-                          upiId: paymentSettings.upiId,
-                          payeeName: paymentSettings.payeeName,
-                          amount: paymentBreakdown.payNowINR,
-                          orderId: currentOrderId
-                        })}
-                        onClick={() => soundFX.playPop(550)}
-                        className="p-2.5 rounded-xl bg-gradient-to-r from-[#5f259f] to-[#7b2cbf] text-white hover:opacity-95 shadow-xs flex items-center justify-center gap-2 text-xs font-bold active:scale-95 transition"
-                        title="Open PhonePe App directly"
-                      >
-                        <span className="w-5 h-5 rounded-full bg-white text-[#5f259f] font-black text-xs flex items-center justify-center">पे</span>
-                        <span>PhonePe</span>
-                      </a>
-
-                      {/* Google Pay */}
-                      <a
-                        href={buildAppUpiUri('gpay', {
-                          upiId: paymentSettings.upiId,
-                          payeeName: paymentSettings.payeeName,
-                          amount: paymentBreakdown.payNowINR,
-                          orderId: currentOrderId
-                        })}
-                        onClick={() => soundFX.playPop(550)}
-                        className="p-2.5 rounded-xl bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 shadow-xs flex items-center justify-center gap-2 text-xs font-bold active:scale-95 transition"
-                        title="Open Google Pay directly"
-                      >
-                        <span className="font-black text-xs tracking-tighter">
-                          <span className="text-[#4285F4]">G</span><span className="text-[#EA4335]">P</span><span className="text-[#FBBC05]">a</span><span className="text-[#34A853]">y</span>
-                        </span>
-                        <span>Google Pay</span>
-                      </a>
-
-                      {/* Paytm */}
-                      <a
-                        href={buildAppUpiUri('paytm', {
-                          upiId: paymentSettings.upiId,
-                          payeeName: paymentSettings.payeeName,
-                          amount: paymentBreakdown.payNowINR,
-                          orderId: currentOrderId
-                        })}
-                        onClick={() => soundFX.playPop(550)}
-                        className="p-2.5 rounded-xl bg-gradient-to-r from-[#002970] to-[#00b9f5] text-white hover:opacity-95 shadow-xs flex items-center justify-center gap-2 text-xs font-bold active:scale-95 transition"
-                        title="Open Paytm App directly"
-                      >
-                        <span className="font-black text-[11px] tracking-tight">Paytm</span>
-                      </a>
-
-                      {/* Any UPI / CRED / BHIM */}
-                      <a
-                        href={buildAppUpiUri('generic', {
-                          upiId: paymentSettings.upiId,
-                          payeeName: paymentSettings.payeeName,
-                          amount: paymentBreakdown.payNowINR,
-                          orderId: currentOrderId
-                        })}
-                        onClick={() => soundFX.playPop(550)}
-                        className="p-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:opacity-95 shadow-xs flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 transition"
-                        title="Open generic UPI app chooser"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Any UPI / CRED</span>
-                      </a>
-                    </div>
-
-                    {/* HELPFUL UPI APP GUIDANCE CARD */}
-                    <div className="p-3 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-xs space-y-1.5 shadow-xs">
-                      <div className="font-extrabold text-[11px] text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                        <span>Tips if your UPI app shows a security alert:</span>
-                      </div>
-                      <div className="text-[11px] space-y-1 text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
-                        <p>
-                          • <strong className="text-[#5f259f]">PhonePe:</strong> Simply tap <strong className="text-purple-700 dark:text-purple-300 font-bold underline">"DISMISS"</strong> on the popup to complete your ₹{paymentBreakdown.payNowINR} payment!
-                        </p>
-                        <p>
-                          • <strong className="text-[#002970] dark:text-[#00b9f5]">Paytm:</strong> Tap <strong>"Save QR to Gallery"</strong> below and scan it from gallery, or choose <strong>"Pay via Mobile Number"</strong> and enter <strong className="font-mono">8199922653</strong>.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* QR Image Container */}
-                  <div className="flex flex-col items-center justify-center p-3.5 bg-white dark:bg-neutral-800 rounded-2xl border-2 border-dashed border-pink-300 dark:border-pink-700 shadow-inner">
                     <div className="relative group">
                       <img
                         src={getQrDisplayUrl(paymentSettings, paymentBreakdown.payNowINR, currentOrderId)}
@@ -916,9 +834,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         </span>
                       </div>
                     </div>
-                    <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 mt-2 text-center">
+
+                    <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 mt-2.5 text-center">
                       Pay to: <strong className="text-neutral-900 dark:text-white">{paymentSettings.payeeName}</strong>
-                      <span className="text-[10px] text-neutral-400 block font-normal">(Verified on GPay / Bank: Tanu)</span>
                     </p>
                     <div className="flex items-center justify-center gap-1.5 mt-1 text-[10px] font-bold text-neutral-400">
                       <span>PhonePe</span> • <span>GPay</span> • <span>Paytm</span> • <span>BHIM</span> • <span>CRED</span>
@@ -933,12 +851,12 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       {qrDownloaded ? (
                         <>
                           <Check className="w-4 h-4 text-emerald-600" />
-                          <span>QR Saved to Gallery! Open PhonePe/Paytm to scan ✨</span>
+                          <span>QR Saved to Gallery! Open any app to scan ✨</span>
                         </>
                       ) : (
                         <>
                           <Download className="w-4 h-4" />
-                          <span>Save QR to Gallery (Scan in Paytm / PhonePe)</span>
+                          <span>Save QR to Gallery / Photos</span>
                         </>
                       )}
                     </button>
@@ -946,11 +864,16 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
 
                   {/* Copy UPI ID & Phone */}
                   <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                      <span>💳 Option 2: Pay via UPI ID or Mobile Number</span>
+                      <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold">Tap Copy to pay in any app</span>
+                    </div>
+
                     {/* Copy UPI ID */}
                     <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
                       <div className="min-w-0 pr-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
-                          UPI ID
+                          UPI ID / VPA
                         </span>
                         <span className="font-mono font-bold text-xs text-neutral-900 dark:text-white truncate block">
                           {paymentSettings.upiId}
@@ -959,7 +882,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <button
                         type="button"
                         onClick={() => handleCopyText(paymentSettings.upiId, 'upiId')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${copiedField === 'upiId'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${copiedField === 'upiId'
                             ? 'bg-emerald-600 text-white'
                             : 'bg-pink-100 hover:bg-pink-200 text-pink-700 dark:bg-neutral-700 dark:text-white'
                           }`}
@@ -972,7 +895,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         ) : (
                           <>
                             <Copy className="w-3 h-3" />
-                            <span>Copy</span>
+                            <span>Copy UPI ID</span>
                           </>
                         )}
                       </button>
@@ -982,16 +905,16 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
                       <div className="min-w-0 pr-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
-                          UPI Phone Number
+                          UPI Mobile / Phone Number
                         </span>
                         <span className="font-mono font-bold text-xs text-neutral-900 dark:text-white truncate block">
-                          {paymentSettings.upiPhone}
+                          +91 {paymentSettings.upiPhone}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopyText(paymentSettings.upiPhone, 'upiPhone')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${copiedField === 'upiPhone'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${copiedField === 'upiPhone'
                             ? 'bg-emerald-600 text-white'
                             : 'bg-pink-100 hover:bg-pink-200 text-pink-700 dark:bg-neutral-700 dark:text-white'
                           }`}
@@ -1004,7 +927,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         ) : (
                           <>
                             <Copy className="w-3 h-3" />
-                            <span>Copy</span>
+                            <span>Copy Number</span>
                           </>
                         )}
                       </button>
