@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: 'What payment methods do you accept?',
-    a: 'We only accept 100% Prepaid payments via UPI QR Code (Google Pay, PhonePe, Paytm, or NetBanking). Once you place your order or message us on WhatsApp (+91 8199922653), we send you the payment QR code.'
+    a: 'We accept 100% Prepaid UPI (PhonePe, Google Pay, Paytm, BHIM) as well as Partial COD (Advance booking via UPI + balance in cash on delivery). Verified QR & direct WhatsApp support: +91 8199922653.'
   },
   {
     q: 'How does a Mystery Scoop work?',
@@ -100,9 +100,9 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                100% Prepaid UPI Guarantee
+                Prepaid UPI & Partial COD Guarantee
               </div>
-              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Verified QR payment via WhatsApp: +91 8199922653</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Verified QR & 1-Click Pay • WhatsApp: +91 8199922653</div>
             </div>
           </div>
         </div>

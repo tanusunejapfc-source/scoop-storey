@@ -32,7 +32,7 @@ import WhatsAppIcon from './WhatsAppIcon';
 import { lookupPincode } from '../utils/pincodeApi';
 import { saveOrderToStore } from '../utils/orderStore';
 import { dispatchAllOrderNotifications } from '../utils/notificationService';
-import { usePaymentSettings, buildUpiUri, getQrDisplayUrl } from '../utils/paymentStore';
+import { usePaymentSettings, buildAppUpiUri, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 
 const INDIAN_STATES = [
@@ -93,6 +93,7 @@ export default function CartDrawer({
   // Payment Settings & Checkout Step
   const { settings: paymentSettings } = usePaymentSettings();
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'upi_payment'
+  const [paymentMode, setPaymentMode] = useState('full_prepaid'); // 'full_prepaid' | 'partial_cod'
   const [currentOrderId, setCurrentOrderId] = useState('');
   const [upiRefNumber, setUpiRefNumber] = useState('');
   const [upiRefError, setUpiRefError] = useState('');
@@ -133,6 +134,11 @@ export default function CartDrawer({
   const discountAmountINR = Math.round(subtotalINR * appliedDiscount);
   const shippingINR = 0; // 100% Free Shipping on all orders across India
   const totalINR = Math.max(0, subtotalINR - discountAmountINR);
+
+  // Partial COD & Payment Breakdown
+  const paymentBreakdown = useMemo(() => {
+    return calculatePaymentBreakdown(totalINR, paymentMode, paymentSettings);
+  }, [totalINR, paymentMode, paymentSettings]);
 
   // Minimum 3 products rule
   const minRequired = 3;
@@ -417,6 +423,7 @@ export default function CartDrawer({
       selectedColorHex: item.selectedColorHex || null
     }));
 
+    const isPartialCod = Boolean(paymentBreakdown.isPartialCod);
     const newOrder = {
       orderId: currentOrderId,
       timestamp: Date.now(),
@@ -427,9 +434,16 @@ export default function CartDrawer({
         hour: '2-digit',
         minute: '2-digit'
       }),
-      source: 'Prepaid UPI / QR Code',
-      status: hasUtr ? 'Payment Received (Verify UTR)' : 'UPI Verification Pending (Screenshot)',
-      paymentMethod: 'UPI QR Code',
+      source: isPartialCod ? 'Partial COD (Advance Paid)' : 'Prepaid UPI / QR Code',
+      status: isPartialCod
+        ? 'Partial COD - Advance Paid (Verify UTR)'
+        : (hasUtr ? 'Payment Received (Verify UTR)' : 'UPI Verification Pending (Screenshot)'),
+      paymentMethod: isPartialCod ? 'Partial COD' : 'UPI QR Code',
+      isPartialCod,
+      advancePaidINR: paymentBreakdown.payNowINR,
+      balanceDueOnDeliveryINR: paymentBreakdown.balanceCodINR,
+      codFeeINR: paymentBreakdown.codFeeINR,
+      advancePercentage: paymentBreakdown.advancePercentage,
       upiRefNumber: utrDisplay,
       paymentScreenshot: paymentScreenshot || null,
       customer: { ...addressData },
@@ -438,7 +452,7 @@ export default function CartDrawer({
       subtotalINR,
       discountAmountINR,
       shippingINR,
-      totalINR,
+      totalINR: paymentBreakdown.finalTotalINR,
       filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
       additionalNotes: additionalNotes.trim() || null
     };
@@ -459,10 +473,18 @@ export default function CartDrawer({
       .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
 
-    const msg = `Hi Scoop Storey! 🎀 Mera Prepaid Order confirm ho gaya hai!
+    const paymentSummaryText = isPartialCod
+      ? `📦 PAYMENT TYPE: Partial COD (Advance Booking)
+✅ Advance Paid via UPI: ₹${paymentBreakdown.payNowINR} (${paymentBreakdown.advancePercentage}% Advance)
+💵 Balance to Collect in Cash on Delivery: ₹${paymentBreakdown.balanceCodINR}
+💰 Total Order Value: ₹${paymentBreakdown.finalTotalINR}`
+      : `📦 PAYMENT TYPE: 100% Prepaid UPI
+💰 Total Paid: ₹${totalINR} (${totalItemCount} items)`;
+
+    const msg = `Hi Scoop Storey! 🎀 Mera Order confirm ho gaya hai!
 
 Order ID: ${currentOrderId}
-💰 Total Paid: ₹${totalINR} (${totalItemCount} items)
+${paymentSummaryText}
 🔢 UPI Ref / UTR No.: ${utrDisplay}
 ${paymentScreenshot ? '📸 Payment Screenshot: Attached\n' : ''}
 🛍️ ITEMS ORDERED:
@@ -475,7 +497,7 @@ ${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : 
 ${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
 • PIN Code: ${addressData.pincode}
 
-Maine UPI payment successfully transfer kar diya hai. Please verify karke packing start kar dijiye! ✨`;
+${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar diya hai aur remaining ₹${paymentBreakdown.balanceCodINR} cash delivery ke time dunga/dungi. Please verify karke parcel dispatch kar dijiye! ✨` : `Maine UPI payment successfully transfer kar diya hai. Please verify karke packing start kar dijiye! ✨`}`;
 
     const encoded = encodeURIComponent(msg);
     window.open(`https://wa.me/918199922653?text=${encoded}`, '_blank', 'noopener,noreferrer');
@@ -614,34 +636,141 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                   </button>
                 </div>
 
-                {/* Amount to Pay Banner */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 dark:from-pink-950/40 dark:to-purple-950/40 border border-pink-200 dark:border-pink-800 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400 block">Total Amount to Pay</span>
-                    <span className="font-display font-extrabold text-2xl text-pink-600 dark:text-pink-400">
-                      ₹{totalINR}
-                    </span>
-                    <span className="text-[11px] text-neutral-500 block">Prepaid Order Only • Free Delivery</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                      100% Secure UPI
-                    </span>
-                    <span className="text-[11px] font-mono text-neutral-400 block mt-1">
-                      {currentOrderId}
-                    </span>
-                  </div>
-                </div>
+                {/* PAYMENT OPTION SELECTOR (100% PREPAID vs PARTIAL COD) */}
+                {paymentSettings.partialCodEnabled && (
+                  <div className="p-1.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800/90 border border-pink-200 dark:border-neutral-700 grid grid-cols-2 gap-2">
+                    {/* Option 1: Full Prepaid */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMode('full_prepaid');
+                        soundFX.playPop(550);
+                      }}
+                      className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
+                        paymentMode === 'full_prepaid'
+                          ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#E60067] dark:border-pink-500 text-neutral-900 dark:text-white'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-display font-extrabold text-xs text-[#E60067] dark:text-pink-400 flex items-center gap-1">
+                            <span>⚡ 100% Prepaid</span>
+                          </span>
+                          {paymentMode === 'full_prepaid' && (
+                            <div className="w-4 h-4 rounded-full bg-[#E60067] text-white flex items-center justify-center shrink-0">
+                              <Check className="w-2.5 h-2.5" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="font-display font-black text-sm mt-1 text-neutral-900 dark:text-white">
+                          ₹{totalINR}
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold mt-1 block">
+                        🎁 Free Mystery Charm
+                      </span>
+                    </button>
 
-                {/* STEP 1: SCAN QR CODE */}
-                <div className="p-4 rounded-2xl glass-panel border border-pink-200 dark:border-neutral-700 space-y-3">
+                    {/* Option 2: Partial COD */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMode('partial_cod');
+                        soundFX.playPop(550);
+                      }}
+                      className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
+                        paymentMode === 'partial_cod'
+                          ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-purple-600 dark:border-purple-400 text-neutral-900 dark:text-white'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-display font-extrabold text-xs text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                            <span>📦 Partial COD</span>
+                          </span>
+                          {paymentMode === 'partial_cod' && (
+                            <div className="w-4 h-4 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0">
+                              <Check className="w-2.5 h-2.5" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="font-display font-black text-sm mt-1 text-purple-700 dark:text-purple-300">
+                          ₹{paymentBreakdown.payNowINR} <span className="text-[10px] font-normal text-neutral-500">now</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold mt-1 block">
+                        🚚 ₹{paymentBreakdown.balanceCodINR} on Delivery
+                      </span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Amount to Pay Banner */}
+                {paymentBreakdown.isPartialCod ? (
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 dark:from-purple-950/40 dark:to-pink-950/40 border-2 border-purple-300 dark:border-purple-800 space-y-2.5 shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-extrabold text-purple-700 dark:text-purple-300 uppercase tracking-wider block">
+                          Pay Advance Now via UPI ({paymentBreakdown.advancePercentage}%)
+                        </span>
+                        <span className="font-display font-black text-2xl text-purple-700 dark:text-purple-400">
+                          ₹{paymentBreakdown.payNowINR}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
+                          Partial COD Active 📦
+                        </span>
+                        <span className="text-[11px] font-mono text-neutral-400 block mt-1">
+                          {currentOrderId}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-900/60 flex items-center justify-between text-xs">
+                      <span className="font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                        <span>🚚 Cash Due to Courier at Doorstep:</span>
+                      </span>
+                      <strong className="font-display font-black text-sm text-purple-900 dark:text-purple-200">
+                        ₹{paymentBreakdown.balanceCodINR}
+                      </strong>
+                    </div>
+
+                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400 text-center">
+                      Total Order Value: <strong>₹{paymentBreakdown.finalTotalINR}</strong> (100% Free Shipping)
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 dark:from-pink-950/40 dark:to-purple-950/40 border border-pink-200 dark:border-pink-800 flex items-center justify-between shadow-xs">
+                    <div>
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400 block">Total Amount to Pay</span>
+                      <span className="font-display font-extrabold text-2xl text-pink-600 dark:text-pink-400">
+                        ₹{totalINR}
+                      </span>
+                      <span className="text-[11px] text-neutral-500 block">100% Prepaid • Instant Dispatch Priority ⚡</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                        100% Secure UPI
+                      </span>
+                      <span className="text-[11px] font-mono text-neutral-400 block mt-1">
+                        {currentOrderId}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 1: SCAN OR 1-CLICK PAY VIA UPI APPS */}
+                <div className="p-4 rounded-2xl glass-panel border border-pink-200 dark:border-neutral-700 space-y-3.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-lg bg-pink-500 text-white flex items-center justify-center font-bold text-xs">
                         1
                       </div>
                       <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                        Scan & Pay via any UPI App
+                        {paymentBreakdown.isPartialCod ? `Pay ₹${paymentBreakdown.payNowINR} Advance via UPI` : 'Scan & Pay via any UPI App'}
                       </h4>
                     </div>
                     {paymentSettings.customQrImage && (
@@ -651,17 +780,92 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                     )}
                   </div>
 
+                  {/* 1-Click Mobile UPI App Direct Buttons (PhonePe, GPay, Paytm, Any UPI) */}
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex items-center justify-between text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                      <span>⚡ 1-Click Pay on Installed App:</span>
+                      <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold">Auto-fills ₹{paymentBreakdown.payNowINR}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* PhonePe */}
+                      <a
+                        href={buildAppUpiUri('phonepe', {
+                          upiId: paymentSettings.upiId,
+                          payeeName: paymentSettings.payeeName,
+                          amount: paymentBreakdown.payNowINR,
+                          orderId: currentOrderId
+                        })}
+                        onClick={() => soundFX.playPop(550)}
+                        className="p-2.5 rounded-xl bg-gradient-to-r from-[#5f259f] to-[#7b2cbf] text-white hover:opacity-95 shadow-xs flex items-center justify-center gap-2 text-xs font-bold active:scale-95 transition"
+                        title="Open PhonePe App directly"
+                      >
+                        <span className="w-5 h-5 rounded-full bg-white text-[#5f259f] font-black text-xs flex items-center justify-center">पे</span>
+                        <span>PhonePe</span>
+                      </a>
+
+                      {/* Google Pay */}
+                      <a
+                        href={buildAppUpiUri('gpay', {
+                          upiId: paymentSettings.upiId,
+                          payeeName: paymentSettings.payeeName,
+                          amount: paymentBreakdown.payNowINR,
+                          orderId: currentOrderId
+                        })}
+                        onClick={() => soundFX.playPop(550)}
+                        className="p-2.5 rounded-xl bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 shadow-xs flex items-center justify-center gap-2 text-xs font-bold active:scale-95 transition"
+                        title="Open Google Pay directly"
+                      >
+                        <span className="font-black text-xs tracking-tighter">
+                          <span className="text-[#4285F4]">G</span><span className="text-[#EA4335]">P</span><span className="text-[#FBBC05]">a</span><span className="text-[#34A853]">y</span>
+                        </span>
+                        <span>Google Pay</span>
+                      </a>
+
+                      {/* Paytm */}
+                      <a
+                        href={buildAppUpiUri('paytm', {
+                          upiId: paymentSettings.upiId,
+                          payeeName: paymentSettings.payeeName,
+                          amount: paymentBreakdown.payNowINR,
+                          orderId: currentOrderId
+                        })}
+                        onClick={() => soundFX.playPop(550)}
+                        className="p-2.5 rounded-xl bg-gradient-to-r from-[#002970] to-[#00b9f5] text-white hover:opacity-95 shadow-xs flex items-center justify-center gap-2 text-xs font-bold active:scale-95 transition"
+                        title="Open Paytm App directly"
+                      >
+                        <span className="font-black text-[11px] tracking-tight">Paytm</span>
+                      </a>
+
+                      {/* Any UPI / CRED / BHIM */}
+                      <a
+                        href={buildAppUpiUri('generic', {
+                          upiId: paymentSettings.upiId,
+                          payeeName: paymentSettings.payeeName,
+                          amount: paymentBreakdown.payNowINR,
+                          orderId: currentOrderId
+                        })}
+                        onClick={() => soundFX.playPop(550)}
+                        className="p-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:opacity-95 shadow-xs flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 transition"
+                        title="Open generic UPI app chooser"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Any UPI / CRED</span>
+                      </a>
+                    </div>
+                  </div>
+
                   {/* QR Image Container */}
                   <div className="flex flex-col items-center justify-center p-3.5 bg-white dark:bg-neutral-800 rounded-2xl border-2 border-dashed border-pink-300 dark:border-pink-700 shadow-inner">
                     <div className="relative group">
                       <img
-                        src={getQrDisplayUrl(paymentSettings, totalINR, currentOrderId)}
+                        src={getQrDisplayUrl(paymentSettings, paymentBreakdown.payNowINR, currentOrderId)}
                         alt="Scoop Storey UPI Payment QR Code"
-                        className="w-48 h-48 sm:w-52 sm:h-52 object-contain rounded-xl shadow-md bg-white p-2"
+                        className="w-44 h-44 sm:w-48 sm:h-48 object-contain rounded-xl shadow-md bg-white p-2"
                       />
                       <div className="absolute inset-x-0 bottom-1 text-center">
-                        <span className="text-[10px] font-bold bg-neutral-900/80 text-white px-2 py-0.5 rounded-full backdrop-blur-xs">
-                          ₹{totalINR}
+                        <span className="text-[10px] font-bold bg-neutral-900/80 text-white px-2.5 py-0.5 rounded-full backdrop-blur-xs">
+                          ₹{paymentBreakdown.payNowINR}
                         </span>
                       </div>
                     </div>
@@ -669,18 +873,9 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                       Pay to: <strong className="text-neutral-900 dark:text-white">{paymentSettings.payeeName}</strong>
                     </p>
                     <div className="flex items-center justify-center gap-1.5 mt-1 text-[10px] font-bold text-neutral-400">
-                      <span>GPay</span> • <span>PhonePe</span> • <span>Paytm</span> • <span>BHIM</span> • <span>CRED</span>
+                      <span>PhonePe</span> • <span>GPay</span> • <span>Paytm</span> • <span>BHIM</span> • <span>CRED</span>
                     </div>
                   </div>
-
-                  {/* Mobile Direct Pay Deep-Link */}
-                  <a
-                    href={buildUpiUri(paymentSettings, totalINR, currentOrderId)}
-                    className="sm:hidden flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-display font-bold text-xs shadow-md active:scale-95 transition"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Open Installed UPI App to Pay ₹{totalINR}</span>
-                  </a>
 
                   {/* Copy UPI ID & Phone */}
                   <div className="space-y-2 pt-1">
@@ -745,6 +940,39 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                           <>
                             <Copy className="w-3 h-3" />
                             <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Copy Amount */}
+                    <div className="p-2.5 rounded-xl bg-pink-50/60 dark:bg-neutral-800/60 border border-pink-200 dark:border-neutral-700 flex items-center justify-between">
+                      <div className="min-w-0 pr-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400 block">
+                          {paymentBreakdown.isPartialCod ? 'Advance Booking Amount' : 'Exact Amount to Pay'}
+                        </span>
+                        <span className="font-mono font-black text-xs text-neutral-900 dark:text-white truncate block">
+                          ₹{paymentBreakdown.payNowINR}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(String(paymentBreakdown.payNowINR), 'amount')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
+                          copiedField === 'amount'
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-pink-100 hover:bg-pink-200 text-pink-700 dark:bg-neutral-700 dark:text-white'
+                        }`}
+                      >
+                        {copiedField === 'amount' ? (
+                          <>
+                            <Check className="w-3 h-3" />
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Amount</span>
                           </>
                         )}
                       </button>
@@ -1485,24 +1713,47 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
               🎉
             </div>
             <h3 className="text-2xl font-display font-bold text-neutral-900 dark:text-white">
-              Prepaid Order Confirmed & Sent!
+              {orderCompleteData.isPartialCod ? 'Partial COD Order Confirmed!' : 'Prepaid Order Confirmed & Sent!'}
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Order ID: <strong className="text-pink-600 font-mono">{orderCompleteData.orderId}</strong>
             </p>
 
             <div className="my-5 p-4 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/70 text-left text-xs space-y-2.5 border border-pink-100 dark:border-pink-900/30">
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Total Paid (UPI):</span>
-                <span className="font-bold text-neutral-800 dark:text-neutral-100">₹{orderCompleteData.totalINR}</span>
-              </div>
+              {orderCompleteData.isPartialCod ? (
+                <>
+                  <div className="flex justify-between font-bold text-purple-700 dark:text-purple-300">
+                    <span>Advance Paid via UPI:</span>
+                    <span>₹{orderCompleteData.advancePaidINR}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-amber-700 dark:text-amber-300 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
+                    <span>🚚 Cash Due on Delivery:</span>
+                    <span className="font-mono text-sm">₹{orderCompleteData.balanceDueOnDeliveryINR}</span>
+                  </div>
+                  <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                    <span>Total Order Value:</span>
+                    <span className="font-bold text-neutral-900 dark:text-white">₹{orderCompleteData.totalINR}</span>
+                  </div>
+                  <div className="flex justify-between text-purple-600 dark:text-purple-400 font-semibold">
+                    <span>Payment Mode:</span>
+                    <span>Partial COD ({orderCompleteData.advancePercentage || 20}% Advance Paid)</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Total Paid (UPI):</span>
+                    <span className="font-bold text-neutral-800 dark:text-neutral-100">₹{orderCompleteData.totalINR}</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-600 font-semibold">
+                    <span>Payment Mode:</span>
+                    <span>100% Prepaid UPI Verified</span>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between">
                 <span className="text-neutral-500">Date:</span>
                 <span className="font-semibold text-neutral-700 dark:text-neutral-300">{orderCompleteData.date}</span>
-              </div>
-              <div className="flex justify-between text-emerald-600 font-semibold">
-                <span>Payment Mode:</span>
-                <span>100% Prepaid UPI Verified</span>
               </div>
 
               {orderCompleteData.upiRefNumber && (
@@ -1557,13 +1808,17 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
             </div>
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
-              Your prepaid order and payment details have been recorded! If WhatsApp hasn't opened automatically, click the button below to message Bhaskar directly with your UTR proof.
+              {orderCompleteData.isPartialCod 
+                ? 'Your Partial COD order and advance payment details have been recorded! Remaining balance will be collected in Cash by the courier.'
+                : 'Your prepaid order and payment details have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Bhaskar directly with your UTR proof.'}
             </p>
 
             <div className="space-y-2">
               <a
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(
-                  `Hi Bhaskar! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber || 'Screenshot Attached'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
+                  orderCompleteData.isPartialCod
+                    ? `Hi Bhaskar! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance Paid: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber || 'Screenshot Attached'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nAdvance payment done via UPI! Please verify and pack!`
+                    : `Hi Bhaskar! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber || 'Screenshot Attached'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

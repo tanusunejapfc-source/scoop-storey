@@ -222,9 +222,9 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'shipping' }
                 Scoop Storey respects your privacy. Customer names, delivery addresses, and phone numbers are stored strictly for order fulfillment, courier shipping label generation, and WhatsApp updates. We never sell or share your personal details with third-party marketers.
               </p>
 
-              <h5 className="font-bold text-neutral-900 dark:text-white pt-2">100% Prepaid UPI Payments:</h5>
+              <h5 className="font-bold text-neutral-900 dark:text-white pt-2">Prepaid UPI & Partial COD Payments:</h5>
               <p>
-                All payments are processed via verified Indian UPI QR standards (Google Pay, PhonePe, Paytm, BHIM, CRED). Transactions are encrypted and directly routed to the verified store account of Bhaskar Scoop Storey.
+                All payments are processed via verified Indian UPI QR & deep-link standards (Google Pay, PhonePe, Paytm, BHIM, CRED). For Partial COD orders, a small advance is paid via UPI to secure booking and prevent courier RTO, with the remaining balance collected in Cash upon delivery. Transactions are directly routed to the verified store account of Bhaskar Scoop Storey.
               </p>
             </div>
           )}

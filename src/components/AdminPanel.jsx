@@ -310,7 +310,9 @@ export default function AdminPanel({
               <p style="margin: 2px 0 0; font-size: 12px; color: #666;">Collect Happiness In Every Single Scoop • Prepaid Delivery</p>
             </div>
             <div style="text-align: right;">
-              <span class="badge">PREPAID ORDER</span>
+              <span class="badge" style="${order.isPartialCod ? 'background: #fff3e0; color: #e65100; border: 1px solid #ffb74d;' : ''}">
+                ${order.isPartialCod ? 'PARTIAL COD ORDER' : 'PREPAID ORDER'}
+              </span>
               <div style="font-weight: bold; font-size: 16px; margin-top: 4px;">#${order.orderId}</div>
               <div style="font-size: 11px; color: #777;">Date: ${order.date}</div>
             </div>
@@ -329,8 +331,15 @@ export default function AdminPanel({
 
             <div class="box" style="flex: 1;">
               <strong>PAYMENT & COURIER:</strong><br />
-              <div>Mode: <strong>100% Prepaid UPI</strong></div>
-              <div>UPI UTR: <code>${order.upiRefNumber || 'Verified'}</code></div>
+              <div>Mode: <strong>${order.isPartialCod ? 'Partial COD (Advance Paid)' : '100% Prepaid UPI'}</strong></div>
+              ${order.isPartialCod ? `
+                <div style="margin-top: 6px; padding: 8px; background: #fff8e1; border: 1.5px dashed #ffa000; border-radius: 6px;">
+                  <strong style="color: #d84315; font-size: 14px; display: block;">💵 CASH TO COLLECT ON DELIVERY: ₹${order.balanceDueOnDeliveryINR ?? 0}</strong>
+                  <span style="font-size: 11px; color: #555;">Advance Paid: ₹${order.advancePaidINR ?? 0} (UPI UTR: ${order.upiRefNumber || 'Verified'})</span>
+                </div>
+              ` : `
+                <div>UPI UTR: <code>${order.upiRefNumber || 'Verified'}</code></div>
+              `}
               ${order.courierName ? `<div>Courier: <strong>${order.courierName}</strong></div>` : ''}
               ${order.trackingNumber ? `<div>AWB: <code>${order.trackingNumber}</code></div>` : ''}
               ${order.filmOnReel ? `<div style="margin-top: 4px; color: #9c27b0;"><strong>🎬 IG Reel Packing:</strong> ${order.filmOnReel}</div>` : ''}
@@ -691,6 +700,7 @@ export default function AdminPanel({
   // Payment & QR Settings State
   const { settings: paymentSettings, updateSettings: updatePaymentSettings, reset: resetPaymentSettings } = usePaymentSettings();
   const [paymentForm, setPaymentForm] = useState(paymentSettings);
+  const [previewPaymentTab, setPreviewPaymentTab] = useState('partial'); // 'partial' | 'prepaid'
   const qrFileInputRef = useRef(null);
   const productFileInputRef = useRef(null);
   const colorFileInputRef = useRef(null);
@@ -1588,7 +1598,8 @@ export default function AdminPanel({
       (o.upiRefNumber || '').toLowerCase().includes(q);
 
     const matchesStatus = orderStatusFilter === 'All' || 
-      (orderStatusFilter === 'UPI QR' && (o.paymentMethod === 'UPI QR Code' || o.upiRefNumber || o.source?.includes('UPI'))) ||
+      (orderStatusFilter === 'Partial COD' && (o.isPartialCod || o.paymentMethod === 'Partial COD' || o.source?.includes('Partial COD'))) ||
+      (orderStatusFilter === 'UPI QR' && (!o.isPartialCod && (o.paymentMethod === 'UPI QR Code' || o.upiRefNumber || o.source?.includes('UPI')))) ||
       (orderStatusFilter === 'WhatsApp' && o.source?.includes('WhatsApp')) ||
       (orderStatusFilter === 'Online' && (o.source?.includes('Online') || o.source?.includes('Instant'))) ||
       o.status === orderStatusFilter;
@@ -2016,7 +2027,7 @@ export default function AdminPanel({
                       <span>Export Courier CSV</span>
                     </button>
 
-                    {['All', 'UPI QR', 'WhatsApp', 'Online'].map((st) => (
+                    {['All', 'Partial COD', 'UPI QR', 'WhatsApp', 'Online'].map((st) => (
                       <button
                         key={st}
                         onClick={() => setOrderStatusFilter(st)}
@@ -2062,20 +2073,24 @@ export default function AdminPanel({
                               </span>
 
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 ${
-                                ord.paymentMethod === 'UPI QR Code' || ord.upiRefNumber
-                                  ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
-                                  : isWhatsApp
-                                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
-                                    : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800'
+                                ord.isPartialCod
+                                  ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-700'
+                                  : ord.paymentMethod === 'UPI QR Code' || ord.upiRefNumber
+                                    ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                                    : isWhatsApp
+                                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                                      : 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border border-pink-300 dark:border-pink-800'
                               }`}>
-                                {ord.paymentMethod === 'UPI QR Code' || ord.upiRefNumber ? (
+                                {ord.isPartialCod ? (
+                                  <Truck className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                                ) : ord.paymentMethod === 'UPI QR Code' || ord.upiRefNumber ? (
                                   <QrCode className="w-3 h-3 text-amber-600" />
                                 ) : isWhatsApp ? (
                                   <WhatsAppIcon className="w-3 h-3" />
                                 ) : (
                                   <Receipt className="w-3 h-3" />
                                 )}
-                                <span>{ord.source}</span>
+                                <span>{ord.isPartialCod ? `Partial COD (₹${ord.advancePaidINR} Adv • ₹${ord.balanceDueOnDeliveryINR} COD)` : ord.source}</span>
                               </span>
 
                               <span className="text-[11px] text-neutral-400 flex items-center gap-1">
@@ -2189,23 +2204,49 @@ export default function AdminPanel({
 
                             {/* UPI Reference / UTR Number Verification Box */}
                             {ord.upiRefNumber && (
-                              <div className="mt-2.5 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className={`mt-2.5 p-2.5 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                                ord.isPartialCod
+                                  ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800'
+                                  : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'
+                              }`}>
                                 <div className="flex items-center gap-2">
-                                  <div className="p-1 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 shrink-0">
-                                    <QrCode className="w-4 h-4" />
+                                  <div className={`p-1.5 rounded-lg shrink-0 ${
+                                    ord.isPartialCod
+                                      ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300'
+                                      : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'
+                                  }`}>
+                                    {ord.isPartialCod ? <Truck className="w-4 h-4" /> : <QrCode className="w-4 h-4" />}
                                   </div>
                                   <div>
-                                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase block">
-                                      Prepaid UPI Ref / UTR No. (Bank Verification):
-                                    </span>
-                                    <span className="font-mono font-black text-sm text-emerald-950 dark:text-emerald-100 tracking-wider">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className={`text-[10px] font-bold uppercase block ${
+                                        ord.isPartialCod ? 'text-purple-700 dark:text-purple-400' : 'text-emerald-700 dark:text-emerald-400'
+                                      }`}>
+                                        {ord.isPartialCod ? 'Partial COD Verification:' : 'Prepaid UPI Ref / UTR No. (Bank Verification):'}
+                                      </span>
+                                      {ord.isPartialCod && (
+                                        <>
+                                          <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black">
+                                            Advance Paid: ₹{ord.advancePaidINR}
+                                          </span>
+                                          <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-[10px] font-black">
+                                            💵 Collect on Delivery: ₹{ord.balanceDueOnDeliveryINR}
+                                          </span>
+                                        </>
+                                      )}
+                                    </div>
+                                    <span className="font-mono font-black text-sm text-neutral-900 dark:text-neutral-100 tracking-wider mt-0.5 block">
                                       {ord.upiRefNumber}
                                     </span>
                                   </div>
                                 </div>
                                 <button
                                   onClick={() => handleCopyText(ord.upiRefNumber, `utr-${ord.orderId}`)}
-                                  className="self-start sm:self-center px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold flex items-center gap-1 hover:bg-emerald-50 transition shadow-xs"
+                                  className={`self-start sm:self-center px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border text-[11px] font-bold flex items-center gap-1 transition shadow-xs ${
+                                    ord.isPartialCod
+                                      ? 'border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50'
+                                      : 'border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50'
+                                  }`}
                                 >
                                   {copiedOrderId === `utr-${ord.orderId}` ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                                   <span>{copiedOrderId === `utr-${ord.orderId}` ? 'Copied!' : 'Copy UTR'}</span>
@@ -2301,11 +2342,16 @@ export default function AdminPanel({
                               )}
                             </div>
 
-                            <div className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white flex items-center gap-2">
+                            <div className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white flex items-center gap-2 flex-wrap justify-end">
                               <span>Total Amount:</span>
                               <span className="text-[#E60067] dark:text-pink-400">
                                 ₹{ord.totalINR}
                               </span>
+                              {ord.isPartialCod && (
+                                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-lg border border-amber-300 dark:border-amber-700">
+                                  (Collect ₹{ord.balanceDueOnDeliveryINR} Cash on Delivery)
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -2557,11 +2603,209 @@ export default function AdminPanel({
                       </div>
                     </div>
 
+                    {/* 3. PARTIAL COD (ADVANCE PAYMENT) CONFIGURATION */}
+                    <div className="p-5 rounded-2xl glass-panel border border-purple-200 dark:border-purple-900/50 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
+                          <Truck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <span>Partial COD (Advance Booking) Configuration</span>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          paymentForm.partialCodEnabled
+                            ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300'
+                            : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
+                        }`}>
+                          {paymentForm.partialCodEnabled ? 'Enabled ✨' : 'Disabled'}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-body">
+                        Allow customers to book orders by paying a small advance upfront via UPI (to prevent fake orders & RTO returns), while paying the remaining balance in Cash to the delivery courier.
+                      </p>
+
+                      {/* Enable / Disable Switch */}
+                      <label className="flex items-center gap-3 p-3 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(paymentForm.partialCodEnabled)}
+                          onChange={(e) => setPaymentForm(prev => ({ ...prev, partialCodEnabled: e.target.checked }))}
+                          className="w-4 h-4 text-purple-600 rounded-sm focus:ring-purple-500"
+                        />
+                        <span className="text-xs font-bold text-neutral-900 dark:text-white select-none">
+                          Enable Partial Cash On Delivery (Advance UPI + Balance on Delivery)
+                        </span>
+                      </label>
+
+                      {paymentForm.partialCodEnabled && (
+                        <div className="space-y-4 pt-1">
+                          {/* Advance Type: Percentage vs Flat Amount */}
+                          <div>
+                            <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                              Advance Payment Calculation Mode
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setPaymentForm(prev => ({ ...prev, partialCodType: 'percentage' }))}
+                                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
+                                  paymentForm.partialCodType !== 'flat'
+                                    ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                                    : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700'
+                                }`}
+                              >
+                                <span>Percentage (%) Mode</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setPaymentForm(prev => ({ ...prev, partialCodType: 'flat' }))}
+                                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
+                                  paymentForm.partialCodType === 'flat'
+                                    ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                                    : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700'
+                                }`}
+                              >
+                                <span>Flat Fee (₹ Fixed) Mode</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Mode-Specific Value Input & Presets */}
+                          {paymentForm.partialCodType === 'flat' ? (
+                            <div>
+                              <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                                Flat Advance Amount (₹)
+                              </label>
+                              <div className="flex items-center gap-2 mb-2">
+                                {[99, 149, 199, 249].map((amt) => (
+                                  <button
+                                    key={amt}
+                                    type="button"
+                                    onClick={() => setPaymentForm(prev => ({ ...prev, partialCodFlatAmount: amt }))}
+                                    className={`px-3 py-1 rounded-lg text-xs font-extrabold border transition cursor-pointer ${
+                                      Number(paymentForm.partialCodFlatAmount) === amt
+                                        ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-950 dark:text-purple-300'
+                                        : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-neutral-600'
+                                    }`}
+                                  >
+                                    ₹{amt}
+                                  </button>
+                                ))}
+                              </div>
+                              <input
+                                type="number"
+                                min={10}
+                                max={2000}
+                                value={paymentForm.partialCodFlatAmount || 99}
+                                onChange={(e) => setPaymentForm(prev => ({ ...prev, partialCodFlatAmount: Number(e.target.value) }))}
+                                className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-purple-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-purple-400"
+                              />
+                              <span className="text-[10px] text-neutral-400 mt-1 block">
+                                Customer pays exactly ₹{paymentForm.partialCodFlatAmount || 99} advance via UPI; remaining balance is collected in Cash upon delivery.
+                              </span>
+                            </div>
+                          ) : (
+                            <div>
+                              <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                                Advance Percentage (%)
+                              </label>
+                              <div className="flex items-center gap-2 mb-2">
+                                {[10, 15, 20, 25, 30].map((pct) => (
+                                  <button
+                                    key={pct}
+                                    type="button"
+                                    onClick={() => setPaymentForm(prev => ({ ...prev, partialCodPercentage: pct }))}
+                                    className={`px-3 py-1 rounded-lg text-xs font-extrabold border transition cursor-pointer ${
+                                      Number(paymentForm.partialCodPercentage) === pct
+                                        ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-950 dark:text-purple-300'
+                                        : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-neutral-600'
+                                    }`}
+                                  >
+                                    {pct}%
+                                  </button>
+                                ))}
+                              </div>
+                              <input
+                                type="number"
+                                min={5}
+                                max={80}
+                                value={paymentForm.partialCodPercentage || 20}
+                                onChange={(e) => setPaymentForm(prev => ({ ...prev, partialCodPercentage: Number(e.target.value) }))}
+                                className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-purple-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-purple-400"
+                              />
+                              <span className="text-[10px] text-neutral-400 mt-1 block">
+                                Customer pays {paymentForm.partialCodPercentage || 20}% of their order total via UPI; remaining {100 - (paymentForm.partialCodPercentage || 20)}% is collected on delivery.
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Optional COD Handling Fee */}
+                          <div>
+                            <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                              Optional COD Handling / Courier Collection Fee (₹)
+                            </label>
+                            <input
+                              type="number"
+                              min={0}
+                              max={150}
+                              value={paymentForm.partialCodFee || 0}
+                              onChange={(e) => setPaymentForm(prev => ({ ...prev, partialCodFee: Number(e.target.value) }))}
+                              placeholder="0 (Keep 0 for 100% Free Shipping)"
+                              className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-purple-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-purple-400"
+                            />
+                            <span className="text-[10px] text-neutral-400 mt-1 block">
+                              Set to ₹0 for 100% free delivery on Partial COD, or add +₹49 courier handling fee if you wish to incentivize full prepaid UPI.
+                            </span>
+                          </div>
+
+                          {/* Live Calculation Sandbox */}
+                          <div className="p-3.5 rounded-xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs space-y-1.5">
+                            <span className="font-extrabold text-[10px] uppercase tracking-wider text-purple-700 dark:text-purple-300 block">
+                              💡 Live Example Breakdown (On a ₹1,000 Order):
+                            </span>
+                            {(() => {
+                              const fee = Number(paymentForm.partialCodFee || 0);
+                              const total = 1000 + fee;
+                              let advance = 0;
+                              if (paymentForm.partialCodType === 'flat') {
+                                advance = Math.min(total, Number(paymentForm.partialCodFlatAmount || 99));
+                              } else {
+                                advance = Math.round((total * Number(paymentForm.partialCodPercentage || 20)) / 100);
+                              }
+                              const balance = Math.max(0, total - advance);
+                              return (
+                                <div className="space-y-1 text-neutral-700 dark:text-neutral-300 font-medium">
+                                  <div className="flex justify-between">
+                                    <span>• Customer Pays Upfront (UPI):</span>
+                                    <strong className="text-purple-700 dark:text-purple-300 font-mono text-sm">₹{advance}</strong>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>• Courier Collects on Delivery (Cash):</span>
+                                    <strong className="text-amber-700 dark:text-amber-400 font-mono text-sm">₹{balance}</strong>
+                                  </div>
+                                  {fee > 0 && (
+                                    <div className="flex justify-between text-[11px] text-neutral-400">
+                                      <span>• Includes Extra COD Handling Fee:</span>
+                                      <span>+₹{fee}</span>
+                                    </div>
+                                  )}
+                                  <div className="flex justify-between font-bold pt-1 border-t border-purple-200/60 dark:border-purple-800">
+                                    <span>• Total Order Value:</span>
+                                    <span>₹{total}</span>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3">
                       <button
                         type="submit"
-                        className="flex-1 py-3 px-5 rounded-2xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
+                        className="flex-1 py-3 px-5 rounded-2xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Save className="w-4 h-4" />
                         <span>Save Payment Settings</span>
@@ -2575,7 +2819,7 @@ export default function AdminPanel({
                             showToast('Reset to default UPI settings');
                           }
                         }}
-                        className="py-3 px-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-xs font-bold hover:bg-neutral-200 transition"
+                        className="py-3 px-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-xs font-bold hover:bg-neutral-200 transition cursor-pointer"
                       >
                         Reset
                       </button>
@@ -2594,48 +2838,118 @@ export default function AdminPanel({
                     </div>
 
                     {/* Simulated Customer Payment Card */}
-                    <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-800 shadow-xl space-y-4">
-                      <div className="text-center space-y-1">
-                        <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold uppercase tracking-wide">
-                          Scoop Storey Prepaid UPI
-                        </span>
-                        <div className="font-display font-black text-2xl text-neutral-900 dark:text-white">
-                          ₹597 <span className="text-xs font-normal text-neutral-400">(Prepaid)</span>
-                        </div>
-                      </div>
+                    {(() => {
+                      const isPartial = previewPaymentTab === 'partial' && paymentForm.partialCodEnabled;
+                      const sampleTotal = 1000 + (isPartial ? Number(paymentForm.partialCodFee || 0) : 0);
+                      let payAmount = sampleTotal;
+                      let codBalance = 0;
+                      if (isPartial) {
+                        if (paymentForm.partialCodType === 'flat') {
+                          payAmount = Math.min(sampleTotal, Number(paymentForm.partialCodFlatAmount || 99));
+                        } else {
+                          payAmount = Math.round((sampleTotal * Number(paymentForm.partialCodPercentage || 20)) / 100);
+                        }
+                        codBalance = sampleTotal - payAmount;
+                      }
 
-                      {/* QR Code in preview */}
-                      <div className="w-44 h-44 mx-auto p-2 bg-white rounded-2xl border-2 border-pink-200 shadow-sm flex items-center justify-center overflow-hidden">
-                        <img
-                          src={getQrDisplayUrl(paymentForm, 597, 'SS-SAMPLE')}
-                          alt="Preview QR"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      return (
+                        <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-800 shadow-xl space-y-3.5">
+                          {paymentForm.partialCodEnabled && (
+                            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs font-bold">
+                              <button
+                                type="button"
+                                onClick={() => setPreviewPaymentTab('prepaid')}
+                                className={`py-1.5 rounded-lg text-center transition cursor-pointer ${
+                                  previewPaymentTab !== 'partial'
+                                    ? 'bg-white dark:bg-neutral-900 text-[#E60067] shadow-xs'
+                                    : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+                                }`}
+                              >
+                                ⚡ Full Prepaid
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPreviewPaymentTab('partial')}
+                                className={`py-1.5 rounded-lg text-center transition cursor-pointer ${
+                                  previewPaymentTab === 'partial'
+                                    ? 'bg-white dark:bg-neutral-900 text-purple-600 shadow-xs'
+                                    : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+                                }`}
+                              >
+                                📦 Partial COD
+                              </button>
+                            </div>
+                          )}
 
-                      {/* Copyable Pills Preview */}
-                      <div className="space-y-2 text-xs">
-                        <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
-                          <div>
-                            <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI ID</span>
-                            <span className="font-mono font-bold text-xs">{paymentForm.upiId || '8199922653@upi'}</span>
+                          <div className="text-center space-y-1">
+                            <span className={`text-[10px] font-extrabold uppercase tracking-wide ${
+                              isPartial ? 'text-purple-600 dark:text-purple-400' : 'text-pink-600 dark:text-pink-400'
+                            }`}>
+                              {isPartial ? 'Partial COD Advance Booking' : 'Scoop Storey Prepaid UPI'}
+                            </span>
+                            <div className="font-display font-black text-2xl text-neutral-900 dark:text-white">
+                              ₹{payAmount}{' '}
+                              <span className="text-xs font-normal text-neutral-400">
+                                {isPartial ? '(Pay Advance via UPI)' : '(Prepaid)'}
+                              </span>
+                            </div>
+                            {isPartial && (
+                              <div className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 py-1 px-2.5 rounded-lg border border-amber-200 dark:border-amber-800 inline-block">
+                                🚚 Remaining ₹{codBalance} in Cash on Delivery
+                              </div>
+                            )}
                           </div>
-                          <span className="px-2 py-1 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
-                        </div>
 
-                        <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
-                          <div>
-                            <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI Mobile</span>
-                            <span className="font-mono font-bold text-xs">+91 {paymentForm.upiPhone || '8199922653'}</span>
+                          {/* QR Code in preview */}
+                          <div className="w-44 h-44 mx-auto p-2 bg-white rounded-2xl border-2 border-pink-200 shadow-sm flex items-center justify-center overflow-hidden">
+                            <img
+                              src={getQrDisplayUrl(paymentForm, payAmount, 'SS-SAMPLE')}
+                              alt="Preview QR"
+                              className="w-full h-full object-contain"
+                            />
                           </div>
-                          <span className="px-2 py-1 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
-                        </div>
-                      </div>
 
-                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-center text-xs text-emerald-800 dark:text-emerald-300 font-medium">
-                        Payee: <strong>{paymentForm.payeeName}</strong>
-                      </div>
-                    </div>
+                          {/* 1-Click App Buttons Simulation */}
+                          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-[#5f259f] to-[#7b2cbf] text-white flex items-center justify-center gap-1">
+                              <span>PhonePe</span>
+                            </div>
+                            <div className="p-2 rounded-lg bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-700 flex items-center justify-center gap-1">
+                              <span>Google Pay</span>
+                            </div>
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-[#002970] to-[#00b9f5] text-white flex items-center justify-center gap-1">
+                              <span>Paytm</span>
+                            </div>
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 text-white flex items-center justify-center gap-1">
+                              <span>Any UPI</span>
+                            </div>
+                          </div>
+
+                          {/* Copyable Pills Preview */}
+                          <div className="space-y-1.5 text-xs">
+                            <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
+                              <div>
+                                <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI ID</span>
+                                <span className="font-mono font-bold text-xs">{paymentForm.upiId || '8199922653@upi'}</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
+                            </div>
+
+                            <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 flex justify-between items-center">
+                              <div>
+                                <span className="text-[9px] text-neutral-400 font-bold block uppercase">UPI Mobile</span>
+                                <span className="font-mono font-bold text-xs">+91 {paymentForm.upiPhone || '8199922653'}</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-900 text-[#E60067] text-[10px] font-bold border border-pink-200">Copy</span>
+                            </div>
+                          </div>
+
+                          <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-center text-xs text-emerald-800 dark:text-emerald-300 font-medium">
+                            Payee: <strong>{paymentForm.payeeName}</strong>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
