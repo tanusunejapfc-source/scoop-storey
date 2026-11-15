@@ -1602,10 +1602,17 @@ export default function AdminPanel({
   };
 
   const handleSavePaymentSettings = async (e) => {
-    e?.preventDefault();
-    await updatePaymentSettings(paymentForm);
-    soundFX.playSuccess();
-    showToast('UPI & QR settings saved successfully! ✨');
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    try {
+      await updatePaymentSettings(paymentForm);
+      soundFX.playSuccess();
+      showToast('UPI & QR settings saved successfully! ✨');
+    } catch (err) {
+      console.error('Error saving payment settings:', err);
+      showToast('⚠️ Could not save payment settings. Please try again.');
+    }
   };
 
   // Filter orders
@@ -2826,7 +2833,8 @@ export default function AdminPanel({
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3">
                       <button
-                        type="submit"
+                        type="button"
+                        onClick={handleSavePaymentSettings}
                         className="flex-1 py-3 px-5 rounded-2xl bg-[#E60067] hover:bg-pink-600 text-white font-display font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Save className="w-4 h-4" />

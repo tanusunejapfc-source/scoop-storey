@@ -72,7 +72,6 @@ export async function savePaymentSettings(newSettings) {
     const merged = { ...current, ...newSettings };
     localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: merged }));
-    window.dispatchEvent(new Event('storage'));
 
     // Asynchronously push to Supabase storage bucket so all devices see the new settings
     if (supabase) {
@@ -100,7 +99,6 @@ export async function resetPaymentSettings() {
   try {
     localStorage.removeItem(PAYMENT_SETTINGS_KEY);
     window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: DEFAULT_PAYMENT_SETTINGS }));
-    window.dispatchEvent(new Event('storage'));
     if (supabase) {
       try {
         const jsonBlob = new Blob([JSON.stringify(DEFAULT_PAYMENT_SETTINGS)], { type: 'application/json' });

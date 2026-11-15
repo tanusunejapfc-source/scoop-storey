@@ -470,6 +470,10 @@ export function useStoreProducts() {
     });
 
     const handleUpdate = (e) => {
+      // If this is a storage event, only reload if it is related to products
+      if (e?.type === 'storage' && e.key && !e.key.includes('product')) {
+        return;
+      }
       if (e?.detail) {
         setProducts(e.detail);
       } else {

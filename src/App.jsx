@@ -101,7 +101,7 @@ export default function App() {
       // 1. Admin Panel
       if (hash === '#admin') {
         setIsAdminOpen(true);
-      } else {
+      } else if (!isInitial) {
         setIsAdminOpen(false);
       }
 
@@ -235,7 +235,14 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         isDark={isDark}
         onToggleTheme={() => setIsDark(!isDark)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenAdmin={() => {
+          setIsAdminOpen(true);
+          try {
+            if (window.location.hash !== '#admin') {
+              window.location.hash = '#admin';
+            }
+          } catch {}
+        }}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenTracking={() => setIsTrackingOpen(true)}
         onOpenWishlist={() => setIsWishlistOpen(true)}
@@ -426,7 +433,14 @@ export default function App() {
       {/* STORE ADMIN PANEL */}
       <AdminPanel
         isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
+        onClose={() => {
+          setIsAdminOpen(false);
+          if (window.location.hash === '#admin') {
+            try {
+              window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            } catch {}
+          }
+        }}
         products={products}
         onUpdateProduct={updateProduct}
         onAddProduct={addProduct}
@@ -487,7 +501,14 @@ export default function App() {
 
       {/* FOOTER */}
       <Footer 
-        onOpenAdmin={() => setIsAdminOpen(true)} 
+        onOpenAdmin={() => {
+          setIsAdminOpen(true);
+          try {
+            if (window.location.hash !== '#admin') {
+              window.location.hash = '#admin';
+            }
+          } catch {}
+        }} 
         onOpenTracking={() => setIsTrackingOpen(true)}
         onOpenPolicy={(tab) => {
           setPolicyTab(tab || 'shipping');
