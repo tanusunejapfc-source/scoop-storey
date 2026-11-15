@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import confetti from 'canvas-confetti';
-import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle, Check } from 'lucide-react';
+import { Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle, Check, X, Camera, List, Eye } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { disposeThreeScene } from '../utils/threeUtils';
-import { SCOOP_TIERS, CHARM_LOOT_POOL } from '../data/storeData';
+import { SCOOP_TIERS, CHARM_LOOT_POOL, MYSTERY_SCOOP_CATEGORIES } from '../data/storeData';
 // Scoop inquiries on WhatsApp (orders placed strictly via Cart UPI QR)
 import WhatsAppIcon from './WhatsAppIcon';
 
@@ -15,6 +15,10 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const [scoopResult, setScoopResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [addedTierId, setAddedTierId] = useState(null);
+  const [showChartModal, setShowChartModal] = useState(false);
+  const [activeChartCategory, setActiveChartCategory] = useState('all');
+  const [activeChartTab, setActiveChartTab] = useState('items'); // 'items' | 'photos'
+  const [zoomedPhoto, setZoomedPhoto] = useState(null);
   const spoonRef = useRef(null);
   const charmsInSpoonRef = useRef([]);
   const animTimersRef = useRef([]);
@@ -575,6 +579,19 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         <p className="mt-3 text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-body font-medium">
           Watch the handcrafted 3D rose-gold scoop plunge into the charm bowl and reveal your personalized mystery haul!
         </p>
+        <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => {
+              setShowChartModal(true);
+              soundFX.playPop(520);
+            }}
+            className="px-4 py-2 rounded-2xl bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs sm:text-sm hover:border-[#E60067] hover:bg-pink-50 dark:hover:bg-pink-950/40 transition shadow-sm flex items-center gap-2 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-yellow-500 fill-yellow-400" />
+            <span>Official Scoop Rewards Board (54 Items) 📋</span>
+          </button>
+        </div>
       </div>
 
       {/* 3D Interactive Stage Container (PLACED FIRST: BOWL ABOVE PRICING) */}
@@ -784,12 +801,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   key={item.id}
                   className="flex items-center justify-between p-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800/80 border border-pink-200 dark:border-pink-900/40 text-xs md:text-sm font-semibold text-[#231733] dark:text-neutral-100"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-lg">{item.icon}</span>
-                    <span>{item.name}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-xl shrink-0">{item.icon}</span>
+                    <div className="min-w-0 text-left">
+                      <span className="font-bold block truncate">{item.name}</span>
+                      <span className="text-[10px] text-pink-600 dark:text-pink-300 font-semibold block truncate">
+                        {item.category} • {item.charm}
+                      </span>
+                    </div>
                   </div>
                   <span
-                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                    className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${
                       item.rarity === 'Legendary'
                         ? 'bg-amber-400 text-purple-950 animate-pulse'
                         : item.rarity === 'Epic'
@@ -834,6 +856,254 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* SCOOP REWARDS CHART MODAL */}
+      {showChartModal && (
+        <div 
+          onClick={() => setShowChartModal(false)}
+          className="fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-4xl w-full p-4 sm:p-6 md:p-8 shadow-2xl border-2 border-pink-400 dark:border-pink-700 relative max-h-[92vh] flex flex-col animate-scaleUp text-[#231733] dark:text-white"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-2 pb-4 border-b border-pink-100 dark:border-pink-900/40 shrink-0">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 text-[11px] font-black uppercase tracking-wider mb-1">
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-400" />
+                  <span>Scoop Storey • Official Charm Chart</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-extrabold text-[#231733] dark:text-white">
+                  54 Mystery Scoop Treasures ✨
+                </h3>
+                <p className="text-xs sm:text-sm text-[#554664] dark:text-[#D5CBE2] font-medium mt-0.5">
+                  Each bead or charm scooped from the bowl corresponds to one of these verified items!
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowChartModal(false)}
+                className="p-1.5 rounded-xl hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-400 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* View Mode Switcher: Items Grid vs Physical Board Photos */}
+            <div className="flex items-center justify-between gap-2 py-3 border-b border-pink-100 dark:border-pink-900/40 shrink-0 flex-wrap">
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-pink-50 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-neutral-700">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveChartTab('items');
+                    soundFX.playPop(500);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                    activeChartTab === 'items'
+                      ? 'bg-[#E60067] text-white shadow-xs'
+                      : 'text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  <List className="w-3.5 h-3.5" />
+                  <span>Items Grid (54)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveChartTab('photos');
+                    soundFX.playPop(500);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                    activeChartTab === 'photos'
+                      ? 'bg-[#E60067] text-white shadow-xs'
+                      : 'text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Physical Board Photos 📸</span>
+                </button>
+              </div>
+
+              {activeChartTab === 'items' && (
+                <div className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none">
+                  {[
+                    { id: 'all', label: 'All 54' },
+                    { id: 'beauty-essentials', label: '💄 Beauty (15)' },
+                    { id: 'accessories-fun', label: '💍 Accessories (15)' },
+                    { id: 'stationery-diaries', label: '📔 Stationery (13)' },
+                    { id: 'lifestyle-more', label: '🧸 Lifestyle (11)' }
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveChartCategory(tab.id);
+                        soundFX.playPop(520);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition whitespace-nowrap ${
+                        activeChartCategory === tab.id
+                          ? 'bg-pink-100 dark:bg-pink-900/60 text-[#E60067] dark:text-pink-300 ring-1 ring-[#E60067]'
+                          : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-white'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
+              {activeChartTab === 'photos' ? (
+                /* Physical Board Photos */
+                <div className="space-y-4">
+                  <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                    These are the actual printed boards used by Scoop Storey during Instagram live scoops! Tap on any photo to inspect beads:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div 
+                      onClick={() => setSelectedChartPhoto('/images/scoop-chart-beauty-accessories.jpg')}
+                      className="group relative rounded-2xl overflow-hidden border-2 border-pink-200 dark:border-pink-900/60 shadow-md cursor-pointer hover:border-pink-400 transition"
+                    >
+                      <img 
+                        src="/images/scoop-chart-beauty-accessories.jpg" 
+                        alt="Beauty Essentials & Accessories Chart" 
+                        className="w-full h-80 object-cover object-top group-hover:scale-102 transition duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-4 text-white">
+                        <div>
+                          <span className="font-bold text-sm block">Beauty Essentials & Accessories</span>
+                          <span className="text-[11px] text-pink-200">Tap to zoom and inspect beads</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => setSelectedChartPhoto('/images/scoop-chart-stationery-lifestyle.jpg')}
+                      className="group relative rounded-2xl overflow-hidden border-2 border-pink-200 dark:border-pink-900/60 shadow-md cursor-pointer hover:border-pink-400 transition"
+                    >
+                      <img 
+                        src="/images/scoop-chart-stationery-lifestyle.jpg" 
+                        alt="Stationery & Lifestyle Chart" 
+                        className="w-full h-80 object-cover object-top group-hover:scale-102 transition duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-4 text-white">
+                        <div>
+                          <span className="font-bold text-sm block">Stationery & Diaries • Lifestyle & More</span>
+                          <span className="text-[11px] text-pink-200">Tap to zoom and inspect beads</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Items Grid */
+                <div className="space-y-6">
+                  {MYSTERY_SCOOP_CATEGORIES
+                    .filter(cat => activeChartCategory === 'all' || cat.id === activeChartCategory)
+                    .map(cat => (
+                      <div key={cat.id} className="space-y-3">
+                        <div className="flex items-center justify-between pb-1.5 border-b border-pink-100 dark:border-pink-900/40">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{cat.icon}</span>
+                            <div>
+                              <h4 className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white">
+                                {cat.title}
+                              </h4>
+                              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                {cat.description}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="px-2.5 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 text-xs font-black">
+                            {cat.badge}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                          {cat.items.map(item => (
+                            <div
+                              key={item.id}
+                              className="p-3 rounded-2xl bg-pink-50/50 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700/80 hover:border-pink-300 dark:hover:border-pink-800 transition flex items-center justify-between gap-2"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div 
+                                  className="w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 shadow-xs border border-white dark:border-neutral-700"
+                                  style={{ backgroundColor: `${item.color}25` }}
+                                >
+                                  {item.icon}
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white block truncate">
+                                    {item.name}
+                                  </span>
+                                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 block truncate">
+                                    Bead: {item.charm}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <span
+                                className={`text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 ${
+                                  item.rarity === 'Legendary'
+                                    ? 'bg-amber-400 text-purple-950'
+                                    : item.rarity === 'Epic'
+                                    ? 'bg-purple-600 text-white'
+                                    : item.rarity === 'Rare'
+                                    ? 'bg-pink-600 text-white'
+                                    : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300'
+                                }`}
+                              >
+                                {item.rarity}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="pt-3 border-t border-pink-100 dark:border-pink-900/40 flex items-center justify-between gap-2 shrink-0">
+              <span className="text-[11px] text-neutral-500 font-medium">
+                100% Free Express Shipping across India on all Mystery Scoops! 🎀
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowChartModal(false)}
+                className="px-5 py-2 rounded-xl btn-3d-pink text-white font-display font-bold text-xs shadow-md"
+              >
+                Got It! ✨
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FULLSCREEN ZOOM FOR BOARD PHOTO */}
+      {selectedChartPhoto && (
+        <div 
+          onClick={() => setSelectedChartPhoto(null)}
+          className="fixed inset-0 z-70 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn cursor-zoom-out"
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedChartPhoto(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/20 text-white hover:bg-white/40 transition cursor-pointer"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img 
+            src={selectedChartPhoto} 
+            alt="Physical Board Fullscreen" 
+            className="max-h-[90vh] max-w-[95vw] object-contain rounded-2xl shadow-2xl"
+          />
         </div>
       )}
     </section>

@@ -170,6 +170,8 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
   } else {
     defaultImages = [
       p.image,
+      '/images/scoop-chart-beauty-accessories.jpg',
+      '/images/scoop-chart-stationery-lifestyle.jpg',
       '/images/deluxe-giftbox.jpg',
       '/images/asmr-packing.jpg'
     ];

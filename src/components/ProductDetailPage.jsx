@@ -22,6 +22,7 @@ import { soundFX } from '../utils/audio';
 import { lookupPincode } from '../utils/pincodeApi';
 import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
+import { MYSTERY_SCOOP_CATEGORIES } from '../data/storeData';
 
 export default function ProductDetailPage({
   product,
@@ -914,6 +915,22 @@ export default function ProductDetailPage({
                   >
                     Shipping & Policies
                   </button>
+                  {product.category === 'Mystery Scoops' && (
+                    <button
+                      onClick={() => {
+                        setActiveTab('scoopChart');
+                        soundFX.playPop(450);
+                      }}
+                      className={`pb-2 text-xs font-bold transition border-b-2 flex items-center gap-1 ${
+                        activeTab === 'scoopChart'
+                          ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                          : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+                      }`}
+                    >
+                      <Sparkles className="w-3 h-3 text-yellow-500" />
+                      <span>Scoop Items (54)</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Tab 1: Specifications */}
@@ -956,6 +973,44 @@ export default function ProductDetailPage({
                     <p>• <strong>Payment:</strong> 100% Prepaid via UPI QR Code only.</p>
                     <p>• <strong>Delivery:</strong> 100% Free Express Delivery across India on all prepaid orders.</p>
                     <p>• <strong>Packaging:</strong> Packed with cute ASMR aesthetic on Instagram Reels upon request!</p>
+                  </div>
+                )}
+
+                {/* Tab 4: Scoop Items (54) */}
+                {activeTab === 'scoopChart' && (
+                  <div className="space-y-3 text-xs animate-fadeIn">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-800/50 flex items-center justify-between">
+                      <span className="font-bold text-[#E60067] dark:text-pink-300">
+                        Official 54-Item Scoop Board
+                      </span>
+                      <span className="text-[10px] font-bold text-neutral-500">
+                        Swipe gallery to see board photo 📸
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                      {MYSTERY_SCOOP_CATEGORIES.map(cat => (
+                        <div key={cat.id} className="p-3 rounded-xl bg-pink-50/60 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700">
+                          <div className="flex items-center justify-between mb-2 font-bold text-neutral-900 dark:text-white">
+                            <span className="flex items-center gap-1.5 text-xs">
+                              <span>{cat.icon}</span>
+                              <span>{cat.title}</span>
+                            </span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-200 dark:bg-pink-900/60 text-[#E60067] dark:text-pink-300 font-black">
+                              {cat.badge}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px] text-neutral-700 dark:text-neutral-300">
+                            {cat.items.map(item => (
+                              <div key={item.id} className="flex items-center gap-1.5 truncate p-1 rounded-md bg-white/70 dark:bg-neutral-900/70 border border-pink-100/60 dark:border-neutral-800">
+                                <span className="text-xs shrink-0">{item.icon}</span>
+                                <span className="font-semibold truncate">{item.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

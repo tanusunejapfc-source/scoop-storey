@@ -41,20 +41,101 @@ export const SCOOP_TIERS = [
   }
 ];
 
-export const CHARM_LOOT_POOL = [
-  { name: 'Kawaii Gummy Bear Charm', rarity: 'Common', icon: '🧸', color: '#FF94C2' },
-  { name: 'Faceted Aurora Heart Gem', rarity: 'Rare', icon: '💖', color: '#FF4D8D' },
-  { name: 'Shimmering Starlight Bead', rarity: 'Common', icon: '⭐', color: '#FFD166' },
-  { name: 'Iridescent Sweetwater Pearl', rarity: 'Rare', icon: '🦪', color: '#E0AAFF' },
-  { name: 'Mini Sanrio-Style Resin Donut', rarity: 'Rare', icon: '🍩', color: '#FFAAA6' },
-  { name: 'Crystal Candy Flower Token', rarity: 'Common', icon: '🌸', color: '#A0E7E5' },
-  { name: 'Glitter Heart Slider Charm', rarity: 'Rare', icon: '✨', color: '#C77DFF' },
-  { name: 'Hand-Poured Holographic Bear', rarity: 'Epic', icon: '🌈', color: '#70D6FF' },
-  { name: 'Pastel Butterfly Hair Pin', rarity: 'Epic', icon: '🦋', color: '#FF99C8' },
-  { name: 'Bhaskar Gold Vault Bear Token', rarity: 'Legendary', icon: '👑', color: '#FFD700' },
-  { name: 'Mystery Keychain Hardware Kit', rarity: 'Epic', icon: '🗝️', color: '#F3C98B' },
-  { name: 'Collector Scented Wax Melt Charm', rarity: 'Rare', icon: '🕯️', color: '#D8B4F8' }
+// Official Mystery Scoop Rewards Chart (54 Items across 4 Categories from Official Scoop Board)
+export const MYSTERY_SCOOP_CATEGORIES = [
+  {
+    id: 'beauty-essentials',
+    title: 'Beauty Essentials',
+    icon: '💄',
+    badge: '15 Items',
+    description: 'Aesthetic beauty treats, viral lip glazes, liners & cute tools',
+    items: [
+      { id: 'be-claw-clip', name: 'Claw Clip', category: 'Beauty Essentials', charm: 'Purple Star Bead', icon: '⭐', color: '#B388FF', rarity: 'Common' },
+      { id: 'be-scrunchy', name: 'Scrunchy', category: 'Beauty Essentials', charm: 'Yellow Butterfly Charm', icon: '🦋', color: '#FFD166', rarity: 'Common' },
+      { id: 'be-head-band', name: 'Head Band', category: 'Beauty Essentials', charm: 'Red Heart Charm', icon: '💖', color: '#FF4D8D', rarity: 'Common' },
+      { id: 'be-lip-gloss', name: 'Lip Gloss', category: 'Beauty Essentials', charm: 'Blue Gem Charm', icon: '💎', color: '#48CAE4', rarity: 'Rare' },
+      { id: 'be-lipstick', name: 'Lipstick', category: 'Beauty Essentials', charm: 'Pink Bow Charm', icon: '🎀', color: '#FF94C2', rarity: 'Rare' },
+      { id: 'be-lip-liner', name: 'Lip Liner', category: 'Beauty Essentials', charm: 'Mint Oval Charm', icon: '✏️', color: '#A0E7E5', rarity: 'Common' },
+      { id: 'be-makeup-brush', name: 'Makeup Brush', category: 'Beauty Essentials', charm: 'Pink Bow Charm', icon: '🖌️', color: '#FFAAA6', rarity: 'Rare' },
+      { id: 'be-blusher', name: 'Blusher', category: 'Beauty Essentials', charm: 'White Butterfly Charm', icon: '🌸', color: '#FFFFFF', rarity: 'Rare' },
+      { id: 'be-eye-liner', name: 'Eye Liner', category: 'Beauty Essentials', charm: 'Winged Mint Bead', icon: '👁️', color: '#70D6FF', rarity: 'Common' },
+      { id: 'be-mascara', name: 'Mascara', category: 'Beauty Essentials', charm: 'Black Faceted Charm', icon: '✨', color: '#333333', rarity: 'Rare' },
+      { id: 'be-blender', name: 'Blender', category: 'Beauty Essentials', charm: 'Magenta Heart Charm', icon: '💜', color: '#D8005A', rarity: 'Common' },
+      { id: 'be-beauty-puff', name: 'Beauty Puff', category: 'Beauty Essentials', charm: 'Lime Butterfly Charm', icon: '🧽', color: '#C1E1C1', rarity: 'Common' },
+      { id: 'be-anklets', name: 'Anklets', category: 'Beauty Essentials', charm: 'Lilac Bow Bead', icon: '💫', color: '#D8B4F8', rarity: 'Rare' },
+      { id: 'be-highlighters', name: 'Highlighters', category: 'Beauty Essentials', charm: 'Double Bow Charm', icon: '✨', color: '#FFD166', rarity: 'Rare' },
+      { id: 'be-makeup-kit', name: 'Makeup Kit', category: 'Beauty Essentials', charm: 'Candy Pouch Charm', icon: '👑', color: '#FF4D8D', rarity: 'Legendary' }
+    ]
+  },
+  {
+    id: 'accessories-fun',
+    title: 'Accessories & Fun',
+    icon: '💍',
+    badge: '15 Items',
+    description: 'Korean jewelry, charming bracelets, nails & fun accessories',
+    items: [
+      { id: 'af-charm-bracelet', name: 'Charm Bracelet', category: 'Accessories & Fun', charm: 'Winged Pink Bead', icon: '🎀', color: '#FF94C2', rarity: 'Epic' },
+      { id: 'af-pendants', name: 'Pendants', category: 'Accessories & Fun', charm: 'Bronze Heart Charm', icon: '✨', color: '#FFD700', rarity: 'Epic' },
+      { id: 'af-earrings', name: 'Earrings', category: 'Accessories & Fun', charm: 'White Butterfly Charm', icon: '💎', color: '#FFFFFF', rarity: 'Rare' },
+      { id: 'af-kda-bracelet', name: 'Kda Bracelet', category: 'Accessories & Fun', charm: 'Blue Flower Charm', icon: '🌸', color: '#70D6FF', rarity: 'Rare' },
+      { id: 'af-nail-paint', name: 'Nail Paint', category: 'Accessories & Fun', charm: 'Green Gem Charm', icon: '💅', color: '#A8E6CF', rarity: 'Common' },
+      { id: 'af-nail-paint-remover', name: 'Nail Paint Remover', category: 'Accessories & Fun', charm: 'Red Gem Charm', icon: '✨', color: '#FF6B6B', rarity: 'Common' },
+      { id: 'af-wet-wipes', name: 'Wet Wipes', category: 'Accessories & Fun', charm: 'Lavender Butterfly Charm', icon: '🧻', color: '#D8B4F8', rarity: 'Common' },
+      { id: 'af-key-chain', name: 'Key Chain', category: 'Accessories & Fun', charm: 'Green Candy Charm', icon: '🗝️', color: '#A0E7E5', rarity: 'Common' },
+      { id: 'af-mirror', name: 'Mirror', category: 'Accessories & Fun', charm: 'Winged Pink Bead', icon: '🪞', color: '#FF99C8', rarity: 'Rare' },
+      { id: 'af-comb', name: 'Comb', category: 'Accessories & Fun', charm: 'Yellow Shell Charm', icon: '🪮', color: '#FFD166', rarity: 'Common' },
+      { id: 'af-eye-mask', name: 'Eye Mask', category: 'Accessories & Fun', charm: 'Purple Cube Bead', icon: '💤', color: '#B388FF', rarity: 'Rare' },
+      { id: 'af-sheet-mask', name: 'Sheet Mask', category: 'Accessories & Fun', charm: 'Pink Heart Charm', icon: '🎭', color: '#FFAAA6', rarity: 'Common' },
+      { id: 'af-hair-accessories', name: 'Hair Accessories', category: 'Accessories & Fun', charm: 'Cyan Heart Charm', icon: '🎀', color: '#48CAE4', rarity: 'Common' },
+      { id: 'af-lunch-bag', name: 'Lunch Bag', category: 'Accessories & Fun', charm: 'Cream Butterfly Charm', icon: '👜', color: '#FFFDD0', rarity: 'Rare' },
+      { id: 'af-mini-fan', name: 'Mini Fan', category: 'Accessories & Fun', charm: 'Dual Heart Charm', icon: '🪭', color: '#FF6B97', rarity: 'Epic' }
+    ]
+  },
+  {
+    id: 'stationery-diaries',
+    title: 'Stationery & Diaries',
+    icon: '📔',
+    badge: '13 Items',
+    description: 'Floral diaries, aesthetic gel pens, sticky notes & journals',
+    items: [
+      { id: 'sd-mini-diary', name: 'Mini Diary', category: 'Stationery & Diaries', charm: 'Pink Star Charm', icon: '📖', color: '#FF94C2', rarity: 'Common' },
+      { id: 'sd-floral-diary', name: 'Floral Diary', category: 'Stationery & Diaries', charm: 'Blue & Pink Bow Charm', icon: '📔', color: '#70D6FF', rarity: 'Rare' },
+      { id: 'sd-stapler', name: 'Stapler', category: 'Stationery & Diaries', charm: 'Green Shell Charm', icon: '📎', color: '#A8E6CF', rarity: 'Common' },
+      { id: 'sd-floating-pen', name: 'Floating Pen', category: 'Stationery & Diaries', charm: 'White Star Charm', icon: '🖊️', color: '#FFFFFF', rarity: 'Rare' },
+      { id: 'sd-multicolor-pen', name: 'Multicolor Pen', category: 'Stationery & Diaries', charm: 'Winged Yellow Bead', icon: '✒️', color: '#FFD166', rarity: 'Common' },
+      { id: 'sd-bookmark', name: 'Bookmark', category: 'Stationery & Diaries', charm: 'Mint Star Charm', icon: '🔖', color: '#A0E7E5', rarity: 'Common' },
+      { id: 'sd-sticky-notes', name: 'Sticky Notes', category: 'Stationery & Diaries', charm: 'Green Heart Charm', icon: '📝', color: '#C1E1C1', rarity: 'Common' },
+      { id: 'sd-highlighter-pen', name: 'Highlighter Pen', category: 'Stationery & Diaries', charm: 'Purple Butterfly Charm', icon: '🖍️', color: '#B388FF', rarity: 'Common' },
+      { id: 'sd-stamp', name: 'Stamp', category: 'Stationery & Diaries', charm: 'Brown Ribbon Charm', icon: '📮', color: '#D4A373', rarity: 'Common' },
+      { id: 'sd-pouch', name: 'Pouch', category: 'Stationery & Diaries', charm: 'Pink Lips Charm', icon: '👝', color: '#FF6B97', rarity: 'Rare' },
+      { id: 'sd-stationery-set', name: 'Stationery Set', category: 'Stationery & Diaries', charm: 'Winged Lavender Bead', icon: '🎨', color: '#E0AAFF', rarity: 'Epic' },
+      { id: 'sd-floral-big-diary', name: 'Floral Big Diary', category: 'Stationery & Diaries', charm: 'Hot Pink Heart Charm', icon: '📕', color: '#E60067', rarity: 'Epic' },
+      { id: 'sd-pen', name: 'Pen', category: 'Stationery & Diaries', charm: 'Lavender Oval Bead', icon: '✏️', color: '#D8B4F8', rarity: 'Common' }
+    ]
+  },
+  {
+    id: 'lifestyle-more',
+    title: 'Lifestyle & More',
+    icon: '🧸',
+    badge: '11 Items',
+    description: 'Cute plushies, sipper bottles, mugs, wallets & daily cuties',
+    items: [
+      { id: 'lm-lipstic-pouch', name: 'Lipstic Pouch', category: 'Lifestyle & More', charm: 'Lilac Candy Charm', icon: '👛', color: '#B388FF', rarity: 'Rare' },
+      { id: 'lm-kawai-paper-soap', name: 'Kawai Paper Soap', category: 'Lifestyle & More', charm: 'Yellow Butterfly Charm', icon: '🧼', color: '#FFD166', rarity: 'Common' },
+      { id: 'lm-soft-toy', name: 'Soft Toy', category: 'Lifestyle & More', charm: 'Red Cherry Charm', icon: '🧸', color: '#FF4D8D', rarity: 'Epic' },
+      { id: 'lm-nails', name: 'Nails', category: 'Lifestyle & More', charm: 'Yellow Flower Charm', icon: '💅', color: '#FFEAA7', rarity: 'Common' },
+      { id: 'lm-nail-cutter', name: 'Nail Cutter', category: 'Lifestyle & More', charm: 'Pastel Pink Butterfly Charm', icon: '✂️', color: '#FFAAA6', rarity: 'Common' },
+      { id: 'lm-nose-strips', name: 'Nose Strips', category: 'Lifestyle & More', charm: 'Mint Star Charm', icon: '🧖‍♀️', color: '#A0E7E5', rarity: 'Common' },
+      { id: 'lm-socks', name: 'Socks', category: 'Lifestyle & More', charm: 'Pink Bow Charm', icon: '🧦', color: '#FF94C2', rarity: 'Common' },
+      { id: 'lm-bottles', name: 'Bottles', category: 'Lifestyle & More', charm: 'Winged Peach Bead', icon: '🍼', color: '#FFD3B6', rarity: 'Epic' },
+      { id: 'lm-mug', name: 'Mug', category: 'Lifestyle & More', charm: 'Yellow Butterfly Charm', icon: '☕', color: '#FFD166', rarity: 'Rare' },
+      { id: 'lm-wallet', name: 'Wallet', category: 'Lifestyle & More', charm: 'Cyan Butterfly Charm', icon: '👛', color: '#48CAE4', rarity: 'Epic' },
+      { id: 'lm-bag', name: 'Bag', category: 'Lifestyle & More', charm: 'Yellow Candy Charm', icon: '🛍️', color: '#FFD166', rarity: 'Legendary' }
+    ]
+  }
 ];
+
+export const CHARM_LOOT_POOL = MYSTERY_SCOOP_CATEGORIES.flatMap(cat => cat.items);
 
 export const PRODUCTS = [
     // --- MYSTERY SCOOPS ---
@@ -65,12 +146,13 @@ export const PRODUCTS = [
     badge: 'Popular Starter 🎀',
     priceINR: 799,
     image: '/images/scoop-bowl.jpg',
-    description: 'Handpicked cute surprises just for you! Filled with 7–8 aesthetic kawaii products, stationery/plushies, extra free gifts, and free delivery across India.',
+    description: 'Handpicked cute surprises just for you! Filled with 7–8 aesthetic kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.',
     includes: [
-      '7–8 Handpicked Products',
+      '7–8 Handpicked Surprise Products',
+      'From 54 Official Scoop Board Items',
       'Extra Free Surprise Gifts Included',
-      'Free Shipping Across India',
-      'Cute Packaging & Stickers'
+      'Free Express Shipping Across India',
+      'Cute Packaging & Free Stickers'
     ]
   },
   {
@@ -80,11 +162,12 @@ export const PRODUCTS = [
     badge: 'Best Value 🔥',
     priceINR: 1299,
     image: '/images/scoop-bowl.jpg',
-    description: 'Our fan-favorite haul! 2 deep satisfying scoops packed with 12–15 premium kawaii products, beauty/accessories, extra free gifts, and free delivery across India.',
+    description: 'Our fan-favorite haul! 2 deep satisfying scoops packed with 12–15 premium kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.',
     includes: [
-      '12–15 Handpicked Products',
+      '12–15 Handpicked Surprise Products',
+      'From 54 Official Scoop Board Items',
       'Extra Free Surprise Gifts Included',
-      'Free Shipping Across India',
+      'Free Express Shipping Across India',
       'ASMR Reel Filming Eligible'
     ]
   },
@@ -95,12 +178,13 @@ export const PRODUCTS = [
     badge: 'Collector Choice ✨',
     priceINR: 1799,
     image: '/images/deluxe-giftbox.jpg',
-    description: 'The ultimate luxury hamper! Includes everything from a Mini Scoop + Midi Scoop with over 20+ aesthetic items, plushies, even more extra free gifts, and free delivery across India.',
+    description: 'The ultimate luxury hamper! Includes everything from a Mini Scoop + Midi Scoop with over 20+ aesthetic items drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), plushies, even more extra free gifts, and free delivery across India.',
     includes: [
       'Over 20+ Premium Items',
+      'From 54 Official Scoop Board Items',
       'Everything from Mini + Midi Scoop',
       'Even More Extra Free Gifts',
-      'Free Shipping Across India',
+      'Free Express Shipping Across India',
       'VIP Hamper Packaging'
     ]
   },

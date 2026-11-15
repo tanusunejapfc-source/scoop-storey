@@ -66,7 +66,7 @@ const FAQS_DATA = [
   {
     category: 'scoops',
     q: 'What is inside each Mystery Scoop tier?',
-    a: 'Every scoop is drawn live from our charm bowl filled with resin gummy bears, gemstone hearts, crystal bow charms, pastel beads, and jewelry accessories:\n• Mini Scoop (₹799): 7–8 handcrafted charms & surprises + Free Gifts\n• Midi Scoop (₹1299): 12–15 charms & surprises (2 deep scoops) + Free Gifts\n• Big Scoop (₹1799): 20+ items + extra deluxe gifts + free priority shipping!'
+    a: 'Every scoop is drawn live from our charm bowl containing beads mapping to our official 54-item Scoop Board across 4 categories (Beauty Essentials, Accessories & Fun, Stationery & Diaries, Lifestyle & More):\n• Mini Scoop (₹799): 7–8 handpicked surprises + Free Gifts\n• Midi Scoop (₹1299): 12–15 surprises (2 deep scoops) + Free Gifts\n• Big Scoop (₹1799): 20+ items + extra deluxe gifts + free priority shipping!'
   },
   {
     category: 'scoops',
