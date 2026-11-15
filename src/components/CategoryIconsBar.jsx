@@ -63,17 +63,6 @@ export const CATEGORY_ICONS_DATA = [
     ringColor: 'from-rose-500 to-pink-500'
   },
   {
-    id: 'bottles',
-    category: 'Bottles',
-    name: 'Bottles',
-    shortName: 'Bottles',
-    image: '/images/deluxe-giftbox.jpg',
-    emoji: '🥤',
-    tag: 'Cute Sippers',
-    gradient: 'from-sky-400 via-cyan-400 to-teal-400',
-    ringColor: 'from-sky-500 to-cyan-500'
-  },
-  {
     id: 'soft-toys',
     category: 'Soft Toys',
     name: 'Soft Toys',

@@ -443,38 +443,6 @@ export const PRODUCTS = [
     includes: ['Zero-Fallout Glaze', 'Quick-Dry Waterproof Wear', 'Precision Doe-Foot Wand', 'Hypoallergenic Safe']
   },
 
-  // --- BOTTLES ---
-  {
-    id: 'prod-bear-sipper',
-    name: 'Kawaii Bear Sipper Bottle with Strap (600ml)',
-    category: 'Bottles',
-    badge: 'Viral Sipper 🥤',
-    priceINR: 399,
-    image: '/images/deluxe-giftbox.jpg',
-    description: 'Adorable frosted bear water bottle with soft silicone straw, leak-proof lock lid, and detachable adjustable shoulder strap.',
-    includes: ['BPA-Free Food Grade Tritan', 'One-Click Pop Straw Cap', 'Adjustable Crossbody Strap', 'Leak-Proof Silicone Seal']
-  },
-  {
-    id: 'prod-gradient-bottle',
-    name: 'Pastel Gradient Motivational Bottle (800ml)',
-    category: 'Bottles',
-    badge: 'Hydration Chic 🌸',
-    priceINR: 349,
-    image: '/images/deluxe-giftbox.jpg',
-    description: 'Stunning pastel ombre frosted bottle with hourly hydration markers, ergonomic grip handle, and spill-resistant flip lid.',
-    includes: ['Hourly Time Goal Markers', 'Frosted Velvet Touch Body', 'Durable Carry Loop Handle', 'Wide Mouth for Ice Cubes']
-  },
-  {
-    id: 'prod-thermal-flask',
-    name: 'Mini Pastel Insulated Stainless Steel Flask (350ml)',
-    category: 'Bottles',
-    badge: 'All-Day Cold ❄️',
-    priceINR: 420,
-    image: '/images/deluxe-giftbox.jpg',
-    description: 'Pocket-sized double-wall vacuum insulated stainless steel thermos that keeps drinks cold or hot for over 12 hours.',
-    includes: ['12-Hour Temperature Retain', 'Double-Wall 304 Steel', 'Pocket & Mini-Bag Friendly', 'Powder-Coated Pastel Shell']
-  },
-
   // --- SOFT TOYS ---
   {
     id: 'prod-boba-plush',
@@ -579,7 +547,6 @@ export const CATEGORIES = [
   'Bracelets',
   'Anklets',
   'Make up',
-  'Bottles',
   'Soft Toys',
   'Key chains',
   'Hair Accessories',
@@ -589,11 +556,11 @@ export const CATEGORIES = [
 ];
 
 export const DEPARTMENTS_CONFIG = [
-  { id: 'all', name: 'All Collections', icon: '🌟', badge: '12 Curations', count: 12 },
+  { id: 'all', name: 'All Collections', icon: '🌟', badge: '11 Curations', count: 11 },
   { id: 'scoops', name: 'Mystery Scoops', icon: '🍨', badge: 'ASMR Hauls', count: 1 },
   { id: 'jewelry', name: 'Korean Jewels', icon: '💎', badge: 'Anti-Tarnish', count: 3 },
   { id: 'beauty', name: 'Beauty & Glow', icon: '💄', badge: 'Self-Care', count: 3 },
-  { id: 'lifestyle', name: 'Kawaii Lifestyle', icon: '🧸', badge: 'Cute Goodies', count: 5 }
+  { id: 'lifestyle', name: 'Kawaii Lifestyle', icon: '🧸', badge: 'Cute Goodies', count: 4 }
 ];
 
 export const COLLECTIONS_CONFIG = [
@@ -696,20 +663,6 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-rose-500 to-teal-500'
   },
   {
-    id: 'bottles',
-    category: 'Bottles',
-    department: 'lifestyle',
-    name: 'Bottles',
-    icon: '🥤',
-    badge: 'Viral Hydration 🌸',
-    tagline: 'Kawaii Bear Sippers, Gradient Flasks & Aesthetic Bottles',
-    description: 'Aesthetic leak-proof bear sipper bottles with strap, frosted gradient time-marker bottles, and mini thermal travel flasks.',
-    coverImage: '/images/deluxe-giftbox.jpg',
-    gradient: 'from-sky-500/15 via-cyan-500/10 to-teal-500/20',
-    borderHover: 'hover:border-sky-400',
-    btnGradient: 'bg-gradient-to-r from-sky-500 to-cyan-500'
-  },
-  {
     id: 'soft-toys',
     category: 'Soft Toys',
     department: 'lifestyle',
@@ -774,7 +727,6 @@ export function categoryToSlug(category) {
   if (category === 'Bracelets') return 'bracelets';
   if (category === 'Anklets') return 'anklets';
   if (category === 'Make up' || category === 'Makeup') return 'makeup';
-  if (category === 'Bottles') return 'bottles';
   if (category === 'Soft Toys' || category === 'soft toys') return 'soft-toys';
   if (category === 'Key chains' || category === 'Keychains' || category === 'key chains') return 'keychains';
   if (category === 'Hair Accessories' || category === 'hair accessories') return 'hair-accessories';
@@ -803,7 +755,6 @@ export function slugToCategory(slug, products = []) {
   if (slug === 'anklets') return 'Anklets';
   if (slug === 'bracelets-anklets') return 'Bracelets';
   if (slug === 'makeup' || slug === 'make-up') return 'Make up';
-  if (slug === 'bottles') return 'Bottles';
   if (slug === 'soft-toys' || slug === 'plushies') return 'Soft Toys';
   if (slug === 'keychains' || slug === 'key-chains') return 'Key chains';
   if (slug === 'hair-accessories') return 'Hair Accessories';

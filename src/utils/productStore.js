@@ -399,7 +399,7 @@ export function migrateLegacyProduct(p) {
 export function mergeWithDefaults(list) {
   if (!Array.isArray(list) || list.length === 0) return DEFAULT_PRODUCTS;
   const migrated = list
-    .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop')
+    .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop' && p.category !== 'Bottles' && p.id !== 'prod-bear-sipper' && p.id !== 'prod-gradient-bottle' && p.id !== 'prod-thermal-flask')
     .map(migrateLegacyProduct);
   const existingIds = new Set(migrated.map(p => p.id));
   const missingDefaults = DEFAULT_PRODUCTS.filter(dp => !existingIds.has(dp.id));

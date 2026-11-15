@@ -53,16 +53,6 @@ export const DEFAULT_CATEGORY_METADATA = [
     isDefault: true
   },
   {
-    id: 'bottles',
-    name: 'Bottles',
-    icon: '🥤',
-    image: '/images/deluxe-giftbox.jpg',
-    department: 'lifestyle',
-    badge: 'Viral Hydration 🌸',
-    description: 'Kawaii frosted bear sippers with strap, gradient time-marked bottles, and mini thermal flasks.',
-    isDefault: true
-  },
-  {
     id: 'soft-toys',
     name: 'Soft Toys',
     icon: '🧸',
@@ -166,6 +156,15 @@ export function getStoredCategories() {
             description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
             isDefault: true
           });
+          try {
+            localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
+          } catch {}
+        }
+
+        // Migration: Remove legacy "Bottles" category
+        const hadBottles = cleaned.some(c => c && c.name && c.name.toLowerCase().trim() === 'bottles');
+        if (hadBottles) {
+          cleaned = cleaned.filter(c => c && c.name && c.name.toLowerCase().trim() !== 'bottles');
           try {
             localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
           } catch {}

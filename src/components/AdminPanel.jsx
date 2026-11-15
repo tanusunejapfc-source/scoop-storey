@@ -32,6 +32,7 @@ import {
   RefreshCw,
   Tags,
   Layers,
+  GitMerge,
   ChevronRight,
   AlertCircle,
   Video,
@@ -751,7 +752,18 @@ export default function AdminPanel({
   const [deleteCategoryModal, setDeleteCategoryModal] = useState({
     isOpen: false,
     categoryName: '',
-    reassignTo: 'Mystery Scoops'
+    reassignTo: 'Mystery Scoops',
+    deleteMode: 'reassign' // 'reassign' | 'deleteProducts'
+  });
+
+  // Merge Category Modal
+  const [mergeCategoryModal, setMergeCategoryModal] = useState({
+    isOpen: false,
+    sourceCategory: '',
+    targetCategory: '',
+    customTargetName: '',
+    isCustomTarget: false,
+    deleteSourceAfterMerge: true
   });
 
   // Bulk Move Modal
@@ -918,15 +930,93 @@ export default function AdminPanel({
     soundFX.playSuccess();
   };
 
+  const handleOpenMergeCategoryModal = (presetSource = '') => {
+    const defaultSource = presetSource || (allCategoryNames[0] || '');
+    const defaultTarget = allCategoryNames.find(c => c !== defaultSource) || '';
+    setMergeCategoryModal({
+      isOpen: true,
+      sourceCategory: defaultSource,
+      targetCategory: defaultTarget,
+      customTargetName: '',
+      isCustomTarget: false,
+      deleteSourceAfterMerge: true
+    });
+    soundFX.playPop(500);
+  };
+
+  const handleMergeCategorySubmit = (e) => {
+    e?.preventDefault();
+    const source = mergeCategoryModal.sourceCategory?.trim();
+    const target = mergeCategoryModal.isCustomTarget 
+      ? mergeCategoryModal.customTargetName?.trim() 
+      : mergeCategoryModal.targetCategory?.trim();
+
+    if (!source) {
+      showToast('Please select a source category');
+      return;
+    }
+    if (!target) {
+      showToast('Please select or enter a destination category');
+      return;
+    }
+    if (source.toLowerCase() === target.toLowerCase()) {
+      showToast('Source and destination categories must be different');
+      return;
+    }
+
+    // 1. Reassign all products from source to target
+    let count = 0;
+    products.forEach(p => {
+      if (p.category === source) {
+        onUpdateProduct({ ...p, category: target });
+        count++;
+      }
+    });
+
+    // 2. Update category list
+    let updatedCategories = [...categoryList];
+    
+    // If target doesn't exist in metadata, create it
+    if (!updatedCategories.some(c => c.name.toLowerCase() === target.toLowerCase())) {
+      const sourceMeta = updatedCategories.find(c => c.name === source);
+      updatedCategories.push({
+        id: slugifyCategory(target),
+        name: target,
+        icon: sourceMeta?.icon || '🎀',
+        image: sourceMeta?.image || '/images/deluxe-giftbox.jpg',
+        badge: 'Merged Collection 🎀',
+        description: `Explore our unified ${target} collection.`,
+        isDefault: false
+      });
+    }
+
+    // If deleteSourceAfterMerge is checked, remove source category
+    if (mergeCategoryModal.deleteSourceAfterMerge) {
+      updatedCategories = updatedCategories.filter(c => c.name !== source);
+    }
+
+    setCategoryList(updatedCategories);
+    saveStoredCategories(updatedCategories);
+
+    setMergeCategoryModal(prev => ({ ...prev, isOpen: false }));
+    soundFX.playSuccess();
+    showToast(`✨ Merged "${source}" into "${target}"! (${count} products updated)`);
+  };
+
   const handleDeleteCategoryConfirm = () => {
     const catName = deleteCategoryModal.categoryName;
     const reassignTo = deleteCategoryModal.reassignTo || 'Mystery Scoops';
+    const deleteMode = deleteCategoryModal.deleteMode || 'reassign';
     if (!catName) return;
 
     let count = 0;
     products.forEach(p => {
       if (p.category === catName) {
-        onUpdateProduct({ ...p, category: reassignTo });
+        if (deleteMode === 'deleteProducts') {
+          onDeleteProduct(p.id);
+        } else {
+          onUpdateProduct({ ...p, category: reassignTo });
+        }
         count++;
       }
     });
@@ -935,9 +1025,13 @@ export default function AdminPanel({
     setCategoryList(updated);
     saveStoredCategories(updated);
 
-    setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '' });
+    setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '', deleteMode: 'reassign' });
     soundFX.playPop(450);
-    showToast(`Category deleted. ${count} products reassigned to "${reassignTo}".`);
+    if (deleteMode === 'deleteProducts') {
+      showToast(`Category "${catName}" deleted along with ${count} products.`);
+    } else {
+      showToast(`Category deleted. ${count} products reassigned to "${reassignTo}".`);
+    }
   };
 
   const handleBulkMoveSubmit = () => {
@@ -3817,10 +3911,19 @@ export default function AdminPanel({
                     <button
                       type="button"
                       onClick={handleOpenAddCategoryModal}
-                      className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-2 shadow-md"
+                      className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-2 shadow-md cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                       <span>+ Add New Category</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleOpenMergeCategoryModal()}
+                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
+                    >
+                      <GitMerge className="w-4 h-4" />
+                      <span>Merge Categories</span>
                     </button>
 
                     <button
@@ -3833,7 +3936,7 @@ export default function AdminPanel({
                         });
                         soundFX.playPop(500);
                       }}
-                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md hover:opacity-95 transition"
+                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md hover:opacity-95 transition cursor-pointer"
                     >
                       <Layers className="w-4 h-4" />
                       <span>Bulk Move Products</span>
@@ -3842,7 +3945,7 @@ export default function AdminPanel({
                     <button
                       type="button"
                       onClick={handleResetCategoriesConfirm}
-                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5"
+                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
                       title="Reset Categories to Defaults"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
@@ -3934,10 +4037,18 @@ export default function AdminPanel({
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditCategoryModal(meta)}
-                                className="p-1.5 rounded-xl text-neutral-500 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-700 transition"
+                                className="p-1.5 rounded-xl text-neutral-500 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-700 transition cursor-pointer"
                                 title={`Edit ${catName}`}
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenMergeCategoryModal(catName)}
+                                className="p-1.5 rounded-xl text-neutral-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-neutral-700 transition cursor-pointer"
+                                title={`Merge "${catName}" with another category`}
+                              >
+                                <GitMerge className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 type="button"
@@ -3946,11 +4057,12 @@ export default function AdminPanel({
                                   setDeleteCategoryModal({
                                     isOpen: true,
                                     categoryName: catName,
-                                    reassignTo: otherCategory
+                                    reassignTo: otherCategory,
+                                    deleteMode: 'reassign'
                                   });
                                   soundFX.playPop(400);
                                 }}
-                                className="p-1.5 rounded-xl text-neutral-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-neutral-700 transition"
+                                className="p-1.5 rounded-xl text-neutral-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-neutral-700 transition cursor-pointer"
                                 title={`Delete ${catName}`}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -4237,7 +4349,7 @@ export default function AdminPanel({
             {/* MODAL 2: DELETE CATEGORY CONFIRMATION MODAL */}
             {deleteCategoryModal.isOpen && (
               <div 
-                onClick={() => setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '' })}
+                onClick={() => setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '', deleteMode: 'reassign' })}
                 className="fixed inset-0 z-60 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
               >
                 <div 
@@ -4252,7 +4364,7 @@ export default function AdminPanel({
                       <h4 className="font-display font-extrabold text-base text-rose-600 dark:text-rose-400">
                         Delete Category "{deleteCategoryModal.categoryName}"?
                       </h4>
-                      <span className="text-xs text-neutral-500">Safe deletion with product reassignment</span>
+                      <span className="text-xs text-neutral-500">Choose how to handle existing products</span>
                     </div>
                   </div>
 
@@ -4261,51 +4373,240 @@ export default function AdminPanel({
                     const remainingCategories = allCategoryNames.filter(c => c !== deleteCategoryModal.categoryName);
 
                     return (
-                      <div className="space-y-3 text-xs">
+                      <div className="space-y-4 text-xs">
                         {affected.length > 0 ? (
-                          <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 leading-relaxed">
-                            <strong>Notice:</strong> There are currently <strong>{affected.length} products</strong> in this category. To avoid losing or orphaning items, choose where they should be moved:
-                          </div>
+                          <>
+                            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 leading-relaxed">
+                              There are currently <strong>{affected.length} products</strong> in this category. What would you like to do with them?
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="flex items-center gap-2 p-2.5 rounded-xl border border-pink-200 dark:border-neutral-700 hover:bg-pink-50/50 dark:hover:bg-neutral-800 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="deleteCategoryMode"
+                                  checked={deleteCategoryModal.deleteMode === 'reassign'}
+                                  onChange={() => setDeleteCategoryModal({ ...deleteCategoryModal, deleteMode: 'reassign' })}
+                                  className="accent-[#E60067]"
+                                />
+                                <span className="font-bold">Reassign & Move products to another category</span>
+                              </label>
+
+                              {deleteCategoryModal.deleteMode === 'reassign' && (
+                                <div className="pl-6 pt-1">
+                                  <label className="block font-bold mb-1 text-[11px] text-neutral-500">Destination category:</label>
+                                  <select
+                                    value={deleteCategoryModal.reassignTo}
+                                    onChange={(e) => setDeleteCategoryModal({ ...deleteCategoryModal, reassignTo: e.target.value })}
+                                    className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-pink-400"
+                                  >
+                                    {remainingCategories.map(c => (
+                                      <option key={c} value={c}>{c}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+
+                              <label className="flex items-center gap-2 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 cursor-pointer text-rose-700 dark:text-rose-400">
+                                <input
+                                  type="radio"
+                                  name="deleteCategoryMode"
+                                  checked={deleteCategoryModal.deleteMode === 'deleteProducts'}
+                                  onChange={() => setDeleteCategoryModal({ ...deleteCategoryModal, deleteMode: 'deleteProducts' })}
+                                  className="accent-rose-600"
+                                />
+                                <span className="font-bold">Permanently delete these {affected.length} products too</span>
+                              </label>
+                            </div>
+                          </>
                         ) : (
                           <p className="text-neutral-600 dark:text-neutral-300">
                             There are 0 products in this category. It can be safely deleted.
                           </p>
                         )}
 
-                        {affected.length > 0 && (
-                          <div>
-                            <label className="block font-bold mb-1">Reassign {affected.length} products to:</label>
-                            <select
-                              value={deleteCategoryModal.reassignTo}
-                              onChange={(e) => setDeleteCategoryModal({ ...deleteCategoryModal, reassignTo: e.target.value })}
-                              className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-pink-400"
-                            >
-                              {remainingCategories.map(c => (
-                                <option key={c} value={c}>{c}</option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-
                         <div className="pt-2 flex items-center justify-end gap-2">
                           <button
                             type="button"
-                            onClick={() => setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '' })}
-                            className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                            onClick={() => setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '', deleteMode: 'reassign' })}
+                            className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition cursor-pointer"
                           >
                             Cancel
                           </button>
                           <button
                             type="button"
                             onClick={handleDeleteCategoryConfirm}
-                            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-display font-bold shadow-md transition"
+                            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-display font-bold shadow-md transition cursor-pointer"
                           >
-                            Delete Category
+                            Confirm Delete
                           </button>
                         </div>
                       </div>
                     );
                   })()}
+                </div>
+              </div>
+            )}
+
+            {/* MODAL 3: MERGE CATEGORIES MODAL */}
+            {mergeCategoryModal.isOpen && (
+              <div 
+                onClick={() => setMergeCategoryModal(prev => ({ ...prev, isOpen: false }))}
+                className="fixed inset-0 z-60 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+              >
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-lg w-full p-6 shadow-2xl border-2 border-indigo-300 dark:border-indigo-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white max-h-[90vh] overflow-y-auto"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-neutral-700">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                        <GitMerge className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-display font-extrabold text-base sm:text-lg">
+                          Merge Categories
+                        </h4>
+                        <span className="text-xs text-neutral-500">Consolidate two categories into one</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMergeCategoryModal(prev => ({ ...prev, isOpen: false }))}
+                      className="p-1 rounded-xl hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-400 cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleMergeCategorySubmit} className="space-y-4 text-xs">
+                    {/* Source Category */}
+                    <div>
+                      <label className="block font-bold mb-1 text-neutral-700 dark:text-neutral-300">
+                        1. Source Category (to be merged):
+                      </label>
+                      <select
+                        value={mergeCategoryModal.sourceCategory}
+                        onChange={(e) => setMergeCategoryModal(prev => ({ ...prev, sourceCategory: e.target.value }))}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                        required
+                      >
+                        {allCategoryNames.map(c => {
+                          const count = products.filter(p => p.category === c).length;
+                          return (
+                            <option key={c} value={c}>
+                              {c} ({count} {count === 1 ? 'product' : 'products'})
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    {/* Merge Arrow Graphic */}
+                    <div className="flex items-center justify-center my-1 text-indigo-600 dark:text-indigo-400 font-bold gap-2">
+                      <div className="h-px bg-indigo-200 dark:bg-indigo-900 flex-1" />
+                      <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1.5 text-[11px]">
+                        <GitMerge className="w-3.5 h-3.5" />
+                        <span>MERGE ALL PRODUCTS INTO</span>
+                      </span>
+                      <div className="h-px bg-indigo-200 dark:bg-indigo-900 flex-1" />
+                    </div>
+
+                    {/* Destination Category */}
+                    <div className="space-y-2">
+                      <label className="block font-bold text-neutral-700 dark:text-neutral-300">
+                        2. Destination Category:
+                      </label>
+                      
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-1.5 cursor-pointer font-bold">
+                          <input
+                            type="radio"
+                            name="mergeTargetType"
+                            checked={!mergeCategoryModal.isCustomTarget}
+                            onChange={() => setMergeCategoryModal(prev => ({ ...prev, isCustomTarget: false }))}
+                            className="accent-indigo-600"
+                          />
+                          <span>Existing Category</span>
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer font-bold">
+                          <input
+                            type="radio"
+                            name="mergeTargetType"
+                            checked={mergeCategoryModal.isCustomTarget}
+                            onChange={() => setMergeCategoryModal(prev => ({ ...prev, isCustomTarget: true }))}
+                            className="accent-indigo-600"
+                          />
+                          <span>+ New Merged Category Name</span>
+                        </label>
+                      </div>
+
+                      {!mergeCategoryModal.isCustomTarget ? (
+                        <select
+                          value={mergeCategoryModal.targetCategory}
+                          onChange={(e) => setMergeCategoryModal(prev => ({ ...prev, targetCategory: e.target.value }))}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                          required
+                        >
+                          {allCategoryNames
+                            .filter(c => c !== mergeCategoryModal.sourceCategory)
+                            .map(c => {
+                              const count = products.filter(p => p.category === c).length;
+                              return (
+                                <option key={c} value={c}>
+                                  {c} ({count} {count === 1 ? 'product' : 'products'})
+                                </option>
+                              );
+                            })}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={mergeCategoryModal.customTargetName}
+                          onChange={(e) => setMergeCategoryModal(prev => ({ ...prev, customTargetName: e.target.value }))}
+                          placeholder="e.g. Korean wallets and bags"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                          required
+                        />
+                      )}
+                    </div>
+
+                    {/* Delete source option */}
+                    <div className="p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/40 space-y-1.5">
+                      <label className="flex items-center gap-2 cursor-pointer font-bold text-neutral-800 dark:text-neutral-200">
+                        <input
+                          type="checkbox"
+                          checked={mergeCategoryModal.deleteSourceAfterMerge}
+                          onChange={(e) => setMergeCategoryModal(prev => ({ ...prev, deleteSourceAfterMerge: e.target.checked }))}
+                          className="accent-indigo-600 rounded"
+                        />
+                        <span>Delete "{mergeCategoryModal.sourceCategory || 'Source'}" category after merging products</span>
+                      </label>
+                      <p className="text-[11px] text-neutral-500 pl-5">
+                        {mergeCategoryModal.deleteSourceAfterMerge
+                          ? `The "${mergeCategoryModal.sourceCategory || 'Source'}" pill will be removed and all its products moved into the destination.`
+                          : `The "${mergeCategoryModal.sourceCategory || 'Source'}" category pill will remain, but will have 0 products.`}
+                      </p>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="pt-2 flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setMergeCategoryModal(prev => ({ ...prev, isOpen: false }))}
+                        className="px-4 py-2 rounded-xl border border-pink-200 dark:border-neutral-700 font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-display font-bold shadow-md transition cursor-pointer flex items-center gap-1.5"
+                      >
+                        <GitMerge className="w-4 h-4" />
+                        <span>Confirm & Merge Categories</span>
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}

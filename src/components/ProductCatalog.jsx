@@ -286,7 +286,7 @@ export default function ProductCatalog({
       products.find(p => p.id === 'scoop-mini') || products[0],
       products.find(p => p.category === 'Pendants & Chains'),
       products.find(p => p.category === 'Make up') || products.find(p => p.category === 'Self-Care'),
-      products.find(p => p.category === 'Bottles') || products.find(p => p.category === 'Soft Toys'),
+      products.find(p => p.category === 'Soft Toys') || products.find(p => p.category === 'Korean wallets and bags'),
       products.find(p => p.category === 'Key chains') || products.find(p => p.category === 'Hair Accessories'),
       products.find(p => p.category === 'Bracelets') || products.find(p => p.category === 'Korean wallets and bags' || p.category === 'Korean Wallets')
     ].filter(Boolean);
