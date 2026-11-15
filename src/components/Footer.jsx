@@ -58,51 +58,51 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
   };
 
   return (
-    <footer className="mt-20 border-t border-pink-200/60 dark:border-pink-900/40 bg-gradient-to-b from-white/40 via-pink-50/40 to-pink-100/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <footer className="mt-20 border-t border-pink-200/60 dark:border-pink-900/40 bg-gradient-to-b from-white/40 via-pink-50/40 to-pink-100/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 pb-28 sm:pb-20 md:pb-16">
       {/* Guarantees Bar (India-Centric) */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 border-b border-pink-100 dark:border-pink-900/30">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-6 max-w-xl md:max-w-none mx-auto">
           <button
             type="button"
             onClick={() => {
               onOpenTracking?.();
               soundFX.playPop(550);
             }}
-            className="flex items-center justify-center md:justify-start gap-3 text-left hover:opacity-80 transition cursor-pointer group"
+            className="w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white/70 dark:bg-neutral-800/60 border border-pink-200/60 dark:border-neutral-700/60 shadow-xs hover:border-pink-300 dark:hover:border-pink-700 hover:bg-white dark:hover:bg-neutral-800 transition cursor-pointer group text-left"
           >
-            <div className="p-2.5 rounded-2xl bg-pink-100 dark:bg-neutral-800 text-pink-600 dark:text-pink-400 group-hover:scale-110 transition-transform">
+            <div className="w-11 h-11 rounded-2xl bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 group-hover:scale-105 transition-transform shrink-0 flex items-center justify-center">
               <Truck className="w-5 h-5" />
             </div>
-            <div>
-              <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-1">
+            <div className="flex-1 min-w-0">
+              <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-1.5 flex-wrap">
                 <span>Free Delivery Across India</span>
-                <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold underline ml-1">Track ➔</span>
+                <span className="text-[10px] text-pink-600 dark:text-pink-400 font-extrabold underline">Track ➔</span>
               </div>
-              <div className="text-xs text-neutral-500">100% Free on all prepaid orders</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">100% Free on all prepaid orders</div>
             </div>
           </button>
 
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-purple-100 dark:bg-neutral-800 text-purple-600 dark:text-purple-400">
+          <div className="w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white/70 dark:bg-neutral-800/60 border border-pink-200/60 dark:border-neutral-700/60 shadow-xs text-left">
+            <div className="w-11 h-11 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 shrink-0 flex items-center justify-center">
               <AlertCircle className="w-5 h-5" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
                 Minimum 3 Products Required
               </div>
-              <div className="text-xs text-neutral-500">Mix & match any charms, pendants, or masks</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Mix & match any charms, pendants, or masks</div>
             </div>
           </div>
 
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-neutral-800 text-emerald-600 dark:text-emerald-400">
+          <div className="w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white/70 dark:bg-neutral-800/60 border border-pink-200/60 dark:border-neutral-700/60 shadow-xs text-left">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shrink-0 flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
                 100% Prepaid UPI Guarantee
               </div>
-              <div className="text-xs text-neutral-500">Verified QR payment via WhatsApp: +91 8199922653</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Verified QR payment via WhatsApp: +91 8199922653</div>
             </div>
           </div>
         </div>
@@ -134,12 +134,12 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
               India's premier 3D Kawaii mystery scoop studio. Bringing sensory ASMR unboxings, handcrafted resin bear charms, aesthetic Korean pendants, and delicate bracelets straight to your doorstep.
             </p>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex flex-wrap sm:flex-nowrap items-stretch sm:items-center gap-2.5 pt-2">
               <a
                 href="https://wa.me/918199922653"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-xs flex items-center gap-2 text-xs font-bold"
+                className="flex-1 sm:flex-initial p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-xs flex items-center justify-center gap-2 text-xs font-bold"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 <span>+91 8199922653</span>
@@ -149,7 +149,7 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
                 href="https://www.instagram.com/bhaskar_scoopstorey/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white hover:opacity-90 transition shadow-xs flex items-center gap-2 text-xs font-bold"
+                className="flex-1 sm:flex-initial p-2.5 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white hover:opacity-90 transition shadow-xs flex items-center justify-center gap-2 text-xs font-bold"
               >
                 <InstagramIcon className="w-4 h-4" />
                 <span>@bhaskar_scoopstorey</span>

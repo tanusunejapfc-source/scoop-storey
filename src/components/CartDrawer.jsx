@@ -513,7 +513,7 @@ Maine UPI payment successfully transfer kar diya hai. Please verify karke packin
                   title="Return to Cart to add/remove items"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>← Back to Edit Bag</span>
+                  <span>Back to Edit Bag</span>
                 </button>
                 <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hidden xs:inline">
                   Step 2: Pay QR
