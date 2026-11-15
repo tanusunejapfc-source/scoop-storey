@@ -6,7 +6,6 @@ import { disposeThreeScene } from '../utils/threeUtils';
 
 export default function Hero3DCanvas({ isDark = false }) {
   const containerRef = useRef(null);
-  const [activeCharm, setActiveCharm] = useState(null);
   const [isShaking, setIsShaking] = useState(false);
   const shakeTriggerRef = useRef(null);
 
@@ -597,12 +596,6 @@ export default function Hero3DCanvas({ isDark = false }) {
           rootMesh.userData.spinAnim = Math.PI * 2;
           rootMesh.userData.targetScale = rootMesh.userData.baseScale * 1.35;
 
-          setActiveCharm({
-            name: rootMesh.userData.name,
-            tier: rootMesh.userData.tier,
-            icon: rootMesh.userData.icon
-          });
-
           setTimeout(() => {
             if (rootMesh.userData) {
               rootMesh.userData.targetScale = rootMesh.userData.baseScale;
@@ -774,19 +767,6 @@ export default function Hero3DCanvas({ isDark = false }) {
 
         {/* 3D WebGL Canvas */}
         <div ref={containerRef} className="w-full h-full rounded-[26px] sm:rounded-[32px] overflow-hidden cursor-grab active:cursor-grabbing" />
-
-        {/* FLOATING CHARM REWARD TOAST (Shows on Click) */}
-        {activeCharm && (
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 animate-bounce pointer-events-none">
-            <div className="bg-gradient-to-r from-[#E60067] via-pink-500 to-purple-600 text-white px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-2 border-2 border-white/60 text-xs sm:text-sm font-display font-extrabold whitespace-nowrap">
-              <span>{activeCharm.icon}</span>
-              <span>{activeCharm.name}</span>
-              <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black uppercase">
-                {activeCharm.tier}
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* BOTTOM ACTION & INTERACTION BAR */}
         <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-20 flex items-center justify-between gap-2">
