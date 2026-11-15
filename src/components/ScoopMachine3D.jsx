@@ -336,7 +336,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05; // Photographic exposure, prevents blowout
     rendererRef.current = renderer;
@@ -674,11 +674,19 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
     };
 
-    // Animation Loop
+    // Animation Loop with Viewport Visibility Observer (Freezes idle GPU overhead when offscreen)
     let clock = new THREE.Clock();
-    let animId;
+    let animId = null;
+    let isVisible = true;
+    let observer = null;
 
     const animate = () => {
+      // If element is scrolled out of view and not actively scooping, pause the loop to conserve mobile GPU & battery
+      if (!isVisible && !scoopAnimStateRef.current.active) {
+        animId = null;
+        return;
+      }
+
       animId = requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
 
@@ -885,6 +893,21 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       renderer.render(scene, camera);
     };
 
+    // Viewport IntersectionObserver: pauses WebGL rendering when scrolled away
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const wasVisible = isVisible;
+          isVisible = entry.isIntersecting;
+          if (!wasVisible && isVisible && !animId) {
+            clock.start();
+            animate();
+          }
+        });
+      }, { threshold: 0.05 });
+      observer.observe(container);
+    }
+
     animate();
 
     const handleResize = () => {
@@ -897,7 +920,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     window.addEventListener('resize', handleResize);
 
     return () => {
-      cancelAnimationFrame(animId);
+      if (observer) observer.disconnect();
+      if (animId) cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
       container.removeEventListener('pointermove', handlePointerMove);
       if (renderer.domElement && container.contains(renderer.domElement)) {

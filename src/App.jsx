@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
 import GlobalSearchModal from './components/GlobalSearchModal';
@@ -8,7 +8,6 @@ import Hero3DCanvas from './components/Hero3DCanvas';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetailPage from './components/ProductDetailPage';
-import AdminPanel from './components/AdminPanel';
 import ReelsShowcase from './components/ReelsShowcase';
 import BrandStory from './components/BrandStory';
 import Testimonials from './components/Testimonials';
@@ -21,6 +20,9 @@ import PolicyModal from './components/PolicyModal';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
 import { soundFX } from './utils/audio';
+
+// Lazy-load heavy AdminPanel (315KB+ source) so normal customers never download it on page visit
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -430,23 +432,34 @@ export default function App() {
         />
       )}
 
-      {/* STORE ADMIN PANEL */}
-      <AdminPanel
-        isOpen={isAdminOpen}
-        onClose={() => {
-          setIsAdminOpen(false);
-          if (window.location.hash === '#admin') {
-            try {
-              window.history.replaceState(null, '', window.location.pathname + window.location.search);
-            } catch {}
-          }
-        }}
-        products={products}
-        onUpdateProduct={updateProduct}
-        onAddProduct={addProduct}
-        onDeleteProduct={deleteProduct}
-        onResetDefaults={resetAll}
-      />
+      {/* STORE ADMIN PANEL (Dynamically loaded only when opened by store admin) */}
+      {isAdminOpen && (
+        <Suspense fallback={
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="bg-white dark:bg-neutral-900 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-pink-200 dark:border-neutral-800">
+              <span className="w-5 h-5 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-bold text-neutral-800 dark:text-neutral-100">Opening Admin Portal...</span>
+            </div>
+          </div>
+        }>
+          <AdminPanel
+            isOpen={isAdminOpen}
+            onClose={() => {
+              setIsAdminOpen(false);
+              if (window.location.hash === '#admin') {
+                try {
+                  window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                } catch {}
+              }
+            }}
+            products={products}
+            onUpdateProduct={updateProduct}
+            onAddProduct={addProduct}
+            onDeleteProduct={deleteProduct}
+            onResetDefaults={resetAll}
+          />
+        </Suspense>
+      )}
 
       {/* CART DRAWER */}
       <CartDrawer

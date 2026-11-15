@@ -23,14 +23,14 @@ export default function Hero3DCanvas({ isDark = false }) {
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
     camera.position.set(0, 1.2, 11.5);
 
-    // RENDERER
+    // RENDERER (Optimized 1.5x DPR cap for high efficiency on mobile/retina)
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
       powerPreference: 'high-performance'
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
@@ -627,11 +627,18 @@ export default function Hero3DCanvas({ isDark = false }) {
     container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('click', handleClick);
 
-    // ANIMATION LOOP
-    let animationFrameId;
+    // ANIMATION LOOP WITH INTERSECTION OBSERVER (Pauses when scrolled out of view)
+    let animationFrameId = null;
     let clock = new THREE.Clock();
+    let isVisible = true;
+    let observer = null;
 
     const animate = () => {
+      if (!isVisible) {
+        animationFrameId = null;
+        return;
+      }
+
       animationFrameId = requestAnimationFrame(animate);
 
       const time = clock.getElapsedTime();
@@ -712,6 +719,21 @@ export default function Hero3DCanvas({ isDark = false }) {
       renderer.render(scene, camera);
     };
 
+    // Initialize IntersectionObserver to freeze GPU work when offscreen
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const wasVisible = isVisible;
+          isVisible = entry.isIntersecting;
+          if (!wasVisible && isVisible && !animationFrameId) {
+            clock.start();
+            animate();
+          }
+        });
+      }, { threshold: 0.05 });
+      observer.observe(container);
+    }
+
     animate();
 
     // RESIZE OBSERVER
@@ -728,7 +750,8 @@ export default function Hero3DCanvas({ isDark = false }) {
 
     // CLEANUP
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (observer) observer.disconnect();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('click', handleClick);
