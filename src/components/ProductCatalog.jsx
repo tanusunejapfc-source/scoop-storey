@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { 
   Sparkles, 
   ShoppingBag, 
@@ -42,6 +43,204 @@ const renderCollectionIcon = (iconOrMeta, className = "w-4 h-4") => {
   }
   return iconOrMeta;
 };
+
+// High-performance memoized Product Card for Virtualized Catalog
+const ProductCardItem = React.memo(function ProductCardItem({
+  product,
+  onSelectProduct,
+  addedItem,
+  isWishlisted,
+  toggleWishlist,
+  handleQuickAdd
+}) {
+  const isJustAdded = addedItem === product.id;
+  const imageCount = product.images?.length || 1;
+  const colorCount = product.colors?.length || 0;
+
+  return (
+    <div
+      onClick={() => onSelectProduct?.(product)}
+      className="group rounded-3xl bg-white dark:bg-[#1E172E] overflow-hidden border-2 border-pink-200/80 dark:border-pink-900/60 hover:shadow-2xl hover:border-pink-400 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-md cursor-pointer h-full"
+    >
+      <div>
+        {/* 4:5 Standard E-Commerce Ratio Container */}
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+          <img
+            src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
+            alt={product.name}
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+            }}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          
+          {/* Badge */}
+          <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
+            {product.badge || 'Popular ✨'}
+          </span>
+
+          {/* Quick Wishlist Heart Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWishlist(product);
+            }}
+            className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+              isWishlisted(product.id)
+                ? 'bg-[#E60067] text-white shadow-md scale-105'
+                : 'bg-white/95 dark:bg-neutral-900/95 text-neutral-400 hover:text-[#E60067] shadow-sm'
+            }`}
+            title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
+            aria-label="Save to favorites"
+          >
+            <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
+          </button>
+
+          {/* Multiple Photos Pill */}
+          {imageCount > 1 && (
+            <div className="absolute top-12 right-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white shadow-xs">
+              <Images className="w-3 h-3 text-pink-300" />
+              <span>{imageCount} Photos</span>
+            </div>
+          )}
+
+          {/* Pack on Reel Tag */}
+          <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs pointer-events-none">
+            <Video className="w-3 h-3 text-pink-400" />
+            <span>Eligible for IG Reel packing</span>
+          </div>
+
+          {/* Quick View Hover Overlay Button */}
+          <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+            <div className="px-4 py-2 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-bold text-xs text-[#E60067] shadow-xl flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+              <Eye className="w-3.5 h-3.5" />
+              <span>View Colors & Details</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-5">
+          <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider mb-1">
+            <span className="text-[#E60067] dark:text-pink-400">
+              {product.category}
+            </span>
+            {product.rating && (
+              <span className="text-amber-500 font-extrabold flex items-center gap-0.5">
+                ★ {product.rating}
+              </span>
+            )}
+          </div>
+
+          <h3 className="font-display font-extrabold text-base md:text-lg text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
+            {product.name}
+          </h3>
+
+          <p className="mt-1.5 text-xs text-[#554664] dark:text-[#D5CBE2] line-clamp-2 leading-relaxed font-medium">
+            {product.description}
+          </p>
+
+          {/* Color Swatches Preview */}
+          {colorCount > 0 && (
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex -space-x-1.5">
+                {product.colors.slice(0, 4).map((col, idx) => (
+                  <span
+                    key={idx}
+                    className="w-4 h-4 rounded-full border-2 border-white dark:border-[#1E172E] shadow-xs"
+                    style={{ backgroundColor: col.hex }}
+                    title={col.name}
+                  />
+                ))}
+              </div>
+              <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
+                {colorCount} Color{colorCount > 1 ? 's' : ''} Available
+              </span>
+            </div>
+          )}
+
+          {/* Highlights */}
+          {product.includes && product.includes.length > 0 && (
+            <div className="mt-3.5 pt-3 border-t border-pink-100 dark:border-pink-900/40 space-y-1">
+              {product.includes.slice(0, 2).map((inc, i) => (
+                <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-[#483A54] dark:text-[#D5CBE2]">
+                  <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
+                  <span className="truncate">{inc}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Price & Action Buttons */}
+      <div 
+        className="p-5 pt-0 space-y-2.5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-2xl font-display font-black text-[#231733] dark:text-white">
+              ₹{product.priceINR}
+            </span>
+            <span className="text-[10px] text-[#716182] dark:text-neutral-400 font-bold ml-1">
+              (Prepaid)
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onSelectProduct?.(product)}
+              className="py-2 px-3 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-400 font-display font-bold text-xs tracking-wide transition border border-pink-200 dark:border-neutral-700 flex items-center gap-1"
+              title="Choose Colors & See Details"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span>Colors</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => handleQuickAdd(product, e)}
+              className={`py-2 px-3.5 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 ${
+                isJustAdded
+                  ? 'bg-emerald-600 text-white shadow-lg'
+                  : 'btn-3d-pink text-white'
+              }`}
+            >
+              {isJustAdded ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-white" />
+                  <span>Added!</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                  <span>Add</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Inquire on WhatsApp Link */}
+        <a
+          href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Scoop Storey! 🎀 Mujhe "${product.name}" ke baare me inquiry karni hai. (Prepaid Store • Min 3 items)`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold flex items-center justify-center gap-1.5 border border-emerald-200 dark:border-emerald-800 transition-colors"
+        >
+          <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Inquire on WhatsApp (+91 8199922653)</span>
+        </a>
+      </div>
+    </div>
+  );
+});
 
 export default function ProductCatalog({ 
   products = [], 
@@ -273,6 +472,50 @@ export default function ProductCatalog({
 
     return sorted;
   }, [products, activeCollection, searchQuery, sortBy]);
+
+  // Responsive column count for grid virtualization (1 col mobile, 2 col tablet, 3 col desktop)
+  const [columns, setColumns] = useState(() => {
+    if (typeof window === 'undefined') return 3;
+    if (window.innerWidth < 640) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      const nextCols = w < 640 ? 1 : w < 1024 ? 2 : 3;
+      setColumns((prev) => (prev !== nextCols ? nextCols : prev));
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Split active products into row chunks for multi-column grid virtualization
+  const productRows = useMemo(() => {
+    const rows = [];
+    for (let i = 0; i < activeProducts.length; i += columns) {
+      rows.push(activeProducts.slice(i, i + columns));
+    }
+    return rows;
+  }, [activeProducts, columns]);
+
+  const virtualGridRef = useRef(null);
+  const [gridOffset, setGridOffset] = useState(0);
+
+  useEffect(() => {
+    if (virtualGridRef.current) {
+      setGridOffset(virtualGridRef.current.offsetTop);
+    }
+  }, [activeCollection, activeProducts.length, columns]);
+
+  // TanStack Window Virtualizer: Keeps DOM lightweight (< 50 elements) even with 100+ items
+  const virtualizer = useWindowVirtualizer({
+    count: productRows.length,
+    estimateSize: () => 580,
+    overscan: 2,
+    scrollMargin: gridOffset,
+  });
 
   // Filtered collections by active department
   const displayedCollections = useMemo(() => {
@@ -819,194 +1062,37 @@ export default function ProductCatalog({
             </div>
           )}
 
-          {/* Product Grid for Active Collection */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-            {activeProducts.map((product) => {
-              const isJustAdded = addedItem === product.id;
-              const imageCount = product.images?.length || 1;
-              const colorCount = product.colors?.length || 0;
+          {/* Virtualized Multi-Column Product Grid (TanStack Virtual maintains < 50 DOM elements for smooth 120Hz scrolling) */}
+          <div
+            ref={virtualGridRef}
+            className="relative w-full"
+            style={{ height: `${virtualizer.getTotalSize()}px` }}
+          >
+            {virtualizer.getVirtualItems().map((virtualRow) => {
+              const rowProducts = productRows[virtualRow.index];
+              if (!rowProducts) return null;
 
               return (
                 <div
-                  key={product.id}
-                  onClick={() => onSelectProduct?.(product)}
-                  className="group rounded-3xl bg-white dark:bg-[#1E172E] overflow-hidden border-2 border-pink-200/80 dark:border-pink-900/60 hover:shadow-2xl hover:border-pink-400 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-md cursor-pointer"
+                  key={virtualRow.key}
+                  data-index={virtualRow.index}
+                  ref={virtualizer.measureElement}
+                  className="absolute top-0 left-0 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 pb-7"
+                  style={{
+                    transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`
+                  }}
                 >
-                  <div>
-                    {/* 4:5 Standard E-Commerce Ratio Container */}
-                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-                      <img
-                        src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
-                        alt={product.name}
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
-                        }}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      
-                      {/* Badge */}
-                      <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
-                        {product.badge || 'Popular ✨'}
-                      </span>
-
-                      {/* Quick Wishlist Heart Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleWishlist(product);
-                        }}
-                        className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                          isWishlisted(product.id)
-                            ? 'bg-[#E60067] text-white shadow-md scale-105'
-                            : 'bg-white/95 dark:bg-neutral-900/95 text-neutral-400 hover:text-[#E60067] shadow-sm'
-                        }`}
-                        title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
-                        aria-label="Save to favorites"
-                      >
-                        <Heart className={`w-4 h-4 ${isWishlisted(product.id) ? 'fill-white' : ''}`} />
-                      </button>
-
-                      {/* Multiple Photos Pill */}
-                      {imageCount > 1 && (
-                        <div className="absolute top-12 right-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white shadow-xs">
-                          <Images className="w-3 h-3 text-pink-300" />
-                          <span>{imageCount} Photos</span>
-                        </div>
-                      )}
-
-                      {/* Pack on Reel Tag */}
-                      <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs pointer-events-none">
-                        <Video className="w-3 h-3 text-pink-400" />
-                        <span>Eligible for IG Reel packing</span>
-                      </div>
-
-                      {/* Quick View Hover Overlay Button */}
-                      <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                        <div className="px-4 py-2 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-bold text-xs text-[#E60067] shadow-xl flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>View Colors & Details</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5">
-                      <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider mb-1">
-                        <span className="text-[#E60067] dark:text-pink-400">
-                          {product.category}
-                        </span>
-                        {product.rating && (
-                          <span className="text-amber-500 font-extrabold flex items-center gap-0.5">
-                            ★ {product.rating}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="font-display font-extrabold text-base md:text-lg text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
-                        {product.name}
-                      </h3>
-
-                      <p className="mt-1.5 text-xs text-[#554664] dark:text-[#D5CBE2] line-clamp-2 leading-relaxed font-medium">
-                        {product.description}
-                      </p>
-
-                      {/* Color Swatches Preview */}
-                      {colorCount > 0 && (
-                        <div className="mt-3 flex items-center gap-2">
-                          <div className="flex -space-x-1.5">
-                            {product.colors.slice(0, 4).map((col, idx) => (
-                              <span
-                                key={idx}
-                                className="w-4 h-4 rounded-full border-2 border-white dark:border-[#1E172E] shadow-xs"
-                                style={{ backgroundColor: col.hex }}
-                                title={col.name}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
-                            {colorCount} Color{colorCount > 1 ? 's' : ''} Available
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Highlights */}
-                      {product.includes && product.includes.length > 0 && (
-                        <div className="mt-3.5 pt-3 border-t border-pink-100 dark:border-pink-900/40 space-y-1">
-                          {product.includes.slice(0, 2).map((inc, i) => (
-                            <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-[#483A54] dark:text-[#D5CBE2]">
-                              <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
-                              <span className="truncate">{inc}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Price & Action Buttons */}
-                  <div 
-                    className="p-5 pt-0 space-y-2.5"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-display font-black text-[#231733] dark:text-white">
-                          ₹{product.priceINR}
-                        </span>
-                        <span className="text-[10px] text-[#716182] dark:text-neutral-400 font-bold ml-1">
-                          (Prepaid)
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => onSelectProduct?.(product)}
-                          className="py-2 px-3 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-400 font-display font-bold text-xs tracking-wide transition border border-pink-200 dark:border-neutral-700 flex items-center gap-1"
-                          title="Choose Colors & See Details"
-                        >
-                          <Palette className="w-3.5 h-3.5" />
-                          <span>Colors</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => handleQuickAdd(product, e)}
-                          className={`py-2 px-3.5 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 ${
-                            isJustAdded
-                              ? 'bg-emerald-600 text-white shadow-lg'
-                              : 'btn-3d-pink text-white'
-                          }`}
-                        >
-                          {isJustAdded ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-white" />
-                              <span>Added!</span>
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                              <span>Add</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Inquire on WhatsApp Link */}
-                    <a
-                      href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Scoop Storey! 🎀 Mujhe "${product.name}" ke baare me inquiry karni hai. (Prepaid Store • Min 3 items)`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold flex items-center justify-center gap-1.5 border border-emerald-200 dark:border-emerald-800 transition-colors"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Inquire on WhatsApp (+91 8199922653)</span>
-                    </a>
-                  </div>
+                  {rowProducts.map((product) => (
+                    <ProductCardItem
+                      key={product.id}
+                      product={product}
+                      onSelectProduct={onSelectProduct}
+                      addedItem={addedItem}
+                      isWishlisted={isWishlisted}
+                      toggleWishlist={toggleWishlist}
+                      handleQuickAdd={handleQuickAdd}
+                    />
+                  ))}
                 </div>
               );
             })}
