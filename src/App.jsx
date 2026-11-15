@@ -44,18 +44,24 @@ export default function App() {
     resetAll 
   } = useStoreProducts();
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 'scoop-mini',
-      cartKey: 'scoop-mini',
-      name: 'Scoop Storey - Mini Scoop',
-      priceINR: 799,
-      qty: 1,
-      image: '/images/scoop-bowl.jpg',
-      selectedColor: 'Pastel Kawaii Mix',
-      selectedColorHex: '#FFAAA6'
-    }
-  ]);
+  // Cart state: Starts completely EMPTY by default for all users and incognito
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('scoop_cart_items_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (_) {}
+    return [];
+  });
+
+  // Persist cart to localStorage so items added by user are retained during their visit
+  useEffect(() => {
+    try {
+      localStorage.setItem('scoop_cart_items_v2', JSON.stringify(cartItems));
+    } catch (_) {}
+  }, [cartItems]);
 
   // Apply dark mode class to html element ONLY when toggled
   useEffect(() => {

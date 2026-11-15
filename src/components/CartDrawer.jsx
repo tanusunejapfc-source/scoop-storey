@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { 
-  X, 
-  Trash2, 
-  Plus, 
-  Minus, 
-  ShoppingBag, 
-  Tag, 
-  Gift, 
+import {
+  X,
+  Trash2,
+  Plus,
+  Minus,
+  ShoppingBag,
+  Tag,
+  Gift,
   AlertCircle,
   MapPin,
   User,
@@ -36,12 +36,12 @@ import { usePaymentSettings, buildAppUpiUri, calculatePaymentBreakdown, getQrDis
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 
 const INDIAN_STATES = [
-  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 
-  'Chhattisgarh', 'Delhi NCR', 'Goa', 'Gujarat', 'Haryana', 
-  'Himachal Pradesh', 'Jammu & Kashmir', 'Jharkhand', 'Karnataka', 'Kerala', 
-  'Ladakh', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 
-  'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 
-  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh',
+  'Chhattisgarh', 'Delhi NCR', 'Goa', 'Gujarat', 'Haryana',
+  'Himachal Pradesh', 'Jammu & Kashmir', 'Jharkhand', 'Karnataka', 'Kerala',
+  'Ladakh', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya',
+  'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab',
+  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
   'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
 ];
 
@@ -515,15 +515,15 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden animate-fadeIn">
       {/* Backdrop */}
-      <div 
+      <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
       />
 
       {/* Drawer Panel */}
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-8">
         <div className="w-full sm:w-[425px] max-w-full bg-white dark:bg-neutral-900 shadow-2xl flex flex-col border-l border-pink-200/60 dark:border-pink-900/40 relative">
-          
+
           {/* Header */}
           <div className="p-3.5 sm:p-4 border-b border-pink-100 dark:border-pink-900/40 flex items-center justify-between bg-gradient-to-r from-pink-50/70 via-white to-pink-50/40 dark:from-[#231733] dark:to-[#1A1326] sticky top-0 z-30 shadow-xs">
             {checkoutStep === 'upi_payment' ? (
@@ -646,11 +646,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         setPaymentMode('full_prepaid');
                         soundFX.playPop(550);
                       }}
-                      className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
-                        paymentMode === 'full_prepaid'
+                      className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${paymentMode === 'full_prepaid'
                           ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#E60067] dark:border-pink-500 text-neutral-900 dark:text-white'
                           : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
-                      }`}
+                        }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1">
@@ -679,11 +678,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         setPaymentMode('partial_cod');
                         soundFX.playPop(550);
                       }}
-                      className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
-                        paymentMode === 'partial_cod'
+                      className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${paymentMode === 'partial_cod'
                           ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-purple-600 dark:border-purple-400 text-neutral-900 dark:text-white'
                           : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
-                      }`}
+                        }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1">
@@ -892,11 +890,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <button
                         type="button"
                         onClick={() => handleCopyText(paymentSettings.upiId, 'upiId')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                          copiedField === 'upiId'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${copiedField === 'upiId'
                             ? 'bg-emerald-600 text-white'
                             : 'bg-pink-100 hover:bg-pink-200 text-pink-700 dark:bg-neutral-700 dark:text-white'
-                        }`}
+                          }`}
                       >
                         {copiedField === 'upiId' ? (
                           <>
@@ -925,11 +922,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <button
                         type="button"
                         onClick={() => handleCopyText(paymentSettings.upiPhone, 'upiPhone')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                          copiedField === 'upiPhone'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${copiedField === 'upiPhone'
                             ? 'bg-emerald-600 text-white'
                             : 'bg-pink-100 hover:bg-pink-200 text-pink-700 dark:bg-neutral-700 dark:text-white'
-                        }`}
+                          }`}
                       >
                         {copiedField === 'upiPhone' ? (
                           <>
@@ -958,11 +954,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <button
                         type="button"
                         onClick={() => handleCopyText(String(paymentBreakdown.payNowINR), 'amount')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${
-                          copiedField === 'amount'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${copiedField === 'amount'
                             ? 'bg-emerald-600 text-white'
                             : 'bg-pink-100 hover:bg-pink-200 text-pink-700 dark:bg-neutral-700 dark:text-white'
-                        }`}
+                          }`}
                       >
                         {copiedField === 'amount' ? (
                           <>
@@ -1014,11 +1009,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         setUpiRefError('');
                       }}
                       placeholder="e.g. 431289123456"
-                      className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-mono tracking-wider bg-white dark:bg-neutral-800 border focus:outline-none focus:ring-2 focus:ring-pink-400 ${
-                        upiRefError
+                      className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-mono tracking-wider bg-white dark:bg-neutral-800 border focus:outline-none focus:ring-2 focus:ring-pink-400 ${upiRefError
                           ? 'border-rose-400 bg-rose-50/50 dark:border-rose-700'
                           : 'border-pink-200 dark:border-neutral-700'
-                      }`}
+                        }`}
                     />
                     {upiRefError ? (
                       <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1">
@@ -1092,7 +1086,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     <span className="text-neutral-900 dark:text-white flex items-center gap-1.5">
                       <Gift className="w-3.5 h-3.5 text-[#E60067]" />
                       <span>
-                        {!isMinimumMet 
+                        {!isMinimumMet
                           ? `Add ${itemsRemainingForMin} more item to unlock Checkout & Free Shipping!`
                           : totalINR < 599
                             ? `Add ₹${599 - totalINR} more to unlock a Free Mystery Charm Pack! 🎁`
@@ -1108,7 +1102,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
 
                   {/* Progress track */}
                   <div className="w-full h-2 rounded-full bg-pink-100 dark:bg-neutral-800 overflow-hidden relative">
-                    <div 
+                    <div
                       className="h-full rounded-full bg-gradient-to-r from-[#E60067] via-purple-500 to-pink-500 transition-all duration-500"
                       style={{
                         width: !isMinimumMet
@@ -1168,9 +1162,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           {item.selectedColor && (
                             <div className="flex items-center gap-1.5 mt-0.5">
                               {item.selectedColorHex && (
-                                <span 
-                                  className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" 
-                                  style={{ backgroundColor: item.selectedColorHex }} 
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                                  style={{ backgroundColor: item.selectedColorHex }}
                                 />
                               )}
                               <span className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
@@ -1311,13 +1305,12 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                 )}
 
                 {/* ADDRESS & CONTACT DETAILS FORM */}
-                <div 
+                <div
                   ref={addressRef}
-                  className={`p-4 rounded-2xl transition-all border ${
-                    Object.keys(addressErrors).length > 0
+                  className={`p-4 rounded-2xl transition-all border ${Object.keys(addressErrors).length > 0
                       ? 'bg-rose-50/70 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900 ring-2 ring-rose-400/30'
                       : 'bg-gradient-to-br from-pink-50/70 via-purple-50/40 to-pink-50/70 dark:from-neutral-800/80 dark:to-neutral-800/40 border-pink-200/80 dark:border-pink-900/50'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -1360,11 +1353,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                             value={addressData.fullName}
                             onChange={(e) => handleAddressChange('fullName', e.target.value)}
                             placeholder="e.g. Ananya Sharma"
-                            className={`w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
-                              addressErrors.fullName
+                            className={`w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${addressErrors.fullName
                                 ? 'border-rose-400 focus:ring-rose-400'
                                 : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
-                            }`}
+                              }`}
                           />
                         </div>
                         {addressErrors.fullName && (
@@ -1391,9 +1383,8 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                             value={addressData.phone}
                             onChange={(e) => handleAddressChange('phone', e.target.value)}
                             placeholder="10-digit number"
-                            className={`w-full px-2.5 py-2 text-xs bg-transparent focus:outline-none ${
-                              addressErrors.phone ? 'border-rose-400' : ''
-                            }`}
+                            className={`w-full px-2.5 py-2 text-xs bg-transparent focus:outline-none ${addressErrors.phone ? 'border-rose-400' : ''
+                              }`}
                           />
                         </div>
                         {addressErrors.phone && (
@@ -1416,11 +1407,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           value={addressData.streetAddress}
                           onChange={(e) => handleAddressChange('streetAddress', e.target.value)}
                           placeholder="e.g. Flat 302, Lotus Garden, Near City Center"
-                          className={`w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition resize-none focus:outline-none focus:ring-1 ${
-                            addressErrors.streetAddress
+                          className={`w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition resize-none focus:outline-none focus:ring-1 ${addressErrors.streetAddress
                               ? 'border-rose-400 focus:ring-rose-400'
                               : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
-                          }`}
+                            }`}
                         />
                       </div>
                       {addressErrors.streetAddress && (
@@ -1458,11 +1448,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                             value={addressData.pincode}
                             onChange={(e) => handlePincodeChange(e.target.value)}
                             placeholder="6 digits"
-                            className={`w-full h-9 px-2.5 pr-7 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
-                              addressErrors.pincode
+                            className={`w-full h-9 px-2.5 pr-7 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${addressErrors.pincode
                                 ? 'border-rose-400 focus:ring-rose-400'
                                 : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
-                            }`}
+                              }`}
                           />
                           {isDetectingPin && (
                             <Loader2 className="w-3.5 h-3.5 text-pink-500 animate-spin absolute right-2 top-1/2 -translate-y-1/2" />
@@ -1490,11 +1479,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                             value={addressData.city}
                             onChange={(e) => handleAddressChange('city', e.target.value)}
                             placeholder="e.g. Mumbai"
-                            className={`w-full h-9 pl-7 pr-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
-                              addressErrors.city
+                            className={`w-full h-9 pl-7 pr-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${addressErrors.city
                                 ? 'border-rose-400 focus:ring-rose-400'
                                 : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
-                            }`}
+                              }`}
                           />
                         </div>
                         {addressErrors.city && (
@@ -1808,7 +1796,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
             </div>
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
-              {orderCompleteData.isPartialCod 
+              {orderCompleteData.isPartialCod
                 ? 'Your Partial COD order and advance payment details have been recorded! Remaining balance will be collected in Cash by the courier.'
                 : 'Your prepaid order and payment details have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Bhaskar directly with your UTR proof.'}
             </p>
