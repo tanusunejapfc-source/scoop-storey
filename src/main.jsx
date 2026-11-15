@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') {
     window.history.scrollRestoration = 'manual';
   }
   const h = window.location.hash;
-  if (h === '#scoop-machine' || h === '#menu' || h === '#charm-studio' || h === '#reels') {
+  if (h === '#scoop-machine' || h === '#menu' || h === '#reels') {
     try {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     } catch {}

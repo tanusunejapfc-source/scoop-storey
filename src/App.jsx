@@ -9,7 +9,6 @@ import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetailPage from './components/ProductDetailPage';
 import AdminPanel from './components/AdminPanel';
-import CharmInspector3D from './components/CharmInspector3D';
 import ReelsShowcase from './components/ReelsShowcase';
 import BrandStory from './components/BrandStory';
 import Testimonials from './components/Testimonials';
@@ -79,7 +78,7 @@ export default function App() {
         window.history.scrollRestoration = 'manual';
       }
       const hash = window.location.hash;
-      if (hash === '#scoop-machine' || hash === '#menu' || hash === '#charm-studio' || hash === '#reels' || !hash || hash === '#') {
+      if (hash === '#scoop-machine' || hash === '#menu' || hash === '#reels' || !hash || hash === '#') {
         if (hash && hash !== '#') {
           try {
             window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -135,7 +134,7 @@ export default function App() {
         if (!isInitial && (hash === '' || hash === '#')) {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      } else if (hash === '#charm-studio' || hash === '#reels' || hash === '#scoop-machine' || hash === '#faq-section' || hash === '#story' || hash === '#reviews') {
+      } else if (hash === '#reels' || hash === '#scoop-machine' || hash === '#faq-section' || hash === '#story' || hash === '#reviews') {
         setActiveCollection(null);
         if (!isInitial) {
           const targetId = hash.slice(1);
@@ -378,11 +377,6 @@ export default function App() {
             activeCollection={null}
             onSelectCollection={handleSelectCategory}
           />
-
-          {/* 360° REAL-TIME 3D CHARM INSPECTOR STUDIO */}
-          <div id="charm-studio">
-            <CharmInspector3D isDark={isDark} />
-          </div>
 
           {/* ASMR & INSTAGRAM REELS SHOWCASE */}
           <ReelsShowcase />

@@ -131,7 +131,6 @@ export default function Navbar({
   const navLinks = [
     { label: '3D Scoops', fullLabel: '3D Scoop Machine', href: '#scoop-machine', icon: '🍨' },
     { label: 'Collections', fullLabel: 'All Collections', href: '#collections', isAllCollections: true, icon: '🛍️' },
-    { label: 'Charm Studio', fullLabel: '3D Charm Studio', href: '#charm-studio', icon: '✨' },
     { label: 'ASMR Reels', fullLabel: 'ASMR Packing Reels', href: '#reels', icon: '🎬' },
     { label: 'Care & FAQ', fullLabel: 'Care Guide & FAQs', href: '#faq-section', icon: '📖' },
     { label: 'Our Story', fullLabel: 'Brand Story', href: '#story', icon: '🌸' },
