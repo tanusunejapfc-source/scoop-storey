@@ -129,13 +129,13 @@ export const CATEGORY_ICONS_DATA = [
     ringColor: 'from-rose-500 to-teal-500'
   },
   {
-    id: 'korean-wallets',
-    category: 'Korean Wallets',
-    name: 'Korean Wallets',
-    shortName: 'Wallets',
+    id: 'korean-wallets-and-bags',
+    category: 'Korean wallets and bags',
+    name: 'Korean wallets and bags',
+    shortName: 'Wallets & Bags',
     image: '/images/korean-wallets.jpg',
     emoji: '👛',
-    tag: 'Quilted Mini',
+    tag: 'Quilted & Totes',
     gradient: 'from-pink-400 via-purple-400 to-rose-400',
     ringColor: 'from-pink-500 to-purple-600'
   },

@@ -91,7 +91,7 @@ const PRESET_LOCAL_IMAGES = [
   { label: 'Deluxe Gift Box', url: '/images/deluxe-giftbox.jpg' },
   { label: 'Eye Masks Collection', url: '/images/eyemasks-skincare.jpg' },
   { label: 'Self-Care Essentials', url: '/images/eyemasks-skincare.jpg' },
-  { label: 'Korean Wallets', url: '/images/korean-wallets.jpg' },
+  { label: 'Korean wallets and bags', url: '/images/korean-wallets.jpg' },
   { label: 'ASMR Packing Stage', url: '/images/asmr-packing.jpg' }
 ];
 

@@ -113,13 +113,13 @@ export const DEFAULT_CATEGORY_METADATA = [
     isDefault: true
   },
   {
-    id: 'korean-wallets',
-    name: 'Korean Wallets',
+    id: 'korean-wallets-and-bags',
+    name: 'Korean wallets and bags',
     icon: '👛',
     image: '/images/korean-wallets.jpg',
     department: 'lifestyle',
     badge: 'Boutique Hot 🔥',
-    description: 'Quilted pastel diamond pocket wallets with gold zip accents and mini plush bear charm pulls.',
+    description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
     isDefault: true
   }
 ];
@@ -139,8 +139,38 @@ export function getStoredCategories() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Migration: If legacy combined categories exist in storage, remove them
-        const cleaned = parsed.filter(c => c && typeof c.name === 'string' && c.name.trim() !== '' && c.name !== 'Bracelets & Anklets' && c.name !== 'Eye Masks & Self-Care');
+        let cleaned = parsed.filter(c => c && typeof c.name === 'string' && c.name.trim() !== '' && c.name !== 'Bracelets & Anklets' && c.name !== 'Eye Masks & Self-Care');
         
+        // Migration: Merge "Korean Wallets", "Bags", and "Stationery and bags" into unified "Korean wallets and bags"
+        const isFragmentedWalletOrBag = (name) => {
+          if (!name) return false;
+          const lower = name.toLowerCase().trim();
+          return lower === 'korean wallets' || 
+                 lower === 'bags' || 
+                 lower === 'stationery and bags' || 
+                 lower === 'stationery & bags' || 
+                 lower === 'korean wallets and bags' ||
+                 lower === 'korean wallets & bags';
+        };
+
+        const hadFragmentedWalletOrBag = cleaned.some(c => isFragmentedWalletOrBag(c.name));
+        if (hadFragmentedWalletOrBag) {
+          cleaned = cleaned.filter(c => !isFragmentedWalletOrBag(c.name));
+          cleaned.push({
+            id: 'korean-wallets-and-bags',
+            name: 'Korean wallets and bags',
+            icon: '👛',
+            image: '/images/korean-wallets.jpg',
+            department: 'lifestyle',
+            badge: 'Boutique Hot 🔥',
+            description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
+            isDefault: true
+          });
+          try {
+            localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
+          } catch {}
+        }
+
         // Ensure new separated categories exist in the list
         const existingNames = new Set(cleaned.map(c => c.name));
         for (const def of DEFAULT_CATEGORY_METADATA) {

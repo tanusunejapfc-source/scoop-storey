@@ -389,11 +389,11 @@ export const PRODUCTS = [
     includes: ['Pore Purifying Formula', 'Quick 10-Minute Action', 'Dermatologist Tested']
   },
 
-  // --- KOREAN WALLETS ---
+  // --- KOREAN WALLETS AND BAGS ---
   {
     id: 'wallet-pink',
     name: 'Soft Korean Aesthetic Wallet (Blush Pink)',
-    category: 'Korean Wallets',
+    category: 'Korean wallets and bags',
     badge: 'Boutique Hot 🔥',
     priceINR: 250,
     image: '/images/korean-wallets.jpg',
@@ -403,7 +403,7 @@ export const PRODUCTS = [
   {
     id: 'wallet-white',
     name: 'Soft Korean Minimalist Wallet (Ivory White)',
-    category: 'Korean Wallets',
+    category: 'Korean wallets and bags',
     badge: 'Clean Aesthetic 🤍',
     priceINR: 250,
     image: '/images/korean-wallets.jpg',
@@ -585,7 +585,7 @@ export const CATEGORIES = [
   'Hair Accessories',
   'Eye Masks',
   'Self-Care',
-  'Korean Wallets'
+  'Korean wallets and bags'
 ];
 
 export const DEPARTMENTS_CONFIG = [
@@ -752,14 +752,14 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
   },
   {
-    id: 'korean-wallets',
-    category: 'Korean Wallets',
+    id: 'korean-wallets-and-bags',
+    category: 'Korean wallets and bags',
     department: 'lifestyle',
-    name: 'Korean Wallets',
+    name: 'Korean wallets and bags',
     icon: '👛',
     badge: 'Boutique Hot 🔥',
-    tagline: 'Quilted Diamond Pocket Wallets with Plush Bear',
-    description: 'Soft pastel diamond-quilted pocket wallets featuring durable gold hardware, multi-card compartments, and a cute teddy bear charm.',
+    tagline: 'Quilted Diamond Pocket Wallets, Totes & Mini Bags',
+    description: 'Soft pastel diamond-quilted pocket wallets, aesthetic totes, mini bags, and kawaii accessories featuring durable gold hardware and plush bear charms.',
     coverImage: '/images/korean-wallets.jpg',
     gradient: 'from-pink-500/15 via-purple-500/10 to-rose-500/20',
     borderHover: 'hover:border-pink-400',
@@ -780,7 +780,15 @@ export function categoryToSlug(category) {
   if (category === 'Hair Accessories' || category === 'hair accessories') return 'hair-accessories';
   if (category === 'Eye Masks') return 'eye-masks';
   if (category === 'Self-Care') return 'self-care';
-  if (category === 'Korean Wallets') return 'korean-wallets';
+  if (
+    category === 'Korean wallets and bags' ||
+    category === 'Korean Wallets and Bags' ||
+    category === 'Korean Wallets & Bags' ||
+    category === 'Korean Wallets' ||
+    category === 'Bags' ||
+    category === 'Stationery and bags' ||
+    category === 'Stationery & bags'
+  ) return 'korean-wallets-and-bags';
   // Backward compatibility
   if (category === 'Bracelets & Anklets') return 'bracelets';
   if (category === 'Eye Masks & Self-Care') return 'self-care';
@@ -802,7 +810,14 @@ export function slugToCategory(slug, products = []) {
   if (slug === 'eye-masks' || slug === 'eyemasks') return 'Eye Masks';
   if (slug === 'self-care' || slug === 'skincare') return 'Self-Care';
   if (slug === 'eyemasks-selfcare') return 'Self-Care';
-  if (slug === 'korean-wallets' || slug === 'wallets') return 'Korean Wallets';
+  if (
+    slug === 'korean-wallets-and-bags' ||
+    slug === 'korean-wallets' || 
+    slug === 'wallets' || 
+    slug === 'bags' || 
+    slug === 'stationery-and-bags' ||
+    slug === 'stationery-bags'
+  ) return 'Korean wallets and bags';
   
   // 1. Check custom categories stored in localStorage (created in Admin Panel)
   if (typeof window !== 'undefined') {

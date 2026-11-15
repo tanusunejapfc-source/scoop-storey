@@ -40,7 +40,7 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       { name: 'Berry Punch', hex: '#FF99C8' },
       { name: 'Citrus Pop', hex: '#FFD166' }
     ];
-  } else if (p.category === 'Korean Wallets') {
+  } else if (p.category === 'Korean wallets and bags' || p.category === 'Korean Wallets' || p.category === 'Bags') {
     defaultColors = [
       { name: 'Blush Pink', hex: '#FFB6C1' },
       { name: 'Ivory White', hex: '#FFFDD0' },
@@ -125,7 +125,7 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       '/images/eyemasks-skincare.jpg',
       '/images/deluxe-giftbox.jpg'
     ];
-  } else if (p.category === 'Korean Wallets') {
+  } else if (p.category === 'Korean wallets and bags' || p.category === 'Korean Wallets' || p.category === 'Bags') {
     defaultImages = [
       p.image,
       '/images/korean-wallets.jpg',
@@ -257,7 +257,7 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
       'Skin Friendly': 'Dermatologist-Approved & Alcohol-Free Formula',
       'Origin': 'Handpicked Kawaii Curation'
     };
-  } else if (p.category === 'Korean Wallets') {
+  } else if (p.category === 'Korean wallets and bags' || p.category === 'Korean Wallets' || p.category === 'Bags') {
     defaultSpecs = {
       'Material': 'Soft Quilted Diamond-Stitch Vegan Leather',
       'Dimensions': '11 cm x 9 cm x 2.5 cm (Fits in Mini Bags)',
@@ -383,6 +383,15 @@ export function migrateLegacyProduct(p) {
     category = (p.id?.startsWith('skincare') || p.name?.toLowerCase().includes('wipes') || p.name?.toLowerCase().includes('strip') || p.name?.toLowerCase().includes('care'))
       ? 'Self-Care'
       : 'Eye Masks';
+  } else if (
+    category === 'Korean Wallets' || 
+    category === 'Bags' || 
+    category === 'Stationery and bags' || 
+    category === 'Stationery & bags' ||
+    category === 'Korean Wallets & Bags' ||
+    category === 'Korean Wallets and Bags'
+  ) {
+    category = 'Korean wallets and bags';
   }
   return { ...p, category };
 }
