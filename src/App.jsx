@@ -391,33 +391,35 @@ export default function App() {
       )}
 
       {/* PRODUCT DETAIL PAGE / MODAL */}
-      <ProductDetailPage
-        key={selectedProduct?.id || 'none'}
-        product={selectedProduct}
-        onClose={() => {
-          setSelectedProduct(null);
-          if (window.location.hash.startsWith('#product-')) {
-            const fallback = activeCollection ? `#collection-${categoryToSlug(activeCollection)}` : '';
-            try {
-              window.history.pushState(null, '', window.location.pathname + fallback);
-            } catch {
-              window.location.hash = fallback;
+      {selectedProduct && (
+        <ProductDetailPage
+          key={selectedProduct.id}
+          product={selectedProduct}
+          onClose={() => {
+            setSelectedProduct(null);
+            if (window.location.hash.startsWith('#product-')) {
+              const fallback = activeCollection ? `#collection-${categoryToSlug(activeCollection)}` : '';
+              try {
+                window.history.pushState(null, '', window.location.pathname + fallback);
+              } catch {
+                window.location.hash = fallback;
+              }
             }
-          }
-        }}
-        onAddToCart={handleAddToCart}
-        allProducts={products}
-        onSelectProduct={(prod) => {
-          setSelectedProduct(prod);
-          if (prod) {
-            try {
-              window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
-            } catch {
-              window.location.hash = `#product-${prod.id}`;
+          }}
+          onAddToCart={handleAddToCart}
+          allProducts={products}
+          onSelectProduct={(prod) => {
+            setSelectedProduct(prod);
+            if (prod) {
+              try {
+                window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
+              } catch {
+                window.location.hash = `#product-${prod.id}`;
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      )}
 
       {/* STORE ADMIN PANEL */}
       <AdminPanel

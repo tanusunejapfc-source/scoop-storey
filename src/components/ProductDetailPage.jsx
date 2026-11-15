@@ -95,6 +95,12 @@ export default function ProductDetailPage({
   const [copiedLink, setCopiedLink] = useState(false);
   const { isWishlisted, toggle: toggleWishlist } = useWishlist();
 
+  // Ultra-Smooth Touch & Finger Swipe for Image Carousel
+  const [touchDelta, setTouchDelta] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const touchStartRef = useRef({ x: 0, y: 0, time: 0, isHorizontal: null });
+
+
   // Related products from same or complementary categories
   const relatedProducts = useMemo(() => {
     if (!product || !Array.isArray(allProducts) || allProducts.length === 0) return [];
@@ -249,10 +255,6 @@ export default function ProductDetailPage({
     handleSelectImageIndex(nextIdx);
   };
 
-  // Ultra-Smooth Touch & Finger Swipe for Image Carousel
-  const [touchDelta, setTouchDelta] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const touchStartRef = useRef({ x: 0, y: 0, time: 0, isHorizontal: null });
 
   const handleTouchStart = (e) => {
     if (images.length <= 1) return;
