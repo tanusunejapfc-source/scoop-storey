@@ -464,7 +464,8 @@ export default function AdminPanel({
     const result = await testEmail(
       notifSettings.email.recipientEmail,
       notifSettings.email.provider,
-      notifSettings.email.formspreeUrl || notifSettings.email.customWebhookUrl
+      notifSettings.email.formspreeUrl || notifSettings.email.customWebhookUrl,
+      notifSettings.email.web3formsAccessKey
     );
     setTestingEmail(false);
     if (result.success) {
@@ -4829,6 +4830,388 @@ export default function AdminPanel({
                           <span><strong>Hidden Default:</strong> The default password notice has been removed from the login screen so store visitors cannot see it.</span>
                         </li>
                       </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 8. ALERTS & NOTIFICATIONS CONFIGURATION TAB */}
+            {activeTab === 'alerts' && (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                {/* Header Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-[#E60067] text-white shadow-md">
+                      <Bell className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-extrabold text-lg text-neutral-900 dark:text-white">
+                        Order Alerts & Push Notifications
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        Get instant alerts on Gmail, Telegram push notifications, and sound chimes when a customer places an order
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveNotifications}
+                    className="px-5 py-2.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer self-start sm:self-auto"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save All Alert Settings</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Left Column (7 cols): GMAIL / EMAIL ALERTS */}
+                  <div className="lg:col-span-7 space-y-6">
+                    {/* GMAIL & EMAIL CARD */}
+                    <div className="bg-white dark:bg-[#1E172E] p-5 sm:p-6 rounded-3xl border border-pink-200/80 dark:border-pink-900/50 shadow-sm space-y-5">
+                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/40">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                            <Mail className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
+                              Gmail / Email Order Notifications
+                            </h4>
+                            <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                              Sends an order summary email directly to your inbox
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Toggle */}
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!notifSettings.email?.enabled}
+                            onChange={(e) => setNotifSettings(prev => ({
+                              ...prev,
+                              email: { ...prev.email, enabled: e.target.checked }
+                            }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E60067]" />
+                        </label>
+                      </div>
+
+                      <div className="space-y-4 text-xs">
+                        {/* Destination Email Input */}
+                        <div className="space-y-1.5">
+                          <label className="font-bold text-neutral-800 dark:text-neutral-200 block">
+                            Your Destination Gmail Address <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                            <input
+                              type="email"
+                              value={notifSettings.email?.recipientEmail || ''}
+                              onChange={(e) => setNotifSettings(prev => ({
+                                ...prev,
+                                email: { ...prev.email, recipientEmail: e.target.value }
+                              }))}
+                              placeholder="e.g. bhaskar.scoopstorey@gmail.com"
+                              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
+                            />
+                          </div>
+                          <span className="text-[11px] text-neutral-500 dark:text-neutral-400 block">
+                            Every time a customer confirms payment, full order details (Address, Phone, Items, UTR) will be sent here.
+                          </span>
+                        </div>
+
+                        {/* Provider Selection */}
+                        <div className="space-y-1.5">
+                          <label className="font-bold text-neutral-800 dark:text-neutral-200 block">
+                            Email Gateway Provider
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setNotifSettings(prev => ({
+                                ...prev,
+                                email: { ...prev.email, provider: 'web3forms' }
+                              }))}
+                              className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                                notifSettings.email?.provider === 'web3forms'
+                                  ? 'border-[#E60067] bg-pink-50/80 dark:bg-pink-950/40 text-[#E60067] dark:text-pink-300 font-bold'
+                                  : 'border-pink-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300'
+                              }`}
+                            >
+                              <span>Web3Forms (Recommended)</span>
+                              {notifSettings.email?.provider === 'web3forms' && <Check className="w-3.5 h-3.5" />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setNotifSettings(prev => ({
+                                ...prev,
+                                email: { ...prev.email, provider: 'formspree' }
+                              }))}
+                              className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                                notifSettings.email?.provider === 'formspree'
+                                  ? 'border-[#E60067] bg-pink-50/80 dark:bg-pink-950/40 text-[#E60067] dark:text-pink-300 font-bold'
+                                  : 'border-pink-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300'
+                              }`}
+                            >
+                              <span>Formspree</span>
+                              {notifSettings.email?.provider === 'formspree' && <Check className="w-3.5 h-3.5" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Web3Forms Access Key */}
+                        {notifSettings.email?.provider === 'web3forms' && (
+                          <div className="space-y-1.5 p-3 rounded-2xl bg-pink-50/40 dark:bg-neutral-900/60 border border-pink-100 dark:border-pink-900/40">
+                            <div className="flex items-center justify-between">
+                              <label className="font-bold text-neutral-800 dark:text-neutral-200">
+                                Web3Forms Access Key
+                              </label>
+                              <a
+                                href="https://web3forms.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] font-bold text-[#E60067] dark:text-pink-400 hover:underline flex items-center gap-1"
+                              >
+                                <span>Get Your Free Key in 5s</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                            <input
+                              type="text"
+                              value={notifSettings.email?.web3formsAccessKey || ''}
+                              onChange={(e) => setNotifSettings(prev => ({
+                                ...prev,
+                                email: { ...prev.email, web3formsAccessKey: e.target.value }
+                              }))}
+                              placeholder="Enter your Web3Forms Access Key"
+                              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 font-mono text-[11px] text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-pink-400"
+                            />
+                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                              💡 <strong>How it works:</strong> Go to <a href="https://web3forms.com" target="_blank" rel="noopener noreferrer" className="text-pink-600 underline">web3forms.com</a>, type your Gmail address, and they immediately email you a free access key. Paste it here to link your Gmail directly!
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Formspree Endpoint */}
+                        {notifSettings.email?.provider === 'formspree' && (
+                          <div className="space-y-1.5">
+                            <label className="font-bold text-neutral-800 dark:text-neutral-200 block">
+                              Formspree Form Endpoint URL
+                            </label>
+                            <input
+                              type="url"
+                              value={notifSettings.email?.formspreeUrl || ''}
+                              onChange={(e) => setNotifSettings(prev => ({
+                                ...prev,
+                                email: { ...prev.email, formspreeUrl: e.target.value }
+                              }))}
+                              placeholder="https://formspree.io/f/your_form_id"
+                              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-pink-400"
+                            />
+                          </div>
+                        )}
+
+                        {/* Email Action Buttons */}
+                        <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
+                          <button
+                            type="button"
+                            disabled={testingEmail}
+                            onClick={handleTestEmail}
+                            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer disabled:opacity-50"
+                          >
+                            {testingEmail ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Sending Test Email...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-3.5 h-3.5" />
+                                <span>Send Test Email to My Gmail 📬</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleSaveNotifications}
+                            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-pink-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white font-bold text-xs hover:bg-pink-50 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <Save className="w-3.5 h-3.5 text-pink-600" />
+                            <span>Save Email Settings</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SOUND CHIME & AUDIO CARD */}
+                    <div className="bg-white dark:bg-[#1E172E] p-5 sm:p-6 rounded-3xl border border-pink-200/80 dark:border-pink-900/50 shadow-sm space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/40">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <Volume2 className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
+                              Live Audio Chime (Cash Register Sound)
+                            </h4>
+                            <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                              Plays a gentle cash-register chime when orders arrive while Admin is open
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Toggle */}
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!notifSettings.sound?.enabled}
+                            onChange={(e) => setNotifSettings(prev => ({
+                              ...prev,
+                              sound: { ...prev.sound, enabled: e.target.checked }
+                            }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600" />
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs pt-1">
+                        <div className="flex items-center gap-2">
+                          <Smartphone className="w-4 h-4 text-neutral-400" />
+                          <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+                            Vibrate Device on Order (Mobile only)
+                          </span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={!!notifSettings.sound?.vibrate}
+                          onChange={(e) => setNotifSettings(prev => ({
+                            ...prev,
+                            sound: { ...prev.sound, vibrate: e.target.checked }
+                          }))}
+                          className="rounded text-pink-600 focus:ring-pink-400"
+                        />
+                      </div>
+
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={handleTestChime}
+                          className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition border border-emerald-200 dark:border-emerald-800 cursor-pointer"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                          <span>Test Cash-Register Sound 🛎️</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column (5 cols): TELEGRAM BOT ALERTS */}
+                  <div className="lg:col-span-5 space-y-6">
+                    <div className="bg-white dark:bg-[#1E172E] p-5 sm:p-6 rounded-3xl border border-pink-200/80 dark:border-pink-900/50 shadow-sm space-y-5">
+                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/40">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                            <Send className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
+                              Telegram Instant Push
+                            </h4>
+                            <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                              Instant sound push to phone via Telegram Bot
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Toggle */}
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!notifSettings.telegram?.enabled}
+                            onChange={(e) => setNotifSettings(prev => ({
+                              ...prev,
+                              telegram: { ...prev.telegram, enabled: e.target.checked }
+                            }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500" />
+                        </label>
+                      </div>
+
+                      <div className="space-y-4 text-xs">
+                        {/* Bot Token Input */}
+                        <div className="space-y-1.5">
+                          <label className="font-bold text-neutral-800 dark:text-neutral-200 block">
+                            Telegram Bot Token
+                          </label>
+                          <input
+                            type="text"
+                            value={notifSettings.telegram?.botToken || ''}
+                            onChange={(e) => setNotifSettings(prev => ({
+                              ...prev,
+                              telegram: { ...prev.telegram, botToken: e.target.value }
+                            }))}
+                            placeholder="e.g. 7123456789:AAHk..."
+                            className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-mono text-[11px] text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                          />
+                        </div>
+
+                        {/* Chat ID Input */}
+                        <div className="space-y-1.5">
+                          <label className="font-bold text-neutral-800 dark:text-neutral-200 block">
+                            Telegram Chat ID
+                          </label>
+                          <input
+                            type="text"
+                            value={notifSettings.telegram?.chatId || ''}
+                            onChange={(e) => setNotifSettings(prev => ({
+                              ...prev,
+                              telegram: { ...prev.telegram, chatId: e.target.value }
+                            }))}
+                            placeholder="e.g. 123456789"
+                            className="w-full px-3 py-2 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-mono text-[11px] text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                          />
+                        </div>
+
+                        {/* Telegram Instructions Box */}
+                        <div className="p-3.5 rounded-2xl bg-sky-50/60 dark:bg-neutral-900/60 border border-sky-100 dark:border-sky-900/40 space-y-2 text-[11px] text-neutral-600 dark:text-neutral-300">
+                          <span className="font-bold text-sky-700 dark:text-sky-300 block">
+                            ⚡ Quick Setup (Takes 60 Seconds):
+                          </span>
+                          <ol className="list-decimal list-inside space-y-1">
+                            <li>Open Telegram and search for <strong>@BotFather</strong></li>
+                            <li>Send <code>/newbot</code> to create a bot & copy the <strong>Token</strong></li>
+                            <li>Search for <strong>@userinfobot</strong> to get your <strong>Chat ID</strong></li>
+                            <li>Send a message to your new bot to start it, then test!</li>
+                          </ol>
+                        </div>
+
+                        {/* Telegram Test Button */}
+                        <button
+                          type="button"
+                          disabled={testingTelegram}
+                          onClick={handleTestTelegram}
+                          className="w-full py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer disabled:opacity-50"
+                        >
+                          {testingTelegram ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Sending Test Push...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-3.5 h-3.5" />
+                              <span>Send Test Telegram Alert 🚀</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

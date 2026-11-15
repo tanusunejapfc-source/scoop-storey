@@ -294,7 +294,7 @@ export async function testTelegram(token, chatId) {
 /**
  * Send Test Email
  */
-export async function testEmail(recipientEmail, provider = 'web3forms', customUrl = '') {
+export async function testEmail(recipientEmail, provider = 'web3forms', customUrl = '', accessKey = '') {
   const testOrder = {
     orderId: 'SS-TEST-' + Math.floor(1000 + Math.random() * 9000),
     totalINR: 499,
@@ -319,7 +319,7 @@ export async function testEmail(recipientEmail, provider = 'web3forms', customUr
       enabled: true,
       recipientEmail: recipientEmail,
       provider: provider,
-      web3formsAccessKey: DEFAULT_NOTIFICATION_SETTINGS.email.web3formsAccessKey,
+      web3formsAccessKey: accessKey || DEFAULT_NOTIFICATION_SETTINGS.email.web3formsAccessKey,
       formspreeUrl: customUrl,
       customWebhookUrl: customUrl
     }
