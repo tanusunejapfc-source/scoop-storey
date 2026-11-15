@@ -4,7 +4,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import confetti from 'canvas-confetti';
 import { 
   Sparkles, Trophy, Gift, RotateCcw, ShoppingBag, AlertCircle, 
-  Check, X, Camera, List, Volume2, VolumeX, Eye, ArrowRight
+  Check, X, Camera, List, Volume2, VolumeX, Eye, ArrowRight, ArrowLeft
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { disposeThreeScene } from '../utils/threeUtils';
@@ -42,6 +42,18 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const [activeChartCategory, setActiveChartCategory] = useState('all');
   const [activeChartTab, setActiveChartTab] = useState('items'); // 'items' | 'photos'
   const [selectedChartPhoto, setSelectedChartPhoto] = useState(null);
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showModal) setShowModal(false);
+        if (showChartModal) setShowChartModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showModal, showChartModal]);
 
   // 3D Scene Refs
   const sceneRef = useRef(null);
@@ -1324,8 +1336,43 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
       {/* LUXURY HAUL REVEAL MODAL */}
       {showModal && scoopResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-md animate-fadeIn">
-          <div className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border-2 border-pink-400 dark:border-pink-600 relative overflow-hidden animate-scaleUp">
+        <div 
+          onClick={() => setShowModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-md animate-fadeIn"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-[#1A1326] rounded-3xl max-w-lg w-full p-4 sm:p-7 shadow-2xl border-2 border-pink-400 dark:border-pink-600 relative overflow-hidden animate-scaleUp"
+          >
+            {/* Top Navigation Bar: Back & Close Buttons */}
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-pink-100 dark:border-pink-900/40">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowModal(false);
+                  soundFX.playPop(520);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-xs font-bold text-[#E60067] dark:text-pink-300 border border-pink-200 dark:border-pink-900/50 transition cursor-pointer shadow-xs active:scale-95"
+                title="Go back to 3D Scoop Studio"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowModal(false);
+                  soundFX.playPop(520);
+                }}
+                className="p-1.5 rounded-full bg-pink-100/90 hover:bg-pink-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#554664] hover:text-[#E60067] dark:text-neutral-300 transition cursor-pointer shadow-xs active:scale-95"
+                aria-label="Close window"
+                title="Close window"
+              >
+                <X className="w-5 h-5 stroke-[2.5]" />
+              </button>
+            </div>
+
             {/* Top Badges */}
             <div className="text-center">
               <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xs font-bold tracking-wide uppercase shadow-md mb-2">
@@ -1448,6 +1495,18 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   <span>WhatsApp</span>
                 </a>
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowModal(false);
+                  soundFX.playPop(520);
+                }}
+                className="w-full mt-1 py-2 rounded-xl border border-pink-200/90 dark:border-neutral-700 hover:bg-pink-50 dark:hover:bg-neutral-800 text-xs font-bold text-[#716182] hover:text-[#E60067] dark:text-neutral-300 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Close & Return to Scoop Machine</span>
+              </button>
             </div>
           </div>
         </div>
