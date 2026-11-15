@@ -42,17 +42,40 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const [activeChartTab, setActiveChartTab] = useState('items'); // 'items' | 'photos'
   const [selectedChartPhoto, setSelectedChartPhoto] = useState(null);
 
+  // Gamified "3 Lucky Dips per Session" Rule
+  const MAX_LUCKY_DIPS = 3;
+  const [dipsRemaining, setDipsRemaining] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('bhaskar_lucky_dips_remaining_v1');
+      if (stored !== null) {
+        const val = parseInt(stored, 10);
+        return isNaN(val) ? MAX_LUCKY_DIPS : Math.max(0, Math.min(MAX_LUCKY_DIPS, val));
+      }
+    } catch {}
+    return MAX_LUCKY_DIPS;
+  });
+  const [showLimitModal, setShowLimitModal] = useState(false);
+
+  const updateDipsRemaining = (newCount) => {
+    const safeCount = Math.max(0, Math.min(MAX_LUCKY_DIPS, newCount));
+    setDipsRemaining(safeCount);
+    try {
+      sessionStorage.setItem('bhaskar_lucky_dips_remaining_v1', String(safeCount));
+    } catch {}
+  };
+
   // Close modals on Escape key
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         if (showModal) setShowModal(false);
         if (showChartModal) setShowChartModal(false);
+        if (showLimitModal) setShowLimitModal(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showModal, showChartModal]);
+  }, [showModal, showChartModal, showLimitModal]);
 
   // 3D Scene Refs
   const sceneRef = useRef(null);
@@ -853,6 +876,15 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   const handlePerformScoop = useCallback(() => {
     if (isScooping || !spoonRef.current) return;
 
+    if (dipsRemaining <= 0) {
+      soundFX.playPop(350);
+      setShowLimitModal(true);
+      return;
+    }
+
+    // Decrement remaining lucky dips
+    updateDipsRemaining(dipsRemaining - 1);
+
     // Ensure stage starts fresh from centered bowl
     if (stageLayoutRef.current.bowlTargetX !== 0) {
       stageLayoutRef.current.bowlTargetX = 0;
@@ -976,7 +1008,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       tier: selectedTier,
       pulledItems
     };
-  }, [isScooping, selectedTier, soundEnabled]);
+  }, [isScooping, selectedTier, soundEnabled, dipsRemaining]);
 
   const handleClaimLoot = () => {
     if (!scoopResult) return;
@@ -994,6 +1026,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     };
     onAddToCart(customItem);
     setShowModal(false);
+    // Reset lucky dips back to 3 so customer can order another scoop if desired!
+    updateDipsRemaining(MAX_LUCKY_DIPS);
   };
 
   const handleAddTierToBag = (tier, e) => {
@@ -1175,19 +1209,52 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           )}
         </div>
 
-        {/* Scoop Action Button */}
+        {/* Scoop Action Button with Gamified "3 Lucky Dips per Session" Rule */}
         <div className="mt-5 text-center max-w-md mx-auto px-2">
+          
+          {/* Lucky Dips Token Tracker */}
+          <div className="mb-2.5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/70 border border-pink-300 dark:border-pink-800 text-[11px] sm:text-xs font-black uppercase tracking-wide shadow-xs">
+            <span className="text-[#E60067] dark:text-pink-300">
+              {dipsRemaining > 0 ? `🎲 ${dipsRemaining} / 3 Lucky Dips Left` : `🔒 0 / 3 Dips • Haul Locked In`}
+            </span>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3].map((starIdx) => (
+                <span
+                  key={starIdx}
+                  className={`text-xs transition-all ${
+                    starIdx <= dipsRemaining ? 'scale-110 drop-shadow-xs' : 'opacity-25 grayscale'
+                  }`}
+                >
+                  ⭐
+                </span>
+              ))}
+            </div>
+          </div>
+
           <button
             disabled={isScooping}
-            onClick={handlePerformScoop}
+            onClick={dipsRemaining > 0 ? handlePerformScoop : () => {
+              if (scoopResult) {
+                setShowModal(true);
+              } else {
+                setShowLimitModal(true);
+              }
+            }}
             className={`w-full py-4 px-6 rounded-2xl font-display font-extrabold text-lg md:text-xl text-white tracking-wide shadow-2xl transition-all flex items-center justify-center gap-3 ${
-              selectedTier.btnClass
+              dipsRemaining === 0 && scoopResult
+                ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-pink-600 hover:from-amber-600 hover:to-pink-700'
+                : selectedTier.btnClass
             } ${isScooping ? 'opacity-85 cursor-not-allowed animate-pulse' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
           >
             {isScooping ? (
               <>
                 <RotateCcw className="w-5 h-5 animate-spin" />
                 <span>Scooping & Pouring In Progress...</span>
+              </>
+            ) : dipsRemaining === 0 && scoopResult ? (
+              <>
+                <ShoppingBag className="w-5 h-5 fill-white text-white" />
+                <span>LOCK IN THIS HAUL (₹{selectedTier.priceINR})</span>
               </>
             ) : (
               <>
@@ -1197,7 +1264,13 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             )}
           </button>
           <p className="mt-2 text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold flex items-center justify-center gap-1.5">
-            <span>✨ Automatically scoops {selectedTier.id === 'mini-scoop' ? '7–8' : selectedTier.id === 'midi-scoop' ? '12–15' : '20+'} charms & pours onto the luxury plate!</span>
+            {dipsRemaining > 0 ? (
+              <span>✨ Max 3 lucky dips per session • Roll your favorites then add to bag!</span>
+            ) : (
+              <span className="text-amber-600 dark:text-amber-400 font-bold">
+                🔒 You've used all 3 Lucky Dips! Add to bag to claim your treasures.
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -1393,6 +1466,32 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   )}
                 </div>
               )}
+
+              {/* Gamified Lucky Dip Counter Indicator */}
+              <div className={`mt-3.5 p-2.5 rounded-2xl border flex items-center justify-between text-xs font-bold ${
+                dipsRemaining === 0
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200'
+                  : 'bg-pink-50 dark:bg-neutral-800/80 border-pink-200 dark:border-neutral-700 text-[#E60067] dark:text-pink-300'
+              }`}>
+                <div className="flex items-center gap-1.5 text-left">
+                  <span className="text-sm">{dipsRemaining === 0 ? '🔒' : '🎲'}</span>
+                  <span>
+                    {dipsRemaining === 0
+                      ? 'Final Lucky Dip Locked In! Add to bag to claim.'
+                      : `${dipsRemaining} Lucky Dip${dipsRemaining > 1 ? 's' : ''} Remaining! Re-dip or lock in this haul?`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {[1, 2, 3].map((starIdx) => (
+                    <span
+                      key={starIdx}
+                      className={`text-xs ${starIdx <= dipsRemaining ? 'opacity-100 scale-105' : 'opacity-25 grayscale'}`}
+                    >
+                      ⭐
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Won Items List */}
@@ -1453,17 +1552,29 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                   <span>Inspect</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetStageToCenter();
-                  }}
-                  className="py-2.5 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-xs transition flex items-center justify-center gap-1.5 border border-pink-200 dark:border-neutral-700 cursor-pointer"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Scoop Again</span>
-                </button>
+                {dipsRemaining > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      resetStageToCenter();
+                      setTimeout(() => handlePerformScoop(), 250);
+                    }}
+                    className="py-2.5 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-xs transition flex items-center justify-center gap-1.5 border border-pink-200 dark:border-neutral-700 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Re-Dip ({dipsRemaining} Left)</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="py-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-400 font-bold text-xs flex items-center justify-center gap-1.5 border border-neutral-200 dark:border-neutral-700 cursor-not-allowed opacity-60"
+                    title="All 3 lucky dips used. Lock in your won treasures by adding to bag!"
+                  >
+                    <span>🔒 0 Dips Left</span>
+                  </button>
+                )}
 
                 <a
                   href={`https://api.whatsapp.com/send?phone=918199922653&text=${encodeURIComponent(
@@ -1737,6 +1848,93 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             alt="Physical Board Fullscreen" 
             className="max-h-[90vh] max-w-[95vw] object-contain rounded-2xl shadow-2xl"
           />
+        </div>
+      )}
+
+      {/* 3 LUCKY DIPS LIMIT REACHED MODAL */}
+      {showLimitModal && (
+        <div 
+          onClick={() => setShowLimitModal(false)}
+          className="fixed inset-0 z-70 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm bg-white dark:bg-neutral-900 rounded-3xl p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 text-center space-y-4"
+          >
+            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-950 dark:to-purple-950 border-2 border-pink-300 dark:border-pink-700 flex items-center justify-center text-3xl shadow-md">
+              🔒
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-xl font-display font-extrabold text-[#231733] dark:text-white">
+                All 3 Lucky Dips Used!
+              </h3>
+              <p className="text-xs text-[#554664] dark:text-[#D5CBE2] leading-relaxed">
+                You've rolled your <strong>3 allowed lucky dips</strong> for this session! To keep mystery scoops fair and exciting, lock in your won treasures or add them to your bag.
+              </p>
+            </div>
+
+            {scoopResult ? (
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-neutral-800 dark:to-neutral-800/60 border border-pink-200 dark:border-neutral-700 text-xs">
+                <span className="font-extrabold text-[#E60067] dark:text-pink-300 block mb-0.5">
+                  ✨ Your Won Haul Waiting on Plate:
+                </span>
+                <span className="font-bold text-neutral-700 dark:text-neutral-200">
+                  {scoopResult.tier.name} • {scoopResult.items.length} Won Charms & Pendants
+                </span>
+              </div>
+            ) : null}
+
+            <div className="space-y-2 pt-1">
+              {scoopResult ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLimitModal(false);
+                    handleClaimLoot();
+                  }}
+                  className="w-full btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <ShoppingBag className="w-4 h-4 text-white" />
+                  <span>Lock In This Haul & Add to Bag</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLimitModal(false);
+                    updateDipsRemaining(MAX_LUCKY_DIPS);
+                  }}
+                  className="w-full btn-3d-pink py-3 px-4 rounded-xl font-display font-bold text-white text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4 text-white" />
+                  <span>Start Fresh (3 Dips)</span>
+                </button>
+              )}
+
+              {scoopResult && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLimitModal(false);
+                    setShowModal(true);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-pink-100 dark:bg-neutral-800 text-[#E60067] dark:text-pink-300 font-bold text-xs hover:bg-pink-200 transition cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Inspect Current Won Haul</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowLimitModal(false)}
+                className="w-full py-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>
