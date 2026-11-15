@@ -185,7 +185,8 @@ export default function CategoryIconsBar({
           list.push({
             ...preset,
             tag: cat.badge || preset.tag,
-            emoji: cat.icon || preset.emoji
+            emoji: cat.icon || preset.emoji,
+            image: cat.image || preset.image
           });
         } else {
           // Custom category created in Admin Panel!
@@ -194,7 +195,7 @@ export default function CategoryIconsBar({
             category: cat.name,
             name: cat.name,
             shortName: cat.name,
-            image: '/images/deluxe-giftbox.jpg',
+            image: cat.image || '/images/deluxe-giftbox.jpg',
             emoji: cat.icon || '🎀',
             tag: cat.badge || 'New Drop',
             gradient: 'from-pink-400 via-purple-400 to-rose-400',

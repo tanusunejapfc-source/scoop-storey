@@ -71,6 +71,7 @@ import {
   slugifyCategory, 
   resetStoredCategories 
 } from '../utils/categoryStore';
+import { CATEGORY_ICONS_DATA } from './CategoryIconsBar';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
@@ -716,9 +717,12 @@ export default function AdminPanel({
     name: '',
     oldName: '',
     icon: '🎀',
+    image: '',
     badge: 'New Drop 🎀',
     description: ''
   });
+  const [categoryImageUploading, setCategoryImageUploading] = useState(false);
+  const categoryImageInputRef = useRef(null);
 
   // Delete Category Confirmation Modal
   const [deleteCategoryModal, setDeleteCategoryModal] = useState({
@@ -741,6 +745,7 @@ export default function AdminPanel({
       name: '',
       oldName: '',
       icon: '🎀',
+      image: '',
       badge: 'New Drop 🎀',
       description: ''
     });
@@ -748,16 +753,63 @@ export default function AdminPanel({
   };
 
   const handleOpenEditCategoryModal = (cat) => {
+    let currentImg = cat.image || '';
+    if (!currentImg) {
+      const foundPreset = CATEGORY_ICONS_DATA.find(c => c.category?.toLowerCase() === cat.name?.toLowerCase());
+      if (foundPreset?.image) {
+        currentImg = foundPreset.image;
+      }
+    }
     setCategoryModal({
       isOpen: true,
       mode: 'edit',
       name: cat.name,
       oldName: cat.name,
       icon: cat.icon || '✨',
+      image: currentImg,
       badge: cat.badge || '',
       description: cat.description || ''
     });
     soundFX.playPop(500);
+  };
+
+  const handleCategoryImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file');
+      return;
+    }
+    setCategoryImageUploading(true);
+    soundFX.playPop(520);
+    try {
+      const compressedDataUrl = await compressImage(file, 600, 600, 0.85);
+      if (!compressedDataUrl) {
+        setCategoryImageUploading(false);
+        return;
+      }
+      let finalUrl = compressedDataUrl;
+
+      // 1. Try uploading to Supabase Storage
+      try {
+        const sbRes = await uploadImageToSupabase(file);
+        if (sbRes?.success && sbRes?.url) {
+          finalUrl = sbRes.url;
+        }
+      } catch (err) {
+        console.warn('Supabase category upload error:', err);
+      }
+
+      setCategoryModal(prev => ({ ...prev, image: finalUrl }));
+      soundFX.playSuccess();
+      showToast('Category image uploaded! 🖼️');
+    } catch (err) {
+      console.error('Category upload failed:', err);
+      showToast('Failed to upload category image');
+    } finally {
+      setCategoryImageUploading(false);
+      if (e.target) e.target.value = '';
+    }
   };
 
   const handleSaveCategorySubmit = (e) => {
@@ -777,6 +829,7 @@ export default function AdminPanel({
         id: slugifyCategory(trimmedName),
         name: trimmedName,
         icon: categoryModal.icon || '🎀',
+        image: categoryModal.image || '/images/deluxe-giftbox.jpg',
         badge: categoryModal.badge || 'New Drop 🎀',
         description: categoryModal.description || `Cute ${trimmedName} collection.`,
         isDefault: false
@@ -801,6 +854,7 @@ export default function AdminPanel({
             id: slugifyCategory(trimmedName),
             name: trimmedName,
             icon: categoryModal.icon || c.icon || '✨',
+            image: categoryModal.image !== undefined ? categoryModal.image : (c.image || '/images/deluxe-giftbox.jpg'),
             badge: categoryModal.badge,
             description: categoryModal.description
           };
@@ -813,6 +867,7 @@ export default function AdminPanel({
           id: slugifyCategory(trimmedName),
           name: trimmedName,
           icon: categoryModal.icon || '✨',
+          image: categoryModal.image || '/images/deluxe-giftbox.jpg',
           badge: categoryModal.badge || '',
           description: categoryModal.description || '',
           isDefault: false
@@ -3514,8 +3569,24 @@ export default function AdminPanel({
                           {/* Card Header: Icon, Name & Action buttons */}
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 via-purple-100 to-pink-50 dark:from-pink-950 dark:to-neutral-900 border border-pink-200 dark:border-pink-800 flex items-center justify-center text-2xl shadow-inner shrink-0">
-                                {meta.icon || '🎀'}
+                              <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 via-purple-100 to-pink-50 dark:from-pink-950 dark:to-neutral-900 border border-pink-200 dark:border-pink-800 flex items-center justify-center text-2xl shadow-inner shrink-0 overflow-hidden">
+                                {meta.image ? (
+                                  <>
+                                    <img
+                                      src={meta.image}
+                                      alt={catName}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                    <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-neutral-800 border border-pink-200 text-[10px] flex items-center justify-center shadow-xs">
+                                      {meta.icon || '🎀'}
+                                    </span>
+                                  </>
+                                ) : (
+                                  meta.icon || '🎀'
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <h4 className="font-display font-extrabold text-sm sm:text-base text-[#231733] dark:text-white truncate">
@@ -3606,7 +3677,7 @@ export default function AdminPanel({
               >
                 <div 
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white"
+                  className="bg-white dark:bg-[#1E172E] rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-pink-300 dark:border-pink-800 space-y-4 animate-scaleUp text-[#231733] dark:text-white max-h-[90vh] overflow-y-auto"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -3637,6 +3708,126 @@ export default function AdminPanel({
                         className="w-full px-3 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-pink-400"
                         autoFocus
                       />
+                    </div>
+
+                    {/* Hidden file input for category cover image */}
+                    <input
+                      ref={categoryImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCategoryImageUpload}
+                      className="hidden"
+                    />
+
+                    {/* Category Cover Photo Section */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block font-bold">Category Cover Photo</label>
+                        {categoryModal.image && (
+                          <button
+                            type="button"
+                            onClick={() => setCategoryModal(prev => ({ ...prev, image: '' }))}
+                            className="text-[11px] text-rose-500 hover:underline flex items-center gap-1 font-semibold"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Remove</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Preview & Upload Controls */}
+                      <div className="flex items-center gap-3 p-3 rounded-2xl bg-pink-50/40 dark:bg-neutral-900/60 border border-pink-100 dark:border-pink-900/40">
+                        {/* Live Avatar Preview */}
+                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-pink-300 dark:border-pink-700 shadow-sm bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                          {categoryModal.image ? (
+                            <img
+                              src={categoryModal.image}
+                              alt="Category Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-neutral-400 gap-0.5">
+                              <ImageIcon className="w-6 h-6 stroke-1" />
+                              <span className="text-[9px] font-bold">No Photo</span>
+                            </div>
+                          )}
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-neutral-900 shadow border border-pink-200 dark:border-pink-800 flex items-center justify-center text-xs">
+                            {categoryModal.icon || '🎀'}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex-1 space-y-1.5">
+                          <button
+                            type="button"
+                            disabled={categoryImageUploading}
+                            onClick={() => categoryImageInputRef.current?.click()}
+                            className="w-full py-2 px-3 rounded-xl bg-[#E60067] hover:bg-[#c80058] text-white font-bold flex items-center justify-center gap-1.5 transition text-xs shadow-xs disabled:opacity-50"
+                          >
+                            {categoryImageUploading ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Compressing & Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>Upload Photo from Device</span>
+                              </>
+                            )}
+                          </button>
+
+                          <input
+                            type="url"
+                            value={categoryModal.image || ''}
+                            onChange={(e) => setCategoryModal(prev => ({ ...prev, image: e.target.value }))}
+                            placeholder="Or paste image URL (https://...)"
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-[11px] focus:outline-none focus:ring-1 focus:ring-pink-400"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Store Presets */}
+                      <div className="mt-2 space-y-1">
+                        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">
+                          Or Choose from Store Presets:
+                        </span>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[
+                            { name: 'Scoop Bowl', src: '/images/scoop-bowl.jpg' },
+                            { name: 'Pendants', src: '/images/pendants.jpg' },
+                            { name: 'Charms', src: '/images/charm-bracelets.jpg' },
+                            { name: 'Anklets', src: '/images/bracelets-anklets.jpg' },
+                            { name: 'Gift Box', src: '/images/deluxe-giftbox.jpg' },
+                            { name: 'Wallets', src: '/images/korean-wallets.jpg' },
+                            { name: 'Skincare', src: '/images/eyemasks-skincare.jpg' },
+                            { name: 'ASMR', src: '/images/asmr-packing.jpg' },
+                          ].map(preset => (
+                            <button
+                              key={preset.src}
+                              type="button"
+                              onClick={() => {
+                                setCategoryModal(prev => ({ ...prev, image: preset.src }));
+                                soundFX.playPop(520);
+                              }}
+                              className={`group rounded-xl overflow-hidden border p-1 text-center transition flex flex-col items-center gap-1 ${
+                                categoryModal.image === preset.src
+                                  ? 'border-[#E60067] bg-pink-50 dark:bg-pink-950/60 ring-2 ring-pink-400'
+                                  : 'border-pink-200 dark:border-neutral-700 hover:border-pink-400 bg-white dark:bg-neutral-900'
+                              }`}
+                            >
+                              <img
+                                src={preset.src}
+                                alt={preset.name}
+                                className="w-8 h-8 rounded-lg object-cover"
+                              />
+                              <span className="text-[9px] font-bold truncate max-w-full leading-tight text-neutral-600 dark:text-neutral-300">
+                                {preset.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
                     <div>

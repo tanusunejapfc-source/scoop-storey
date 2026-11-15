@@ -149,6 +149,7 @@ export default function ProductCatalog({
         if (config) {
           list.push({
             ...config,
+            coverImage: catMeta.image || config.coverImage,
             badge: catMeta.badge || config.badge,
             description: catMeta.description || config.description,
             icon: catMeta.icon || config.icon,
@@ -167,7 +168,7 @@ export default function ProductCatalog({
             badge: catMeta.badge || 'New Drop 🎀',
             tagline: catMeta.description ? catMeta.description.slice(0, 60) : `Cute ${catMeta.name} collection`,
             description: catMeta.description || `Explore our handpicked ${catMeta.name} curation.`,
-            coverImage: items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
+            coverImage: catMeta.image || items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
             gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
             borderHover: 'hover:border-pink-400',
             btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
@@ -239,7 +240,7 @@ export default function ProductCatalog({
       badge: catMeta?.badge || 'New Drop 🎀',
       tagline: `Exclusive ${activeCollection} selection`,
       description: catMeta?.description || `Explore authentic products under ${activeCollection}.`,
-      coverImage: '/images/deluxe-giftbox.jpg'
+      coverImage: catMeta?.image || '/images/deluxe-giftbox.jpg'
     };
   }, [activeCollection, collections, categoriesList]);
 
