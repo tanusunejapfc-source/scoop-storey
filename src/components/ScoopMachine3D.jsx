@@ -33,7 +33,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   // Default to Mini Scoop (popular starter tier)
   const [selectedTier, setSelectedTier] = useState(SCOOP_TIERS[0]);
   const [isScooping, setIsScooping] = useState(false);
-  const [scoopStepInfo, setScoopStepInfo] = useState({ step: 0, text: '' });
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [scoopResult, setScoopResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -654,12 +653,10 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           const curBowlX = bowlGroupRef.current ? bowlGroupRef.current.position.x : 0;
           spoon.position.set(curBowlX, THREE.MathUtils.lerp(2.85, 3.15, p), -0.15);
           spoon.rotation.set(THREE.MathUtils.lerp(0.36, 0.22, p), -0.2, 0.1);
-          setScoopStepInfo({ step: 1, text: `Readying Rose-Gold Scoop for ${animState.tier?.name}... ✨` });
         }
         // STEP 2: Deep Dig & Scoop Charms from Bowl (0.6s – 1.8s)
         else if (elapsed < 1.8) {
           const t = (elapsed - 0.6) / 1.2;
-          setScoopStepInfo({ step: 2, text: `Scooping ${count} lucky charms from the bowl! 🥄` });
 
           // Curved 3D scooping arc down into the bowl
           const curBowlX = bowlGroupRef.current ? bowlGroupRef.current.position.x : 0;
@@ -694,8 +691,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           stageLayoutRef.current.plateTargetX = 1.65;
           stageLayoutRef.current.plateTargetScale = 1.0;
 
-          setScoopStepInfo({ step: 3, text: `Luxury vanity plate arrives! Carrying ${count} gems to plate... ✨` });
-
           // Tilt back to cradle charms
           const rotX = THREE.MathUtils.lerp(0.82, 0.15, easeOutCubic(t));
           // Lift high
@@ -714,7 +709,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         // STEP 4: Cascade Pour onto the Luxury Empty Plate (3.2s – 4.4s)
         else if (elapsed < 4.4) {
           const t = (elapsed - 3.2) / 1.2;
-          setScoopStepInfo({ step: 4, text: `Pouring ${count} charms onto the luxury gold-rimmed plate! 🎁` });
 
           // Shovel tilts forward to dump charms
           const pourRotX = THREE.MathUtils.lerp(0.15, 1.35, easeInOutQuad(Math.min(t * 1.3, 1)));
@@ -753,7 +747,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         // STEP 5: Camera Glides to Focus on Won Charms (4.4s – 5.4s)
         else if (elapsed < 5.4) {
           const t = (elapsed - 4.4) / 1.0;
-          setScoopStepInfo({ step: 5, text: `✨ Inspecting your ${count} won treasures! 💎` });
 
           // Scoop floats back to resting position above the bowl
           const returnP = easeInOutQuad(t);
@@ -787,7 +780,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
             charmsInSpoonRef.current.children.forEach(c => c.scale.setScalar(0));
           }
 
-          setScoopStepInfo({ step: 0, text: '' });
           setIsScooping(false);
 
           // Confetti Celebration
@@ -1158,16 +1150,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
         {/* 3D WebGL Canvas Stage */}
         <div className="relative w-full h-[380px] sm:h-[440px] md:h-[480px] rounded-2xl overflow-hidden bg-gradient-to-b from-pink-50/50 via-white to-pink-50/30 dark:from-[#171024] dark:via-[#1A1326] dark:to-[#171024]">
           <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
-
-          {/* Live Step-by-Step Progress Overlay Banner */}
-          {scoopStepInfo.text && (
-            <div className="absolute top-12 left-1/2 -translate-x-1/2 max-w-[90%] px-4 sm:px-6 py-2 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-2 border-pink-400 dark:border-pink-600 shadow-2xl text-xs sm:text-sm font-extrabold text-[#E60067] dark:text-pink-300 flex items-center gap-2.5 animate-bounce pointer-events-none">
-              <span className="px-2 py-0.5 rounded-full bg-[#E60067] text-white text-[10px] font-black uppercase">
-                Step {scoopStepInfo.step} / 4
-              </span>
-              <span className="truncate">{scoopStepInfo.text}</span>
-            </div>
-          )}
 
           {/* Prompt if loot is already resting on plate */}
           {scoopResult && !isScooping && (
