@@ -217,3 +217,52 @@ export async function saveOrderToSupabase(order) {
     return false;
   }
 }
+
+/**
+ * Fetch all real orders from Supabase cloud database
+ */
+export async function fetchOrdersFromSupabase() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('Supabase fetch orders error:', error.message);
+      return null;
+    }
+
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(row => ({
+        orderId: row.order_id,
+        timestamp: new Date(row.created_at).getTime(),
+        date: new Date(row.created_at).toLocaleDateString('en-IN', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        source: row.payment_method === 'WhatsApp Direct' ? 'WhatsApp Order' : (row.payment_method || 'Prepaid UPI / QR Code'),
+        status: row.status || 'WhatsApp Verification Pending',
+        paymentMethod: row.payment_method || 'UPI QR Code',
+        upiRefNumber: row.upi_ref_number || null,
+        customer: row.customer || { fullName: 'Customer', phone: '', city: '', state: '' },
+        items: Array.isArray(row.items) ? row.items : [],
+        totalItemCount: Number(row.total_item_count) || (Array.isArray(row.items) ? row.items.length : 1),
+        subtotalINR: Number(row.subtotal_inr) || Number(row.total_inr) || 0,
+        discountAmountINR: Number(row.discount_amount_inr) || 0,
+        shippingINR: Number(row.shipping_inr) || 0,
+        totalINR: Number(row.total_inr) || 0,
+        filmOnReel: row.film_on_reel || null,
+        additionalNotes: row.additional_notes || null
+      }));
+    }
+    return [];
+  } catch (err) {
+    console.warn('Supabase fetch orders exception:', err);
+    return null;
+  }
+}

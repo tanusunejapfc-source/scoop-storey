@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -11,18 +11,19 @@ import {
   CheckCircle2, 
   Clock, 
   Package, 
-  ExternalLink,
-  ChevronRight,
-  Flame,
-  Award,
-  Layers,
-  ArrowRight,
-  RefreshCw,
-  CreditCard,
-  Phone,
-  Radio
+  ExternalLink, 
+  ChevronRight, 
+  Flame, 
+  Award, 
+  Layers, 
+  ArrowRight, 
+  RefreshCw, 
+  CreditCard, 
+  Phone, 
+  Radio 
 } from 'lucide-react';
 import { soundFX } from '../../utils/audio';
+import { getTelemetryData } from '../../utils/analyticsTelemetry';
 
 export default function AdminDashboardOverview({
   orders = [],
@@ -32,6 +33,20 @@ export default function AdminDashboardOverview({
   onRefreshOrders
 }) {
   const [timeRange, setTimeRange] = useState('all'); // 'all' | '7d' | '30d' | 'today'
+  const [realtimePresence, setRealtimePresence] = useState(null);
+
+  // Listen to true live presence sync from Supabase Realtime
+  useEffect(() => {
+    const handlePresence = (e) => {
+      if (e.detail) setRealtimePresence(e.detail);
+    };
+    window.addEventListener('scoop_realtime_presence_sync', handlePresence);
+    return () => window.removeEventListener('scoop_realtime_presence_sync', handlePresence);
+  }, []);
+
+  const liveVisitorsCount = realtimePresence?.liveVisitors !== undefined 
+    ? realtimePresence.liveVisitors 
+    : getTelemetryData(orders).liveVisitorsRightNow;
 
   // Time filter calculation
   const filteredOrders = useMemo(() => {
@@ -266,8 +281,8 @@ export default function AdminDashboardOverview({
         <div className="flex items-center gap-6 self-start md:self-center">
           <div className="text-left md:text-right">
             <div className="font-display font-black text-2xl sm:text-3xl text-emerald-600 dark:text-emerald-400 tracking-tight flex items-baseline gap-1.5">
-              <span>{Math.max(4, 3 + Math.floor(orders.length * 1.5))}</span>
-              <span className="text-xs font-semibold text-neutral-500">live now</span>
+              <span>{liveVisitorsCount}</span>
+              <span className="text-xs font-semibold text-neutral-500">live {liveVisitorsCount === 1 ? 'shopper' : 'shoppers'}</span>
             </div>
             <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
               Active sessions in last 5m

@@ -20,7 +20,7 @@ import PolicyModal from './components/PolicyModal';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
 import { soundFX } from './utils/audio';
-import { sendHeartbeat, trackPageView, trackAddToCart } from './utils/analyticsTelemetry';
+import { sendHeartbeat, trackPageView, trackAddToCart, initLivePresence, updateLivePresence } from './utils/analyticsTelemetry';
 
 // Lazy-load heavy AdminPanel (315KB+ source) so normal customers never download it on page visit
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
@@ -65,8 +65,9 @@ export default function App() {
     } catch (_) {}
   }, [cartItems]);
 
-  // Shopify-Style Live Visitor Telemetry & Active Presence Heartbeat
+  // True Real-Time Supabase Presence & Live Visitor Telemetry Heartbeat
   useEffect(() => {
+    initLivePresence(cartItems, isCartOpen);
     sendHeartbeat();
     trackPageView(window.location.hash || '/');
     const interval = setInterval(() => {
@@ -76,6 +77,11 @@ export default function App() {
     }, 25000);
     return () => clearInterval(interval);
   }, []);
+
+  // Sync real-time cart & checkout status to all connected merchant dashboards
+  useEffect(() => {
+    updateLivePresence(cartItems, isCartOpen);
+  }, [cartItems, isCartOpen]);
 
   // Apply dark mode class to html element ONLY when toggled
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { saveOrderToSupabase } from './supabaseClient';
+import { saveOrderToSupabase, fetchOrdersFromSupabase } from './supabaseClient';
 
 const ORDERS_STORAGE_KEY = 'bhaskar_store_orders_v1';
 
@@ -456,6 +456,27 @@ export function useStoreOrders() {
     const fresh = getStoredOrders();
     setOrders(fresh);
     return fresh;
+  }, []);
+
+  useEffect(() => {
+    // Fetch live orders from Supabase cloud database
+    fetchOrdersFromSupabase().then(cloudOrders => {
+      if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+        setOrders(prev => {
+          const merged = [...cloudOrders];
+          (prev || []).forEach(local => {
+            if (!merged.some(c => c.orderId === local.orderId)) {
+              merged.push(local);
+            }
+          });
+          memoryOrders = merged;
+          try {
+            localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(merged));
+          } catch {}
+          return merged;
+        });
+      }
+    });
   }, []);
 
   useEffect(() => {

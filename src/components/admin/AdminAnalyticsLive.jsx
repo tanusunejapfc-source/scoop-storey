@@ -37,12 +37,24 @@ export default function AdminAnalyticsLive({
   const [tick, setTick] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+  const [realtimePresence, setRealtimePresence] = useState(null);
 
-  // Auto-refresh telemetry every 15 seconds to simulate live real-time heartbeats
+  // Listen to true live presence sync from Supabase Realtime
+  useEffect(() => {
+    const handlePresence = (e) => {
+      if (e.detail) {
+        setRealtimePresence(e.detail);
+      }
+    };
+    window.addEventListener('scoop_realtime_presence_sync', handlePresence);
+    return () => window.removeEventListener('scoop_realtime_presence_sync', handlePresence);
+  }, []);
+
+  // Auto-refresh telemetry every 10 seconds for real-time tracking
   useEffect(() => {
     const timer = setInterval(() => {
       setTick(prev => prev + 1);
-    }, 15000);
+    }, 10000);
     return () => clearInterval(timer);
   }, []);
 
@@ -51,6 +63,18 @@ export default function AdminAnalyticsLive({
     // tick triggers refresh
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orders, timeRange, tick]);
+
+  const liveVisitors = realtimePresence?.liveVisitors !== undefined 
+    ? realtimePresence.liveVisitors 
+    : telemetry.liveVisitorsRightNow;
+
+  const activeCarts = realtimePresence?.activeCarts !== undefined 
+    ? realtimePresence.activeCarts 
+    : telemetry.activeCartsRightNow;
+
+  const activeCheckouts = realtimePresence?.activeCheckouts !== undefined 
+    ? realtimePresence.activeCheckouts 
+    : telemetry.activeCheckoutsRightNow;
 
   const handleManualRefresh = () => {
     soundFX.playPop(600);
@@ -194,9 +218,9 @@ export default function AdminAnalyticsLive({
                 Live Visitors Right Now
               </div>
               <div className="font-display font-black text-3xl sm:text-4xl text-neutral-900 dark:text-white tracking-tight flex items-baseline gap-2">
-                {telemetry.liveVisitorsRightNow}
+                {liveVisitors}
                 <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                  active shoppers
+                  active {liveVisitors === 1 ? 'shopper' : 'shoppers'}
                 </span>
               </div>
             </div>
@@ -218,7 +242,7 @@ export default function AdminAnalyticsLive({
                 Active Shopping Bags
               </div>
               <div className="font-display font-black text-3xl sm:text-4xl text-neutral-900 dark:text-white tracking-tight flex items-baseline gap-2">
-                {telemetry.activeCartsRightNow}
+                {activeCarts}
                 <span className="text-xs font-semibold text-pink-600 dark:text-pink-400">
                   in cart
                 </span>
@@ -242,7 +266,7 @@ export default function AdminAnalyticsLive({
                 Active Checkouts
               </div>
               <div className="font-display font-black text-3xl sm:text-4xl text-neutral-900 dark:text-white tracking-tight flex items-baseline gap-2">
-                {telemetry.activeCheckoutsRightNow}
+                {activeCheckouts}
                 <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
                   at payment
                 </span>
@@ -272,8 +296,8 @@ export default function AdminAnalyticsLive({
             {telemetry.totalSessions.toLocaleString('en-IN')}
           </div>
           <div className="mt-2 text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>+18.4% vs previous period</span>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Verified store sessions</span>
           </div>
         </div>
 
@@ -310,7 +334,7 @@ export default function AdminAnalyticsLive({
           </div>
           <div className="mt-2 text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-500" />
-            <span>Top tier e-commerce benchmark</span>
+            <span>{telemetry.funnel.orders} orders from {telemetry.totalSessions} visits</span>
           </div>
         </div>
 
@@ -449,34 +473,44 @@ export default function AdminAnalyticsLive({
           </div>
 
           <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
-            {telemetry.liveEvents.map((ev) => (
-              <div 
-                key={ev.id} 
-                className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 flex items-start gap-3 hover:border-pink-200 transition"
-              >
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm ${
-                  ev.type === 'order_completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' :
-                  ev.type === 'checkout_step' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300' :
-                  ev.type === 'cart_add' ? 'bg-pink-100 text-[#E60067] dark:bg-pink-950 dark:text-pink-300' :
-                  'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                }`}>
-                  {ev.type === 'order_completed' ? '🎉' :
-                   ev.type === 'checkout_step' ? '💳' :
-                   ev.type === 'cart_add' ? '🛍️' : '👀'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-neutral-900 dark:text-white leading-tight">
-                    {ev.title}
-                  </div>
-                  <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3 text-pink-500" />
-                    <span>{ev.city}, {ev.state}</span>
-                    <span>•</span>
-                    <span>{formatTimeAgo(ev.timestamp)}</span>
-                  </div>
-                </div>
+            {telemetry.liveEvents.length === 0 ? (
+              <div className="py-8 text-center text-xs text-neutral-400">
+                No customer activity events recorded yet.
               </div>
-            ))}
+            ) : (
+              telemetry.liveEvents.map((ev) => (
+                <div 
+                  key={ev.id} 
+                  className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-100 dark:border-neutral-800 flex items-start gap-3 hover:border-pink-200 transition"
+                >
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm ${
+                    ev.type === 'order_completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' :
+                    ev.type === 'checkout_step' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300' :
+                    ev.type === 'cart_add' ? 'bg-pink-100 text-[#E60067] dark:bg-pink-950 dark:text-pink-300' :
+                    'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                  }`}>
+                    {ev.type === 'order_completed' ? '🎉' :
+                     ev.type === 'checkout_step' ? '💳' :
+                     ev.type === 'cart_add' ? '🛍️' : '👀'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-neutral-900 dark:text-white leading-tight">
+                      {ev.title}
+                    </div>
+                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center gap-1.5">
+                      {ev.city && (
+                        <>
+                          <MapPin className="w-3 h-3 text-pink-500" />
+                          <span>{ev.city}{ev.state ? `, ${ev.state}` : ''}</span>
+                          <span>•</span>
+                        </>
+                      )}
+                      <span>{formatTimeAgo(ev.timestamp)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -518,12 +552,14 @@ export default function AdminAnalyticsLive({
             ))}
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-900/40 text-xs text-neutral-700 dark:text-neutral-300 flex items-center gap-2.5">
-            <Sparkles className="w-4 h-4 text-pink-500 shrink-0" />
-            <span>
-              <strong>Growth Insight:</strong> Instagram Reels drive <strong>58%</strong> of store traffic. Continuing daily packing reels will sustain viral momentum!
-            </span>
-          </div>
+          {telemetry.channels[0] && (
+            <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-900/40 text-xs text-neutral-700 dark:text-neutral-300 flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-pink-500 shrink-0" />
+              <span>
+                <strong>Acquisition Leader:</strong> <strong>{telemetry.channels[0].name}</strong> accounts for <strong>{telemetry.channels[0].percentage}%</strong> of your customer traffic ({telemetry.channels[0].sessions} sessions).
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -541,37 +577,43 @@ export default function AdminAnalyticsLive({
             <span className="text-[11px] text-neutral-400">All-India Delivery</span>
           </div>
 
-          <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-            {telemetry.regions.map((reg, idx) => (
-              <div key={idx} className="py-2.5 flex items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="w-5 font-mono font-bold text-neutral-400 text-center">
-                    #{idx + 1}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="font-bold text-neutral-900 dark:text-white truncate">
-                      {reg.state}
-                    </div>
-                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
-                      {reg.cities}
+          {telemetry.regions.length === 0 ? (
+            <div className="py-8 text-center text-xs text-neutral-400">
+              No orders with delivery addresses recorded for this time range yet.
+            </div>
+          ) : (
+            <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+              {telemetry.regions.map((reg, idx) => (
+                <div key={idx} className="py-2.5 flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-5 font-mono font-bold text-neutral-400 text-center">
+                      #{idx + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="font-bold text-neutral-900 dark:text-white truncate">
+                        {reg.state}
+                      </div>
+                      <div className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+                        {reg.cities}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-24 bg-neutral-100 dark:bg-neutral-800 h-2 rounded-full overflow-hidden hidden sm:block">
-                    <div className="bg-[#E60067] h-full rounded-full" style={{ width: `${reg.share * 2.5}%` }} />
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="w-24 bg-neutral-100 dark:bg-neutral-800 h-2 rounded-full overflow-hidden hidden sm:block">
+                      <div className="bg-[#E60067] h-full rounded-full" style={{ width: `${Math.min(100, reg.share)}%` }} />
+                    </div>
+                    <span className="font-mono font-bold text-neutral-700 dark:text-neutral-300">
+                      {reg.sessions} {reg.sessions === 1 ? 'order' : 'orders'} (₹{reg.revenue})
+                    </span>
+                    <span className="font-extrabold text-[#E60067] w-10 text-right">
+                      {reg.share}%
+                    </span>
                   </div>
-                  <span className="font-mono font-bold text-neutral-700 dark:text-neutral-300">
-                    {reg.sessions} sessions
-                  </span>
-                  <span className="font-extrabold text-[#E60067] w-10 text-right">
-                    {reg.share}%
-                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Device Breakdown */}
@@ -606,7 +648,7 @@ export default function AdminAnalyticsLive({
           </div>
 
           <div className="p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/40 text-[11px] text-neutral-600 dark:text-neutral-300">
-            💡 <strong>Mobile First:</strong> 89% of customers order directly from Instagram on their smartphones. Fast 1-click UPI checkout delivers highest conversions.
+            💡 <strong>Device Insight:</strong> {telemetry.devices[0]?.type || 'Mobile'} is your primary shopping device representing {telemetry.devices[0]?.percentage || 100}% of all visitors.
           </div>
         </div>
       </div>
