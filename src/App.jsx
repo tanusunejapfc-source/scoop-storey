@@ -20,6 +20,7 @@ import PolicyModal from './components/PolicyModal';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
 import { soundFX } from './utils/audio';
+import { sendHeartbeat, trackPageView, trackAddToCart } from './utils/analyticsTelemetry';
 
 // Lazy-load heavy AdminPanel (315KB+ source) so normal customers never download it on page visit
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
@@ -63,6 +64,18 @@ export default function App() {
       localStorage.setItem('scoop_cart_items_v2', JSON.stringify(cartItems));
     } catch (_) {}
   }, [cartItems]);
+
+  // Shopify-Style Live Visitor Telemetry & Active Presence Heartbeat
+  useEffect(() => {
+    sendHeartbeat();
+    trackPageView(window.location.hash || '/');
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        sendHeartbeat();
+      }
+    }, 25000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Apply dark mode class to html element ONLY when toggled
   useEffect(() => {
@@ -161,10 +174,18 @@ export default function App() {
   useEffect(() => {
     if (activeCollection) {
       document.title = `${activeCollection === 'All Items' ? 'All Products' : activeCollection} • Scoop Storey 3D`;
+      trackPageView(`/collection/${activeCollection}`);
     } else {
       document.title = 'Scoop Storey 3D • Collect Happiness In Every Single Scoop';
     }
   }, [activeCollection]);
+
+  // Track product views for analytics telemetry
+  useEffect(() => {
+    if (selectedProduct) {
+      trackPageView(`/product/${selectedProduct.id}`, selectedProduct.name);
+    }
+  }, [selectedProduct]);
 
   // Unified Category Navigation handler
   const handleSelectCategory = (category) => {
@@ -183,6 +204,7 @@ export default function App() {
 
   // Cart operations with color variant support
   const handleAddToCart = (product) => {
+    trackAddToCart(product, product.qty || 1);
     const colorSuffix = product.selectedColor ? `-${product.selectedColor}` : '';
     const itemKey = `${product.id}${colorSuffix}`;
     const addQuantity = product.qty || 1;

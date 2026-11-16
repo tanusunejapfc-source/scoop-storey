@@ -66,6 +66,7 @@ import AdminCustomerCRM from './admin/AdminCustomerCRM';
 import AdminInventoryStock from './admin/AdminInventoryStock';
 import AdminPackingSlipModal from './admin/AdminPackingSlipModal';
 import AdminDiscountsCMS from './admin/AdminDiscountsCMS';
+import AdminAnalyticsLive from './admin/AdminAnalyticsLive';
 import { categoryToSlug } from '../data/storeData';
 import { useStoreOrders, exportOrdersToCourierCSV } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
@@ -1859,6 +1860,7 @@ export default function AdminPanel({
                     </div>
                     <h2 className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white truncate">
                       {activeTab === 'dashboard' ? 'Executive Revenue Dashboard' :
+                       activeTab === 'analytics' ? 'Analytics & Live Store Telemetry' :
                        activeTab === 'orders' ? 'Orders & Fulfillment Telemetry' :
                        activeTab === 'products' ? 'Merchandise & Products Catalog' :
                        activeTab === 'categories' ? 'Category & Merging Hub' :
@@ -1938,6 +1940,15 @@ export default function AdminPanel({
                   onNavigate={(tab, id) => handleSpotlightNavigate(tab, id)}
                   onStartNewProduct={handleStartNew}
                   onRefreshOrders={refreshOrders}
+                />
+              )}
+
+              {/* TAB: SHOPIFY ANALYTICS & LIVE TELEMETRY */}
+              {activeTab === 'analytics' && (
+                <AdminAnalyticsLive
+                  orders={orders}
+                  products={products}
+                  onNavigate={(tab, id) => handleSpotlightNavigate(tab, id)}
                 />
               )}
 

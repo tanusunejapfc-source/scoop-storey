@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   BarChart3, 
+  Activity,
   Receipt, 
   Package, 
   Tags, 
@@ -41,7 +42,14 @@ export default function AdminSidebar({
     {
       group: 'OVERVIEW',
       items: [
-        { id: 'dashboard', label: 'Dashboard', icon: BarChart3, badge: null }
+        { id: 'dashboard', label: 'Dashboard', icon: BarChart3, badge: null },
+        { 
+          id: 'analytics', 
+          label: 'Analytics & Live View', 
+          icon: Activity, 
+          badge: 'LIVE', 
+          badgeColor: 'bg-emerald-500 text-white animate-pulse' 
+        }
       ]
     },
     {

@@ -33,6 +33,7 @@ import WhatsAppIcon from './WhatsAppIcon';
 import { lookupPincode } from '../utils/pincodeApi';
 import { saveOrderToStore } from '../utils/orderStore';
 import { dispatchAllOrderNotifications } from '../utils/notificationService';
+import { trackCheckoutStarted, trackOrderCompleted } from '../utils/analyticsTelemetry';
 import { usePaymentSettings, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 
@@ -432,6 +433,7 @@ export default function CartDrawer({
     soundFX.playChime();
     const newId = `SS-${Math.floor(100000 + Math.random() * 900000)}`;
     setCurrentOrderId(newId);
+    trackCheckoutStarted(paymentBreakdown.finalTotalINR, totalItemCount);
     setCheckoutStep('upi_payment');
     setUpiRefError('');
     setTimeout(() => {
@@ -552,6 +554,7 @@ export default function CartDrawer({
 
     // 1. Save to persistent order store & dispatch Telegram, Email, and Chime alerts
     saveOrderToStore(newOrder);
+    trackOrderCompleted(newOrder);
     dispatchAllOrderNotifications(newOrder);
 
     // 2. Clear cart

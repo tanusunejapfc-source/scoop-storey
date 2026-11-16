@@ -12,6 +12,7 @@ import {
   Key, 
   Bell, 
   BarChart3, 
+  Activity,
   Users, 
   Boxes, 
   Percent, 
@@ -53,9 +54,13 @@ export default function AdminCommandPalette({
     // Navigation Pages
     const navItems = [
       { id: 'dashboard', title: 'Executive Dashboard', subtitle: 'Revenue, KPIs & Bestsellers', icon: BarChart3, category: 'Navigation', action: () => onNavigate('dashboard') },
+      { id: 'analytics', title: 'Analytics & Live View', subtitle: 'Live visitors, conversion funnel & traffic sources', icon: Activity, category: 'Navigation', action: () => onNavigate('analytics') },
       { id: 'orders', title: 'Orders & Fulfillment', subtitle: `${orders.length} total orders recorded`, icon: Receipt, category: 'Navigation', action: () => onNavigate('orders') },
+      { id: 'customers', title: 'Customer CRM & LTV', subtitle: 'Customer directory, lifetime value & WhatsApp', icon: Users, category: 'Navigation', action: () => onNavigate('customers') },
+      { id: 'inventory', title: 'Stock & Inventory Control', subtitle: 'Low stock alerts and batch quantity updates', icon: Boxes, category: 'Navigation', action: () => onNavigate('inventory') },
       { id: 'products', title: 'Products Catalog', subtitle: `${products.length} products live in store`, icon: Package, category: 'Navigation', action: () => onNavigate('products') },
       { id: 'categories', title: 'Categories & Merge Manager', subtitle: 'Organize and merge store departments', icon: Tags, category: 'Navigation', action: () => onNavigate('categories') },
+      { id: 'discounts', title: 'Coupons & Storefront CMS', subtitle: 'Manage promo codes and top announcement ticker', icon: Percent, category: 'Navigation', action: () => onNavigate('discounts') },
       { id: 'payments', title: 'UPI & QR Payment Settings', subtitle: 'Manage merchant UPI ID and QR code', icon: QrCode, category: 'Navigation', action: () => onNavigate('payments') },
       { id: 'reels', title: 'ASMR Reels Studio', subtitle: 'Upload videos and manage Instagram reels', icon: Video, category: 'Navigation', action: () => onNavigate('reels') },
       { id: 'alerts', title: 'Notification Alerts', subtitle: 'Configure Telegram & Email order dispatches', icon: Bell, category: 'Navigation', action: () => onNavigate('alerts') },
