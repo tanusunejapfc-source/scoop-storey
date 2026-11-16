@@ -15,12 +15,16 @@ import {
   Sparkles,
   CheckCircle2,
   Clock,
-  Heart
+  Heart,
+  Camera,
+  ThumbsUp,
+  PenTool
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 // Direct inquiries on WhatsApp (orders placed strictly via Cart UPI QR)
 import { lookupPincode } from '../utils/pincodeApi';
 import { useWishlist } from '../utils/wishlistStore';
+import { useReviews } from '../utils/reviewStore';
 import WhatsAppIcon from './WhatsAppIcon';
 import { MYSTERY_SCOOP_CATEGORIES } from '../data/storeData';
 
@@ -29,7 +33,8 @@ export default function ProductDetailPage({
   onClose,
   onAddToCart,
   allProducts = [],
-  onSelectProduct
+  onSelectProduct,
+  onOpenReviewModal
 }) {
   const baseImages = (product?.images && product.images.length > 0)
     ? product.images
@@ -90,10 +95,21 @@ export default function ProductDetailPage({
   });
   const [selectedColor, setSelectedColor] = useState(() => colors[0]);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'includes' | 'shipping'
+  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'includes' | 'shipping' | 'scoopChart' | 'reviews'
+  const [detailLightboxImg, setDetailLightboxImg] = useState(null);
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const { isWishlisted, toggle: toggleWishlist } = useWishlist();
+
+  // Live product reviews from reviewStore
+  const { publishedReviews: allPublishedReviews, summary: productReviewSummary } = useReviews(product?.id);
+  const productReviews = useMemo(() => {
+    if (!product?.id) return [];
+    return allPublishedReviews.filter(r => r.productId === product.id);
+  }, [allPublishedReviews, product?.id]);
+
+  const activeRating = productReviewSummary.total > 0 ? productReviewSummary.average : (product?.rating || 4.9);
+  const activeReviewsCount = productReviews.length > 0 ? productReviews.length : (product?.reviewsCount || 124);
 
   // Ultra-Smooth Touch & Finger Swipe for Image Carousel
   const [touchDelta, setTouchDelta] = useState(0);
@@ -594,14 +610,30 @@ export default function ProductDetailPage({
               {/* Product Title & Reviews */}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1 text-amber-500 font-bold">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('reviews');
+                      soundFX.playPop(450);
+                    }}
+                    className="flex items-center gap-1 text-amber-500 font-bold hover:underline cursor-pointer"
+                    title="Read customer reviews"
+                  >
                     <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    <span>{product.rating || 4.9}</span>
-                  </div>
+                    <span>{typeof activeRating === 'number' ? activeRating.toFixed(1) : activeRating}</span>
+                  </button>
                   <span className="text-neutral-400">•</span>
-                  <span className="text-neutral-500 dark:text-neutral-400 font-medium">
-                    {product.reviewsCount || 124} Verified Unboxings
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('reviews');
+                      soundFX.playPop(450);
+                    }}
+                    className="text-neutral-500 dark:text-neutral-400 font-medium hover:text-[#E60067] cursor-pointer"
+                    title="Read customer reviews"
+                  >
+                    {activeReviewsCount} {productReviews.length > 0 ? 'Verified Reviews' : 'Verified Unboxings'}
+                  </button>
                   <span className="text-neutral-400">•</span>
                   <span className="text-emerald-600 dark:text-emerald-400 font-bold">In Stock</span>
                 </div>
@@ -933,6 +965,20 @@ export default function ProductDetailPage({
                       <span>Scoop Items (54)</span>
                     </button>
                   )}
+                  <button
+                    onClick={() => {
+                      setActiveTab('reviews');
+                      soundFX.playPop(450);
+                    }}
+                    className={`pb-2 text-xs font-bold transition border-b-2 flex items-center gap-1 ${
+                      activeTab === 'reviews'
+                        ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                        : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+                    }`}
+                  >
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>Reviews ({productReviews.length})</span>
+                  </button>
                 </div>
 
                 {/* Tab 1: Specifications */}
@@ -1013,6 +1059,125 @@ export default function ProductDetailPage({
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Tab 5: Customer Reviews */}
+                {activeTab === 'reviews' && (
+                  <div className="space-y-3.5 text-xs animate-fadeIn">
+                    {/* Header with average & CTA */}
+                    <div className="p-3 rounded-2xl bg-gradient-to-r from-pink-50/80 via-purple-50/60 to-pink-50/80 dark:from-neutral-800/90 dark:via-neutral-800/60 dark:to-neutral-800/90 border border-pink-200/80 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl font-display font-black text-neutral-900 dark:text-white">
+                            {typeof activeRating === 'number' ? activeRating.toFixed(1) : activeRating}
+                          </span>
+                          <span className="text-neutral-400 font-bold text-[11px]">/ 5.0</span>
+                        </div>
+                        <div className="flex text-amber-400">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star 
+                              key={s} 
+                              className={`w-3.5 h-3.5 ${s <= Math.round(Number(activeRating)) ? 'fill-amber-400' : 'text-neutral-300 dark:text-neutral-600'}`} 
+                            />
+                          ))}
+                        </div>
+                        <span className="text-neutral-500 font-semibold text-[11px]">
+                          ({productReviews.length} {productReviews.length === 1 ? 'review' : 'reviews'})
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundFX.playPop(500);
+                          if (onOpenReviewModal) onOpenReviewModal(product);
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer"
+                      >
+                        <PenTool className="w-3.5 h-3.5" />
+                        <span>Write Review</span>
+                      </button>
+                    </div>
+
+                    {/* Reviews List */}
+                    {productReviews.length === 0 ? (
+                      <div className="text-center py-6 px-4 bg-pink-50/40 dark:bg-neutral-800/40 rounded-2xl border border-dashed border-pink-200 dark:border-neutral-700 space-y-2">
+                        <p className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                          No reviews for this product yet!
+                        </p>
+                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                          Be the first verified customer to share photos and receive extra charms!
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            soundFX.playPop(500);
+                            if (onOpenReviewModal) onOpenReviewModal(product);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-xs transition cursor-pointer"
+                        >
+                          Be the First to Review
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                        {productReviews.map((rev) => (
+                          <div 
+                            key={rev.id} 
+                            className="p-3 rounded-2xl bg-white dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 space-y-1.5 shadow-xs"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex text-amber-400">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i} 
+                                      className={`w-3 h-3 ${i < rev.rating ? 'fill-amber-400 text-amber-400' : 'text-neutral-300 dark:text-neutral-600'}`} 
+                                    />
+                                  ))}
+                                </div>
+                                <span className="font-bold text-neutral-900 dark:text-white text-xs">
+                                  {rev.customerName}
+                                </span>
+                                {rev.verifiedBuyer && (
+                                  <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-full flex items-center gap-0.5">
+                                    <CheckCircle2 className="w-2.5 h-2.5" />
+                                    <span>Verified</span>
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-neutral-400 font-bold">{rev.date || 'Recently'}</span>
+                            </div>
+
+                            {rev.title && (
+                              <h5 className="font-bold text-xs text-neutral-900 dark:text-white">
+                                "{rev.title}"
+                              </h5>
+                            )}
+                            <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed font-body">
+                              {rev.comment}
+                            </p>
+
+                            {/* Images */}
+                            {rev.images && rev.images.length > 0 && (
+                              <div className="flex items-center gap-2 pt-1">
+                                {rev.images.map((img, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => setDetailLightboxImg(img)}
+                                    className="w-12 h-12 rounded-lg overflow-hidden border border-pink-200 dark:border-neutral-700 cursor-pointer hover:opacity-80 transition"
+                                  >
+                                    <img src={img} alt="review attachment" className="w-full h-full object-cover" />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1126,6 +1291,33 @@ export default function ProductDetailPage({
           </button>
         </div>
       </div>
+
+      {/* DETAIL REVIEW PHOTO LIGHTBOX */}
+      {detailLightboxImg && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setDetailLightboxImg(null)}
+        >
+          <div 
+            className="relative max-w-lg max-h-[80vh] bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-pink-200 dark:border-neutral-700"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setDetailLightboxImg(null)}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 hover:bg-black text-white transition cursor-pointer"
+              aria-label="Close Preview"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img 
+              src={detailLightboxImg} 
+              alt="Customer unboxing photo" 
+              className="w-full max-h-[75vh] object-contain bg-neutral-950" 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

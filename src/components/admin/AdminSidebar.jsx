@@ -8,6 +8,7 @@ import {
   Boxes, 
   Users, 
   Percent, 
+  Star,
   Video, 
   QrCode, 
   Bell, 
@@ -32,6 +33,7 @@ export default function AdminSidebar({
   reels = [],
   categoriesCount = 0,
   pendingOrdersCount = 0,
+  pendingReviewsCount = 0,
   isCollapsed,
   onToggleCollapse,
   onOpenCommandPalette,
@@ -76,6 +78,13 @@ export default function AdminSidebar({
     {
       group: 'GROWTH & CMS',
       items: [
+        { 
+          id: 'reviews', 
+          label: 'Ratings & Reviews', 
+          icon: Star, 
+          badge: pendingReviewsCount > 0 ? `${pendingReviewsCount}` : null,
+          badgeColor: 'bg-amber-500 text-white animate-pulse'
+        },
         { id: 'discounts', label: 'Coupons & CMS', icon: Percent, badge: null },
         { id: 'reels', label: 'ASMR Reels Studio', icon: Video, badge: reels.length ? `${reels.length}` : null }
       ]

@@ -17,6 +17,7 @@ import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import SocialProofToast from './components/SocialProofToast';
 import PolicyModal from './components/PolicyModal';
+import ReviewModal from './components/ReviewModal';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
 import { soundFX } from './utils/audio';
@@ -36,6 +37,13 @@ export default function App() {
   const [policyTab, setPolicyTab] = useState('shipping');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeCollection, setActiveCollection] = useState(null);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewModalProduct, setReviewModalProduct] = useState(null);
+
+  const handleOpenReviewModal = (product = null) => {
+    setReviewModalProduct(product);
+    setIsReviewModalOpen(true);
+  };
 
   // Dynamic Product Store (synced with localStorage & Admin updates)
   const { 
@@ -422,7 +430,7 @@ export default function App() {
           <BrandStory />
 
           {/* CUSTOMER TESTIMONIALS */}
-          <Testimonials />
+          <Testimonials onOpenReviewModal={handleOpenReviewModal} />
 
           {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
           <StoreFAQ />
@@ -434,6 +442,7 @@ export default function App() {
         <ProductDetailPage
           key={selectedProduct.id}
           product={selectedProduct}
+          onOpenReviewModal={handleOpenReviewModal}
           onClose={() => {
             setSelectedProduct(null);
             if (window.location.hash.startsWith('#product-')) {
@@ -529,6 +538,17 @@ export default function App() {
         isOpen={isPolicyOpen}
         onClose={() => setIsPolicyOpen(false)}
         initialTab={policyTab}
+      />
+
+      {/* CUSTOMER REVIEW SUBMISSION MODAL */}
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => {
+          setIsReviewModalOpen(false);
+          setReviewModalProduct(null);
+        }}
+        initialProduct={reviewModalProduct}
+        products={products}
       />
 
       {/* FLOATING WHATSAPP SUPPORT WIDGET */}

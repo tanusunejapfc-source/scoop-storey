@@ -67,6 +67,8 @@ import AdminInventoryStock from './admin/AdminInventoryStock';
 import AdminPackingSlipModal from './admin/AdminPackingSlipModal';
 import AdminDiscountsCMS from './admin/AdminDiscountsCMS';
 import AdminAnalyticsLive from './admin/AdminAnalyticsLive';
+import AdminReviewsManager from './admin/AdminReviewsManager';
+import { useReviews } from '../utils/reviewStore';
 import { categoryToSlug } from '../data/storeData';
 import { useStoreOrders, exportOrdersToCourierCSV } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
@@ -276,6 +278,7 @@ export default function AdminPanel({
 
   // Orders store hook
   const { orders, refreshOrders, updateStatus, updateTracking, deleteOrder, clearOrders } = useStoreOrders();
+  const { pendingCount: pendingReviewsCount } = useReviews();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [trackingDrafts, setTrackingDrafts] = useState({});
 
@@ -1794,6 +1797,7 @@ export default function AdminPanel({
                     reels={reels}
                     categoriesCount={allCategoryNames.length}
                     pendingOrdersCount={pendingOrdersCount}
+                    pendingReviewsCount={pendingReviewsCount}
                     isCollapsed={false}
                     onToggleCollapse={() => {}}
                     onOpenCommandPalette={() => {
@@ -1824,6 +1828,7 @@ export default function AdminPanel({
                 reels={reels}
                 categoriesCount={allCategoryNames.length}
                 pendingOrdersCount={pendingOrdersCount}
+                pendingReviewsCount={pendingReviewsCount}
                 isCollapsed={isSidebarCollapsed}
                 onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
@@ -1862,8 +1867,12 @@ export default function AdminPanel({
                       {activeTab === 'dashboard' ? 'Executive Revenue Dashboard' :
                        activeTab === 'analytics' ? 'Analytics & Live Store Telemetry' :
                        activeTab === 'orders' ? 'Orders & Fulfillment Telemetry' :
+                       activeTab === 'customers' ? 'Customer CRM & Direct Contact' :
                        activeTab === 'products' ? 'Merchandise & Products Catalog' :
                        activeTab === 'categories' ? 'Category & Merging Hub' :
+                       activeTab === 'inventory' ? 'Stock & Inventory Management' :
+                       activeTab === 'reviews' ? 'Ratings & Customer Reviews' :
+                       activeTab === 'discounts' ? 'Coupons & Storefront CMS' :
                        activeTab === 'new' ? 'Create New Merchandise' :
                        activeTab === 'edit' ? `Editing: ${formData.name || 'Product'}` :
                        activeTab === 'payments' ? 'UPI & QR Payment Gateway' :
@@ -1975,6 +1984,11 @@ export default function AdminPanel({
               {/* TAB: COUPONS, DISCOUNTS & STOREFRONT CMS */}
               {activeTab === 'discounts' && (
                 <AdminDiscountsCMS />
+              )}
+
+              {/* TAB: RATINGS & CUSTOMER REVIEWS MODERATION */}
+              {activeTab === 'reviews' && (
+                <AdminReviewsManager products={products} />
               )}
 
             {/* TAB 1: ORDERS & INVOICES MANAGEMENT */}
