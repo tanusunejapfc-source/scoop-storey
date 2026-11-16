@@ -178,7 +178,7 @@ export default function ReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
       <div 
         className="w-full max-w-lg rounded-3xl bg-white dark:bg-[#1A1226] border-2 border-pink-200 dark:border-pink-900/60 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
@@ -301,6 +301,7 @@ export default function ReviewModal({
                   <input
                     type="text"
                     required
+                    maxLength={60}
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="e.g. Diya Kapoor"
@@ -314,6 +315,7 @@ export default function ReviewModal({
                   </label>
                   <input
                     type="text"
+                    maxLength={40}
                     value={handle}
                     onChange={(e) => setHandle(e.target.value)}
                     placeholder="e.g. @diya_glam"
@@ -329,6 +331,7 @@ export default function ReviewModal({
                 </label>
                 <input
                   type="text"
+                  maxLength={100}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Super cute packaging and heavy charms! 💖"
@@ -344,6 +347,7 @@ export default function ReviewModal({
                 <textarea
                   rows={4}
                   required
+                  maxLength={1200}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Tell us what you liked about the charms, the ASMR packaging, delivery speed, or cute extras..."

@@ -1295,7 +1295,7 @@ export default function ProductDetailPage({
       {/* DETAIL REVIEW PHOTO LIGHTBOX */}
       {detailLightboxImg && (
         <div 
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setDetailLightboxImg(null)}
         >
           <div 

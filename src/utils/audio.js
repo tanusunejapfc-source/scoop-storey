@@ -9,11 +9,18 @@ class SoundFXManager {
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
-        this.ctx = new AudioCtx();
+        try {
+          this.ctx = new AudioCtx();
+        } catch (_) {}
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      try {
+        const resumePromise = this.ctx.resume();
+        if (resumePromise && typeof resumePromise.catch === 'function') {
+          resumePromise.catch(() => {});
+        }
+      } catch (_) {}
     }
   }
 

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { getStoredOrders } from '../utils/orderStore';
+import { fetchOrdersFromSupabase } from '../utils/supabaseClient';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const STATUS_STEPS = [
@@ -51,6 +52,24 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
         setQuery(initialQuery);
         handleLookup(initialQuery, orders);
       }
+
+      // Seamlessly fetch cloud orders for cross-device customer tracking
+      fetchOrdersFromSupabase().then(cloudOrders => {
+        if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+          setAllOrders(prev => {
+            const merged = [...cloudOrders];
+            (prev || []).forEach(local => {
+              if (!merged.some(c => c.orderId === local.orderId)) {
+                merged.push(local);
+              }
+            });
+            if (initialQuery) {
+              handleLookup(initialQuery, merged);
+            }
+            return merged;
+          });
+        }
+      }).catch(() => {});
     }
   }, [isOpen, initialQuery]);
 

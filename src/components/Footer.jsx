@@ -51,7 +51,16 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
 
   const handleSubscribe = (e) => {
     e.preventDefault();
-    if (!emailInput.trim()) return;
+    const cleanEmail = emailInput.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) return;
+    try {
+      const raw = localStorage.getItem('bhaskar_newsletter_subscribers');
+      const list = raw ? JSON.parse(raw) : [];
+      if (!list.includes(cleanEmail)) {
+        list.push(cleanEmail);
+        localStorage.setItem('bhaskar_newsletter_subscribers', JSON.stringify(list));
+      }
+    } catch (_) {}
     soundFX.playSuccess();
     setSubscribed(true);
     setEmailInput('');

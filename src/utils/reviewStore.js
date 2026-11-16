@@ -70,7 +70,7 @@ export const INITIAL_REVIEWS = [
     rating: 5,
     title: 'So soft and holds all my cards & lip balms! ☁️',
     comment: 'Received this in Delhi within 3 days with express delivery. The zipper is super smooth and pastel color is exactly like the photos.',
-    images: ['/images/wallets/korean-cloud-wallet.jpg'],
+    images: ['/images/korean-wallets.jpg'],
     verifiedBuyer: true,
     status: 'published',
     createdAt: Date.now() - 1000 * 60 * 60 * 24 * 3,

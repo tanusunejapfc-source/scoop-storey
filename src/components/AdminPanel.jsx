@@ -179,7 +179,9 @@ const compressImage = (file, targetWidth = 800, targetHeight = 1000, quality = 0
 
 // Admin passcode storage configuration
 export const ADMIN_PASSCODE_KEY = 'bhaskar_admin_passcode_v1';
-export const DEFAULT_PASSCODE = 'scoop123';
+export const DEFAULT_PASSCODE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_PASSCODE)
+  ? import.meta.env.VITE_ADMIN_PASSCODE.trim()
+  : 'scoop123';
 
 export function getAdminPasscode() {
   try {
@@ -226,6 +228,8 @@ export default function AdminPanel({
   const [passcode, setPasscode] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
   const [showLoginPasscode, setShowLoginPasscode] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState(0);
 
   // Security & Passcode Change Form States
   const [currentPassInput, setCurrentPassInput] = useState('');
@@ -1024,19 +1028,32 @@ export default function AdminPanel({
 
   const handleLogin = (e) => {
     e.preventDefault();
+    if (lockoutUntil && Date.now() < lockoutUntil) {
+      const waitSeconds = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      setPasscodeError(`🔒 Temporary Security Lockout: Please wait ${waitSeconds}s before trying again.`);
+      soundFX.playPop(300);
+      return;
+    }
+
     const storedPass = getAdminPasscode();
     const entered = passcode.trim();
-    if (
-      entered === storedPass ||
-      (storedPass === DEFAULT_PASSCODE && (entered === 'admin' || entered === 'bhaskar'))
-    ) {
+    if (entered && entered === storedPass) {
       setIsAuthenticated(true);
       sessionStorage.setItem('bhaskar_admin_auth', 'true');
       setPasscodeError('');
+      setFailedAttempts(0);
+      setLockoutUntil(0);
       soundFX.playSuccess();
       showToast('Admin access granted! 🎀');
     } else {
-      setPasscodeError('Incorrect passcode. Please try again.');
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+      if (newAttempts >= 5) {
+        setLockoutUntil(Date.now() + 30000); // 30s lockout
+        setPasscodeError('🔒 Too many failed attempts. Login locked for 30 seconds for security.');
+      } else {
+        setPasscodeError(`Incorrect passcode. Please try again. (${5 - newAttempts} attempts remaining)`);
+      }
       soundFX.playPop(300);
     }
   };
