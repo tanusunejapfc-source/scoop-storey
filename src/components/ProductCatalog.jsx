@@ -910,116 +910,50 @@ export default function ProductCatalog({
       {/* 2. ENTERED COLLECTION VIEW (Dedicated Category View)          */}
       {/* ============================================================ */}
       {activeCollection && (
-        <div className="space-y-8 animate-fadeIn">
-          {/* Top Breadcrumb & Switcher Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-pink-200/60 dark:border-pink-900/40">
-            {/* Back Button & Breadcrumbs */}
-            <div className="flex items-center gap-3">
+        <div className="space-y-6 sm:space-y-8 animate-fadeIn">
+          {/* Top Breadcrumb & Back Navigation (Shopify Standard) */}
+          <div className="flex items-center justify-between gap-3 pb-3 border-b border-pink-200/60 dark:border-pink-900/40">
+            <div className="flex items-center gap-2 sm:gap-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 min-w-0 flex-wrap">
               <button
                 onClick={handleBackToCollections}
-                className="px-3.5 py-2 rounded-2xl bg-pink-100/80 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95"
+                className="px-3 py-1.5 rounded-2xl bg-pink-100/90 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95 shrink-0"
                 title="Return to Home & Collections"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Home</span>
               </button>
 
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-                <button 
-                  onClick={handleBackToCollections}
-                  className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition-colors"
-                >
-                  Home
-                </button>
-                <span>/</span>
-                <button 
-                  onClick={handleBackToCollections}
-                  className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition-colors"
-                >
-                  Collections
-                </button>
-                <span>/</span>
-                <span className="font-bold text-[#231733] dark:text-white">
-                  {activeCollection === 'All Items' ? 'All Products' : activeCollection}
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-bold ml-1">
-                  {activeProducts.length} items
-                </span>
-              </div>
-            </div>
-
-            {/* In-Collection Search & Filter */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 sm:w-56">
-                <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={`Search in ${activeCollection}...`}
-                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-
-              {/* Sort Dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="py-1.5 px-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-semibold focus:outline-none focus:ring-1 focus:ring-pink-400 text-neutral-700 dark:text-neutral-300"
+              <button 
+                onClick={handleBackToCollections}
+                className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition-colors hidden sm:inline"
               >
-                <option value="featured">Sort: Featured</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Top Rated ★</option>
-              </select>
+                Home
+              </button>
+              <span className="hidden sm:inline">/</span>
+              <button 
+                onClick={handleBackToCollections}
+                className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition-colors"
+              >
+                Collections
+              </button>
+              <span>/</span>
+              <span className="font-bold text-[#231733] dark:text-white truncate max-w-[160px] sm:max-w-none">
+                {activeCollection === 'All Items' ? 'All Products' : activeCollection}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-bold ml-1">
+                {activeProducts.length} items
+              </span>
             </div>
-          </div>
 
-          {/* Quick Collection Pills Switcher (Allows instant switching without returning) */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={handleBackToCollections}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-pink-100 flex items-center gap-1"
+              className="text-xs font-bold text-[#E60067] dark:text-pink-400 hover:underline cursor-pointer hidden md:inline shrink-0"
             >
-              <ArrowLeft className="w-3 h-3" />
-              <span>All Collections</span>
+              Browse All Collections →
             </button>
-
-            {collections.map((col) => {
-              const cat = col.category;
-              if (cat === 'All Items') return null;
-              const isSelected = activeCollection?.toLowerCase() === cat.toLowerCase();
-              return (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    handleEnterCollection(cat);
-                  }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-[#E60067] text-white border-[#E60067] shadow-sm'
-                      : 'bg-white dark:bg-[#1E172E] text-[#231733] dark:text-[#E0D7EB] border-pink-200/80 dark:border-pink-900 hover:bg-pink-50 dark:hover:bg-neutral-800'
-                  }`}
-                >
-                  <span className="flex items-center">{renderCollectionIcon(col, 'w-3.5 h-3.5')}</span>
-                  <span>{cat}</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300'}`}>
-                    {col.itemsCount}
-                  </span>
-                </button>
-              );
-            })}
           </div>
 
-          {/* Collection Header Hero Banner */}
+          {/* Collection Header Hero Banner (Shopify Storefront Style) */}
           {currentCollectionMeta && (
             <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-pink-100/70 via-purple-100/60 to-pink-50/70 dark:from-[#2A1D3D] dark:via-[#1F152F] dark:to-[#2A1D3D] border-2 border-pink-200 dark:border-pink-900/60 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
               <div className="space-y-2 max-w-2xl">
@@ -1052,6 +986,79 @@ export default function ProductCatalog({
               </div>
             </div>
           )}
+
+          {/* Collection Filter & Quick Switcher Toolbar */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-1">
+            {/* Quick Collection Pills Switcher (Allows instant switching between categories) */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none flex-1 min-w-0">
+              <button
+                onClick={handleBackToCollections}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-pink-100 flex items-center gap-1 shrink-0"
+              >
+                <ArrowLeft className="w-3 h-3" />
+                <span>All Collections</span>
+              </button>
+
+              {collections.map((col) => {
+                const cat = col.category;
+                if (cat === 'All Items') return null;
+                const isSelected = activeCollection?.toLowerCase() === cat.toLowerCase();
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      handleEnterCollection(cat);
+                    }}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 shrink-0 ${
+                      isSelected
+                        ? 'bg-[#E60067] text-white border-[#E60067] shadow-sm'
+                        : 'bg-white dark:bg-[#1E172E] text-[#231733] dark:text-[#E0D7EB] border-pink-200/80 dark:border-pink-900 hover:bg-pink-50 dark:hover:bg-neutral-800'
+                    }`}
+                  >
+                    <span className="flex items-center">{renderCollectionIcon(col, 'w-3.5 h-3.5')}</span>
+                    <span>{cat}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300'}`}>
+                      {col.itemsCount}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* In-Collection Search & Filter Controls */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="relative flex-1 sm:w-56">
+                <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={`Search in ${activeCollection}...`}
+                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="py-1.5 px-2.5 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-semibold focus:outline-none focus:ring-1 focus:ring-pink-400 text-neutral-700 dark:text-neutral-300 cursor-pointer"
+              >
+                <option value="featured">Sort: Featured</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Top Rated ★</option>
+              </select>
+            </div>
+          </div>
 
           {/* Empty search results / empty collection state */}
           {activeProducts.length === 0 && (

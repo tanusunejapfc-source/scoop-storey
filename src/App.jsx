@@ -236,6 +236,7 @@ export default function App() {
 
   // Unified Category Navigation handler
   const handleSelectCategory = (category) => {
+    setSelectedProduct(null);
     setActiveCollection(category);
     const slug = category ? categoryToSlug(category) : 'all';
     const targetHash = category ? `#collection-${slug}` : '';
@@ -247,6 +248,38 @@ export default function App() {
       }
     }
     // Instant scroll to prevent mobile browser clamping to bottom during DOM unmount
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  };
+
+  // Unified Product Detail Navigation handler (Shopify-standard dedicated page routing)
+  const handleSelectProduct = (prod) => {
+    if (!prod) {
+      setSelectedProduct(null);
+      const fallback = activeCollection ? `#collection-${categoryToSlug(activeCollection)}` : '';
+      try {
+        window.history.pushState(null, '', window.location.pathname + fallback);
+      } catch {
+        window.location.hash = fallback;
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+      return;
+    }
+    setSelectedProduct(prod);
+    if (prod.category && !activeCollection) {
+      setActiveCollection(prod.category);
+    }
+    const targetHash = `#product-${prod.id}`;
+    if (window.location.hash !== targetHash) {
+      try {
+        window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + targetHash);
+      } catch {
+        window.location.hash = targetHash;
+      }
+    }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     if (document.documentElement) document.documentElement.scrollTop = 0;
     if (document.body) document.body.scrollTop = 0;
@@ -323,18 +356,27 @@ export default function App() {
         onSelectCategory={handleSelectCategory}
       />
 
-      {/* STYLISH CATEGORY ICONS BAR (Story Bubbles / Quick Category Selector) */}
-      <CategoryIconsBar
-        activeCategory={activeCollection}
-        onSelectCategory={handleSelectCategory}
-      />
-
       {/* ======================================================== */}
-      {/* CONDITIONAL ROUTE: Dedicated Category Page vs Homepage   */}
+      {/* 3-TIER ROUTE SYSTEM: Product Page vs Collection vs Home  */}
       {/* ======================================================== */}
-      {activeCollection ? (
-        /* DEDICATED SEPARATE CATEGORY PAGE VIEW */
-        <main className="min-h-[70vh]">
+      {selectedProduct ? (
+        /* 1. DEDICATED SEPARATE PRODUCT DETAIL PAGE VIEW (Shopify Standard Layout) */
+        <main className="min-h-[85vh]">
+          <ProductDetailPage
+            key={selectedProduct.id}
+            product={selectedProduct}
+            allProducts={products}
+            activeCollection={activeCollection}
+            onSelectCollection={handleSelectCategory}
+            onOpenReviewModal={handleOpenReviewModal}
+            onClose={() => handleSelectProduct(null)}
+            onAddToCart={handleAddToCart}
+            onSelectProduct={handleSelectProduct}
+          />
+        </main>
+      ) : activeCollection ? (
+        /* 2. DEDICATED SEPARATE CATEGORY / COLLECTION PAGE VIEW */
+        <main className="min-h-[75vh]">
           {/* If viewing Mystery Scoops category, display the 3D scoop machine prominently on this page! */}
           {activeCollection === 'Mystery Scoops' && (
             <div className="pt-2 pb-4">
@@ -346,22 +388,13 @@ export default function App() {
           <ProductCatalog 
             products={products} 
             onAddToCart={handleAddToCart} 
-            onSelectProduct={(prod) => {
-              setSelectedProduct(prod);
-              if (prod) {
-                try {
-                  window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
-                } catch {
-                  window.location.hash = `#product-${prod.id}`;
-                }
-              }
-            }}
+            onSelectProduct={handleSelectProduct}
             activeCollection={activeCollection}
             onSelectCollection={handleSelectCategory}
           />
         </main>
       ) : (
-        /* FULL FEATURED HOMEPAGE */
+        /* 3. FULL FEATURED HOMEPAGE */
         <main>
           {/* BOUTIQUE HERO SECTION (Fast, Stylish & Responsive) */}
           <BoutiqueHero 
@@ -369,20 +402,17 @@ export default function App() {
             isDark={isDark}
           />
 
+          {/* STYLISH CATEGORY ICONS BAR (Story Bubbles - ONLY DISPLAYED ON HOMEPAGE!) */}
+          <CategoryIconsBar
+            activeCategory={null}
+            onSelectCategory={handleSelectCategory}
+          />
+
           {/* THE SCOOP MENU (PRODUCT COLLECTIONS HUB) - IMMEDIATELY ACCESSIBLE WITHOUT ENDLESS SCROLL */}
           <ProductCatalog 
             products={products} 
             onAddToCart={handleAddToCart} 
-            onSelectProduct={(prod) => {
-              setSelectedProduct(prod);
-              if (prod) {
-                try {
-                  window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
-                } catch {
-                  window.location.hash = `#product-${prod.id}`;
-                }
-              }
-            }}
+            onSelectProduct={handleSelectProduct}
             activeCollection={null}
             onSelectCollection={handleSelectCategory}
           />
@@ -404,38 +434,6 @@ export default function App() {
           {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
           <StoreFAQ />
         </main>
-      )}
-
-      {/* PRODUCT DETAIL PAGE / MODAL */}
-      {selectedProduct && (
-        <ProductDetailPage
-          key={selectedProduct.id}
-          product={selectedProduct}
-          onOpenReviewModal={handleOpenReviewModal}
-          onClose={() => {
-            setSelectedProduct(null);
-            if (window.location.hash.startsWith('#product-')) {
-              const fallback = activeCollection ? `#collection-${categoryToSlug(activeCollection)}` : '';
-              try {
-                window.history.pushState(null, '', window.location.pathname + fallback);
-              } catch {
-                window.location.hash = fallback;
-              }
-            }
-          }}
-          onAddToCart={handleAddToCart}
-          allProducts={products}
-          onSelectProduct={(prod) => {
-            setSelectedProduct(prod);
-            if (prod) {
-              try {
-                window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + `#product-${prod.id}`);
-              } catch {
-                window.location.hash = `#product-${prod.id}`;
-              }
-            }
-          }}
-        />
       )}
 
       {/* STORE ADMIN PANEL (Dynamically loaded only when opened by store admin) */}
@@ -486,7 +484,7 @@ export default function App() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         products={products}
-        onSelectProduct={(prod) => setSelectedProduct(prod)}
+        onSelectProduct={handleSelectProduct}
         onAddToCart={handleAddToCart}
       />
 
@@ -501,7 +499,7 @@ export default function App() {
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
         onAddToCart={handleAddToCart}
-        onOpenProduct={(prod) => setSelectedProduct(prod)}
+        onOpenProduct={handleSelectProduct}
       />
 
       {/* OFFICIAL STORE POLICY & SUPPORT MODAL */}
@@ -528,7 +526,7 @@ export default function App() {
       {/* RECENT VERIFIED PURCHASES / SOCIAL PROOF TOAST */}
       <SocialProofToast
         products={products}
-        onSelectProduct={(prod) => setSelectedProduct(prod)}
+        onSelectProduct={handleSelectProduct}
       />
 
       {/* FOOTER */}

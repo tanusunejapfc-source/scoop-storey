@@ -34,7 +34,9 @@ export default function ProductDetailPage({
   onAddToCart,
   allProducts = [],
   onSelectProduct,
-  onOpenReviewModal
+  onOpenReviewModal,
+  activeCollection,
+  onSelectCollection
 }) {
   const baseImages = (product?.images && product.images.length > 0)
     ? product.images
@@ -406,55 +408,73 @@ export default function ProductDetailPage({
   const totalPrice = product.priceINR * quantity;
 
   return (
-    <div 
-      onClick={onClose}
-      className="fixed inset-0 z-50 overflow-y-auto sm:overflow-hidden bg-black/75 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 md:p-6 lg:p-8 animate-fadeIn"
-    >
-      {/* Modal Card */}
-      <div 
-        onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-[#1E172E] rounded-none sm:rounded-3xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[92vh] md:max-h-[94vh] overflow-y-auto shadow-2xl border-0 sm:border-2 border-pink-200 dark:border-pink-900/60 flex flex-col animate-scaleUp"
-      >
-        {/* Top Header Actions */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-3.5 py-3 sm:p-4 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-b border-pink-100 dark:border-pink-900/40">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 min-w-0">
+    <div className="w-full min-h-[85vh] bg-[var(--bg-page)] text-[var(--text-main)] py-4 sm:py-8 animate-fadeIn pb-24 sm:pb-16">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+        {/* Top Header & Breadcrumbs Actions (Shopify Standard Layout) */}
+        <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-pink-200/60 dark:border-pink-900/40">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-neutral-500 dark:text-neutral-400 min-w-0 flex-wrap">
             <button
               onClick={onClose}
               type="button"
-              className="sm:hidden -ml-1 mr-1 p-1.5 rounded-xl bg-pink-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-pink-100 dark:hover:bg-neutral-700 transition cursor-pointer"
-              aria-label="Back to store"
+              className="px-3.5 py-1.5 rounded-2xl bg-pink-100/90 hover:bg-pink-200 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer active:scale-95 shadow-xs shrink-0"
+              aria-label="Back to collection"
             >
               <ChevronLeft className="w-4 h-4 text-[#E60067]" />
+              <span>Back</span>
             </button>
-            <span className="hidden xs:inline">Shop</span>
-            <span className="hidden xs:inline">/</span>
-            <span className="text-[#E60067] dark:text-pink-400 font-bold truncate max-w-[140px] sm:max-w-none">{product.category}</span>
+
+            <button
+              type="button"
+              onClick={() => onSelectCollection ? onSelectCollection(null) : onClose()}
+              className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition hidden sm:inline"
+            >
+              Home
+            </button>
+            <span className="hidden sm:inline">/</span>
+            <button
+              type="button"
+              onClick={() => onSelectCollection ? onSelectCollection(product.category) : onClose()}
+              className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition truncate max-w-[150px] sm:max-w-none"
+            >
+              {product.category}
+            </button>
+            <span>/</span>
+            <span className="text-[#E60067] dark:text-pink-400 font-bold truncate max-w-[180px] sm:max-w-none">
+              {product.name}
+            </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition text-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 hover:bg-pink-50 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
               title="Share Link"
             >
-              <Share2 className="w-4 h-4" />
-              {copiedLink && <span className="text-[11px] font-bold text-pink-600">Copied!</span>}
+              <Share2 className="w-3.5 h-3.5 text-[#E60067]" />
+              <span className="hidden sm:inline">{copiedLink ? 'Link Copied!' : 'Share'}</span>
             </button>
+
             <button
-              onClick={onClose}
-              className="p-2 rounded-xl glass-pill hover:bg-pink-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 transition cursor-pointer"
-              aria-label="Close Product Page"
+              type="button"
+              onClick={() => toggleWishlist(product)}
+              className={`px-3 py-1.5 rounded-xl border transition text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                isWishlisted(product.id)
+                  ? 'bg-[#E60067] text-white border-[#E60067]'
+                  : 'bg-white dark:bg-neutral-800 border-pink-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-pink-50'
+              }`}
+              title="Save to favorites"
             >
-              <X className="w-5 h-5" />
+              <Heart className={`w-3.5 h-3.5 ${isWishlisted(product.id) ? 'fill-white text-white' : 'text-[#E60067]'}`} />
+              <span className="hidden sm:inline">{isWishlisted(product.id) ? 'Saved' : 'Wishlist'}</span>
             </button>
           </div>
         </div>
 
         {/* Content Body: 2 Columns on Desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 p-3.5 sm:p-6 md:p-8 flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-          {/* LEFT: Image Gallery (5 cols) */}
-          <div className="md:col-span-6 space-y-4">
+          {/* LEFT: Image Gallery (7 cols on large desktop) */}
+          <div className="lg:col-span-6 xl:col-span-7 space-y-4">
             {/* Main Image Stage (4:5 Standard E-Commerce Ratio) with Touch Swipe Support */}
             <div 
               onTouchStart={handleTouchStart}
@@ -604,8 +624,8 @@ export default function ProductDetailPage({
             </div>
           </div>
 
-          {/* RIGHT: Product Details & Controls (7 cols) */}
-          <div className="md:col-span-6 flex flex-col justify-between space-y-5">
+          {/* RIGHT: Product Details & Controls (5 cols on large desktop, sticky buy box) */}
+          <div className="lg:col-span-6 xl:col-span-5 flex flex-col justify-between space-y-6 lg:sticky lg:top-24 lg:self-start bg-white/70 dark:bg-[#1E172E]/70 backdrop-blur-md p-5 sm:p-7 rounded-3xl border border-pink-200/80 dark:border-pink-900/60 shadow-lg">
             <div>
               {/* Product Title & Reviews */}
               <div className="space-y-1.5">
@@ -1242,7 +1262,7 @@ export default function ProductDetailPage({
         </div>
 
         {/* Mobile Sticky Quick Add to Bag Bottom Bar */}
-        <div className="sm:hidden sticky bottom-0 z-20 px-4 py-2.5 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-t border-pink-200 dark:border-pink-900/60 shadow-[0_-8px_20px_rgba(0,0,0,0.08)] flex items-center gap-2.5">
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-2.5 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-t border-pink-200 dark:border-pink-900/60 shadow-[0_-8px_20px_rgba(0,0,0,0.12)] flex items-center gap-2.5">
           <div className="flex items-center rounded-xl bg-pink-100/70 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 p-0.5 shrink-0">
             <button
               onClick={() => {
