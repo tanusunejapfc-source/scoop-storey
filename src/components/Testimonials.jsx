@@ -20,7 +20,7 @@ export default function Testimonials({ onOpenReviewModal }) {
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'photos' | 5 | 4 | 'verified'
   const [lightboxImg, setLightboxImg] = useState(null);
   const [likedReviews, setLikedReviews] = useState({});
-  const [displayCount, setDisplayCount] = useState(9);
+  const [displayCount, setDisplayCount] = useState(4);
 
   const handleLike = (id, e) => {
     e.stopPropagation();
@@ -184,6 +184,7 @@ export default function Testimonials({ onOpenReviewModal }) {
           onClick={() => {
             soundFX.playPop(420);
             setActiveFilter('all');
+            setDisplayCount(4);
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
             activeFilter === 'all'
@@ -199,6 +200,7 @@ export default function Testimonials({ onOpenReviewModal }) {
           onClick={() => {
             soundFX.playPop(440);
             setActiveFilter(activeFilter === 'photos' ? 'all' : 'photos');
+            setDisplayCount(4);
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
             activeFilter === 'photos'
@@ -215,6 +217,7 @@ export default function Testimonials({ onOpenReviewModal }) {
           onClick={() => {
             soundFX.playPop(460);
             setActiveFilter(activeFilter === 5 ? 'all' : 5);
+            setDisplayCount(4);
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
             activeFilter === 5
@@ -231,6 +234,7 @@ export default function Testimonials({ onOpenReviewModal }) {
           onClick={() => {
             soundFX.playPop(480);
             setActiveFilter(activeFilter === 'verified' ? 'all' : 'verified');
+            setDisplayCount(4);
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
             activeFilter === 'verified'
@@ -255,7 +259,10 @@ export default function Testimonials({ onOpenReviewModal }) {
           </p>
           <button
             type="button"
-            onClick={() => setActiveFilter('all')}
+            onClick={() => {
+              setActiveFilter('all');
+              setDisplayCount(4);
+            }}
             className="mt-4 px-4 py-2 rounded-xl bg-pink-100 dark:bg-neutral-800 text-[#E60067] dark:text-pink-300 text-xs font-bold hover:bg-pink-200 transition cursor-pointer"
           >
             Clear Filters
@@ -263,7 +270,7 @@ export default function Testimonials({ onOpenReviewModal }) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredReviews.slice(0, displayCount).map((rev) => {
             const currentLikes = (rev.likesCount || 0) + (likedReviews[rev.id] || 0);
 
@@ -385,7 +392,7 @@ export default function Testimonials({ onOpenReviewModal }) {
               type="button"
               onClick={() => {
                 soundFX.playPop(450);
-                setDisplayCount(prev => prev + 9);
+                setDisplayCount(prev => prev + 4);
               }}
               className="px-6 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs sm:text-sm hover:border-[#E60067] hover:shadow-md transition cursor-pointer"
             >

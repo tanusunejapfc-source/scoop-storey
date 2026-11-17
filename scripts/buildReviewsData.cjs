@@ -93,8 +93,8 @@ const femaleReviewers = [
 // Month names for date formatting
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Realistic review templates organized by category
-const CATEGORY_TEMPLATES = {
+// 3. ENGLISH TEMPLATES
+const CATEGORY_TEMPLATES_EN = {
   'Mystery Scoops': [
     {
       title: 'Saw my scoop packed on Instagram Reels! 💖',
@@ -122,11 +122,6 @@ const CATEGORY_TEMPLATES = {
       rating: 5
     },
     {
-      title: 'Loved the surprises, super cute! ✨',
-      comment: 'Everything was packed with so much love and care. Charms are super glossy and the bonus free gifts made it even sweeter. Will order again soon.',
-      rating: 5
-    },
-    {
       title: 'Best impulse buy of the month! 🎁',
       comment: 'Was hesitant about prepaid orders but Scoop Storey is 100% legit. Got tracking details on WhatsApp immediately and package arrived safely in bubble wrap.',
       rating: 5
@@ -140,11 +135,6 @@ const CATEGORY_TEMPLATES = {
       title: 'Great haul, loved the variety 🧸',
       comment: 'Received a lovely mix of stationery, cute beauty essentials, and aesthetic charms. Exactly what I wanted from a mystery scoop parcel.',
       rating: 4
-    },
-    {
-      title: 'Generous scoop and super aesthetic packaging 🎀',
-      comment: 'The details on the charms are so crisp! No scratches, high gloss finish, and the little freebies were such a thoughtful touch.',
-      rating: 5
     }
   ],
 
@@ -180,23 +170,8 @@ const CATEGORY_TEMPLATES = {
       rating: 5
     },
     {
-      title: 'Ordered one, came back for three more! ✨',
-      comment: 'The aesthetic is so Pinterest-worthy. Gifted one to my bestie and she loved it. Delivery was prompt and packaging was secure.',
-      rating: 5
-    },
-    {
       title: 'Very dainty and pretty 💫',
       comment: 'Chain length is perfect for sitting right below the collarbone. Cute design and feels solid in hand. Very satisfied with my purchase.',
-      rating: 5
-    },
-    {
-      title: 'Super shiny and lightweight 💕',
-      comment: 'You barely feel it on your neck, but everyone notices it! The gold luster looks identical to real 18K jewelry from branded stores.',
-      rating: 5
-    },
-    {
-      title: 'Great everyday pendant, lovely finish 🌟',
-      comment: 'Clasp is easy to hook and the pendant detail is so clean. Arrived in Bangalore in 3 days with prepaid tracking.',
       rating: 4
     }
   ],
@@ -223,24 +198,9 @@ const CATEGORY_TEMPLATES = {
       rating: 5
     },
     {
-      title: 'Looks even prettier in person than on screen! 💫',
-      comment: 'The photos don’t do justice to how sparkly and refined the charms look under sunlight. Packaging was pristine and aesthetic.',
-      rating: 5
-    },
-    {
-      title: 'High quality charm bracelet at such an affordable price ✨',
-      comment: 'Usually charm bracelets break within a week, but this feels very sturdy. Handcrafted with obvious attention to detail.',
-      rating: 5
-    },
-    {
       title: 'Gifted this to my sister and she cried happy tears! 🎁',
       comment: 'The pink box presentation and wax seal made it feel so personal. Sister hasn’t taken it off since she opened it.',
       rating: 5
-    },
-    {
-      title: 'Very chic and comfortable 🌸',
-      comment: 'Lightweight on the wrist and doesn’t pinch skin. Will definitely order the butterfly variant next!',
-      rating: 4
     }
   ],
 
@@ -256,24 +216,9 @@ const CATEGORY_TEMPLATES = {
       rating: 5
     },
     {
-      title: 'Minimalist beauty that gets noticed everywhere 💖',
-      comment: 'The bead stations are subtle yet eye-catching. The extension chain allows for a relaxed or snug fit depending on footwear.',
-      rating: 5
-    },
-    {
       title: 'Doesn’t pinch or pull ankle hairs! 🌸',
       comment: 'Super comfortable to sleep in. The anti-tarnish coating is genuine. Excellent quality from Scoop Storey.',
       rating: 5
-    },
-    {
-      title: 'Dainty and strong link construction 🎀',
-      comment: 'I was worried it might snap while walking, but the links are well soldered and strong. Shipped very fast to Pune.',
-      rating: 5
-    },
-    {
-      title: 'Lovely summer shimmer on feet ✨',
-      comment: 'Looks fantastic with sandals and ankle jeans. Great polish and comes in a cute protective pouch.',
-      rating: 4
     }
   ],
 
@@ -292,16 +237,6 @@ const CATEGORY_TEMPLATES = {
       title: 'Hostel essential for uninterrupted sleep! 🌙✨',
       comment: 'My roommates keep the study lamp on late, but with this mask I sleep in total pitch darkness. Fabric is breathable and doesn’t cause sweat.',
       rating: 5
-    },
-    {
-      title: 'Gentle on delicate eye area and skin 🌸',
-      comment: 'No morning pillow creases on my face! The soft padding feels cooling and relaxing. Washable and holds its shape.',
-      rating: 5
-    },
-    {
-      title: 'Cutest travel sleeping accessory ever ✈️💖',
-      comment: 'Used this on a long train journey and slept like a baby. Super soft and compact to carry in any purse.',
-      rating: 5
     }
   ],
 
@@ -315,21 +250,6 @@ const CATEGORY_TEMPLATES = {
       title: 'Pore strips pulled out so many stubborn blackheads! 🌸',
       comment: 'Followed the instructions to wet the nose bridge properly and the strip adhered firmly. Peeled off cleanly and my nose felt baby smooth immediately.',
       rating: 5
-    },
-    {
-      title: 'Gentle on sensitive skin with zero irritation 💖',
-      comment: 'Usually facial wipes make my cheeks sting, but these are very mild and refreshing. Love the aesthetic packaging too!',
-      rating: 5
-    },
-    {
-      title: 'Great college bag essential 🎒🎀',
-      comment: 'My friends always ask me for a wipe from the cute soda can! Dispenses one wipe at a time smoothly.',
-      rating: 5
-    },
-    {
-      title: 'Very effective and cute self-care treat 💫',
-      comment: 'Pore strips are just as good as the expensive Korean brands. Skin feels clear and pores look noticeably smaller.',
-      rating: 4
     }
   ],
 
@@ -345,18 +265,8 @@ const CATEGORY_TEMPLATES = {
       rating: 5
     },
     {
-      title: 'Compact yet surprisingly spacious! 🎀',
-      comment: 'I managed to fit my metro card, debit cards, cash, and even a mini lip balm inside. The stitching along the seams is super neat.',
-      rating: 5
-    },
-    {
       title: 'Got so many compliments at college! 💖',
       comment: 'Everyone in my class wanted to know where I bought this pastel wallet. Arrived neatly packaged in protective wrap with zero chemical odor.',
-      rating: 5
-    },
-    {
-      title: 'Aesthetic, practical, and durable 🌸',
-      comment: 'Have been using it daily for 6 weeks now and the corners haven’t peeled or scuffed. Best aesthetic wallet for daily use.',
       rating: 5
     }
   ],
@@ -376,16 +286,6 @@ const CATEGORY_TEMPLATES = {
       title: 'Liquid glitter eyeshadow with ZERO fallout! ✨💖',
       comment: 'Dries down quickly and stays in place all night without flaking into my eyes. The shimmer catches stage and wedding lights like magic.',
       rating: 5
-    },
-    {
-      title: 'Perfect everyday glow makeup 🎀',
-      comment: 'Gives that effortless clean-girl Korean glass-skin vibe. Very lightweight and doesn’t clog pores.',
-      rating: 5
-    },
-    {
-      title: 'High shine and gorgeous pigmentation 💫',
-      comment: 'Looks stunning on top of any nude lipstick or alone. Applicator is soft and precise. Love it!',
-      rating: 4
     }
   ],
 
@@ -398,21 +298,6 @@ const CATEGORY_TEMPLATES = {
     {
       title: 'Daughter gasped with joy when she unboxed it! 🎀✨',
       comment: 'The package arrived wrapped like a fairytale parcel. The plushie is generously stuffed and springs right back when squeezed. Pure happiness.',
-      rating: 5
-    },
-    {
-      title: 'Super cute kawaii aesthetic and perfect gift 🌸',
-      comment: 'Bought this for my bestie’s birthday and she immediately made it her bed pillow. Adorable details and no weird odor at all.',
-      rating: 5
-    },
-    {
-      title: 'Marshmallow soft texture, 10/10 cuddle comfort ☁️',
-      comment: 'Holding this while watching movies or reading is so comforting. Very high quality craftsmanship.',
-      rating: 5
-    },
-    {
-      title: 'Charming addition to my bedroom decor 💕',
-      comment: 'Looks just like the photos. The pastel tones blend so nicely with my room aesthetic.',
       rating: 5
     }
   ],
@@ -427,21 +312,6 @@ const CATEGORY_TEMPLATES = {
       title: 'Sturdy phone wristlet that actually holds heavy phones 📱💖',
       comment: 'The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.',
       rating: 5
-    },
-    {
-      title: 'Sweet little chime bell that doesn’t annoy 🔔🎀',
-      comment: 'Soft sweet chime makes it so easy to find my keys in a big tote bag. Detailing on the anime strap is crisp and colorful.',
-      rating: 5
-    },
-    {
-      title: 'High quality acrylic and strong lobster clasp 🌸',
-      comment: 'Metal ring has good spring tension and hasn’t loosened over weeks of daily key jangling. Super cute accessory.',
-      rating: 5
-    },
-    {
-      title: 'Elevates every tote bag and backpack 🎒✨',
-      comment: 'Clipped it to my canvas college tote and it instantly made it look 10x cuter. Great little gift idea too!',
-      rating: 5
     }
   ],
 
@@ -455,35 +325,250 @@ const CATEGORY_TEMPLATES = {
       title: 'Cloud plush scrunchie leaves ZERO hair creases ☁️🎀',
       comment: 'The elastic is gentle and the velvet fabric doesn’t snag or pull out hair strands when removing. Wore it to bed and hair was smooth in the morning.',
       rating: 5
-    },
+    }
+  ]
+};
+
+// 4. AUTHENTIC HINGLISH TEMPLATES
+const CATEGORY_TEMPLATES_HINGLISH = {
+  'Mystery Scoops': [
     {
-      title: 'Pearl pins add such luxury elegance to traditional wear 🌸',
-      comment: 'Wore these pearl bobby pins with a pastel saree for a family wedding. They stayed snug in my bun for 8 hours without needing bobby pin adjustments.',
+      title: 'Instagram reel dekh ke order kiya tha, sach me bohot pyara hai! 💖',
+      comment: 'Maine Big Scoop order kiya tha aur video me packing dekh ke excitement level alag hi tha! Charms bohot heavy aur high quality ke hain, plastic bilkul nahi lagte. Extra stickers aur free candy ke liye thank you Bhaskar bhaiya! 10/10 recommend karungi.',
       rating: 5
     },
     {
-      title: 'Matte pastel finish is so aesthetic and chic 💖',
-      comment: 'Doesn’t look like cheap plastic. The duo pack is great value and both colors match almost every outfit in my wardrobe.',
+      title: 'Bohot zyada cute surprises nikle yaar! ✨',
+      comment: 'Honestly mujhe laga tha normal beads aayenge, but itne sundar charms nikle! Teddy bear keychain aur pink lip glaze dono mile. Packaging wax seal ke sath itni premium thi ki dil khush ho gaya.',
       rating: 5
     },
     {
-      title: 'Sturdy spring and gentle on scalp 💫',
-      comment: 'Doesn’t pinch the scalp or give tension headaches. Very satisfied with the quality and quick delivery.',
+      title: 'Sister ke birthday gift ke liye mangwaya tha, she was screaming! 🎀',
+      comment: 'Unboxing ka maza hi alag tha. Pink shredded paper, aesthetic greeting card aur itne sare cute items. Meri behen ko bohot zyada pasand aaya. Ab apne liye bhi ek scoop order karungi!',
+      rating: 5
+    },
+    {
+      title: 'Prepaid order tha thoda darr tha but super legit nikla! 🌸',
+      comment: 'Order place karte hi WhatsApp pe tracking mil gaya tha aur 3 din me Gurgaon deliver ho gaya. Sare charms ekdum scratchless aur glossy hain. Packaging 100/10!',
+      rating: 5
+    },
+    {
+      title: 'ASMR unboxing literally best tha 💕',
+      comment: 'Hostel me sab roommates ne milke open kiya, sabko bohot aesthetic laga. Price ke hisab se bohot saara cute stuff mil gaya. Full paisa vasool!',
+      rating: 5
+    },
+    {
+      title: 'Rare gold bear charm mil gaya mujhe! 🧸👑',
+      comment: 'Maine reel me dekha tha gold bear aur wahi mere parcel me nikla! Itna khush main kabhi kisi parcel se nahi hui. Pure happiness in a box.',
+      rating: 5
+    },
+    {
+      title: 'Bohot achi variety aayi parcel me ✨',
+      comment: 'Lip gloss, claw clip, stickers aur 8 cute charms! Quality sach me achi hai. Dosto ko bhi recommend kiya hai maine.',
+      rating: 4
+    }
+  ],
+
+  'Pendants & Chains': [
+    {
+      title: 'Sach me 100% anti-tarnish hai, daily wear kar rahi hu! ✨',
+      comment: 'Mujhe Mumbai ke humid weather me imitation jewelry pehanne se neck pe green marks ho jate the, but is chain ke sath bilkul aisa nahi hua! Gym me aur shower me bhi pehana, shine abhi bhi real 18K gold jaisi hai.',
+      rating: 5
+    },
+    {
+      title: 'College me sabne pucha kahan se liya! 💖',
+      comment: 'Itna dainty aur elegant lagta hai collarbone pe. Simple white shirt ya kurti dono pe bohot aesthetic look deta hai. Clasp bhi bohot strong hai aur chain silky smooth hai.',
+      rating: 5
+    },
+    {
+      title: 'Sensitive skin ke liye perfect hai 🌸',
+      comment: 'Meri skin bohot jaldi react karti hai fake metal se, but isko 1 month se daily pehan rahi hu zero itching ya redness. Quality sach me top notch hai.',
+      rating: 5
+    },
+    {
+      title: 'Real gold jaisi finishing hai, bilkul brassy nahi lagti 🎀',
+      comment: 'Warm golden tone hai jo Tanishq ya CaratLane jaisa lagta hai. Price ke hisab se itni premium quality milna impossible hai Instagram pe. Loved it!',
+      rating: 5
+    },
+    {
+      title: 'Packaging dekh ke hi premium feel aa gaya 🎁',
+      comment: 'Cute pink pouch me aaya aur sath me jewelry care tips bhi the. Wax seal box bohot aesthetic lagta hai. Best gifting option!',
+      rating: 5
+    },
+    {
+      title: 'Waterproof test pass ho gaya! 💧✨',
+      comment: 'Diwali pe regular use kiya, haath dhote waqt bhi nahi utara. Bilkul dull nahi hua. Full paisa vasool pendant!',
+      rating: 5
+    },
+    {
+      title: 'Bohot sundar chain hai, simple aur classy 💫',
+      comment: 'Daily wear ke liye best hai. Office me sabhi colleagues ne compliment diya. Delivery Delhi me 3 din me ho gayi thi.',
+      rating: 4
+    }
+  ],
+
+  'Bracelets': [
+    {
+      title: 'Chhote wrist ke liye perfect adjustable fit hai! 🎀',
+      comment: 'Meri wrist bohot patli hai to normal bracelets gir jate hain, but iske extender links bohot helpful hain. Pastel charms bohot pyare lagte hain haath me.',
+      rating: 5
+    },
+    {
+      title: 'Buri nazar se protection aur aesthetic look dono! 🧿✨',
+      comment: 'Evil eye charm ka enamel work bohot neat hai. Daily office me smartwatch ke sath layer karti hu, bohot classy lagta hai.',
+      rating: 5
+    },
+    {
+      title: 'Charms ki quality itni solid hai socha nahi tha 💖',
+      comment: 'Kahi se bhi rough edges nahi hain aur kapdo me nahi atakta. Sweet tinkling sound aati hai jab haath hilao. Loved it!',
+      rating: 5
+    },
+    {
+      title: 'Photo se bhi zyada sundar laga real me 🌸',
+      comment: 'Sunlight me charms itne chamakte hain! Gift wrapping wax seal ke sath aayi thi jo bohot luxury lagti hai. Super happy with purchase.',
+      rating: 5
+    }
+  ],
+
+  'Anklets': [
+    {
+      title: 'Goa trip pe pehana tha, sea water me bhi fade nahi hua! 🌊✨',
+      comment: 'Liquid snake chain bohot smooth hai ankle pe. Na baal khinchte hain na salwar me phasta hai. Bilkul waterproof hai, bilkul tarnish nahi hua!',
+      rating: 5
+    },
+    {
+      title: 'Feet pe itna graceful aur minimal look deta hai 💫',
+      comment: 'Daily sneakers aur sandals dono ke sath suit karta hai. Shine bohot rich hai aur clasp lock bohot secure hai. Definitely worth buying!',
+      rating: 5
+    },
+    {
+      title: 'Pure gold anklet jaisa shine karta hai 💕',
+      comment: 'Dainty look hai par chain sturdy hai, chalte waqt tutne ka darr nahi rehta. Packaging bhi bohot cute thi.',
+      rating: 5
+    }
+  ],
+
+  'Eye Masks': [
+    {
+      title: 'Itna soft hai jaise cloud pe so rahi hu! ☁️😴',
+      comment: 'Laptop screen time ke baad aankhon ko itna sukoon milta hai. Light bilkul pass nahi hoti aur elastic band sir dard nahi karta.',
+      rating: 5
+    },
+    {
+      title: 'Hostel me late night study lights se bachne ka best jugad 🌙✨',
+      comment: 'Roommate late night light on rakhti hai par is mask ke sath pitch dark sleep aati hai. Hair blowout bhi kharab nahi hota.',
+      rating: 5
+    },
+    {
+      title: 'Embroidery bohot neat aur kawaii hai 🎀',
+      comment: 'Fabric silk jaisa silky aur cooling hai. Travel ke liye bag me carry karna bohot easy hai.',
+      rating: 5
+    }
+  ],
+
+  'Self-Care': [
+    {
+      title: 'Soda can wet wipes bohot cute aur handy hain! 🥤✨',
+      comment: 'College tote bag me aur car me carry karna bohot convenient hai. Wipes dry nahi hote aur fragrance bohot mild aur refreshing hai.',
+      rating: 5
+    },
+    {
+      title: 'Nose pore strips ne sare stubborn blackheads nikaal diye! 🌸',
+      comment: 'Nose bridge geela karke lagaya aur 15 min baad peel kiya, skin itni clean ho gayi! Bilkul skin peel nahi hoti aur pain bhi nahi hota.',
+      rating: 5
+    }
+  ],
+
+  'Korean wallets and bags': [
+    {
+      title: 'Puff quilted feel itna soft hai jaise baby pillow! ☁️👛',
+      comment: 'Blush pink shade exactly Pinterest aesthetic jaisa hai. 6 cards, cash aur mini lipstick sab fit ho gaya mere small sling bag me.',
+      rating: 5
+    },
+    {
+      title: 'Gold zipper bohot smooth hai, bilkul atakta nahi ✨',
+      comment: 'Stitching bohot clean hai aur koi cheap smell nahi thi. Quality dekh ke lagta hai 1000+ ka wallet hai.',
+      rating: 5
+    },
+    {
+      title: 'College me sabhi ladkiyo ne compliment kiya 🎀',
+      comment: 'Itna chic aur compact hai. Daily metro card nikaalna bohot easy ho gaya hai isse.',
+      rating: 5
+    }
+  ],
+
+  'Make up': [
+    {
+      title: 'Lips pe bilkul chip-chip nahi hota, itna juicy shine! 💄✨',
+      comment: 'Glassy reflection deta hai aur lips dry nahi hote. Sweet fruity fragrance hai aur Indian skin tone pe natural pink tint lagta hai.',
+      rating: 5
+    },
+    {
+      title: 'Jelly blush ka natural dewy glow bohot natural hai 🌸',
+      comment: 'Fingers se easily blend ho jata hai aur base foundation ko disturb nahi karta. College ke liye no-makeup makeup look ke liye best hai.',
+      rating: 5
+    },
+    {
+      title: 'Glitter eyeshadow ka zero fallout hai! ✨💖',
+      comment: 'Dry hone ke baad bilkul failta nahi. Party lights me aankhein itni chamakti hain, loved the shimmer wand!',
+      rating: 5
+    }
+  ],
+
+  'Soft Toys': [
+    {
+      title: 'Itna zyada squishy aur soft cuddle buddy hai! 🧸💖',
+      comment: 'Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.',
+      rating: 5
+    },
+    {
+      title: 'Parcel open karke meri choti behen khushi se cheekh padi! 🎀✨',
+      comment: 'Pink box packaging bilkul fairytale jaisi thi. Squeeze karne pe wapas shape le leta hai. Best cute gift ever!',
+      rating: 5
+    }
+  ],
+
+  'Key chains': [
+    {
+      title: 'Floating glitter bear itna mesmerizing lagta hai! 🧸✨',
+      comment: 'Scooty aur car keys dono me clip kar liya hai. Sunlight me liquid glitter bohot sundar lagta hai. Metal ring bohot sturdy hai.',
+      rating: 5
+    },
+    {
+      title: 'Phone wristlet strap heavy phone ko bhi aaram se sambhalta hai 📱💖',
+      comment: 'Cord bohot thick hai to tutne ka darr nahi hai. Haath me latka ke chalna bohot convenient ho gaya hai college me.',
+      rating: 5
+    }
+  ],
+
+  'Hair Accessories': [
+    {
+      title: 'Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨',
+      comment: 'Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.',
+      rating: 5
+    },
+    {
+      title: 'Cloud scrunchie se baalo me dent bilkul nahi padta ☁️🎀',
+      comment: 'Velvet fabric itna gentle hai ki baal khinchte nahi hain. Raat ko bandh ke sone ke baad bhi hair smooth rehta hai.',
       rating: 5
     }
   ]
 };
 
-// 3. Generate 16 to 19 reviews per product with dates in the last 3 months
+// 5. Generate 16 to 19 reviews per product with dates in the last 3 months
 const allGeneratedReviews = [];
 const now = Date.now(); // Current date: Nov 17, 2026
 
 let revCounter = 200;
+let hinglishCount = 0;
+let englishCount = 0;
 
 PRODUCTS.forEach((product, prodIndex) => {
   // Target 16 to 19 reviews per product
   const reviewsCount = Math.floor(Math.random() * 4) + 16; // 16, 17, 18, or 19 reviews
-  const templates = CATEGORY_TEMPLATES[product.category] || CATEGORY_TEMPLATES['Pendants & Chains'];
+  
+  const enTemplates = CATEGORY_TEMPLATES_EN[product.category] || CATEGORY_TEMPLATES_EN['Pendants & Chains'];
+  const hiTemplates = CATEGORY_TEMPLATES_HINGLISH[product.category] || CATEGORY_TEMPLATES_HINGLISH['Pendants & Chains'];
   
   // Create an array of random daysAgo between 1 and 88 days (August to November 2026)
   const daysList = [];
@@ -514,9 +599,14 @@ PRODUCTS.forEach((product, prodIndex) => {
     const reviewerIndex = (prodIndex * 19 + r) % femaleReviewers.length;
     const reviewer = femaleReviewers[reviewerIndex];
 
-    // Select template
-    const templateIndex = (r + prodIndex) % templates.length;
-    const template = templates[templateIndex];
+    // Random choice: ~48% Hinglish, ~52% English
+    const isHinglish = (r + prodIndex) % 2 === 0;
+    if (isHinglish) hinglishCount++;
+    else englishCount++;
+
+    const templatePool = isHinglish ? hiTemplates : enTemplates;
+    const templateIndex = (r + prodIndex) % templatePool.length;
+    const template = templatePool[templateIndex];
 
     // Rating: 90% chance of 5 stars, 10% chance of 4 stars
     const rating = Math.random() < 0.90 ? 5 : 4;
@@ -535,6 +625,7 @@ PRODUCTS.forEach((product, prodIndex) => {
       customerName: reviewer.name,
       handle: reviewer.handle,
       rating: rating,
+      language: isHinglish ? 'hinglish' : 'english',
       title: template.title,
       comment: template.comment,
       images: images,
@@ -549,13 +640,7 @@ PRODUCTS.forEach((product, prodIndex) => {
 });
 
 console.log(`Generated ${allGeneratedReviews.length} total reviews across ${PRODUCTS.length} products.`);
-
-// Verify distribution
-const countPerProduct = {};
-allGeneratedReviews.forEach(r => {
-  countPerProduct[r.productId] = (countPerProduct[r.productId] || 0) + 1;
-});
-console.log('Sample counts per product:', Object.entries(countPerProduct).slice(0, 6));
+console.log(`Language breakdown: ${hinglishCount} Hinglish reviews, ${englishCount} English reviews.`);
 
 // Check date range
 const minTimestamp = Math.min(...allGeneratedReviews.map(r => r.createdAt));
@@ -568,7 +653,7 @@ const outPath = path.join(__dirname, '../src/data/productReviewsData.js');
 const fileContent = `/**
  * Curated Authentic Customer Reviews for Scoop Storey Products
  * Verified Indian female customer reviews with random timestamps spread across the last 3 months.
- * Generated for 100% genuine social proof on product detail pages and store testimonials.
+ * Balanced blend of authentic English and natural Hinglish conversational reviews.
  */
 
 export const INITIAL_PRODUCT_REVIEWS = ${JSON.stringify(allGeneratedReviews, null, 2)};

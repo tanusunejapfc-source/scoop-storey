@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, uploadImageToSupabase } from './supabaseClient';
 import { INITIAL_PRODUCT_REVIEWS } from '../data/productReviewsData';
 
-const REVIEWS_STORAGE_KEY = 'bhaskar_store_reviews_v2';
+const REVIEWS_STORAGE_KEY = 'bhaskar_store_reviews_v3';
 
 export const INITIAL_REVIEWS = [
   ...INITIAL_PRODUCT_REVIEWS
