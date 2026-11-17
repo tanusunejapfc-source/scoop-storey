@@ -8,7 +8,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, uploadImageToSupabase } from './supabaseClient';
 import { INITIAL_PRODUCT_REVIEWS } from '../data/productReviewsData';
 
-const REVIEWS_STORAGE_KEY = 'bhaskar_store_reviews_v3';
+const REVIEWS_STORAGE_KEY = 'scoop_store_reviews_v5';
+const OLD_REVIEWS_KEY = 'bhaskar_store_reviews_v3';
 
 export const INITIAL_REVIEWS = [
   ...INITIAL_PRODUCT_REVIEWS
@@ -16,29 +17,65 @@ export const INITIAL_REVIEWS = [
 
 let inMemoryReviews = null;
 
+// Helper to cleanse any old lingering Bhaskar / Bhasker mentions
+function sanitizeReviewRecord(rev) {
+  if (!rev || typeof rev !== 'object') return rev;
+  const clean = (str) => {
+    if (!str || typeof str !== 'string') return str;
+    return str
+      .replace(/Bhaskar bhaiya/gi, 'Tanu di')
+      .replace(/Bhasker bhaiya/gi, 'Tanu di')
+      .replace(/Bhaskar Scoop Storey/gi, 'Scoop Storey')
+      .replace(/Bhasker Scoop Storey/gi, 'Scoop Storey')
+      .replace(/Bhaskar's Vault/gi, "Tanu's Vault")
+      .replace(/Bhasker's Vault/gi, "Tanu's Vault")
+      .replace(/Bhaskar/gi, 'Tanu')
+      .replace(/Bhasker/gi, 'Tanu');
+  };
+  return {
+    ...rev,
+    comment: clean(rev.comment),
+    title: clean(rev.title),
+    customerName: clean(rev.customerName),
+    reply: rev.reply ? clean(rev.reply) : rev.reply
+  };
+}
+
 /**
  * Retrieve all reviews from storage
  */
 export function getStoredReviews() {
   if (inMemoryReviews && Array.isArray(inMemoryReviews)) {
-    return inMemoryReviews;
+    return inMemoryReviews.map(sanitizeReviewRecord);
   }
 
   try {
-    const raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
+    let raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
+    if (!raw) {
+      const oldRaw = localStorage.getItem(OLD_REVIEWS_KEY);
+      if (oldRaw) {
+        raw = oldRaw;
+        try { localStorage.removeItem(OLD_REVIEWS_KEY); } catch {}
+      }
+    }
+
     if (raw) {
       const parsed = JSON.parse(raw);
       // Ensure we load the full product reviews suite if old cache has fewer items
       if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCT_REVIEWS.length) {
-        inMemoryReviews = parsed;
-        return parsed;
+        const sanitized = parsed.map(sanitizeReviewRecord);
+        inMemoryReviews = sanitized;
+        try {
+          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(sanitized));
+        } catch {}
+        return sanitized;
       }
     }
   } catch (err) {
     console.warn('Failed to parse stored reviews:', err);
   }
 
-  inMemoryReviews = [...INITIAL_REVIEWS];
+  inMemoryReviews = INITIAL_REVIEWS.map(sanitizeReviewRecord);
   try {
     localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(inMemoryReviews));
   } catch {}

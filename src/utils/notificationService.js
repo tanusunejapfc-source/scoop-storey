@@ -15,7 +15,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS = {
   },
   email: {
     enabled: true,
-    recipientEmail: 'bhaskar.scoopstorey@gmail.com',
+    recipientEmail: 'scoopstorey@gmail.com',
     provider: 'web3forms', // 'web3forms' | 'formspree' | 'custom'
     web3formsAccessKey: 'a840e691-884c-4739-9d78-6878b30f81d1', // default public gateway key
     formspreeUrl: '',
@@ -124,8 +124,8 @@ Check live status in Scoop Storey Admin Panel!`;
   return {
     access_key: settings.email?.web3formsAccessKey || DEFAULT_NOTIFICATION_SETTINGS.email.web3formsAccessKey,
     subject: `🎀 New Order #${order.orderId} (₹${order.totalINR}) - ${customer.fullName || 'Customer'}`,
-    from_name: 'Bhaskar Scoop Storey',
-    to_email: settings.email?.recipientEmail || 'bhaskar.scoopstorey@gmail.com',
+    from_name: 'Tanu - Scoop Storey',
+    to_email: settings.email?.recipientEmail || 'scoopstorey@gmail.com',
     customer_name: customer.fullName || 'Customer',
     order_id: order.orderId,
     total_amount: `₹${order.totalINR}`,
@@ -274,7 +274,7 @@ export async function testTelegram(token, chatId) {
     paymentMethod: 'UPI QR Code (Test)',
     upiRefNumber: 'TEST99999999',
     customer: {
-      fullName: 'Bhaskar (Store Owner Test)',
+      fullName: 'Tanu (Store Owner Test)',
       phone: '8199922653',
       streetAddress: 'Scoop Storey Studio',
       city: 'Delhi',
@@ -302,7 +302,7 @@ export async function testEmail(recipientEmail, provider = 'web3forms', customUr
     paymentMethod: 'UPI QR Code (Test)',
     upiRefNumber: 'TEST88888888',
     customer: {
-      fullName: 'Bhaskar (Store Owner Test)',
+      fullName: 'Tanu (Store Owner Test)',
       phone: '8199922653',
       streetAddress: 'Scoop Storey Studio',
       city: 'Delhi',

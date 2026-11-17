@@ -467,11 +467,11 @@ export default function AdminPanel({
     views: '480K',
     likes: '42K',
     comments: '1,200',
-    audio: 'Original Audio - Bhaskar Scoop Storey (ASMR)',
+    audio: 'Original Audio - Scoop Storey (ASMR)',
     tag: '#mysteryscoop #asmrpacking #satisfying',
     image: '',
     videoUrl: '',
-    instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+    instagramUrl: 'https://www.instagram.com/scoopstorey/'
   });
   const [videoUploading, setVideoUploading] = useState(false);
   const [posterUploading, setPosterUploading] = useState(false);
@@ -489,11 +489,11 @@ export default function AdminPanel({
       views: reel.views || '500K',
       likes: reel.likes || '45K',
       comments: reel.comments || '1,200',
-      audio: reel.audio || 'Original Audio • Bhaskar ASMR',
+      audio: reel.audio || 'Original Audio • Tanu ASMR',
       tag: reel.tag || '',
       image: reel.image || '',
       videoUrl: reel.videoUrl || '',
-      instagramUrl: reel.instagramUrl || 'https://www.instagram.com/bhaskar_scoopstorey/'
+      instagramUrl: reel.instagramUrl || 'https://www.instagram.com/scoopstorey/'
     });
   };
 
@@ -507,11 +507,11 @@ export default function AdminPanel({
       views: '120K',
       likes: '14.5K',
       comments: '420',
-      audio: 'Original Audio - Bhaskar ASMR',
+      audio: 'Original Audio - Tanu ASMR',
       tag: '#mysteryscoop #asmrpacking #scoopstorey',
       image: '/images/asmr-packing.jpg',
       videoUrl: '',
-      instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+      instagramUrl: 'https://www.instagram.com/scoopstorey/'
     });
   };
 
@@ -1105,7 +1105,7 @@ export default function AdminPanel({
 
     if (
       currentPassInput.trim() !== storedPass &&
-      !(storedPass === DEFAULT_PASSCODE && (currentPassInput.trim() === 'admin' || currentPassInput.trim() === 'bhaskar'))
+      !(storedPass === DEFAULT_PASSCODE && (currentPassInput.trim() === 'admin' || currentPassInput.trim() === 'tanu' || currentPassInput.trim() === 'bhaskar'))
     ) {
       setSecurityError('Current passcode is incorrect.');
       soundFX.playPop(300);
@@ -5183,7 +5183,7 @@ export default function AdminPanel({
                             type="text"
                             value={reelFormData.audio}
                             onChange={(e) => setReelFormData(prev => ({ ...prev, audio: e.target.value }))}
-                            placeholder="e.g. Pure ASMR Charm Clinks • Bhaskar"
+                            placeholder="e.g. Pure ASMR Charm Clinks • Tanu"
                             className="w-full px-3 py-2 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
                           />
                         </div>
@@ -5528,7 +5528,7 @@ export default function AdminPanel({
                                 ...prev,
                                 email: { ...prev.email, recipientEmail: e.target.value }
                               }))}
-                              placeholder="e.g. bhaskar.scoopstorey@gmail.com"
+                              placeholder="e.g. scoopstorey@gmail.com"
                               className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
                             />
                           </div>

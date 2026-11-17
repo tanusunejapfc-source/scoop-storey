@@ -652,7 +652,7 @@ export default function Navbar({
                   </a>
 
                   <a
-                    href="https://www.instagram.com/bhaskar_scoopstorey/"
+                    href="https://www.instagram.com/scoopstorey/"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => soundFX.playPop(520)}
@@ -662,7 +662,7 @@ export default function Navbar({
                       <InstagramIcon className="w-4 h-4 shrink-0" />
                       <div className="text-left">
                         <div>Daily ASMR Packing Reels</div>
-                        <div className="text-[10px] text-pink-100 font-normal">@bhaskar_scoopstorey • 15K+ Collectors</div>
+                        <div className="text-[10px] text-pink-100 font-normal">@scoopstorey • 15K+ Collectors</div>
                       </div>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5 text-white/80" />

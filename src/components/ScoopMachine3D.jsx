@@ -1283,7 +1283,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full max-w-xl p-1.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50/50 to-pink-50 dark:from-[#251A38] dark:to-[#1E172E] border border-pink-200/80 dark:border-pink-800/50 shadow-inner">
             {SCOOP_TIERS.map((tier) => {
               const isSelected = selectedTier.id === tier.id;
-              const cleanName = tier.name.replace('Scoop Storey - ', '').replace("Bhaskar's Vault ", '');
+              const cleanName = tier.name.replace('Scoop Storey - ', '').replace("Bhaskar's Vault ", '').replace("Tanu's Vault ", '');
               return (
                 <button
                   key={tier.id}

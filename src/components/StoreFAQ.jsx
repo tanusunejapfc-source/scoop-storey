@@ -71,7 +71,7 @@ const FAQS_DATA = [
   {
     category: 'scoops',
     q: 'How do I request my order to be filmed for an Instagram ASMR Reel?',
-    a: 'During checkout, simply check the box "Film My Order on IG Reel" and enter your Instagram @handle. When packing your order, Tanu will record the ASMR dipping and unboxing video and tag your handle on @bhaskar_scoopstorey!'
+    a: 'During checkout, simply check the box "Film My Order on IG Reel" and enter your Instagram @handle. When packing your order, Tanu will record the ASMR dipping and unboxing video and tag your handle on @scoopstorey!'
   },
   {
     category: 'scoops',

@@ -86,18 +86,18 @@ export default function ReelsShowcase() {
           <p className="mt-2 text-[#554664] dark:text-[#E0D7EB] max-w-xl text-sm md:text-base font-medium">
             Satisfying ASMR sounds, custom orders, and live scoop streams. Follow 
             <a 
-              href="https://www.instagram.com/bhaskar_scoopstorey/" 
+              href="https://www.instagram.com/scoopstorey/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[#E60067] dark:text-pink-400 font-extrabold ml-1 hover:underline"
             >
-              @bhaskar_scoopstorey
+              @scoopstorey
             </a> for daily packing bliss across India.
           </p>
         </div>
 
         <a
-          href="https://www.instagram.com/bhaskar_scoopstorey/"
+          href="https://www.instagram.com/scoopstorey/"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => soundFX.playPop(520)}
@@ -214,7 +214,7 @@ export default function ReelsShowcase() {
 
                 {/* Direct Instagram Link */}
                 <a
-                  href={reel.instagramUrl || "https://www.instagram.com/bhaskar_scoopstorey/"}
+                  href={reel.instagramUrl || "https://www.instagram.com/scoopstorey/"}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -238,7 +238,7 @@ export default function ReelsShowcase() {
                 )}
                 <div className="flex items-center gap-1.5 text-[10px] text-white/90 mt-2 font-mono truncate">
                   <Volume2 className="w-3 h-3 shrink-0 animate-pulse text-yellow-300" />
-                  <span className="truncate">{reel.audio || 'Original Audio • Bhaskar ASMR'}</span>
+                  <span className="truncate">{(reel.audio || 'Original Audio • Tanu ASMR').replace(/Bhaskar/gi, 'Tanu')}</span>
                 </div>
               </div>
             </div>

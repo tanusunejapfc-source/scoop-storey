@@ -1,6 +1,6 @@
 # 🧸 Scoop Storey — 3D Kawaii Mystery Scoop Website (India 🇮🇳)
 
-> **Official 3D Interactive Web Experience for [@bhaskar_scoopstorey](https://www.instagram.com/bhaskar_scoopstorey/)**  
+> **Official 3D Interactive Web Experience for [@scoopstorey](https://www.instagram.com/scoopstorey/)**  
 > *"• Every scoop contains surprises • Collect Happiness •"*
 
 A modern, stylish, and interactive 3D e-commerce and brand showcase for **Scoop Storey**, bringing the sensory delight of Kawaii mystery scoops, aesthetic Korean pendants, charm bracelets, eye masks, and ASMR packaging directly to India.
@@ -22,7 +22,7 @@ A modern, stylish, and interactive 3D e-commerce and brand showcase for **Scoop 
 - **Scoop Storey - Mini Scoop** (₹199) — 15-20 Handpicked Charms & Minis
 - **Scoop Storey - Midi Scoop** (₹349) — 30+ Charms & Resin Minis
 - **Scoop Storey - Big Scoop** (₹499) — 50+ Charms + Plush Bear Keychain + Blind Box
-- **Bhaskar's Vault Mega Scoop** (₹899) — 80+ Luxury Charms + Rare Gold Vault Bear
+- **Tanu's Vault Mega Scoop** (₹899) — 80+ Luxury Charms + Rare Gold Vault Bear
 
 ### 2. 📿 Pendants & Necklaces (₹199 - ₹240)
 - *Bow Heart Aesthetic Pendant* (₹199)
@@ -88,6 +88,6 @@ Visit `http://localhost:5173` in your browser.
 
 ## 📸 Official Links
 
-- **Instagram**: [@bhaskar_scoopstorey](https://www.instagram.com/bhaskar_scoopstorey/)
+- **Instagram**: [@scoopstorey](https://www.instagram.com/scoopstorey/)
 - **WhatsApp**: [+91 8199922653](https://wa.me/918199922653)
 - **Canva Catalog**: [Scoop Storey Store](https://xn--scoopstorey-jn56j.my.canva.site/)

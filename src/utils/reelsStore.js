@@ -7,11 +7,11 @@ export const DEFAULT_REELS = [
     views: '482K',
     likes: '42.8K',
     comments: '1,280',
-    audio: 'Original Audio - Bhaskar Scoop Storey (ASMR)',
+    audio: 'Original Audio - Scoop Storey (ASMR)',
     tag: '#mysteryscoop #asmrpacking #satisfying',
     image: '/images/asmr-packing.jpg',
     videoUrl: '',
-    instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+    instagramUrl: 'https://www.instagram.com/scoopstorey/'
   },
   {
     id: 'reel-2',
@@ -19,11 +19,11 @@ export const DEFAULT_REELS = [
     views: '890K',
     likes: '78.2K',
     comments: '2,410',
-    audio: 'Pure ASMR Charm Clinks • Bhaskar',
+    audio: 'Pure ASMR Charm Clinks • Tanu',
     tag: '#kawaiicharms #resinart #scoopstorey',
     image: '/images/scoop-bowl.jpg',
     videoUrl: '',
-    instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+    instagramUrl: 'https://www.instagram.com/scoopstorey/'
   },
   {
     id: 'reel-3',
@@ -31,11 +31,11 @@ export const DEFAULT_REELS = [
     views: '320K',
     likes: '29.4K',
     comments: '890',
-    audio: 'Pastel Dreams Chill Beats • Bhaskar',
+    audio: 'Pastel Dreams Chill Beats • Tanu',
     tag: '#phonestrap #y2kcharms #crafttok',
     image: '/images/charm-bracelets.jpg',
     videoUrl: '',
-    instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+    instagramUrl: 'https://www.instagram.com/scoopstorey/'
   },
   {
     id: 'reel-4',
@@ -43,19 +43,30 @@ export const DEFAULT_REELS = [
     views: '1.2M',
     likes: '115K',
     comments: '3,840',
-    audio: 'Unboxing Happiness • Bhaskar Scoop Storey',
+    audio: 'Unboxing Happiness • Scoop Storey',
     tag: '#blindbox #unboxinghappiness #kawaiiaesthetic',
     image: '/images/deluxe-giftbox.jpg',
     videoUrl: '',
-    instagramUrl: 'https://www.instagram.com/bhaskar_scoopstorey/'
+    instagramUrl: 'https://www.instagram.com/scoopstorey/'
   }
 ];
 
-const REELS_STORAGE_KEY = 'bhaskar_store_reels_v1';
+const REELS_STORAGE_KEY = 'scoop_store_reels_v2';
+const OLD_REELS_STORAGE_KEY = 'bhaskar_store_reels_v1';
 const IDB_NAME = 'ScoopStoreyDB_v3';
 const IDB_REELS_STORE = 'store_reels';
 
 let memoryReels = null;
+
+function sanitizeReel(reel) {
+  if (!reel || typeof reel !== 'object') return reel;
+  return {
+    ...reel,
+    audio: (reel.audio || '').replace(/Bhaskar/gi, 'Tanu').replace(/Bhasker/gi, 'Tanu'),
+    title: (reel.title || '').replace(/Bhaskar/gi, 'Tanu').replace(/Bhasker/gi, 'Tanu'),
+    instagramUrl: (reel.instagramUrl || 'https://www.instagram.com/scoopstorey/').replace(/bhaskar_scoopstorey/gi, 'scoopstorey')
+  };
+}
 
 // Open IndexedDB with object store for reels & large video blobs
 function openReelsDB() {
@@ -159,23 +170,33 @@ export async function saveIDBReels(reels) {
 
 export function getStoredReels() {
   if (memoryReels && Array.isArray(memoryReels) && memoryReels.length > 0) {
-    return memoryReels;
+    return memoryReels.map(sanitizeReel);
   }
 
   try {
-    const raw = localStorage.getItem(REELS_STORAGE_KEY);
+    let raw = localStorage.getItem(REELS_STORAGE_KEY);
+    if (!raw) {
+      const oldRaw = localStorage.getItem(OLD_REELS_STORAGE_KEY);
+      if (oldRaw) {
+        raw = oldRaw;
+        try { localStorage.removeItem(OLD_REELS_STORAGE_KEY); } catch {}
+      }
+    }
+
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        memoryReels = parsed;
-        return parsed;
+        const sanitized = parsed.map(sanitizeReel);
+        memoryReels = sanitized;
+        try { localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(sanitized)); } catch {}
+        return sanitized;
       }
     }
   } catch (err) {
     console.warn('Failed to read reels from localStorage:', err);
   }
 
-  memoryReels = [...DEFAULT_REELS];
+  memoryReels = DEFAULT_REELS.map(sanitizeReel);
   return memoryReels;
 }
 

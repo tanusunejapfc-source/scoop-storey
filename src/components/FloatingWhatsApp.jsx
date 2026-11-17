@@ -4,10 +4,10 @@ import WhatsAppIcon from './WhatsAppIcon';
 import { soundFX } from '../utils/audio';
 
 const QUICK_PROMPTS = [
-  { label: '🚚 Check Delivery PIN', text: 'Hi Bhaskar! Can you check if free delivery is available for my PIN code?' },
+  { label: '🚚 Check Delivery PIN', text: 'Hi Tanu! Can you check if free delivery is available for my PIN code?' },
   { label: '🎀 Mystery Scoop Inquiry', text: 'Hi! I want to know what items come in the Mystery Scoop.' },
-  { label: '🎬 Pack on IG Reel', text: 'Hi Bhaskar! I want my order to be packed on an Instagram Reel video.' },
-  { label: '💬 General Inquiry', text: 'Hi Bhaskar! I have a question about Scoop Storey products.' }
+  { label: '🎬 Pack on IG Reel', text: 'Hi Tanu! I want my order to be packed on an Instagram Reel video.' },
+  { label: '💬 General Inquiry', text: 'Hi Tanu! I have a question about Scoop Storey products.' }
 ];
 
 export default function FloatingWhatsApp() {
@@ -47,7 +47,7 @@ export default function FloatingWhatsApp() {
               <div className="relative">
                 <img
                   src="/brand-avatar.jpg"
-                  alt="Bhaskar Scoop Storey"
+                  alt="Tanu - Scoop Storey"
                   className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';

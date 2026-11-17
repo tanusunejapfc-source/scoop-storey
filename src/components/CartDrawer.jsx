@@ -1589,7 +1589,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       className="accent-pink-500 rounded"
                     />
                     <span className="font-semibold text-pink-600 dark:text-pink-400">
-                      Film My Order on IG Reel (@bhaskar_scoopstorey)
+                      Film My Order on IG Reel (@scoopstorey)
                     </span>
                   </label>
 

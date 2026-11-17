@@ -31,7 +31,7 @@ const FAQS = [
   },
   {
     q: 'How do I get my order packed on an Instagram Reel?',
-    a: 'Simply check "Film My Order on IG Reel" in your cart or on WhatsApp, and provide your Instagram @handle. Bhaskar will tag your username in an upcoming ASMR order packing video!'
+    a: 'Simply check "Film My Order on IG Reel" in your cart or on WhatsApp, and provide your Instagram @handle. Tanu will tag your username in an upcoming ASMR order packing video!'
   },
   {
     q: 'How long does delivery take across India?',
@@ -126,12 +126,12 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
             <div className="flex items-center gap-3">
               <img 
                 src="/brand-avatar.jpg" 
-                alt="Bhaskar Scoop Storey" 
+                alt="Tanu - Scoop Storey" 
                 className="w-12 h-12 rounded-full object-cover border-2 border-pink-400 shadow-md"
               />
               <div>
                 <h3 className="font-display font-bold text-lg text-neutral-900 dark:text-white leading-tight">
-                  Bhaskar Scoop Storey
+                  Scoop Storey
                 </h3>
                 <span className="text-xs text-pink-600 dark:text-pink-400 font-script font-bold">
                   • Collect Happiness In Every Scoop •
@@ -155,13 +155,13 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
               </a>
 
               <a
-                href="https://www.instagram.com/bhaskar_scoopstorey/"
+                href="https://www.instagram.com/scoopstorey/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 sm:flex-initial p-2.5 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white hover:opacity-90 transition shadow-xs flex items-center justify-center gap-2 text-xs font-bold"
               >
                 <InstagramIcon className="w-4 h-4" />
-                <span>@bhaskar_scoopstorey</span>
+                <span>@scoopstorey</span>
               </a>
             </div>
           </div>
@@ -271,7 +271,7 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
         {/* Bottom Sub-footer */}
         <div className="mt-12 pt-6 border-t border-pink-100 dark:border-pink-900/30 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 gap-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <span>© {CURRENT_YEAR} Bhaskar Scoop Storey (@bhaskar_scoopstorey). Strictly India Deliveries.</span>
+            <span>© {CURRENT_YEAR} Scoop Storey. Strictly India Deliveries.</span>
             {onOpenAdmin && (
               <button
                 onClick={onOpenAdmin}

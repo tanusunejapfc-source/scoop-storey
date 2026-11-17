@@ -248,7 +248,7 @@ export default function CharmInspector3D({ isDark = false }) {
                 Inspect Every Facet & Curve
               </h2>
               <p className="mt-2 text-sm md:text-base text-[#554664] dark:text-[#E0D7EB] font-medium">
-                Rotate with your mouse or finger to view the microscopic shine and craftsmanship that goes into Bhaskar Scoop Storey pieces.
+                Rotate with your mouse or finger to view the microscopic shine and craftsmanship that goes into Scoop Storey pieces.
               </p>
             </div>
 

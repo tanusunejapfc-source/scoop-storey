@@ -74,7 +74,7 @@ export default function BrandStory() {
           </div>
 
           <p className="text-sm md:text-base text-[#483A54] dark:text-[#E0D7EB] font-medium leading-relaxed font-body">
-            What started as a creative passion on Instagram <a href="https://www.instagram.com/bhaskar_scoopstorey/" target="_blank" rel="noopener noreferrer" className="text-[#E60067] dark:text-pink-400 font-black underline">@bhaskar_scoopstorey</a> has blossomed into India's favorite boutique for lovers of kawaii charms, sensory ASMR, and the magic of mystery scoops.
+            What started as a creative passion on Instagram <a href="https://www.instagram.com/scoopstorey/" target="_blank" rel="noopener noreferrer" className="text-[#E60067] dark:text-pink-400 font-black underline">@scoopstorey</a> has blossomed into India's favorite boutique for lovers of kawaii charms, sensory ASMR, and the magic of mystery scoops.
           </p>
 
           <p className="text-sm md:text-base text-[#483A54] dark:text-[#E0D7EB] font-medium leading-relaxed font-body">

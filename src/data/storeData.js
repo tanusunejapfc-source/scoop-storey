@@ -1,4 +1,4 @@
-// Official Product Catalog & Mystery Scoop Tiers for Bhaskar Scoop Storey
+// Official Product Catalog & Mystery Scoop Tiers for Scoop Storey
 export const SCOOP_TIERS = [
   {
     id: 'mini-scoop',
