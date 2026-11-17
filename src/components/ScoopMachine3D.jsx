@@ -1155,14 +1155,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
 
   return (
     <section id="scoop-machine" className="my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Policy Alert Banner */}
-      <div className="mb-8 p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-300 dark:border-pink-800 flex items-center justify-center gap-2.5 text-center text-xs md:text-sm font-bold text-[#E60067] dark:text-pink-300">
-        <AlertCircle className="w-4 h-4 shrink-0 text-[#E60067]" />
-        <span>
-          <strong>Store Policy:</strong> Minimum 3 Products Required to Order • Single Item Order Not Available • 100% Prepaid via UPI QR / WhatsApp (+91 8199922653)
-        </span>
-      </div>
-
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-xs tracking-wider uppercase mb-3 shadow-xs">

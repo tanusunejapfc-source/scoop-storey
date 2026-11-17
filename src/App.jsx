@@ -4,7 +4,7 @@ import CategoryIconsBar from './components/CategoryIconsBar';
 import GlobalSearchModal from './components/GlobalSearchModal';
 import OrderTrackingModal from './components/OrderTrackingModal';
 import WishlistDrawer from './components/WishlistDrawer';
-import Hero3DCanvas from './components/Hero3DCanvas';
+import BoutiqueHero from './components/BoutiqueHero';
 import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetailPage from './components/ProductDetailPage';
@@ -329,85 +329,13 @@ export default function App() {
       ) : (
         /* FULL FEATURED HOMEPAGE */
         <main>
-          {/* HERO SECTION WITH 3D WEBGL CHARMS */}
-          <section className="relative pt-6 pb-16 md:pt-12 md:pb-24 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              
-              {/* Left Text & Call to Action (6 cols) */}
-              <div className="lg:col-span-6 z-10 space-y-6 text-center lg:text-left">
-                {/* Top Badge */}
-                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-[10px] sm:text-xs tracking-wide uppercase shadow-xs max-w-full">
-                  <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping shrink-0" />
-                  <span className="truncate sm:whitespace-nowrap">India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
-                </div>
+          {/* BOUTIQUE HERO SECTION (Fast, Stylish & Responsive) */}
+          <BoutiqueHero 
+            onSelectCategory={handleSelectCategory}
+            isDark={isDark}
+          />
 
-                {/* Main Title - High Contrast Dark Plum in light mode, Crisp White in dark */}
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white leading-[1.14]">
-                  Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
-                </h1>
-
-                {/* Subtext */}
-                <p className="text-base sm:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
-                  India's first 3D interactive mystery scoop studio. Dip for Kawaii charms, Korean pendants, charm bracelets, and self-care surprises — all hand-packed on Instagram Reels!
-                </p>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
-                  <a
-                    href="#scoop-machine"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      soundFX.playPop(550);
-                      document.getElementById('scoop-machine')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl text-center"
-                  >
-                    <span>Dip a 3D Scoop</span>
-                    <span>✨</span>
-                  </a>
-
-                  <a
-                    href="#menu"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      soundFX.playPop(500);
-                      setActiveCollection(null);
-                      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-800 text-[#231733] dark:text-white font-display font-bold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 transition shadow-sm text-center"
-                  >
-                    <span>Browse Collections</span>
-                  </a>
-                </div>
-
-                {/* Social Trust Metrics */}
-                <div className="pt-4 grid grid-cols-3 gap-2 sm:gap-6 text-center lg:text-left text-[11px] sm:text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold border-t border-pink-200/60 dark:border-pink-900/40 w-full max-w-md mx-auto lg:mx-0">
-                  <div className="px-1">
-                    <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">15,000+</strong>
-                    <span className="text-[10px] sm:text-xs leading-tight">Charms Scooped</span>
-                  </div>
-                  <div className="px-1 border-x border-pink-200 dark:border-pink-900">
-                    <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">100%</strong>
-                    <span className="text-[10px] sm:text-xs leading-tight">Prepaid Delivery</span>
-                  </div>
-                  <div className="px-1">
-                    <strong className="text-neutral-900 dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">4.9 ★</strong>
-                    <span className="text-[10px] sm:text-xs leading-tight">IG Community</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right 3D Visualizer Canvas (6 cols) */}
-              <div className="lg:col-span-6 relative aspect-square max-w-[500px] mx-auto lg:max-w-none w-full">
-                <Hero3DCanvas isDark={isDark} />
-              </div>
-            </div>
-          </section>
-
-          {/* 3D INTERACTIVE MYSTERY SCOOP MACHINE */}
-          <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
-
-          {/* THE SCOOP MENU (PRODUCT COLLECTIONS HUB) */}
+          {/* THE SCOOP MENU (PRODUCT COLLECTIONS HUB) - IMMEDIATELY ACCESSIBLE WITHOUT ENDLESS SCROLL */}
           <ProductCatalog 
             products={products} 
             onAddToCart={handleAddToCart} 
@@ -424,6 +352,11 @@ export default function App() {
             activeCollection={null}
             onSelectCollection={handleSelectCategory}
           />
+
+          {/* 3D INTERACTIVE VIP MYSTERY SCOOP STUDIO */}
+          <div className="relative py-2 md:py-6">
+            <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+          </div>
 
           {/* ASMR & INSTAGRAM REELS SHOWCASE */}
           <ReelsShowcase />
