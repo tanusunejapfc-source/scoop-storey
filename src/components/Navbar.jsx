@@ -27,9 +27,9 @@ const ANNOUNCEMENTS = [
   {
     id: 1,
     icon: '✨',
-    title: 'Notice: Minimum 3 Products Required to Order',
-    mobileTitle: 'Min 3 Products Required to Order',
-    sub: 'Single Item Not Available',
+    title: 'Notice: Any 3 Products or Any Order ₹499+',
+    mobileTitle: 'Min 3 Items or Order ₹499+',
+    sub: 'Free Delivery Across India',
     mobileSub: '100% Prepaid'
   },
   {
@@ -227,7 +227,7 @@ export default function Navbar({
             <div className="hidden sm:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
               <div className="flex items-center gap-1.5">
                 <span>✨</span>
-                <span><strong>Notice:</strong> Minimum 3 Products Required to Order</span>
+                <span><strong>Notice:</strong> Any 3 Products or Any Order ₹499+</span>
               </div>
               <span className="text-pink-300">•</span>
               <div className="flex items-center gap-1.5">
@@ -672,9 +672,9 @@ export default function Navbar({
                 {/* 4. Policy Micro Notice */}
                 <div className="p-3 rounded-2xl bg-pink-100/60 dark:bg-neutral-800/60 border border-pink-200 dark:border-pink-900/40 text-center text-[10px] text-[#554664] dark:text-[#D5CBE2] space-y-0.5">
                   <div className="font-extrabold text-[#E60067] dark:text-pink-400">
-                    India 🇮🇳 • Minimum 3 Products Required
+                    India 🇮🇳 • Any 3 Products or Order ₹499+
                   </div>
-                  <div>100% Prepaid Delivery • Single Item Not Available</div>
+                  <div>100% Free Express Delivery Across India</div>
                 </div>
 
               </div>

@@ -102,7 +102,7 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'shipping' }
                   <span>100% Free Express Delivery Across India</span>
                 </h4>
                 <p className="text-xs text-neutral-600 dark:text-neutral-300">
-                  Every order on Scoop Storey is eligible for zero delivery fees anywhere in India when you complete the minimum 3 products requirement.
+                  Every order on Scoop Storey is eligible for zero delivery fees anywhere in India with any 3 items or any order ₹499 and above.
                 </p>
               </div>
 

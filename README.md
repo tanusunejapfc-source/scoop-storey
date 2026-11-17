@@ -10,7 +10,7 @@ A modern, stylish, and interactive 3D e-commerce and brand showcase for **Scoop 
 ## 🇮🇳 Store Policies & Features
 
 - **Pricing**: 100% Indian Rupees (**₹ INR**) only.
-- **Order Policy**: **Minimum 3 Products Required** to order (Single item orders are not accepted).
+- **Order Policy**: **Any 3 Products or Order ₹499+** (Single items allowed if total is ₹499 or above, such as Mystery Scoops).
 - **Payment**: **100% Prepaid** via UPI QR Code (WhatsApp: `+91 8199922653`).
 - **Free Delivery**: Free shipping across India on orders over ₹499.
 

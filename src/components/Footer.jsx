@@ -19,7 +19,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const FAQS = [
   {
     q: 'What is the minimum order requirement?',
-    a: 'We have a strict minimum order requirement of 3 products. Single item orders are not available. You can mix and match any 3 items across Pendants, Bracelets, Eye Masks, and Mystery Scoops!'
+    a: 'You can order with any 3 items, OR if any single or combo item total is ₹499 or above (such as our Mini, Midi, or Big Mystery Scoops)! You can freely mix and match across Pendants, Bracelets, Eye Masks, and Mystery Scoops.'
   },
   {
     q: 'What payment methods do you accept?',
@@ -97,9 +97,9 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                Minimum 3 Products Required
+                3 Items or Order ₹499+
               </div>
-              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Mix & match any charms, pendants, or masks</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Mix & match any 3 items or order any scoop/item above ₹499</div>
             </div>
           </div>
 

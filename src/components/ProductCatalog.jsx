@@ -622,7 +622,7 @@ export default function ProductCatalog({
       {activeCollection && (
         <div className="mb-6 p-3 rounded-2xl bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 dark:from-[#261537] dark:via-[#341B49] dark:to-[#261537] border-2 border-pink-300 dark:border-pink-800/80 flex items-center justify-center gap-2 text-xs font-bold text-[#231733] dark:text-pink-100 text-center shadow-xs">
           <AlertCircle className="w-4 h-4 shrink-0 text-[#E60067] dark:text-pink-400" />
-          <span>Order Rule: Minimum 3 Products Required to Checkout • 100% Prepaid Delivery Across India</span>
+          <span>Order Rule: Any 3 Products or Any Order ₹499+ • 100% Free Express Delivery Across India</span>
         </div>
       )}
 

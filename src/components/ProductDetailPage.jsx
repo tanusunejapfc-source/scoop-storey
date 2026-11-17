@@ -1039,7 +1039,7 @@ export default function ProductDetailPage({
                 {/* Tab 3: Shipping & Policies */}
                 {activeTab === 'shipping' && (
                   <div className="p-3 rounded-xl bg-pink-50/70 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700 text-xs space-y-1.5 text-neutral-700 dark:text-neutral-300 animate-fadeIn">
-                    <p>• <strong>Order Rule:</strong> Minimum 3 Products Required to place an order.</p>
+                    <p>• <strong>Order Rule:</strong> Minimum 3 Products (or any order above ₹499).</p>
                     <p>• <strong>Payment:</strong> 100% Prepaid via UPI QR Code only.</p>
                     <p>• <strong>Delivery:</strong> 100% Free Express Delivery across India on all prepaid orders.</p>
                     <p>• <strong>Packaging:</strong> Packed with cute ASMR aesthetic on Instagram Reels upon request!</p>

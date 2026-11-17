@@ -164,12 +164,14 @@ export default function CartDrawer({
     return calculatePaymentBreakdown(totalINR, paymentMode, paymentSettings);
   }, [totalINR, paymentMode, paymentSettings]);
 
-  // Minimum 3 products rule
-  const minRequired = 3;
-  const isMinimumMet = totalItemCount >= minRequired;
-  const itemsRemainingForMin = Math.max(0, minRequired - totalItemCount);
+  // Order Eligibility: Any 3 items OR any single/combo total >= ₹499
+  const minItemCount = 3;
+  const minAmountINR = 499;
+  const isMinimumMet = totalItemCount >= minItemCount || totalINR >= minAmountINR;
+  const itemsRemainingForMin = Math.max(0, minItemCount - totalItemCount);
+  const amountRemainingForMin = Math.max(0, minAmountINR - totalINR);
 
-  // If cart drops below 3 items while on payment step, return to cart immediately
+  // If cart drops below order requirements while on payment step, return to cart immediately
   useEffect(() => {
     if (checkoutStep === 'upi_payment' && !isMinimumMet) {
       setCheckoutStep('cart');
@@ -416,7 +418,7 @@ export default function CartDrawer({
     if (!isMinimumMet) {
       soundFX.playPop(300);
       alert(
-        `⚠️ Order Rule: Minimum 3 products required to checkout.\n\nYou currently have ${totalItemCount} item(s) in your bag. Please add ${itemsRemainingForMin} more product(s) to unlock the payment QR code.`
+        `⚠️ Order Rule: Add any 3 products OR reach ₹499 total to checkout.\n\nYou currently have ${totalItemCount} item(s) (₹${totalINR}). Please add ${itemsRemainingForMin} more product(s) or ₹${amountRemainingForMin} to unlock payment.`
       );
       return;
     }
@@ -1134,7 +1136,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <Gift className="w-3.5 h-3.5 text-[#E60067]" />
                       <span>
                         {!isMinimumMet
-                          ? `Add ${itemsRemainingForMin} more item to unlock Checkout & Free Shipping!`
+                          ? `Add ${itemsRemainingForMin} more item${itemsRemainingForMin > 1 ? 's' : ''} or ₹${amountRemainingForMin} to unlock Checkout!`
                           : totalINR < 599
                             ? `Add ₹${599 - totalINR} more to unlock a Free Mystery Charm Pack! 🎁`
                             : totalINR < 999
@@ -1143,7 +1145,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       </span>
                     </span>
                     <span className="text-[11px] font-black text-[#E60067] dark:text-pink-400">
-                      {!isMinimumMet ? `${totalItemCount}/3 Items` : totalINR >= 999 ? 'VIP Unlocked' : `₹${totalINR}`}
+                      {!isMinimumMet ? `${totalItemCount}/3 Items (or ₹499)` : totalINR >= 999 ? 'VIP Unlocked' : `₹${totalINR}`}
                     </span>
                   </div>
 
@@ -1153,9 +1155,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       className="h-full rounded-full bg-gradient-to-r from-[#E60067] via-purple-500 to-pink-500 transition-all duration-500"
                       style={{
                         width: !isMinimumMet
-                          ? `${Math.min(100, (totalItemCount / 3) * 60)}%`
+                          ? `${Math.max(Math.min(100, (totalItemCount / 3) * 60), Math.min(60, (totalINR / 499) * 60))}%`
                           : totalINR < 599
-                            ? `${60 + Math.min(25, ((totalINR - 300) / 300) * 25)}%`
+                            ? `${60 + Math.min(25, ((totalINR - 499) / 100) * 25)}%`
                             : totalINR < 999
                               ? `${85 + Math.min(15, ((totalINR - 599) / 400) * 15)}%`
                               : '100%'
@@ -1166,7 +1168,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   {/* Milestone Icons */}
                   <div className="flex items-center justify-between text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 pt-0.5">
                     <span className={isMinimumMet ? 'text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1' : ''}>
-                      {isMinimumMet ? '✓ 100% Free Shipping' : '3 Items (Min)'}
+                      {isMinimumMet ? '✓ Checkout Unlocked' : '3 Items / ₹499'}
                     </span>
                     <span className={totalINR >= 599 ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
                       {totalINR >= 599 ? '✓ Free Charm Pack' : '₹599 Free Charm'}
@@ -1276,7 +1278,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <div className="flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
                         <h5 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white">
-                          Add {itemsRemainingForMin} more to unlock checkout!
+                          Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} or ₹{amountRemainingForMin} to unlock!
                         </h5>
                       </div>
                       <span className="text-[10px] font-bold text-[#E60067] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
@@ -1805,7 +1807,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     className="w-full py-3.5 px-4 rounded-2xl bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-neutral-300 dark:border-neutral-700 cursor-pointer shadow-inner active:scale-[0.99] transition"
                   >
                     <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} to unlock payment</span>
+                    <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} (or reach ₹499) to unlock</span>
                   </button>
                 ) : paymentMode === 'partial_cod' ? (
                   /* Partial COD Button */
