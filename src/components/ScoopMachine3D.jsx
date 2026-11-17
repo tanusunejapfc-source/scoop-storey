@@ -28,7 +28,7 @@ export const getTierCharmsCount = (tierId) => {
   return 8;
 };
 
-export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
+export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = false }) {
   const containerRef = useRef(null);
   // Default to Mini Scoop (popular starter tier)
   const [selectedTier, setSelectedTier] = useState(SCOOP_TIERS[0]);
@@ -140,50 +140,50 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     return geo;
   };
 
-  // Ultra-Realistic Rose-Gold Shovel Model
+  // Ultra-Luxury Liquid Platinum & Prismatic Crystal Shovel Model
   const createRealisticScoopSpoon = () => {
     const spoon = new THREE.Group();
 
-    // 1. Physical Materials with Studio HDR Reflections
+    // 1. Physical Materials with Studio HDR Reflections - Pure Mirror Platinum & Diamond Crystal
     const scoopBodyMat = new THREE.MeshPhysicalMaterial({
-      color: 0xDE3C74, // Rich vibrant luxury rose gold
-      metalness: 0.82,
-      roughness: 0.16,
+      color: 0xF8FAFC, // Liquid mirror platinum silver (no rose gold)
+      metalness: 0.96,
+      roughness: 0.08,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
-      reflectivity: 0.95,
-      sheen: 0.9,
-      sheenColor: 0xFF80AB,
+      clearcoatRoughness: 0.03,
+      reflectivity: 1.0,
+      sheen: 0.85,
+      sheenColor: 0xBAE6FD, // Ethereal diamond cyan-ice iridescence
       side: THREE.DoubleSide
     });
 
     const goldTrimMat = new THREE.MeshPhysicalMaterial({
-      color: 0xF59E0B, // Genuine 24K Gold
-      metalness: 0.92,
-      roughness: 0.12,
+      color: 0xE2E8F0, // High-polish mirror platinum chrome bevel
+      metalness: 0.98,
+      roughness: 0.04,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.02,
+      reflectivity: 1.0
+    });
+
+    const handleMat = new THREE.MeshPhysicalMaterial({
+      color: 0xFAFAFA, // High-sheen pearlescent opal ceramic
+      metalness: 0.15,
+      roughness: 0.08,
       clearcoat: 1.0,
       clearcoatRoughness: 0.03,
       reflectivity: 0.95
     });
 
-    const handleMat = new THREE.MeshPhysicalMaterial({
-      color: 0xCC2B62, // Deep pearlescent rose lacquer
-      metalness: 0.35,
-      roughness: 0.14,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
-      reflectivity: 0.9
-    });
-
     const gemMat = new THREE.MeshPhysicalMaterial({
-      color: 0xFF007F, // Vivid ruby magenta crystal
-      emissive: 0x880033,
-      emissiveIntensity: 0.55,
-      metalness: 0.1,
-      roughness: 0.05,
-      transmission: 0.65,
-      thickness: 1.2,
-      ior: 1.65,
+      color: 0x38BDF8, // Glowing Celestial Star Aquamarine Diamond
+      emissive: 0x0284C7,
+      emissiveIntensity: 0.75,
+      metalness: 0.05,
+      roughness: 0.03,
+      transmission: 0.85,
+      thickness: 1.5,
+      ior: 1.76, // Diamond refractive index
       clearcoat: 1.0
     });
 
@@ -377,27 +377,35 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     keyLight.position.set(4, 8, 5.5);
     scene.add(keyLight);
 
-    const goldSpot = new THREE.PointLight(0xffd54f, 1.5, 12);
-    goldSpot.position.set(0, 3.8, 3.5);
-    scene.add(goldSpot);
+    const studioSpot = new THREE.PointLight(0xE0F2FE, 2.0, 14);
+    studioSpot.position.set(0, 4.0, 3.5);
+    scene.add(studioSpot);
 
     // Rim / Backlight (Creates glowing 3D rim halo separating items from backdrop)
-    const rimLight = new THREE.DirectionalLight(0xff69b4, 1.5);
+    const rimLight = new THREE.DirectionalLight(0xA78BFA, 1.6);
     rimLight.position.set(-4, 6, -5);
     scene.add(rimLight);
 
-    // Soft Lavender Fill Light
-    const fillLight = new THREE.DirectionalLight(0xc4b5fd, 0.75);
+    // Soft Studio White Fill Light
+    const fillLight = new THREE.DirectionalLight(0xF1F5F9, 1.1);
     fillLight.position.set(-3.5, 2, 3);
     scene.add(fillLight);
 
-    // Shared 24K Gold Materials
+    // Shared Liquid Platinum & Champagne Titanium Materials
     const goldMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0xF59E0B, // Genuine warm 24K imperial gold
-      metalness: 0.92, 
-      roughness: 0.14,
+      color: 0xEDF2F7, // Liquid mirror platinum chrome (no rose gold)
+      metalness: 0.96, 
+      roughness: 0.06,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.04
+      clearcoatRoughness: 0.02,
+      reflectivity: 1.0
+    });
+
+    const champagneTrimMat = new THREE.MeshPhysicalMaterial({
+      color: 0xF5EBE0, // Subtle luxury champagne titanium accent
+      metalness: 0.88,
+      roughness: 0.10,
+      clearcoat: 1.0
     });
 
     // Procedural Contact Shadow Texture for realistic ground contact
@@ -406,8 +414,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     shadowCanvas.height = 128;
     const sCtx = shadowCanvas.getContext('2d');
     const shadowGrad = sCtx.createRadialGradient(64, 64, 12, 64, 64, 64);
-    shadowGrad.addColorStop(0, isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(180, 20, 80, 0.40)');
-    shadowGrad.addColorStop(0.5, isDark ? 'rgba(0, 0, 0, 0.35)' : 'rgba(210, 40, 100, 0.18)');
+    shadowGrad.addColorStop(0, isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(30, 41, 59, 0.32)');
+    shadowGrad.addColorStop(0.5, isDark ? 'rgba(0, 0, 0, 0.35)' : 'rgba(51, 65, 85, 0.14)');
     shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     sCtx.fillStyle = shadowGrad;
     sCtx.fillRect(0, 0, 128, 128);
@@ -435,17 +443,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     bowlContactShadow.position.y = -0.34;
     bowlGroup.add(bowlContactShadow);
 
-    const bowlLight = new THREE.PointLight(0xffe4ec, 1.8, 12);
+    const bowlLight = new THREE.PointLight(0xF0F9FF, 2.0, 12);
     bowlLight.position.set(0, 4.0, 2.0);
     bowlGroup.add(bowlLight);
 
-    // Multi-tiered Luxury Pedestal for Bowl
+    // Multi-tiered Luxury Pedestal for Bowl - Pure Carrara Marble
     const bowlBaseGeo = new THREE.CylinderGeometry(1.65, 1.9, 0.32, 48);
     const baseMat = new THREE.MeshPhysicalMaterial({
-      color: isDark ? 0x2A1538 : 0xDE3C74,
-      metalness: 0.35,
-      roughness: 0.18,
-      clearcoat: 0.9,
+      color: isDark ? 0x1E1B2E : 0xF8FAFC,
+      metalness: 0.15,
+      roughness: 0.12,
+      clearcoat: 1.0,
       clearcoatRoughness: 0.04
     });
     const bowlBase = new THREE.Mesh(bowlBaseGeo, baseMat);
@@ -453,12 +461,12 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     bowlGroup.add(bowlBase);
 
     const bowlBaseRingGeo = new THREE.TorusGeometry(1.68, 0.05, 16, 48);
-    const bowlBaseRing = new THREE.Mesh(bowlBaseRingGeo, goldMat);
+    const bowlBaseRing = new THREE.Mesh(bowlBaseRingGeo, champagneTrimMat);
     bowlBaseRing.rotation.x = Math.PI / 2;
     bowlBaseRing.position.y = 0.01;
     bowlGroup.add(bowlBaseRing);
 
-    // Sculpted Crystal Compote Glass Bowl (Rich Rose Quartz Crystal)
+    // Sculpted Crystal Compote Glass Bowl (Diamond Prism Optical Glass)
     const compotePoints = [
       new THREE.Vector2(0.9, 0.0),
       new THREE.Vector2(1.05, 0.06),
@@ -474,16 +482,18 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     compoteGeo.computeVertexNormals();
 
     const bowlMat = new THREE.MeshPhysicalMaterial({
-      color: 0xF472B6, // Vibrant warm rose quartz
-      roughness: 0.08,
-      metalness: 0.08,
-      transmission: 0.58, // Substantial crystal presence - NOT bleached/transparent!
-      ior: 1.62,
+      color: 0xF8FAFC, // Pure diamond optical crystal
+      roughness: 0.04,
+      metalness: 0.06,
+      transmission: 0.84, // Crystalline optical clarity with deep refraction
+      ior: 1.74, // High-index diamond/gemstone refraction
       thickness: 2.2,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.03,
-      attenuationColor: 0xE60067, // Rich deep magenta-rose prismatic core
-      attenuationDistance: 0.85,
+      clearcoatRoughness: 0.02,
+      attenuationColor: 0x818CF8, // Prismatic cyan-indigo caustics
+      attenuationDistance: 1.5,
+      sheen: 1.0,
+      sheenColor: 0x93C5FD, // Ethereal rainbow iridescence
       transparent: true,
       opacity: 1.0,
       side: THREE.DoubleSide
@@ -491,7 +501,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
     const bowlMesh = new THREE.Mesh(compoteGeo, bowlMat);
     bowlGroup.add(bowlMesh);
 
-    // 24K Gold Crown Rim on Bowl
+    // Liquid Platinum Crown Rim on Bowl
     const bowlRimGeo = new THREE.TorusGeometry(1.90, 0.075, 16, 48);
     const bowlRim = new THREE.Mesh(bowlRimGeo, goldMat);
     bowlRim.rotation.x = Math.PI / 2;
@@ -1154,31 +1164,46 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
   } : null;
 
   return (
-    <section id="scoop-machine" className="my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-extrabold text-xs tracking-wider uppercase mb-3 shadow-xs">
-          <Sparkles className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-          <span>India's 1st Interactive ASMR Mystery Scoop Studio</span>
+    <section id="scoop-machine" className={`${isHero ? 'pt-2 pb-8 sm:pt-4 sm:pb-12' : 'my-12 sm:my-16'} max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8`}>
+      {/* Flagship Hero Header */}
+      <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-8">
+        <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 dark:from-pink-950/80 dark:via-purple-950/70 dark:to-pink-950/80 border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 font-extrabold text-[11px] sm:text-xs tracking-wide uppercase mb-3 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-[#E60067] animate-ping shrink-0" />
+          <span>India's 1st 3D Interactive ASMR Mystery Scoop Studio • 100% Prepaid</span>
         </div>
-        <h2 className="text-3xl md:text-5xl font-display font-extrabold tracking-tight text-[#231733] dark:text-white">
-          Dip The Rose-Gold Scoop. <br />
-          <span className="shimmer-text">Pour Onto The Luxury Plate.</span>
-        </h2>
-        <p className="mt-3 text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-body font-medium">
-          Watch the scoop dip into the charm bowl, take your lucky treasures according to your scoop size, and cascade them onto the luxury gold-rimmed plate!
+        <h1 className="text-3xl sm:text-5xl lg:text-[56px] font-display font-black tracking-tight text-[#231733] dark:text-white leading-[1.12]">
+          Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
+        </h1>
+        <p className="mt-3 text-sm sm:text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-2xl mx-auto">
+          Dip the mirror-platinum shovel into the diamond crystal compote bowl, scoop your surprise kawaii treasures, and watch them cascade live on Instagram Reels!
         </p>
-        <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+
+        {/* Live Trust Metrics Bar */}
+        <div className="mt-4 flex items-center justify-center gap-2.5 sm:gap-6 text-[11px] sm:text-xs font-bold text-[#554664] dark:text-[#D5CBE2] flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-pink-500 fill-pink-500" />
+            <span><strong>15,000+</strong> Lucky Charms Scooped</span>
+          </div>
+          <span className="text-neutral-300 dark:text-neutral-700 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5">
+            <span>🚚</span>
+            <span><strong>100% Free</strong> Delivery Across India</span>
+          </div>
+          <span className="text-neutral-300 dark:text-neutral-700 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-amber-500 font-black">★ 4.9</span>
+            <span>Verified IG Community</span>
+          </div>
+          <span className="text-neutral-300 dark:text-neutral-700 hidden sm:inline">•</span>
           <button
             type="button"
             onClick={() => {
               setShowChartModal(true);
               soundFX.playPop(520);
             }}
-            className="px-4 py-2 rounded-2xl bg-white dark:bg-[#1E172E] border-2 border-pink-300 dark:border-pink-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs sm:text-sm hover:border-[#E60067] hover:bg-pink-50 dark:hover:bg-pink-950/40 transition shadow-sm flex items-center gap-2 cursor-pointer"
+            className="text-[#E60067] dark:text-pink-400 underline font-extrabold cursor-pointer hover:text-pink-600 transition"
           >
-            <Sparkles className="w-4 h-4 text-yellow-500 fill-yellow-400" />
-            <span>Official Scoop Rewards Board (54 Items) 📋</span>
+            Loot Board (54 Items) 📋
           </button>
         </div>
       </div>
@@ -1257,24 +1282,24 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
           </button>
         </div>
 
-        {/* 3D WebGL Canvas Stage */}
-        <div className="relative w-full h-[400px] sm:h-[460px] md:h-[500px] rounded-[28px] sm:rounded-[36px] overflow-hidden border-2 border-pink-200/90 dark:border-pink-900/60 shadow-[0_20px_50px_-15px_rgba(230,0,103,0.20)] dark:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl bg-gradient-to-b from-[#FFF5F8] via-[#FFEBF2] to-[#FFF0F6] dark:from-[#1B1126] dark:via-[#160D20] dark:to-[#12091A]">
+        {/* 3D WebGL Canvas Stage - Studio Atmosphere */}
+        <div className="relative w-full h-[400px] sm:h-[460px] md:h-[520px] rounded-[28px] sm:rounded-[36px] overflow-hidden border-2 border-pink-200/90 dark:border-pink-900/60 shadow-[0_20px_50px_-15px_rgba(230,0,103,0.18)] dark:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl bg-gradient-to-b from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0] dark:from-[#171324] dark:via-[#130E1F] dark:to-[#0F0B1A]">
           
           {/* Studio Stage Atmospheric Lighting & Vignette */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-to-tr from-pink-400/25 via-rose-300/20 to-purple-300/25 dark:from-pink-600/20 dark:via-purple-600/15 dark:to-rose-500/15 blur-3xl pointer-events-none animate-pulse" />
-          <div className="absolute -top-14 -left-14 w-64 h-64 rounded-full bg-gradient-to-br from-pink-400/25 to-amber-200/20 dark:from-purple-900/30 dark:to-pink-900/20 blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-14 -right-14 w-64 h-64 rounded-full bg-gradient-to-tl from-purple-400/25 to-pink-300/20 dark:from-purple-950/40 dark:to-pink-950/30 blur-2xl pointer-events-none" />
-          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-pink-200/40 via-pink-100/15 to-transparent dark:from-black/50 dark:to-transparent pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-to-tr from-sky-400/20 via-purple-300/15 to-pink-300/15 dark:from-purple-900/30 dark:via-sky-900/15 dark:to-pink-900/20 blur-3xl pointer-events-none animate-pulse" />
+          <div className="absolute -top-14 -left-14 w-64 h-64 rounded-full bg-gradient-to-br from-cyan-300/20 to-purple-200/20 dark:from-indigo-950/40 dark:to-purple-950/30 blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-14 -right-14 w-64 h-64 rounded-full bg-gradient-to-tl from-purple-300/20 to-pink-200/15 dark:from-purple-950/40 dark:to-black blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-slate-200/30 via-slate-100/10 to-transparent dark:from-black/60 dark:to-transparent pointer-events-none" />
 
           {/* Boutique Trust Pills on 3D Stage */}
-          <div className="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-pink-200/80 dark:border-pink-800/80 shadow-xs text-[10px] sm:text-xs font-black text-[#E60067] dark:text-pink-300">
+          <div className="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border border-slate-200/80 dark:border-neutral-800 shadow-xs text-[10px] sm:text-xs font-black text-[#E60067] dark:text-pink-300">
             <span className="w-2 h-2 rounded-full bg-[#E60067] animate-ping shrink-0" />
             <span className="truncate">Live ASMR Mystery Studio</span>
           </div>
 
-          <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-amber-200 dark:border-amber-800/80 shadow-xs text-[10px] sm:text-xs font-black text-amber-700 dark:text-amber-300">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-            <span className="truncate">18K PVD & Rose Quartz</span>
+          <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border border-slate-200/80 dark:border-neutral-800 shadow-xs text-[10px] sm:text-xs font-black text-slate-800 dark:text-slate-200">
+            <Sparkles className="w-3.5 h-3.5 text-sky-500 fill-sky-400 shrink-0" />
+            <span className="truncate">Diamond Crystal & Platinum Shovel ✨</span>
           </div>
 
           <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
@@ -1370,25 +1395,33 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
       </div>
 
       {/* Step 2: Choose Scoop Tier Cards */}
-      <div className="mt-12">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
-          <div>
-            <span className="text-xs font-black uppercase tracking-wider text-[#E60067] dark:text-pink-400">
-              Step 2: Choose Your Scoop Tier
-            </span>
-            <h3 className="text-2xl md:text-3xl font-display font-extrabold text-[#231733] dark:text-white mt-1">
-              Pick Your Mystery Scoop Size
-            </h3>
+      <div className="mt-8 sm:mt-10">
+        <div className="flex items-center justify-between gap-3 mb-4 max-w-5xl mx-auto px-1">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-950/70 border border-pink-200 dark:border-pink-800 flex items-center justify-center text-sm shadow-xs">
+              🍨
+            </div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-display font-black text-[#231733] dark:text-white tracking-tight leading-tight">
+                Pick Your Mystery Scoop Size
+              </h3>
+              <p className="text-[11px] sm:text-xs font-semibold text-[#716182] dark:text-[#D5CBE2]">
+                Tap card to load in 3D or click "Add to Bag" to order directly
+              </p>
+            </div>
           </div>
-          <p className="text-xs font-bold text-[#554664] dark:text-[#D5CBE2]">
-            Tap card to load in 3D or click "Add to Bag" to order directly
-          </p>
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-50 dark:bg-pink-950/50 border border-pink-200/80 dark:border-pink-900/50 text-[11px] font-bold text-[#E60067] dark:text-pink-300">
+            <span>🚚 Free All-India Delivery</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 max-w-5xl mx-auto">
           {SCOOP_TIERS.map((tier) => {
             const isSelected = selectedTier.id === tier.id;
             const isJustAdded = addedTierId === tier.id;
+            const cleanTitle = tier.name.replace('Scoop Storey - ', '');
+            const treasureText = tier.id.includes('mini') ? '7–8 Treasures' : tier.id.includes('midi') ? '12–15 Treasures' : '20+ Treasures';
+
             return (
               <div
                 key={tier.id}
@@ -1399,80 +1432,73 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false }) {
                     resetStageToCenter();
                   }
                 }}
-                className={`relative p-5 rounded-2xl cursor-pointer transition-all duration-200 border-2 flex flex-col justify-between ${
+                className={`relative p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all duration-200 border-2 flex flex-col justify-between ${
                   isSelected
-                    ? 'border-[#E60067] bg-pink-50/90 dark:bg-[#281F3D] shadow-xl scale-[1.02] ring-2 ring-pink-400/30'
+                    ? 'border-[#E60067] bg-gradient-to-b from-pink-50/90 to-white dark:from-[#2A1D3B] dark:to-[#1B1429] shadow-lg ring-2 ring-pink-400/30 scale-[1.01]'
                     : 'border-pink-200/80 dark:border-pink-900/40 bg-white dark:bg-[#1E172E] hover:border-pink-400 hover:shadow-md'
                 }`}
               >
-                {tier.badge && (
-                  <span className="absolute -top-3 right-4 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-sm">
-                    {tier.badge}
-                  </span>
-                )}
-
                 <div>
-                  {isSelected && (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E60067] text-white text-[10px] font-black uppercase tracking-wide mb-2 shadow-xs">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      <span>Loaded in 3D Studio</span>
+                  {/* Top Bar: Badge & Price */}
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {tier.badge && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xs">
+                          {tier.badge}
+                        </span>
+                      )}
+                      {isSelected && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 text-[10px] font-black uppercase">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Active in 3D</span>
+                        </span>
+                      )}
                     </div>
-                  )}
-
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-display font-extrabold text-base text-[#231733] dark:text-white">
-                      {tier.name}
-                    </h4>
                     <div className="text-right">
-                      <span className="text-2xl font-display font-black text-[#E60067] dark:text-pink-400">
+                      <span className="text-xl sm:text-2xl font-display font-black text-[#E60067] dark:text-pink-400 leading-none">
                         ₹{tier.priceINR}
-                      </span>
-                      <span className="block text-[10px] text-[#716182] dark:text-neutral-400 font-bold">
-                        Free Shipping
                       </span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-[#554664] dark:text-[#D5CBE2] font-semibold mt-2">
-                    {tier.itemsCount}
-                  </p>
+                  {/* Title & Micro Chips */}
+                  <h4 className="font-display font-black text-sm sm:text-base text-[#231733] dark:text-white leading-tight">
+                    {cleanTitle}
+                  </h4>
 
-                  {tier.features && (
-                    <ul className="mt-3 space-y-1.5 text-xs text-[#554664] dark:text-[#D5CBE2]">
-                      {tier.features.map((feat, fIdx) => (
-                        <li key={fIdx} className="flex items-center gap-1.5 font-medium">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#E60067] dark:bg-pink-400 shrink-0" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <div className="mt-3 flex items-center gap-1.5 text-xs text-[#483A54] dark:text-[#D5CBE2] font-bold">
-                    <Gift className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400 shrink-0" />
-                    <span>{tier.scoops}x Satisfying Deep Scoops</span>
+                  <div className="mt-2 flex items-center gap-1.5 flex-wrap text-[11px] font-bold">
+                    <span className="px-2 py-0.5 rounded-lg bg-pink-100/80 dark:bg-pink-950/60 text-[#E60067] dark:text-pink-300 border border-pink-200/60 dark:border-pink-900/60">
+                      🎁 {treasureText}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-lg bg-purple-100/80 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-900/60">
+                      🍨 {tier.scoops}x {tier.scoops === 1 ? 'Deep Scoop' : 'Deep Scoops'}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-md text-[10px] text-emerald-600 dark:text-emerald-400 font-black">
+                      + Free Gifts ✨
+                    </span>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-pink-100 dark:border-pink-900/40">
+                {/* Compact 1-Tap Add to Bag */}
+                <div className="mt-3.5 pt-2.5 border-t border-pink-100 dark:border-pink-900/40">
                   <button
                     type="button"
                     onClick={(e) => handleAddTierToBag(tier, e)}
-                    className={`w-full text-xs sm:text-sm font-display font-extrabold py-3 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full text-xs font-display font-extrabold py-2.5 px-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer ${
                       isJustAdded
-                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg scale-[1.02]'
+                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
                         : `${tier.btnClass || 'btn-3d-pink'} text-white`
                     }`}
                   >
                     {isJustAdded ? (
                       <>
-                        <Check className="w-4 h-4 text-white stroke-[3]" />
+                        <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
                         <span>Added to Bag! ✓</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="w-4 h-4 text-white" />
-                        <span>Add to Bag</span>
+                        <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                        <span>Add to Bag • ₹{tier.priceINR}</span>
                       </>
                     )}
                   </button>

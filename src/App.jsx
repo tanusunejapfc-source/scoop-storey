@@ -396,11 +396,10 @@ export default function App() {
       ) : (
         /* 3. FULL FEATURED HOMEPAGE */
         <main>
-          {/* BOUTIQUE HERO SECTION (Fast, Stylish & Responsive) */}
-          <BoutiqueHero 
-            onSelectCategory={handleSelectCategory}
-            isDark={isDark}
-          />
+          {/* 3D INTERACTIVE VIP MYSTERY SCOOP STUDIO - FLAGSHIP HERO SECTION */}
+          <div className="relative pt-1 pb-4 sm:pt-2 sm:pb-6">
+            <ScoopMachine3D isHero={true} onAddToCart={handleAddToCart} isDark={isDark} />
+          </div>
 
           {/* STYLISH CATEGORY ICONS BAR (Story Bubbles - ONLY DISPLAYED ON HOMEPAGE!) */}
           <CategoryIconsBar
@@ -416,11 +415,6 @@ export default function App() {
             activeCollection={null}
             onSelectCollection={handleSelectCategory}
           />
-
-          {/* 3D INTERACTIVE VIP MYSTERY SCOOP STUDIO */}
-          <div className="relative py-2 md:py-6">
-            <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
-          </div>
 
           {/* ASMR & INSTAGRAM REELS SHOWCASE */}
           <ReelsShowcase />
