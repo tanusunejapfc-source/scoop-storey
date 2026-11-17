@@ -10,7 +10,7 @@ export const DEFAULT_PAYMENT_SETTINGS = {
   upiPhone: '8199922653',
   payeeName: 'Scoop Storey',
   qrImage: '', // Base64 data URL or external image URL uploaded by admin
-  instructions: 'Scan QR with GPay / PhonePe / Paytm or pay using UPI ID / Phone. Then enter your 12-digit UPI Ref/UTR No. to confirm order!',
+  instructions: 'Scan QR with GPay / PhonePe / Paytm or pay using UPI ID / Phone. Then upload your payment screenshot to confirm order!',
   // Partial COD Settings
   partialCodEnabled: true,
   partialCodType: 'percentage', // 'percentage' | 'flat'

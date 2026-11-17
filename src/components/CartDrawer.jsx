@@ -482,17 +482,10 @@ export default function CartDrawer({
     reader.readAsDataURL(file);
   };
 
-  // Final Order Confirmation with Verified UPI Reference Number
+  // Final Order Confirmation with Verified Payment Screenshot
   const handleConfirmUpiOrder = () => {
-    const cleanRef = upiRefNumber.trim();
-    if (!cleanRef && !paymentScreenshot) {
-      setUpiRefError('⚠️ Please enter your 12-digit UPI Ref / UTR number or upload payment screenshot after completing payment.');
-      soundFX.playPop(300);
-      return;
-    }
-
-    if (cleanRef && cleanRef.length < 6 && !paymentScreenshot) {
-      setUpiRefError('⚠️ Please enter a valid UPI Ref / UTR number (usually 12 digits) or upload payment screenshot.');
+    if (!paymentScreenshot) {
+      setUpiRefError('⚠️ Please upload your payment screenshot after completing payment.');
       soundFX.playPop(300);
       return;
     }
@@ -505,8 +498,7 @@ export default function CartDrawer({
       colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
     });
 
-    const hasUtr = Boolean(cleanRef && cleanRef.length >= 6);
-    const utrDisplay = hasUtr ? cleanRef : 'Screenshot Attached';
+    const utrDisplay = 'Screenshot Attached';
 
     const cleanItems = cartItems.map(item => ({
       id: item.id || '',
@@ -531,8 +523,8 @@ export default function CartDrawer({
       }),
       source: isPartialCod ? 'Partial COD (Advance Paid)' : 'Prepaid UPI / QR Code',
       status: isPartialCod
-        ? 'Partial COD - Advance Paid (Verify UTR)'
-        : (hasUtr ? 'Payment Received (Verify UTR)' : 'UPI Verification Pending (Screenshot)'),
+        ? 'Partial COD - Advance Paid (Screenshot Attached)'
+        : 'Payment Received (Screenshot Attached)',
       paymentMethod: isPartialCod ? 'Partial COD' : 'UPI QR Code',
       isPartialCod,
       advancePaidINR: paymentBreakdown.payNowINR,
@@ -581,8 +573,7 @@ export default function CartDrawer({
 
 Order ID: ${currentOrderId}
 ${paymentSummaryText}
-🔢 UPI Ref / UTR No.: ${utrDisplay}
-${paymentScreenshot ? '📸 Payment Screenshot: Attached\n' : ''}
+📸 Payment Proof: Attached via Screenshot
 🛍️ ITEMS ORDERED:
 ${orderItemsSummary}
 ${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${additionalNotes.trim() ? `📝 Additional Notes: ${additionalNotes.trim()}\n` : ''}
@@ -593,7 +584,7 @@ ${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : 
 ${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
 • PIN Code: ${addressData.pincode}
 
-${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar diya hai aur remaining ₹${paymentBreakdown.balanceCodINR} cash delivery ke time dunga/dungi. Please verify karke parcel dispatch kar dijiye! ✨` : `Maine UPI payment successfully transfer kar diya hai. Please verify karke packing start kar dijiye! ✨`}`;
+${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar diya hai aur screenshot attach kar diya hai. Remaining ₹${paymentBreakdown.balanceCodINR} cash delivery ke time dunga/dungi. Please verify karke parcel dispatch kar dijiye! ✨` : `Maine UPI payment successfully transfer kar diya hai aur screenshot attach kar diya hai. Please verify karke packing start kar dijiye! ✨`}`;
 
     const encoded = encodeURIComponent(msg);
     window.open(`https://wa.me/918199922653?text=${encoded}`, '_blank', 'noopener,noreferrer');
@@ -1044,7 +1035,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     </div>
                     <div>
                       <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                        Enter UPI Ref / UTR Number
+                        Upload Payment Screenshot
                       </h4>
                       <p className="text-[10px] text-neutral-500">
                         Required to verify your payment and start packing!
@@ -1052,72 +1043,72 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     </div>
                   </div>
 
+                  {/* Screenshot Upload (Required) */}
                   <div>
                     <label className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                      12-Digit UPI Ref / UTR No. <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={upiRefNumber}
-                      onChange={(e) => {
-                        setUpiRefNumber(e.target.value.replace(/[^0-9a-zA-Z]/g, ''));
-                        setUpiRefError('');
-                      }}
-                      placeholder="e.g. 431289123456"
-                      className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-mono tracking-wider bg-white dark:bg-neutral-800 border focus:outline-none focus:ring-2 focus:ring-pink-400 ${upiRefError
-                          ? 'border-rose-400 bg-rose-50/50 dark:border-rose-700'
-                          : 'border-pink-200 dark:border-neutral-700'
-                        }`}
-                    />
-                    {upiRefError ? (
-                      <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3 shrink-0" />
-                        <span>{upiRefError}</span>
-                      </p>
-                    ) : (
-                      <p className="text-[10px] text-neutral-400 mt-1">
-                        Check your GPay / PhonePe / Paytm payment receipt for UPI Ref / UTR.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Optional Screenshot Upload */}
-                  <div>
-                    <label className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                      Payment Screenshot <span className="text-neutral-400 font-normal">(Optional)</span>
+                      Payment Screenshot <span className="text-rose-500">*</span>
                     </label>
                     {paymentScreenshot ? (
-                      <div className="relative rounded-xl overflow-hidden border border-emerald-300 dark:border-emerald-700 p-2 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                      <div className="relative rounded-xl overflow-hidden border border-emerald-300 dark:border-emerald-700 p-2.5 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
                           <img
                             src={paymentScreenshot}
                             alt="Payment Proof"
                             onError={() => setPaymentScreenshot(null)}
-                            className="w-10 h-10 object-cover rounded-lg border border-black/10"
+                            className="w-12 h-12 object-cover rounded-lg border border-black/10 shadow-xs shrink-0"
                           />
-                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                            Screenshot attached! ✨
-                          </span>
+                          <div>
+                            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 block">
+                              Screenshot attached! ✨
+                            </span>
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                              Payment proof ready for verification
+                            </span>
+                          </div>
                         </div>
                         <button
                           type="button"
-                          onClick={() => setPaymentScreenshot(null)}
-                          className="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1"
+                          onClick={() => {
+                            setPaymentScreenshot(null);
+                            soundFX.playPop(400);
+                          }}
+                          className="text-xs text-rose-500 hover:text-rose-700 font-bold px-2.5 py-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition cursor-pointer"
                         >
-                          Remove
+                          Change / Remove
                         </button>
                       </div>
                     ) : (
-                      <label className="flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-pink-300 dark:border-neutral-700 hover:border-pink-400 cursor-pointer text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:text-pink-600 transition bg-pink-50/40 dark:bg-neutral-800/40">
-                        <Upload className="w-4 h-4 text-pink-500" />
-                        <span>Tap to upload payment screenshot</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleScreenshotUpload}
-                        />
-                      </label>
+                      <div>
+                        <label className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed transition cursor-pointer text-center ${
+                          upiRefError
+                            ? 'border-rose-400 bg-rose-50/50 dark:border-rose-700'
+                            : 'border-pink-300 dark:border-neutral-700 hover:border-[#E60067] bg-pink-50/40 dark:bg-neutral-800/40'
+                        }`}>
+                          <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-950/60 text-[#E60067] flex items-center justify-center">
+                            <Upload className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 block">
+                              Tap to upload payment screenshot
+                            </span>
+                            <span className="text-[10px] text-neutral-400 mt-0.5 block">
+                              Supports JPG, PNG, WebP (from GPay, PhonePe, Paytm, etc.)
+                            </span>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleScreenshotUpload}
+                          />
+                        </label>
+                        {upiRefError && (
+                          <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{upiRefError}</span>
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1668,6 +1659,90 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                 </div>
               )}
 
+              {/* Payment Option Selector at Bottom */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[11px] font-bold text-neutral-600 dark:text-neutral-400">
+                  <span>Payment Option:</span>
+                  {paymentMode === 'full_prepaid' ? (
+                    <span className="text-[#E60067] dark:text-pink-400 font-extrabold flex items-center gap-1">
+                      <span>⚡ 100% Prepaid</span>
+                    </span>
+                  ) : (
+                    <span className="text-purple-600 dark:text-purple-400 font-extrabold flex items-center gap-1">
+                      <span>📦 Partial Payment</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="p-1.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800/90 border border-pink-200 dark:border-neutral-700 grid grid-cols-2 gap-2">
+                  {/* Option 1: Full Prepaid */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPaymentMode('full_prepaid');
+                      soundFX.playPop(550);
+                    }}
+                    className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
+                      paymentMode === 'full_prepaid'
+                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#E60067] dark:border-pink-500 text-neutral-900 dark:text-white'
+                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-display font-extrabold text-xs text-[#E60067] dark:text-pink-400 flex items-center gap-1">
+                          <span>⚡ 100% Prepaid</span>
+                        </span>
+                        {paymentMode === 'full_prepaid' && (
+                          <div className="w-3.5 h-3.5 rounded-full bg-[#E60067] text-white flex items-center justify-center shrink-0">
+                            <Check className="w-2 h-2" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="font-display font-black text-sm mt-1 text-neutral-900 dark:text-white">
+                        ₹{totalINR}
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold mt-1 block">
+                      🎁 Free Mystery Charm
+                    </span>
+                  </button>
+
+                  {/* Option 2: Partial Payment */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPaymentMode('partial_cod');
+                      soundFX.playPop(550);
+                    }}
+                    className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
+                      paymentMode === 'partial_cod'
+                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-purple-600 dark:border-purple-400 text-neutral-900 dark:text-white'
+                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-display font-extrabold text-xs text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                          <span>📦 Partial Payment</span>
+                        </span>
+                        {paymentMode === 'partial_cod' && (
+                          <div className="w-3.5 h-3.5 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0">
+                            <Check className="w-2 h-2" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="font-display font-black text-sm mt-1 text-purple-700 dark:text-purple-300">
+                        ₹{partialCodPreview.payNowINR} <span className="text-[10px] font-normal text-neutral-500">advance</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold mt-1 block">
+                      🚚 ₹{partialCodPreview.balanceCodINR} on Delivery
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               {/* Pricing Breakdown (India INR Only) */}
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-neutral-500 dark:text-neutral-400">
@@ -1684,12 +1759,32 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   <span>Delivery (Across India)</span>
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
                 </div>
-                <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                  <span>Total (Prepaid)</span>
-                  <span className="text-pink-600 dark:text-pink-400">
-                    ₹{totalINR}
-                  </span>
-                </div>
+
+                {paymentMode === 'partial_cod' ? (
+                  <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 space-y-1">
+                    <div className="flex justify-between font-bold text-purple-700 dark:text-purple-300">
+                      <span>Advance to Pay Now (UPI):</span>
+                      <span>₹{paymentBreakdown.payNowINR}</span>
+                    </div>
+                    <div className="flex justify-between text-amber-700 dark:text-amber-400 font-bold">
+                      <span>Cash Due on Delivery:</span>
+                      <span>₹{paymentBreakdown.balanceCodINR}</span>
+                    </div>
+                    <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-1 border-t border-dashed border-neutral-200 dark:border-neutral-700">
+                      <span>Total Order Value</span>
+                      <span className="text-purple-600 dark:text-purple-400">
+                        ₹{paymentBreakdown.finalTotalINR}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-2 border-t border-neutral-100 dark:border-neutral-800">
+                    <span>Total (Prepaid)</span>
+                    <span className="text-pink-600 dark:text-pink-400">
+                      ₹{totalINR}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Checkout Action Buttons */}
@@ -1711,6 +1806,16 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   >
                     <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} to unlock payment</span>
+                  </button>
+                ) : paymentMode === 'partial_cod' ? (
+                  /* Partial COD Button */
+                  <button
+                    type="button"
+                    onClick={handleProceedToUpiPayment}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:to-pink-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>Proceed with Partial Payment • Pay ₹{paymentBreakdown.payNowINR} Advance</span>
                   </button>
                 ) : (
                   /* Single Primary Prepaid UPI & QR Checkout */
@@ -1804,13 +1909,23 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                 <span className="font-semibold text-neutral-700 dark:text-neutral-300">{orderCompleteData.date}</span>
               </div>
 
-              {orderCompleteData.upiRefNumber && (
+              {orderCompleteData.paymentScreenshot ? (
                 <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 font-bold">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>UPI Ref / UTR:</span>
+                    <span>Payment Proof:</span>
                   </div>
-                  <span className="font-mono font-bold text-emerald-900 dark:text-emerald-100">
+                  <span className="font-bold text-emerald-900 dark:text-emerald-100 text-xs">
+                    📸 Screenshot Attached
+                  </span>
+                </div>
+              ) : orderCompleteData.upiRefNumber && (
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Payment Proof:</span>
+                  </div>
+                  <span className="font-bold text-emerald-900 dark:text-emerald-100 text-xs">
                     {orderCompleteData.upiRefNumber}
                   </span>
                 </div>
@@ -1857,16 +1972,16 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
               {orderCompleteData.isPartialCod
-                ? 'Your Partial COD order and advance payment details have been recorded! Remaining balance will be collected in Cash by the courier.'
-                : 'Your prepaid order and payment details have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Bhaskar directly with your UTR proof.'}
+                ? 'Your Partial COD order and advance payment screenshot have been recorded! Remaining balance will be collected in Cash by the courier.'
+                : 'Your prepaid order and payment screenshot have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Bhaskar directly with your payment screenshot.'}
             </p>
 
             <div className="space-y-2">
               <a
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(
                   orderCompleteData.isPartialCod
-                    ? `Hi Bhaskar! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance Paid: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber || 'Screenshot Attached'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nAdvance payment done via UPI! Please verify and pack!`
-                    : `Hi Bhaskar! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n🔢 UPI Ref / UTR: ${orderCompleteData.upiRefNumber || 'Screenshot Attached'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
+                    ? `Hi Bhaskar! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance Paid: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nAdvance payment done via UPI! Please verify and pack!`
+                    : `Hi Bhaskar! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
