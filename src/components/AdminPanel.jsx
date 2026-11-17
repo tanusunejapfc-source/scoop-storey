@@ -2246,7 +2246,7 @@ export default function AdminPanel({
                                 {/* 1-Click WhatsApp Chat */}
                                 {cust.phone && (
                                   <a
-                                    href={`https://wa.me/91${cust.phone.replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${cust.fullName}! Bhaskar from Scoop Storey here regarding your order ${ord.orderId}.`)}`}
+                                    href={`https://wa.me/91${cust.phone.replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${cust.fullName}! Tanu from Scoop Storey here regarding your order ${ord.orderId}.`)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 shadow-xs transition"

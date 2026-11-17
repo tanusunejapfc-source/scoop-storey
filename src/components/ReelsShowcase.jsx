@@ -254,7 +254,7 @@ export default function ReelsShowcase() {
             <span>Creator Feature</span>
           </div>
           <h3 className="text-xl md:text-2xl font-display font-extrabold text-[#231733] dark:text-white">
-            Want Bhaskar to film your order on an Instagram Reel?
+            Want Tanu to film your order on an Instagram Reel?
           </h3>
           <p className="text-xs md:text-sm text-[#554664] dark:text-[#D5CBE2] mt-1 max-w-xl font-medium">
             Drop your Instagram username when checking out or submit below. We will tag you in the order packing Reel!

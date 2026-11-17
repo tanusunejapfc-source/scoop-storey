@@ -224,7 +224,7 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'shipping' }
 
               <h5 className="font-bold text-neutral-900 dark:text-white pt-2">Prepaid UPI & Partial COD Payments:</h5>
               <p>
-                All payments are processed via verified Indian UPI QR & deep-link standards (Google Pay, PhonePe, Paytm, BHIM, CRED). For Partial COD orders, a small advance is paid via UPI to secure booking and prevent courier RTO, with the remaining balance collected in Cash upon delivery. Transactions are directly routed to the verified store account of Bhaskar Scoop Storey.
+                All payments are processed via verified Indian UPI QR & deep-link standards (Google Pay, PhonePe, Paytm, BHIM, CRED). For Partial COD orders, a small advance is paid via UPI to secure booking and prevent courier RTO, with the remaining balance collected in Cash upon delivery. Transactions are directly routed to the verified store account of Tanu - Scoop Storey.
               </p>
             </div>
           )}

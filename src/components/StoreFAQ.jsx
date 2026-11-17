@@ -59,7 +59,7 @@ const FAQS_DATA = [
   {
     category: 'orders',
     q: 'What if I made a payment but forgot to note down the UTR / Ref Number?',
-    a: 'No worries at all! Send a screenshot of your payment transfer on WhatsApp (+91 8199922653) along with your Order ID or phone number. Bhaskar verifies all incoming transactions manually and updates your order within minutes.'
+    a: 'No worries at all! Send a screenshot of your payment transfer on WhatsApp (+91 8199922653) along with your Order ID or phone number. Tanu verifies all incoming transactions manually and updates your order within minutes.'
   },
 
   // MYSTERY SCOOPS & REELS
@@ -71,12 +71,12 @@ const FAQS_DATA = [
   {
     category: 'scoops',
     q: 'How do I request my order to be filmed for an Instagram ASMR Reel?',
-    a: 'During checkout, simply check the box "Film My Order on IG Reel" and enter your Instagram @handle. When packing your order, Bhaskar will record the ASMR dipping and unboxing video and tag your handle on @bhaskar_scoopstorey!'
+    a: 'During checkout, simply check the box "Film My Order on IG Reel" and enter your Instagram @handle. When packing your order, Tanu will record the ASMR dipping and unboxing video and tag your handle on @bhaskar_scoopstorey!'
   },
   {
     category: 'scoops',
     q: 'Can I request specific charm colors or themes in my scoop?',
-    a: 'Yes! Mention your preferences in the "Special Packing Notes" box at checkout (e.g. "mostly pink & lavender" or "extra gummy bears"). While mystery scoops are random by nature, Bhaskar loves tailoring scoops to your aesthetic wishes.'
+    a: 'Yes! Mention your preferences in the "Special Packing Notes" box at checkout (e.g. "mostly pink & lavender" or "extra gummy bears"). While mystery scoops are random by nature, Tanu loves tailoring scoops to your aesthetic wishes.'
   },
 
   // SHIPPING & DELIVERY
@@ -232,12 +232,12 @@ export default function StoreFAQ() {
             <Sparkles className="w-4 h-4 text-[#E60067]" />
           </h4>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Bhaskar is active daily on WhatsApp to help with orders, reel packing & queries.
+            Tanu is active daily on WhatsApp to help with orders, reel packing & queries.
           </p>
         </div>
 
         <a
-          href="https://wa.me/918199922653?text=Hi%20Bhaskar!%20I%20have%20a%20question%20about%20Scoop%20Storey%20jewelry"
+          href="https://wa.me/918199922653?text=Hi%20Tanu!%20I%20have%20a%20question%20about%20Scoop%20Storey%20jewelry"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => soundFX.playPop(520)}

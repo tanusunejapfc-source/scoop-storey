@@ -1843,13 +1843,13 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                 {/* Need help support inquiry link */}
                 <div className="text-center pt-0.5">
                   <a
-                    href="https://wa.me/918199922653?text=Hi%20Bhaskar!%20I%20have%20a%20question%20about%20my%20Scoop%20Storey%20bag."
+                    href="https://wa.me/918199922653?text=Hi%20Tanu!%20I%20have%20a%20question%20about%20my%20Scoop%20Storey%20bag."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
                   >
                     <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
-                    <span>Need help? Chat with Bhaskar on WhatsApp</span>
+                    <span>Need help? Chat with Tanu on WhatsApp</span>
                   </a>
                 </div>
               </div>
@@ -1973,15 +1973,15 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
               {orderCompleteData.isPartialCod
                 ? 'Your Partial COD order and advance payment screenshot have been recorded! Remaining balance will be collected in Cash by the courier.'
-                : 'Your prepaid order and payment screenshot have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Bhaskar directly with your payment screenshot.'}
+                : 'Your prepaid order and payment screenshot have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Tanu directly with your payment screenshot.'}
             </p>
 
             <div className="space-y-2">
               <a
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(
                   orderCompleteData.isPartialCod
-                    ? `Hi Bhaskar! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance Paid: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nAdvance payment done via UPI! Please verify and pack!`
-                    : `Hi Bhaskar! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
+                    ? `Hi Tanu! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance Paid: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nAdvance payment done via UPI! Please verify and pack!`
+                    : `Hi Tanu! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

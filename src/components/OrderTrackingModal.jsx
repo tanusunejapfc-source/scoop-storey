@@ -390,13 +390,13 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
                   <span>Have questions regarding your delivery or Reel recording?</span>
                 </div>
                 <a
-                  href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Bhaskar! Please give me a live update on my Scoop Storey order #${matchedOrder.orderId}`)}`}
+                  href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Tanu! Please give me a live update on my Scoop Storey order #${matchedOrder.orderId}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition"
                 >
                   <WhatsAppIcon className="w-3.5 h-3.5" />
-                  <span>Ask Bhaskar on WhatsApp</span>
+                  <span>Ask Tanu on WhatsApp</span>
                 </a>
               </div>
             </div>
@@ -414,7 +414,7 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
               </p>
               <div className="pt-2">
                 <a
-                  href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Bhaskar! I placed an order with query "${query}". Could you please check its status?`)}`}
+                  href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Tanu! I placed an order with query "${query}". Could you please check its status?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition"

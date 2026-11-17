@@ -1258,7 +1258,7 @@ export default function ProductDetailPage({
 
             {/* Bottom mini helper */}
             <div className="pt-2 text-center text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
-              Every parcel is hand-packed by Bhaskar with love & surprises 🎀
+              Every parcel is hand-packed by Tanu with love & surprises 🎀
             </div>
           </div>
         </div>

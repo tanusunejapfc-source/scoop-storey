@@ -103,7 +103,7 @@ const CATEGORY_TEMPLATES_EN = {
     },
     {
       title: 'Got 3 rare charms and the cutest bear keychain! ✨',
-      comment: 'Bhaskar genuinely scoops generously! I was worried I would only get small beads, but I got a gorgeous butterfly charm, faceted crystal, and mini lip oil. Worth every single rupee.',
+      comment: 'Tanu genuinely scoops generously! I was worried I would only get small beads, but I got a gorgeous butterfly charm, faceted crystal, and mini lip oil. Worth every single rupee.',
       rating: 5
     },
     {
@@ -334,7 +334,7 @@ const CATEGORY_TEMPLATES_HINGLISH = {
   'Mystery Scoops': [
     {
       title: 'Instagram reel dekh ke order kiya tha, sach me bohot pyara hai! 💖',
-      comment: 'Maine Big Scoop order kiya tha aur video me packing dekh ke excitement level alag hi tha! Charms bohot heavy aur high quality ke hain, plastic bilkul nahi lagte. Extra stickers aur free candy ke liye thank you Bhaskar bhaiya! 10/10 recommend karungi.',
+      comment: 'Maine Big Scoop order kiya tha aur video me packing dekh ke excitement level alag hi tha! Charms bohot heavy aur high quality ke hain, plastic bilkul nahi lagte. Extra stickers aur free candy ke liye thank you Tanu di! 10/10 recommend karungi.',
       rating: 5
     },
     {

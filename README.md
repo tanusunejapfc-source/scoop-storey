@@ -1,9 +1,9 @@
-# 🧸 Bhaskar Scoop Storey — 3D Kawaii Mystery Scoop Website (India 🇮🇳)
+# 🧸 Scoop Storey — 3D Kawaii Mystery Scoop Website (India 🇮🇳)
 
 > **Official 3D Interactive Web Experience for [@bhaskar_scoopstorey](https://www.instagram.com/bhaskar_scoopstorey/)**  
 > *"• Every scoop contains surprises • Collect Happiness •"*
 
-A modern, stylish, and interactive 3D e-commerce and brand showcase for **Bhaskar Scoop Storey**, bringing the sensory delight of Kawaii mystery scoops, aesthetic Korean pendants, charm bracelets, eye masks, and ASMR packaging directly to India.
+A modern, stylish, and interactive 3D e-commerce and brand showcase for **Scoop Storey**, bringing the sensory delight of Kawaii mystery scoops, aesthetic Korean pendants, charm bracelets, eye masks, and ASMR packaging directly to India.
 
 ---
 

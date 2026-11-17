@@ -271,7 +271,7 @@ export default function Navbar({
             <div className="relative shrink-0">
               <img 
                 src="/brand-avatar.jpg" 
-                alt="Bhaskar Scoop Storey" 
+                alt="Tanu - Scoop Storey" 
                 className="w-8 h-8 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-pink-400 shadow-md group-hover:scale-105 transition-transform"
               />
               <span className="absolute -bottom-1 -right-1 text-[10px] sm:text-xs">✨</span>
@@ -427,7 +427,7 @@ export default function Navbar({
                 <div className="flex items-center gap-2.5">
                   <img 
                     src="/brand-avatar.jpg" 
-                    alt="Bhaskar Scoop Storey" 
+                    alt="Tanu - Scoop Storey" 
                     className="w-10 h-10 rounded-full object-cover border-2 border-pink-400 shadow-md"
                   />
                   <div>
@@ -645,7 +645,7 @@ export default function Navbar({
                       <WhatsAppIcon className="w-4 h-4 shrink-0" />
                       <div className="text-left">
                         <div>Order via WhatsApp</div>
-                        <div className="text-[10px] text-emerald-100 font-normal">+91 8199922653 • Chat with Bhaskar</div>
+                        <div className="text-[10px] text-emerald-100 font-normal">+91 8199922653 • Chat with Tanu</div>
                       </div>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5 text-white/80" />

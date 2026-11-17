@@ -42,12 +42,12 @@ export default function BrandStory() {
           <div className="absolute -bottom-6 -right-4 md:right-6 z-20 bg-white/95 dark:bg-[#1E172E]/95 p-4 rounded-2xl shadow-xl border-2 border-pink-300 dark:border-pink-800 flex items-center gap-3 animate-float">
             <img
               src="/brand-avatar.jpg"
-              alt="Bhaskar Scoop Storey"
+              alt="Tanu - Scoop Storey"
               className="w-12 h-12 rounded-full border-2 border-pink-400 object-cover shadow-sm"
             />
             <div>
               <div className="font-display font-extrabold text-sm text-[#231733] dark:text-white">
-                Bhaskar • Creator & Curator
+                Tanu • Creator & Curator
               </div>
               <div className="text-xs text-[#E60067] dark:text-pink-400 font-bold flex items-center gap-1">
                 <span>Hand-packing happiness daily</span>
@@ -78,7 +78,7 @@ export default function BrandStory() {
           </p>
 
           <p className="text-sm md:text-base text-[#483A54] dark:text-[#E0D7EB] font-medium leading-relaxed font-body">
-            Founded by <strong>Bhaskar</strong>, Scoop Storey was born from the belief that small, tactile treasures can spark deep childhood joy. Every scoop spoon is hand-dipped, every charm is curated for vibrant luster, and every package is wrapped with heartfelt care.
+            Founded by <strong>Tanu</strong>, Scoop Storey was born from the belief that small, tactile treasures can spark deep childhood joy. Every scoop spoon is hand-dipped, every charm is curated for vibrant luster, and every package is wrapped with heartfelt care.
           </p>
 
           {/* Pillars Grid */}

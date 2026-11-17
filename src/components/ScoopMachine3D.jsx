@@ -1759,7 +1759,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
 
                 <a
                   href={`https://api.whatsapp.com/send?phone=918199922653&text=${encodeURIComponent(
-                    `Hi Bhaskar! 🎀 Maine Scoop Storey 3D Scoop se ${scoopResult.items.length} items scoop kiye hain (${scoopResult.tier.name} - ₹${scoopResult.tier.priceINR})! Mera order confirm karna hai.`
+                    `Hi Tanu! 🎀 Maine Scoop Storey 3D Scoop se ${scoopResult.items.length} items scoop kiye hain (${scoopResult.tier.name} - ₹${scoopResult.tier.priceINR})! Mera order confirm karna hai.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
