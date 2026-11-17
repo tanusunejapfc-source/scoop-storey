@@ -20,6 +20,7 @@ export default function Testimonials({ onOpenReviewModal }) {
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'photos' | 5 | 4 | 'verified'
   const [lightboxImg, setLightboxImg] = useState(null);
   const [likedReviews, setLikedReviews] = useState({});
+  const [displayCount, setDisplayCount] = useState(9);
 
   const handleLike = (id, e) => {
     e.stopPropagation();
@@ -261,8 +262,9 @@ export default function Testimonials({ onOpenReviewModal }) {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredReviews.map((rev) => {
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredReviews.slice(0, displayCount).map((rev) => {
             const currentLikes = (rev.likesCount || 0) + (likedReviews[rev.id] || 0);
 
             return (
@@ -375,6 +377,23 @@ export default function Testimonials({ onOpenReviewModal }) {
             );
           })}
         </div>
+
+        {/* Load More Button */}
+        {displayCount < filteredReviews.length && (
+          <div className="mt-8 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playPop(450);
+                setDisplayCount(prev => prev + 9);
+              }}
+              className="px-6 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs sm:text-sm hover:border-[#E60067] hover:shadow-md transition cursor-pointer"
+            >
+              Load More Reviews ({filteredReviews.length - displayCount} more) ✨
+            </button>
+          </div>
+        )}
+        </>
       )}
 
       {/* PHOTO LIGHTBOX MODAL */}

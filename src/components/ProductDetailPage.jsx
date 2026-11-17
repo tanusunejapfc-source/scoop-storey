@@ -107,7 +107,9 @@ export default function ProductDetailPage({
   const { publishedReviews: allPublishedReviews, summary: productReviewSummary } = useReviews(product?.id);
   const productReviews = useMemo(() => {
     if (!product?.id) return [];
-    return allPublishedReviews.filter(r => r.productId === product.id);
+    return allPublishedReviews
+      .filter(r => r.productId === product.id)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [allPublishedReviews, product?.id]);
 
   const activeRating = productReviewSummary.total > 0 ? productReviewSummary.average : (product?.rating || 4.9);

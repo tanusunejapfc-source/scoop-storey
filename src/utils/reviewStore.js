@@ -6,78 +6,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, uploadImageToSupabase } from './supabaseClient';
+import { INITIAL_PRODUCT_REVIEWS } from '../data/productReviewsData';
 
-const REVIEWS_STORAGE_KEY = 'bhaskar_store_reviews_v1';
+const REVIEWS_STORAGE_KEY = 'bhaskar_store_reviews_v2';
 
 export const INITIAL_REVIEWS = [
-  {
-    id: 'rev_101',
-    productId: 'scoop-big',
-    productName: 'Scoop Storey - Big Scoop (3 Scoops)',
-    customerName: 'Ananya S.',
-    handle: '@ananya_glam',
-    rating: 5,
-    title: 'Literally the cutest package I have ever received! 💖',
-    comment: 'I ordered the Big Scoop and seeing Bhaskar pack it on Instagram was so exciting! The charms are surprisingly heavy, polished, and the teddy bear keychain is super fluffy. 10/10.',
-    images: ['/images/deluxe-giftbox.jpg'],
-    verifiedBuyer: true,
-    status: 'published',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2, // 2 days ago
-    date: '2 days ago',
-    isCustomMerchant: false,
-    likesCount: 14
-  },
-  {
-    id: 'rev_102',
-    productId: 'pend-bow-heart',
-    productName: 'Bow Heart Aesthetic Pendant',
-    customerName: 'Rohan M.',
-    handle: '@rohan_aesthetic',
-    rating: 5,
-    title: 'ASMR packaging is 100% authentic ✨',
-    comment: 'The scent of the crinkle shreds and the personalized wax seal made opening it feel like Christmas morning. My girlfriend loved the beaded phone strap and bow heart pendant.',
-    images: ['/images/pendants/bow-heart-pendant.png'],
-    verifiedBuyer: true,
-    status: 'published',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 7, // 7 days ago
-    date: '1 week ago',
-    isCustomMerchant: false,
-    likesCount: 9
-  },
-  {
-    id: 'rev_103',
-    productId: 'scoop-mini',
-    productName: 'Scoop Storey - Mini Scoop',
-    customerName: 'Tanvi P.',
-    handle: '@tanvi.crafts',
-    rating: 5,
-    title: 'Got the rare Gold Vault Bear! 🧸👑',
-    comment: 'I was so hoping for the gold bear and I actually got it in my mystery scoop! You can tell Bhaskar genuinely cares about quality. Will order again for sure.',
-    images: [],
-    verifiedBuyer: true,
-    status: 'published',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 14, // 14 days ago
-    date: '2 weeks ago',
-    isCustomMerchant: false,
-    likesCount: 22
-  },
-  {
-    id: 'rev_104',
-    productId: 'korean-wallet-cloud',
-    productName: 'Korean Cute Cloud Pouch Wallet',
-    customerName: 'Simran Kaur',
-    handle: '@simran_kawaii',
-    rating: 5,
-    title: 'So soft and holds all my cards & lip balms! ☁️',
-    comment: 'Received this in Delhi within 3 days with express delivery. The zipper is super smooth and pastel color is exactly like the photos.',
-    images: ['/images/korean-wallets.jpg'],
-    verifiedBuyer: true,
-    status: 'published',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 3,
-    date: '3 days ago',
-    isCustomMerchant: true,
-    likesCount: 8
-  }
+  ...INITIAL_PRODUCT_REVIEWS
 ];
 
 let inMemoryReviews = null;
@@ -94,7 +28,8 @@ export function getStoredReviews() {
     const raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      // Ensure we load the full product reviews suite if old cache has fewer items
+      if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCT_REVIEWS.length) {
         inMemoryReviews = parsed;
         return parsed;
       }
