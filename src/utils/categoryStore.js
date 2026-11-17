@@ -1,4 +1,5 @@
 const CATEGORIES_STORAGE_KEY = 'bhaskar_custom_categories_v2';
+const CATEGORIES_DELETED_KEY = 'bhaskar_deleted_categories_v2';
 
 // Initial default rich category metadata based on store collections
 export const DEFAULT_CATEGORY_METADATA = [
@@ -120,63 +121,101 @@ export function slugifyCategory(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Get list of explicitly deleted category names so they are never restored
+ */
+export function getDeletedCategoryNames() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(CATEGORIES_DELETED_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+}
+
+/**
+ * Record an explicit deletion tombstone
+ */
+export function recordCategoryDeletion(categoryName) {
+  if (!categoryName || typeof window === 'undefined') return;
+  try {
+    const deleted = getDeletedCategoryNames();
+    const clean = categoryName.trim();
+    if (!deleted.some(d => d.toLowerCase() === clean.toLowerCase())) {
+      deleted.push(clean);
+      localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(deleted));
+    }
+  } catch {}
+}
+
+/**
+ * Remove an explicit deletion tombstone when a user recreates or restores a category
+ */
+export function removeCategoryFromDeleted(categoryName) {
+  if (!categoryName || typeof window === 'undefined') return;
+  try {
+    const deleted = getDeletedCategoryNames();
+    const clean = categoryName.trim().toLowerCase();
+    const filtered = deleted.filter(d => d.toLowerCase() !== clean);
+    localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(filtered));
+  } catch {}
+}
+
 // Retrieve stored categories or fallback to defaults
 export function getStoredCategories() {
   if (typeof window === 'undefined') return DEFAULT_CATEGORY_METADATA;
   try {
     const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+    const deletedNames = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
+
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Migration: If legacy combined categories exist in storage, remove them
-        let cleaned = parsed.filter(c => c && typeof c.name === 'string' && c.name.trim() !== '' && c.name !== 'Bracelets & Anklets' && c.name !== 'Eye Masks & Self-Care');
+      if (Array.isArray(parsed)) {
+        // Filter out legacy combined categories AND any explicitly deleted categories
+        let cleaned = parsed.filter(c => {
+          if (!c || typeof c.name !== 'string' || !c.name.trim()) return false;
+          if (c.name === 'Bracelets & Anklets' || c.name === 'Eye Masks & Self-Care') return false;
+          if (deletedNames.has(c.name.toLowerCase().trim())) return false;
+          return true;
+        });
         
-        // Migration: Merge "Korean Wallets", "Bags", and "Stationery and bags" into unified "Korean wallets and bags"
-        const isFragmentedWalletOrBag = (name) => {
-          if (!name) return false;
-          const lower = name.toLowerCase().trim();
-          return lower === 'korean wallets' || 
-                 lower === 'bags' || 
-                 lower === 'stationery and bags' || 
-                 lower === 'stationery & bags' || 
-                 lower === 'korean wallets and bags' ||
-                 lower === 'korean wallets & bags';
-        };
+        // Migration: Merge "Korean Wallets", "Bags", and "Stationery and bags" into unified "Korean wallets and bags" (if not deleted)
+        if (!deletedNames.has('korean wallets and bags')) {
+          const isFragmentedWalletOrBag = (name) => {
+            if (!name) return false;
+            const lower = name.toLowerCase().trim();
+            return lower === 'korean wallets' || 
+                   lower === 'bags' || 
+                   lower === 'stationery and bags' || 
+                   lower === 'stationery & bags' || 
+                   lower === 'korean wallets and bags' ||
+                   lower === 'korean wallets & bags';
+          };
 
-        const hadFragmentedWalletOrBag = cleaned.some(c => isFragmentedWalletOrBag(c.name));
-        if (hadFragmentedWalletOrBag) {
-          cleaned = cleaned.filter(c => !isFragmentedWalletOrBag(c.name));
-          cleaned.push({
-            id: 'korean-wallets-and-bags',
-            name: 'Korean wallets and bags',
-            icon: '👛',
-            image: '/images/korean-wallets.jpg',
-            department: 'lifestyle',
-            badge: 'Boutique Hot 🔥',
-            description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
-            isDefault: true
-          });
-          try {
-            localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
-          } catch {}
-        }
-
-        // Migration: Remove legacy "Bottles" category
-        const hadBottles = cleaned.some(c => c && c.name && c.name.toLowerCase().trim() === 'bottles');
-        if (hadBottles) {
-          cleaned = cleaned.filter(c => c && c.name && c.name.toLowerCase().trim() !== 'bottles');
-          try {
-            localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
-          } catch {}
-        }
-
-        // Ensure new separated categories exist in the list
-        const existingNames = new Set(cleaned.map(c => c.name));
-        for (const def of DEFAULT_CATEGORY_METADATA) {
-          if (!existingNames.has(def.name)) {
-            cleaned.push(def);
+          const hadFragmentedWalletOrBag = cleaned.some(c => isFragmentedWalletOrBag(c.name));
+          if (hadFragmentedWalletOrBag) {
+            cleaned = cleaned.filter(c => !isFragmentedWalletOrBag(c.name));
+            cleaned.push({
+              id: 'korean-wallets-and-bags',
+              name: 'Korean wallets and bags',
+              icon: '👛',
+              image: '/images/korean-wallets.jpg',
+              department: 'lifestyle',
+              badge: 'Boutique Hot 🔥',
+              description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
+              isDefault: true
+            });
+            try {
+              localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
+            } catch {}
           }
         }
+
+        // Migration: Always remove legacy "Bottles" category
+        cleaned = cleaned.filter(c => c && c.name && c.name.toLowerCase().trim() !== 'bottles');
 
         // Backfill image for any category that is missing an image
         const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase(), d]));
@@ -192,7 +231,10 @@ export function getStoredCategories() {
   } catch (err) {
     console.error('Failed to parse categories from localStorage:', err);
   }
-  return DEFAULT_CATEGORY_METADATA;
+
+  // Initial first-time load: filter out any tombstoned categories
+  const deletedNames = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
+  return DEFAULT_CATEGORY_METADATA.filter(c => !deletedNames.has(c.name.toLowerCase().trim()));
 }
 
 // Save categories to localStorage and dispatch event
@@ -206,8 +248,23 @@ export function saveStoredCategories(categories) {
   }
 }
 
-// Reset categories to defaults
+/**
+ * Permanently delete category: updates active storage and records tombstone
+ */
+export function deleteStoredCategory(categoryName) {
+  if (!categoryName) return;
+  recordCategoryDeletion(categoryName);
+  const current = getStoredCategories();
+  const updated = current.filter(c => c && c.name && c.name.toLowerCase().trim() !== categoryName.toLowerCase().trim());
+  saveStoredCategories(updated);
+  return updated;
+}
+
+// Reset categories to defaults (clears deletion tombstones)
 export function resetStoredCategories() {
+  try {
+    localStorage.removeItem(CATEGORIES_DELETED_KEY);
+  } catch {}
   saveStoredCategories(DEFAULT_CATEGORY_METADATA);
   return DEFAULT_CATEGORY_METADATA;
 }

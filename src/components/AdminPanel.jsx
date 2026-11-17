@@ -86,7 +86,10 @@ import {
   getStoredCategories, 
   saveStoredCategories, 
   slugifyCategory, 
-  resetStoredCategories 
+  resetStoredCategories,
+  deleteStoredCategory,
+  getDeletedCategoryNames,
+  removeCategoryFromDeleted 
 } from '../utils/categoryStore';
 import { CATEGORY_ICONS_DATA } from './CategoryIconsBar';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -218,8 +221,10 @@ export default function AdminPanel({
   onClose,
   products,
   onUpdateProduct,
+  onUpdateProductsBatch,
   onAddProduct,
   onDeleteProduct,
+  onDeleteProductsBatch,
   onResetDefaults
 }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -683,12 +688,14 @@ export default function AdminPanel({
     return () => window.removeEventListener('scoop_categories_updated', handleCatUpdate);
   }, []);
 
-  // Dynamic list of all category names from metadata + products
+  // Dynamic list of all category names strictly from categoryList (with tombstone filter)
   const allCategoryNames = useMemo(() => {
-    const metaNames = categoryList.map(c => c.name);
-    const prodCats = products.map(p => p.category).filter(Boolean);
-    return Array.from(new Set([...metaNames, ...prodCats]));
-  }, [categoryList, products]);
+    const deletedSet = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
+    const metaNames = categoryList
+      .map(c => c.name)
+      .filter(name => Boolean(name && !deletedSet.has(name.toLowerCase().trim())));
+    return Array.from(new Set(metaNames));
+  }, [categoryList]);
 
   // Category Add/Edit Modal
   const [categoryModal, setCategoryModal] = useState({
@@ -816,6 +823,7 @@ export default function AdminPanel({
         showToast('A category with this name already exists');
         return;
       }
+      removeCategoryFromDeleted(trimmedName);
       const newCat = {
         id: slugifyCategory(trimmedName),
         name: trimmedName,
@@ -869,14 +877,17 @@ export default function AdminPanel({
       saveStoredCategories(updated);
 
       if (nameChanged) {
-        let count = 0;
-        products.forEach(p => {
-          if (p.category === oldName) {
-            onUpdateProduct({ ...p, category: trimmedName });
-            count++;
+        removeCategoryFromDeleted(trimmedName);
+        const affected = products.filter(p => p.category === oldName);
+        if (affected.length > 0) {
+          const updatedBatch = affected.map(p => ({ ...p, category: trimmedName }));
+          if (typeof onUpdateProductsBatch === 'function') {
+            onUpdateProductsBatch(updatedBatch);
+          } else {
+            updatedBatch.forEach(p => onUpdateProduct(p));
           }
-        });
-        showToast(`Category renamed & ${count} products updated! ✨`);
+        }
+        showToast(`Category renamed & ${affected.length} products updated! ✨`);
       } else {
         showToast(`Category "${trimmedName}" updated! ✨`);
       }
@@ -920,14 +931,16 @@ export default function AdminPanel({
       return;
     }
 
-    // 1. Reassign all products from source to target
-    let count = 0;
-    products.forEach(p => {
-      if (p.category === source) {
-        onUpdateProduct({ ...p, category: target });
-        count++;
+    // 1. Reassign all products from source to target in a single batch
+    const affected = products.filter(p => p.category === source);
+    if (affected.length > 0) {
+      const updatedBatch = affected.map(p => ({ ...p, category: target }));
+      if (typeof onUpdateProductsBatch === 'function') {
+        onUpdateProductsBatch(updatedBatch);
+      } else {
+        updatedBatch.forEach(p => onUpdateProduct(p));
       }
-    });
+    }
 
     // 2. Update category list
     let updatedCategories = [...categoryList];
@@ -944,19 +957,22 @@ export default function AdminPanel({
         description: `Explore our unified ${target} collection.`,
         isDefault: false
       });
+      removeCategoryFromDeleted(target);
     }
 
-    // If deleteSourceAfterMerge is checked, remove source category
+    // If deleteSourceAfterMerge is checked, remove source category permanently
     if (mergeCategoryModal.deleteSourceAfterMerge) {
-      updatedCategories = updatedCategories.filter(c => c.name !== source);
+      deleteStoredCategory(source);
+      updatedCategories = updatedCategories.filter(c => c.name.toLowerCase().trim() !== source.toLowerCase().trim());
+    } else {
+      saveStoredCategories(updatedCategories);
     }
 
     setCategoryList(updatedCategories);
-    saveStoredCategories(updatedCategories);
 
     setMergeCategoryModal(prev => ({ ...prev, isOpen: false }));
     soundFX.playSuccess();
-    showToast(`✨ Merged "${source}" into "${target}"! (${count} products updated)`);
+    showToast(`✨ Merged "${source}" into "${target}"! (${affected.length} products updated)`);
   };
 
   const handleDeleteCategoryConfirm = () => {
@@ -965,28 +981,44 @@ export default function AdminPanel({
     const deleteMode = deleteCategoryModal.deleteMode || 'reassign';
     if (!catName) return;
 
-    let count = 0;
-    products.forEach(p => {
-      if (p.category === catName) {
-        if (deleteMode === 'deleteProducts') {
-          onDeleteProduct(p.id);
+    // 1. Identify all products currently tagged with this category
+    const affectedProducts = products.filter(p => p.category === catName);
+
+    if (affectedProducts.length > 0) {
+      if (deleteMode === 'deleteProducts') {
+        const idsToDelete = affectedProducts.map(p => p.id);
+        if (typeof onDeleteProductsBatch === 'function') {
+          onDeleteProductsBatch(idsToDelete);
         } else {
-          onUpdateProduct({ ...p, category: reassignTo });
+          idsToDelete.forEach(id => onDeleteProduct(id));
         }
-        count++;
+      } else {
+        const reassignedProducts = affectedProducts.map(p => ({
+          ...p,
+          category: reassignTo
+        }));
+        if (typeof onUpdateProductsBatch === 'function') {
+          onUpdateProductsBatch(reassignedProducts);
+        } else {
+          reassignedProducts.forEach(p => onUpdateProduct(p));
+        }
       }
-    });
+    }
 
-    const updated = categoryList.filter(c => c.name !== catName);
+    // 2. Delete category from persistent category store (records tombstone)
+    deleteStoredCategory(catName);
+
+    // 3. Update local state
+    const updated = categoryList.filter(c => c.name.toLowerCase().trim() !== catName.toLowerCase().trim());
     setCategoryList(updated);
-    saveStoredCategories(updated);
 
+    // 4. Close modal and toast
     setDeleteCategoryModal({ isOpen: false, categoryName: '', reassignTo: '', deleteMode: 'reassign' });
     soundFX.playPop(450);
     if (deleteMode === 'deleteProducts') {
-      showToast(`Category "${catName}" deleted along with ${count} products.`);
+      showToast(`Category "${catName}" deleted along with ${affectedProducts.length} products.`);
     } else {
-      showToast(`Category deleted. ${count} products reassigned to "${reassignTo}".`);
+      showToast(`Category "${catName}" deleted. ${affectedProducts.length} products reassigned to "${reassignTo}".`);
     }
   };
 
@@ -1002,24 +1034,24 @@ export default function AdminPanel({
       return;
     }
 
-    let count = 0;
-    products.forEach(p => {
-      if (ids.includes(p.id)) {
-        onUpdateProduct({ ...p, category: target });
-        count++;
-      }
-    });
+    const affected = products.filter(p => ids.includes(p.id));
+    const updatedBatch = affected.map(p => ({ ...p, category: target }));
+    if (typeof onUpdateProductsBatch === 'function') {
+      onUpdateProductsBatch(updatedBatch);
+    } else {
+      updatedBatch.forEach(p => onUpdateProduct(p));
+    }
 
     setBulkMoveModal({ isOpen: false, selectedProductIds: [], targetCategory: '' });
     soundFX.playSuccess();
-    showToast(`Moved ${count} products to "${target}"! 🎀`);
+    showToast(`Moved ${affected.length} products to "${target}"! 🎀`);
   };
 
   const handleResetCategoriesConfirm = () => {
     if (window.confirm('Reset all categories to default? This will restore standard categories.')) {
-      const resetList = resetStoredCategories();
-      setCategoryList(resetList);
-      soundFX.playPop(550);
+      const defaultCats = resetStoredCategories();
+      setCategoryList(defaultCats);
+      soundFX.playPop(450);
       showToast('Categories reset to defaults! 🎀');
     }
   };

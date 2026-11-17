@@ -49,8 +49,10 @@ export default function App() {
   const { 
     products, 
     updateProduct, 
+    updateProductsBatch,
     addProduct, 
     deleteProduct, 
+    deleteProductsBatch,
     resetAll 
   } = useStoreProducts();
 
@@ -491,8 +493,10 @@ export default function App() {
             }}
             products={products}
             onUpdateProduct={updateProduct}
+            onUpdateProductsBatch={updateProductsBatch}
             onAddProduct={addProduct}
             onDeleteProduct={deleteProduct}
+            onDeleteProductsBatch={deleteProductsBatch}
             onResetDefaults={resetAll}
           />
         </Suspense>

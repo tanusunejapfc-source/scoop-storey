@@ -5,6 +5,31 @@ import {
   saveProductToSupabase, 
   deleteProductFromSupabase 
 } from './supabaseClient';
+import { getDeletedCategoryNames } from './categoryStore';
+
+export const STORAGE_KEY_DELETED_PRODUCTS = 'bhaskar_deleted_product_ids_v1';
+
+export function getDeletedProductIds() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DELETED_PRODUCTS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+}
+
+export function recordProductDeletion(ids) {
+  if (typeof window === 'undefined') return;
+  const list = Array.isArray(ids) ? ids : [ids];
+  try {
+    const existing = new Set(getDeletedProductIds());
+    list.forEach(id => existing.add(id));
+    localStorage.setItem(STORAGE_KEY_DELETED_PRODUCTS, JSON.stringify(Array.from(existing)));
+  } catch {}
+}
 
 // Enrich default products with multiple images, color variants, specifications, and stock
 export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
@@ -398,11 +423,28 @@ export function migrateLegacyProduct(p) {
 
 export function mergeWithDefaults(list) {
   if (!Array.isArray(list) || list.length === 0) return DEFAULT_PRODUCTS;
+  const deletedCatNames = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
+  const deletedProdIds = new Set(getDeletedProductIds());
+
   const migrated = list
-    .filter(p => p.id !== 'scoop-vault' && p.id !== 'vault-mega-scoop' && p.category !== 'Bottles' && p.id !== 'prod-bear-sipper' && p.id !== 'prod-gradient-bottle' && p.id !== 'prod-thermal-flask')
+    .filter(p => {
+      if (!p || !p.id) return false;
+      if (p.id === 'scoop-vault' || p.id === 'vault-mega-scoop' || p.category === 'Bottles') return false;
+      if (p.id === 'prod-bear-sipper' || p.id === 'prod-gradient-bottle' || p.id === 'prod-thermal-flask') return false;
+      if (deletedProdIds.has(p.id)) return false;
+      if (p.category && deletedCatNames.has(p.category.toLowerCase().trim())) return false;
+      return true;
+    })
     .map(migrateLegacyProduct);
+
   const existingIds = new Set(migrated.map(p => p.id));
-  const missingDefaults = DEFAULT_PRODUCTS.filter(dp => !existingIds.has(dp.id));
+  const missingDefaults = DEFAULT_PRODUCTS.filter(dp => {
+    if (existingIds.has(dp.id)) return false;
+    if (deletedProdIds.has(dp.id)) return false;
+    if (dp.category && deletedCatNames.has(dp.category.toLowerCase().trim())) return false;
+    return true;
+  });
+
   if (missingDefaults.length > 0) {
     return [...migrated, ...missingDefaults];
   }
@@ -442,6 +484,7 @@ export function saveStoredProducts(products) {
 export function resetStoredProducts() {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY_DELETED_PRODUCTS);
     clearIDBProducts();
     window.dispatchEvent(new CustomEvent('scoop_products_updated', { detail: DEFAULT_PRODUCTS }));
   } catch (err) {
@@ -505,24 +548,54 @@ export function useStoreProducts() {
   }, []);
 
   const updateProduct = (updated) => {
-    const updatedList = products.map(p => p.id === updated.id ? updated : p);
-    saveStoredProducts(updatedList);
-    setProducts(updatedList);
-    saveProductToSupabase(updated);
+    setProducts((current) => {
+      const updatedList = current.map((p) => (p.id === updated.id ? updated : p));
+      saveStoredProducts(updatedList);
+      saveProductToSupabase(updated);
+      return updatedList;
+    });
+  };
+
+  const updateProductsBatch = (batchList) => {
+    if (!Array.isArray(batchList) || batchList.length === 0) return;
+    const map = new Map(batchList.map((p) => [p.id, p]));
+    setProducts((current) => {
+      const updatedList = current.map((p) => map.get(p.id) || p);
+      saveStoredProducts(updatedList);
+      batchList.forEach((p) => saveProductToSupabase(p));
+      return updatedList;
+    });
   };
 
   const addProduct = (newProduct) => {
-    const updatedList = [newProduct, ...products];
-    saveStoredProducts(updatedList);
-    setProducts(updatedList);
-    saveProductToSupabase(newProduct);
+    setProducts((current) => {
+      const updatedList = [newProduct, ...current];
+      saveStoredProducts(updatedList);
+      saveProductToSupabase(newProduct);
+      return updatedList;
+    });
   };
 
   const deleteProduct = (id) => {
-    const updatedList = products.filter(p => p.id !== id);
-    saveStoredProducts(updatedList);
-    setProducts(updatedList);
-    deleteProductFromSupabase(id);
+    recordProductDeletion(id);
+    setProducts((current) => {
+      const updatedList = current.filter((p) => p.id !== id);
+      saveStoredProducts(updatedList);
+      deleteProductFromSupabase(id);
+      return updatedList;
+    });
+  };
+
+  const deleteProductsBatch = (idsToDelete) => {
+    if (!Array.isArray(idsToDelete) || idsToDelete.length === 0) return;
+    recordProductDeletion(idsToDelete);
+    const set = new Set(idsToDelete);
+    setProducts((current) => {
+      const updatedList = current.filter((p) => !set.has(p.id));
+      saveStoredProducts(updatedList);
+      idsToDelete.forEach((id) => deleteProductFromSupabase(id));
+      return updatedList;
+    });
   };
 
   const resetAll = () => {
@@ -533,8 +606,10 @@ export function useStoreProducts() {
   return {
     products,
     updateProduct,
+    updateProductsBatch,
     addProduct,
     deleteProduct,
+    deleteProductsBatch,
     resetAll
   };
 }
