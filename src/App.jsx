@@ -196,6 +196,37 @@ export default function App() {
     }
   }, [activeCollection]);
 
+  // Force reset scroll to top whenever activeCollection changes (entering a category or returning to homepage)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+
+    const rafId = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    });
+
+    const t1 = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }, 40);
+
+    const t2 = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }, 120);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [activeCollection]);
+
   // Track product views for analytics telemetry
   useEffect(() => {
     if (selectedProduct) {
@@ -215,7 +246,10 @@ export default function App() {
         window.location.hash = targetHash;
       }
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Instant scroll to prevent mobile browser clamping to bottom during DOM unmount
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
   };
 
   // Cart operations with color variant support

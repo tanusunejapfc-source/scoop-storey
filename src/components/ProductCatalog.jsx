@@ -308,7 +308,9 @@ export default function ProductCatalog({
       }
     }
 
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
   };
 
   const handleBackToCollections = () => {
@@ -325,8 +327,36 @@ export default function ProductCatalog({
       }
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
   };
+
+  // Scroll to absolute top whenever active collection view mounts or switches
+  useEffect(() => {
+    if (activeCollection) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+
+      const raf = requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+      });
+
+      const t = setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+      }, 50);
+
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(t);
+      };
+    }
+  }, [activeCollection]);
 
   // Build dynamic collections list, merging COLLECTIONS_CONFIG with any custom categories from categoryStore or products
   const collections = useMemo(() => {
@@ -750,6 +780,10 @@ export default function ProductCatalog({
                   <div className="p-3 sm:p-4 pt-0">
                     <button
                       type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEnterCollection(col.category);
+                      }}
                       className="w-full py-1.5 sm:py-2 px-2.5 rounded-xl bg-pink-50 dark:bg-neutral-800 group-hover:bg-[#E60067] text-[#E60067] dark:text-pink-300 group-hover:text-white font-display font-bold text-[10px] sm:text-xs tracking-wide transition-all flex items-center justify-center gap-1 border border-pink-200 dark:border-neutral-700 group-hover:border-[#E60067]"
                     >
                       <span>Explore Collection</span>
