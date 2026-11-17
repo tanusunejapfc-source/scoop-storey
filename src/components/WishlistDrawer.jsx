@@ -41,7 +41,8 @@ export default function WishlistDrawer({
     const itemList = wishlist
       .map(item => `• ${item.name} - ₹${item.priceINR}`)
       .join('\n');
-    const msg = `Hey! 💖 Here are my favorite jewelry pieces saved on Scoop Storey:\n\n${itemList}\n\nTotal: ₹${totalValue}\nCheck it out here: https://scoop-storey-1du8.vercel.app/ ✨🎁`;
+    const storeUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://scoopstorey.com';
+    const msg = `Hey! 💖 Here are my favorite jewelry pieces saved on Scoop Storey:\n\n${itemList}\n\nTotal: ₹${totalValue}\nCheck it out here: ${storeUrl}/ ✨🎁`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 

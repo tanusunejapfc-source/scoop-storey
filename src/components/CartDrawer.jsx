@@ -409,7 +409,8 @@ export default function CartDrawer({
     const itemList = cartItems
       .map(item => `• ${item.name}${item.selectedColor ? ` (${item.selectedColor})` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
-    const msg = `Hey! 💖 Here are the cute jewelry finds I saved in my cart on Scoop Storey:\n\n${itemList}\n\n💰 Total: ₹${totalINR} (${totalItemCount} items)\n✨ Look at them here: https://scoop-storey-1du8.vercel.app/\nWould make the dreamiest gift or surprise! 🎁✨`;
+    const storeUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://scoopstorey.com';
+    const msg = `Hey! 💖 Here are the cute jewelry finds I saved in my cart on Scoop Storey:\n\n${itemList}\n\n💰 Total: ₹${totalINR} (${totalItemCount} items)\n✨ Look at them here: ${storeUrl}/\nWould make the dreamiest gift or surprise! 🎁✨`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 

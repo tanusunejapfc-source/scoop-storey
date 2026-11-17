@@ -2508,7 +2508,7 @@ export default function AdminPanel({
                                 )}
                                 <a
                                   href={`https://wa.me/91${(ord.customer?.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                                    `Hi ${ord.customer?.fullName || 'there'}! 🎀\n\nYour Scoop Storey order #${ord.orderId} has been packed with love! ✨\n\n📦 Courier: ${trackingDrafts[ord.orderId]?.courierName || ord.courierName || 'Delhivery'}\n🚚 Tracking AWB: ${trackingDrafts[ord.orderId]?.trackingNumber || ord.trackingNumber || 'Available shortly'}\n🔗 Track Online: ${ord.trackingUrl || `https://scoop-storey-1du8.vercel.app/#tracking-${ord.orderId}`}\n\nThank you for shopping with Scoop Storey India! 💖`
+                                    `Hi ${ord.customer?.fullName || 'there'}! 🎀\n\nYour Scoop Storey order #${ord.orderId} has been packed with love! ✨\n\n📦 Courier: ${trackingDrafts[ord.orderId]?.courierName || ord.courierName || 'Delhivery'}\n🚚 Tracking AWB: ${trackingDrafts[ord.orderId]?.trackingNumber || ord.trackingNumber || 'Available shortly'}\n🔗 Track Online: ${ord.trackingUrl || `https://scoopstorey.com/#tracking-${ord.orderId}`}\n\nThank you for shopping with Scoop Storey India! 💖`
                                   )}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
