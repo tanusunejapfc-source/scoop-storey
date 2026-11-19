@@ -339,7 +339,7 @@ export const PRODUCTS = [
   {
     id: 'mask-kitty',
     name: 'Hello Kitty Kawaii Eye Mask',
-    category: 'Eye Masks',
+    category: 'Self-Care',
     badge: 'Super Soft 🐱',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
@@ -349,7 +349,7 @@ export const PRODUCTS = [
   {
     id: 'mask-miao',
     name: 'Miao Kitten Sleeping Mask',
-    category: 'Eye Masks',
+    category: 'Self-Care',
     badge: 'Cute ASMR 🐾',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
@@ -359,7 +359,7 @@ export const PRODUCTS = [
   {
     id: 'mask-heart',
     name: 'Heart & Floral Silk Eye Mask',
-    category: 'Eye Masks',
+    category: 'Self-Care',
     badge: 'Relaxing 💖',
     priceINR: 99,
     image: '/images/eyemasks-skincare.jpg',
@@ -550,17 +550,19 @@ export const CATEGORIES = [
   'Soft Toys',
   'Key chains',
   'Hair Accessories',
-  'Eye Masks',
   'Self-Care',
-  'Korean wallets and bags'
+  'Korean wallets and bags',
+  'Kawaii Stationery',
+  'Bottles & Mugs',
+  'Accessories'
 ];
 
 export const DEPARTMENTS_CONFIG = [
-  { id: 'all', name: 'All Collections', icon: '🌟', badge: '11 Curations', count: 11 },
+  { id: 'all', name: 'All Collections', icon: '🌟', badge: '13 Curations', count: 13 },
   { id: 'scoops', name: 'Mystery Scoops', icon: '🍨', badge: 'ASMR Hauls', count: 1 },
   { id: 'jewelry', name: 'Korean Jewels', icon: '💎', badge: 'Anti-Tarnish', count: 3 },
-  { id: 'beauty', name: 'Beauty & Glow', icon: '💄', badge: 'Self-Care', count: 3 },
-  { id: 'lifestyle', name: 'Kawaii Lifestyle', icon: '🧸', badge: 'Cute Goodies', count: 4 }
+  { id: 'beauty', name: 'Beauty & Glow', icon: '💄', badge: 'Self-Care', count: 2 },
+  { id: 'lifestyle', name: 'Kawaii Lifestyle', icon: '🧸', badge: 'Cute Goodies', count: 7 }
 ];
 
 export const COLLECTIONS_CONFIG = [
@@ -635,28 +637,14 @@ export const COLLECTIONS_CONFIG = [
     btnGradient: 'bg-gradient-to-r from-rose-500 to-pink-500'
   },
   {
-    id: 'eye-masks',
-    category: 'Eye Masks',
-    name: 'Eye Masks',
-    department: 'beauty',
-    icon: '💤',
-    badge: 'Sweet Dreams 🌙',
-    tagline: 'Ultra-Soft Velvet & Silk Blindfolds for 100% Light Blockout',
-    description: 'Plush kitten velvet and skin-friendly satin sleeping masks with total light blockout and breathable elastic comfort for restful naps.',
-    coverImage: '/images/eyemasks-skincare.jpg',
-    gradient: 'from-indigo-500/15 via-pink-500/10 to-purple-500/20',
-    borderHover: 'hover:border-indigo-400',
-    btnGradient: 'bg-gradient-to-r from-indigo-500 to-purple-500'
-  },
-  {
     id: 'self-care',
     category: 'Self-Care',
     name: 'Self-Care',
     department: 'beauty',
     icon: '🌸',
     badge: 'Glow Routine ✨',
-    tagline: 'Refreshing Pocket Wipes, Pore Purifiers & Beauty Treats',
-    description: 'Viral novelty soda can refreshing wet wipes, deep-cleansing blackhead nose strips, and cute everyday self-care treats.',
+    tagline: 'Cloud Sleeping Masks, Refreshing Wipes & Beauty Treats',
+    description: 'Ultra-soft cloud velvet and silk sleeping masks, viral novelty soda can wet wipes, deep cleansing nose strips, and cute sensory self-care essentials.',
     coverImage: '/images/eyemasks-skincare.jpg',
     gradient: 'from-rose-500/15 via-teal-500/10 to-emerald-500/20',
     borderHover: 'hover:border-rose-400',
@@ -717,6 +705,48 @@ export const COLLECTIONS_CONFIG = [
     gradient: 'from-pink-500/15 via-purple-500/10 to-rose-500/20',
     borderHover: 'hover:border-pink-400',
     btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
+  },
+  {
+    id: 'kawaii-stationery',
+    category: 'Kawaii Stationery',
+    department: 'lifestyle',
+    name: 'Kawaii Stationery',
+    icon: '📝',
+    badge: 'Pastel Journaling ✨',
+    tagline: 'Floral Diaries, Magnetic Bookmarks & Sticky Notes',
+    description: 'Aesthetic floral diaries, magnetic bookmarks, kawaii sticky notes, and pastel journaling essentials.',
+    coverImage: '/images/deluxe-giftbox.jpg',
+    gradient: 'from-amber-500/15 via-rose-500/10 to-pink-500/20',
+    borderHover: 'hover:border-amber-400',
+    btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
+  },
+  {
+    id: 'bottles-mugs',
+    category: 'Bottles & Mugs',
+    department: 'lifestyle',
+    name: 'Bottles & Mugs',
+    icon: '🥛',
+    badge: 'Cute Drinkware 🎀',
+    tagline: 'Labubu Sippers, Pearl Glass Mugs & Bunny Drinkware',
+    description: 'Aesthetic cute drinkware including Labubu bottles, pearl glass mugs, and cute bunny ear sippers.',
+    coverImage: '/images/deluxe-giftbox.jpg',
+    gradient: 'from-teal-500/15 via-cyan-500/10 to-blue-500/20',
+    borderHover: 'hover:border-teal-400',
+    btnGradient: 'bg-gradient-to-r from-teal-500 to-cyan-500'
+  },
+  {
+    id: 'accessories',
+    category: 'Accessories',
+    department: 'lifestyle',
+    name: 'Accessories',
+    icon: '✨',
+    badge: 'Everyday Cute ✨',
+    tagline: 'Mini Portable Fans, Plushie Mirrors & Cute Gadgets',
+    description: 'Everyday aesthetic accessories including portable handheld mini fans, plushie compact mirrors, and kawaii lifestyle essentials.',
+    coverImage: '/images/charm-bracelets.jpg',
+    gradient: 'from-purple-500/15 via-pink-500/10 to-amber-500/20',
+    borderHover: 'hover:border-purple-400',
+    btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'
   }
 ];
 
@@ -730,8 +760,11 @@ export function categoryToSlug(category) {
   if (category === 'Soft Toys' || category === 'soft toys') return 'soft-toys';
   if (category === 'Key chains' || category === 'Keychains' || category === 'key chains') return 'keychains';
   if (category === 'Hair Accessories' || category === 'hair accessories') return 'hair-accessories';
-  if (category === 'Eye Masks') return 'eye-masks';
   if (category === 'Self-Care') return 'self-care';
+  if (category === 'Eye Masks') return 'self-care';
+  if (category === 'Kawaii Stationery' || category === 'kawaii stationery') return 'kawaii-stationery';
+  if (category === 'Bottles & Mugs' || category === 'bottles & mugs' || category === 'bottles') return 'bottles-mugs';
+  if (category === 'Accessories' || category === 'accessories') return 'accessories';
   if (
     category === 'Korean wallets and bags' ||
     category === 'Korean Wallets and Bags' ||
@@ -758,9 +791,12 @@ export function slugToCategory(slug, products = []) {
   if (slug === 'soft-toys' || slug === 'plushies') return 'Soft Toys';
   if (slug === 'keychains' || slug === 'key-chains') return 'Key chains';
   if (slug === 'hair-accessories') return 'Hair Accessories';
-  if (slug === 'eye-masks' || slug === 'eyemasks') return 'Eye Masks';
+  if (slug === 'eye-masks' || slug === 'eyemasks') return 'Self-Care';
   if (slug === 'self-care' || slug === 'skincare') return 'Self-Care';
   if (slug === 'eyemasks-selfcare') return 'Self-Care';
+  if (slug === 'kawaii-stationery' || slug === 'stationery') return 'Kawaii Stationery';
+  if (slug === 'bottles-mugs' || slug === 'bottles') return 'Bottles & Mugs';
+  if (slug === 'accessories') return 'Accessories';
   if (
     slug === 'korean-wallets-and-bags' ||
     slug === 'korean-wallets' || 

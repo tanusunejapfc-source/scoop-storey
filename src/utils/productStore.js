@@ -412,10 +412,8 @@ export function migrateLegacyProduct(p) {
   let category = p.category;
   if (category === 'Bracelets & Anklets') {
     category = (p.id?.startsWith('anklet') || p.name?.toLowerCase().includes('anklet')) ? 'Anklets' : 'Bracelets';
-  } else if (category === 'Eye Masks & Self-Care') {
-    category = (p.id?.startsWith('skincare') || p.name?.toLowerCase().includes('wipes') || p.name?.toLowerCase().includes('strip') || p.name?.toLowerCase().includes('care'))
-      ? 'Self-Care'
-      : 'Eye Masks';
+  } else if (category === 'Eye Masks & Self-Care' || category === 'Eye Masks') {
+    category = 'Self-Care';
   } else if (
     category === 'Korean Wallets' || 
     category === 'Bags' || 

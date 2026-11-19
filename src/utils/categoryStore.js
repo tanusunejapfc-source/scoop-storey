@@ -84,23 +84,13 @@ export const DEFAULT_CATEGORY_METADATA = [
     isDefault: true
   },
   {
-    id: 'eye-masks',
-    name: 'Eye Masks',
-    icon: '💤',
-    image: '/images/eyemasks-skincare.jpg',
-    department: 'beauty',
-    badge: 'Sweet Dreams 🌙',
-    description: 'Ultra-soft cloud velvet and skin-friendly satin sleeping masks with 100% light blockout.',
-    isDefault: true
-  },
-  {
     id: 'self-care',
     name: 'Self-Care',
     icon: '🌸',
-    image: '/images/asmr-packing.jpg',
+    image: '/images/eyemasks-skincare.jpg',
     department: 'beauty',
     badge: 'Glow Routine ✨',
-    description: 'Refreshing novelty soda-can wet wipes, deep-cleansing blackhead pore strips, and self-care essentials.',
+    description: 'Ultra-soft cloud velvet and silk sleeping masks, novelty soda-can wet wipes, deep-cleansing pore strips, and self-care essentials.',
     isDefault: true
   },
   {
@@ -111,6 +101,36 @@ export const DEFAULT_CATEGORY_METADATA = [
     department: 'lifestyle',
     badge: 'Boutique Hot 🔥',
     description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
+    isDefault: true
+  },
+  {
+    id: 'kawaii-stationery',
+    name: 'Kawaii Stationery',
+    icon: '📝',
+    image: '/images/deluxe-giftbox.jpg',
+    department: 'lifestyle',
+    badge: 'Pastel Journaling ✨',
+    description: 'Aesthetic floral diaries, magnetic bookmarks, kawaii sticky notes, and pastel journaling essentials.',
+    isDefault: true
+  },
+  {
+    id: 'bottles-mugs',
+    name: 'Bottles & Mugs',
+    icon: '🥛',
+    image: '/images/deluxe-giftbox.jpg',
+    department: 'lifestyle',
+    badge: 'Cute Drinkware 🎀',
+    description: 'Labubu sipper bottles, aesthetic pearl glass mugs, and cute bunny ear drinkware.',
+    isDefault: true
+  },
+  {
+    id: 'accessories',
+    name: 'Accessories',
+    icon: '✨',
+    image: '/images/charm-bracelets.jpg',
+    department: 'lifestyle',
+    badge: 'Everyday Cute ✨',
+    description: 'Portable handheld mini fans, plushie compact mirrors, and aesthetic everyday accessories.',
     isDefault: true
   }
 ];
@@ -174,11 +194,14 @@ export function getStoredCategories() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Filter out legacy combined categories AND any explicitly deleted categories
+        // Filter out legacy combined categories, merged categories (e.g. Eye Masks into Self-Care), and any explicitly deleted categories
         let cleaned = parsed.filter(c => {
           if (!c || typeof c.name !== 'string' || !c.name.trim()) return false;
-          if (c.name === 'Bracelets & Anklets' || c.name === 'Eye Masks & Self-Care') return false;
-          if (deletedNames.has(c.name.toLowerCase().trim())) return false;
+          const lower = c.name.toLowerCase().trim();
+          if (lower === 'bracelets & anklets' || lower === 'eye masks & self-care') return false;
+          if (lower === 'eye masks') return false; // Merged into Self-Care
+          if (lower === 'bottles') return false;
+          if (deletedNames.has(lower)) return false;
           return true;
         });
         
@@ -208,24 +231,38 @@ export function getStoredCategories() {
               description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
               isDefault: true
             });
-            try {
-              localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
-            } catch {}
           }
         }
 
         // Migration: Always remove legacy "Bottles" category
         cleaned = cleaned.filter(c => c && c.name && c.name.toLowerCase().trim() !== 'bottles');
 
+        // Backfill any missing default categories (e.g. Kawaii Stationery, Bottles & Mugs, Accessories)
+        const existingLowerNames = new Set(cleaned.map(c => c.name.toLowerCase().trim()));
+        for (const def of DEFAULT_CATEGORY_METADATA) {
+          const lower = def.name.toLowerCase().trim();
+          if (!existingLowerNames.has(lower) && !deletedNames.has(lower)) {
+            cleaned.push(def);
+            existingLowerNames.add(lower);
+          }
+        }
+
         // Backfill image for any category that is missing an image
         const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase(), d]));
-        return cleaned.map(c => {
+        const finalized = cleaned.map(c => {
           const def = c.name ? defMap.get(c.name.toLowerCase()) : null;
           return {
             ...c,
             image: c.image || def?.image || '/images/deluxe-giftbox.jpg'
           };
         });
+
+        // Persist reconciled categories to localStorage
+        try {
+          localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(finalized));
+        } catch {}
+
+        return finalized;
       }
     }
   } catch (err) {

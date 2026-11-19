@@ -363,15 +363,21 @@ export default function ProductCatalog({
     const configMap = new Map(COLLECTIONS_CONFIG.map(c => [c.category.toLowerCase(), c]));
     const list = [];
     const seenCategories = new Set();
+    const ghostMergedSet = new Set(['eye masks', 'korean wallets', 'bottles', 'bracelets & anklets', 'eye masks & self-care']);
 
-    // 1. Process all categories stored in categoryStore (including user-created ones like "Stationery and bags")
+    // 1. Process all categories stored in categoryStore
     for (const catMeta of categoriesList) {
       if (!catMeta || typeof catMeta.name !== 'string' || !catMeta.name.trim()) continue;
-      const lower = catMeta.name.toLowerCase();
+      const lower = catMeta.name.toLowerCase().trim();
+      if (ghostMergedSet.has(lower)) continue;
+
       if (!seenCategories.has(lower)) {
+        const items = products.filter(p => p.category && p.category.toLowerCase().trim() === lower);
+        // Exclude empty categories (e.g. merged or deleted categories with 0 items)
+        if (items.length === 0) continue;
+
         seenCategories.add(lower);
         const config = configMap.get(lower);
-        const items = products.filter(p => p.category && p.category.toLowerCase() === lower);
         const prices = items.map(p => p.priceINR).filter(Boolean);
         const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
         const previews = items.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
@@ -413,41 +419,43 @@ export default function ProductCatalog({
     // 2. Also check any categories that exist in products but were somehow not in categoriesList
     for (const p of products) {
       if (p.category) {
-        const lower = p.category.toLowerCase();
-        if (!seenCategories.has(lower)) {
-          seenCategories.add(lower);
-          const config = configMap.get(lower);
-          const items = products.filter(item => item.category && item.category.toLowerCase() === lower);
-          const prices = items.map(item => item.priceINR).filter(Boolean);
-          const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
-          const previews = items.slice(0, 4).map(item => item.image || item.images?.[0]).filter(Boolean);
+        const lower = p.category.toLowerCase().trim();
+        if (ghostMergedSet.has(lower) || seenCategories.has(lower)) continue;
 
-          if (config) {
-            list.push({
-              ...config,
-              itemsCount: items.length,
-              minPrice,
-              previews
-            });
-          } else {
-            list.push({
-              id: p.category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-              category: p.category,
-              name: p.category,
-              department: 'lifestyle',
-              icon: '✨',
-              badge: 'Curated 🎀',
-              tagline: `Explore our ${p.category} collection`,
-              description: `Handpicked selection of items curated under ${p.category}.`,
-              coverImage: items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
-              gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
-              borderHover: 'hover:border-pink-400',
-              btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
-              itemsCount: items.length,
-              minPrice,
-              previews
-            });
-          }
+        const items = products.filter(item => item.category && item.category.toLowerCase().trim() === lower);
+        if (items.length === 0) continue;
+
+        seenCategories.add(lower);
+        const config = configMap.get(lower);
+        const prices = items.map(item => item.priceINR).filter(Boolean);
+        const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
+        const previews = items.slice(0, 4).map(item => item.image || item.images?.[0]).filter(Boolean);
+
+        if (config) {
+          list.push({
+            ...config,
+            itemsCount: items.length,
+            minPrice,
+            previews
+          });
+        } else {
+          list.push({
+            id: p.category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            category: p.category,
+            name: p.category,
+            department: 'lifestyle',
+            icon: '✨',
+            badge: 'Curated 🎀',
+            tagline: `Explore our ${p.category} collection`,
+            description: `Handpicked selection of items curated under ${p.category}.`,
+            coverImage: items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
+            gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
+            borderHover: 'hover:border-pink-400',
+            btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
+            itemsCount: items.length,
+            minPrice,
+            previews
+          });
         }
       }
     }

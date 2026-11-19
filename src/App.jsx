@@ -405,6 +405,7 @@ export default function App() {
           <CategoryIconsBar
             activeCategory={null}
             onSelectCategory={handleSelectCategory}
+            products={products}
           />
 
           {/* THE SCOOP MENU (PRODUCT COLLECTIONS HUB) - IMMEDIATELY ACCESSIBLE WITHOUT ENDLESS SCROLL */}

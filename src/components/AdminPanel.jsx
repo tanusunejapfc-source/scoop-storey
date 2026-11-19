@@ -89,7 +89,8 @@ import {
   resetStoredCategories,
   deleteStoredCategory,
   getDeletedCategoryNames,
-  removeCategoryFromDeleted 
+  removeCategoryFromDeleted,
+  DEFAULT_CATEGORY_METADATA
 } from '../utils/categoryStore';
 import { CATEGORY_ICONS_DATA } from './CategoryIconsBar';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -688,14 +689,40 @@ export default function AdminPanel({
     return () => window.removeEventListener('scoop_categories_updated', handleCatUpdate);
   }, []);
 
-  // Dynamic list of all category names strictly from categoryList (with tombstone filter)
+  // Dynamic list of all category names: union of categoryList AND any active categories in products
   const allCategoryNames = useMemo(() => {
     const deletedSet = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
-    const metaNames = categoryList
-      .map(c => c.name)
-      .filter(name => Boolean(name && !deletedSet.has(name.toLowerCase().trim())));
-    return Array.from(new Set(metaNames));
-  }, [categoryList]);
+    // Products category set (all categories that actually have products right now)
+    const activeProductCategories = new Set(
+      products
+        .map(p => p.category?.trim())
+        .filter(c => Boolean(c && !deletedSet.has(c.toLowerCase())))
+    );
+
+    // Ghost/merged categories that should never show if they have 0 products
+    const ghostMergedSet = new Set([
+      'eye masks', 
+      'korean wallets', 
+      'bottles', 
+      'bracelets & anklets', 
+      'eye masks & self-care'
+    ]);
+
+    const validMetaNames = categoryList
+      .map(c => c.name?.trim())
+      .filter(name => {
+        if (!name) return false;
+        const lower = name.toLowerCase();
+        if (deletedSet.has(lower)) return false;
+        // If it's a known ghost/merged category and has 0 products, drop it!
+        if (ghostMergedSet.has(lower) && !activeProductCategories.has(name)) return false;
+        return true;
+      });
+
+    // Combine valid meta names + any active categories from products that might not be in metadata yet
+    const combined = Array.from(new Set([...validMetaNames, ...Array.from(activeProductCategories)]));
+    return combined;
+  }, [categoryList, products]);
 
   // Category Add/Edit Modal
   const [categoryModal, setCategoryModal] = useState({
@@ -960,19 +987,32 @@ export default function AdminPanel({
       removeCategoryFromDeleted(target);
     }
 
-    // If deleteSourceAfterMerge is checked, remove source category permanently
-    if (mergeCategoryModal.deleteSourceAfterMerge) {
-      deleteStoredCategory(source);
-      updatedCategories = updatedCategories.filter(c => c.name.toLowerCase().trim() !== source.toLowerCase().trim());
-    } else {
-      saveStoredCategories(updatedCategories);
-    }
+    // Always remove source category permanently on merge and record tombstone so it never lingers as a 0-product ghost
+    deleteStoredCategory(source);
+    updatedCategories = updatedCategories.filter(c => c.name.toLowerCase().trim() !== source.toLowerCase().trim());
+    saveStoredCategories(updatedCategories);
 
     setCategoryList(updatedCategories);
 
     setMergeCategoryModal(prev => ({ ...prev, isOpen: false }));
     soundFX.playSuccess();
     showToast(`✨ Merged "${source}" into "${target}"! (${affected.length} products updated)`);
+  };
+
+  const handleCleanEmptyCategories = () => {
+    const activeCats = new Set(products.map(p => p.category?.trim().toLowerCase()).filter(Boolean));
+    const emptyCats = categoryList.filter(c => !activeCats.has(c.name.trim().toLowerCase()));
+    if (emptyCats.length === 0) {
+      showToast('All collections are active with products! No empty collections found. ✨');
+      return;
+    }
+    const emptyNames = emptyCats.map(c => c.name);
+    emptyNames.forEach(name => deleteStoredCategory(name));
+    const updated = categoryList.filter(c => activeCats.has(c.name.trim().toLowerCase()));
+    setCategoryList(updated);
+    saveStoredCategories(updated);
+    soundFX.playSuccess();
+    showToast(`✨ Cleaned ${emptyNames.length} empty/merged collections: ${emptyNames.join(', ')}`);
   };
 
   const handleDeleteCategoryConfirm = () => {
@@ -3886,7 +3926,7 @@ export default function AdminPanel({
                       Manage Store Collections
                     </h3>
                     <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-xl">
-                      Bracelets and Anklets are kept separate, and Eye Masks and Self-Care are kept separate. You can create custom collections, edit names, or bulk reassign products.
+                      All active collections are automatically synced and kept organized. You can create custom collections, edit details, merge collections, or bulk reassign products. Ghost or merged collections with 0 products are automatically cleaned.
                     </p>
                   </div>
 
@@ -3927,6 +3967,16 @@ export default function AdminPanel({
 
                     <button
                       type="button"
+                      onClick={handleCleanEmptyCategories}
+                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
+                      title="Purge ghost and merged categories that have 0 products"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Clean Ghost Collections</span>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={handleResetCategoriesConfirm}
                       className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
                       title="Reset Categories to Defaults"
@@ -3940,7 +3990,7 @@ export default function AdminPanel({
                 {/* Quick Stats Bar */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Total Categories</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Total Collections</span>
                     <strong className="text-xl font-black text-neutral-900 dark:text-white mt-0.5 block">{allCategoryNames.length}</strong>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40">
@@ -3948,7 +3998,7 @@ export default function AdminPanel({
                     <strong className="text-xl font-black text-neutral-900 dark:text-white mt-0.5 block">{products.length}</strong>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Avg Items / Cat</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Avg Items / Collection</span>
                     <strong className="text-xl font-black text-neutral-900 dark:text-white mt-0.5 block">
                       {(products.length / Math.max(1, allCategoryNames.length)).toFixed(1)}
                     </strong>
@@ -3964,14 +4014,15 @@ export default function AdminPanel({
                 {/* Categories Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {allCategoryNames.map((catName) => {
-                    const meta = categoryList.find(c => c.name === catName) || {
-                      id: slugifyCategory(catName),
-                      name: catName,
-                      icon: '✨',
-                      badge: 'Collection 🎀',
-                      description: `Handpicked cute items curated under ${catName}.`,
-                      isDefault: false
-                    };
+                    const meta = categoryList.find(c => c.name?.toLowerCase() === catName?.toLowerCase()) || 
+                      DEFAULT_CATEGORY_METADATA.find(c => c.name?.toLowerCase() === catName?.toLowerCase()) || {
+                        id: slugifyCategory(catName),
+                        name: catName,
+                        icon: '✨',
+                        badge: 'Collection 🎀',
+                        description: `Handpicked cute items curated under ${catName}.`,
+                        isDefault: false
+                      };
 
                     const catProducts = products.filter(p => p.category === catName);
                     const inStockCount = catProducts.filter(p => p.inStock !== false).length;

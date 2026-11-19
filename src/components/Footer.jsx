@@ -19,7 +19,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const FAQS = [
   {
     q: 'What is the minimum order requirement?',
-    a: 'You can order with any 3 items, OR if any single or combo item total is ₹499 or above (such as our Mini, Midi, or Big Mystery Scoops)! You can freely mix and match across Pendants, Bracelets, Eye Masks, and Mystery Scoops.'
+    a: 'You can order with any 3 items, OR if any single or combo item total is ₹499 or above (such as our Mini, Midi, or Big Mystery Scoops)! You can freely mix and match across Pendants, Bracelets, Self-Care, and Mystery Scoops.'
   },
   {
     q: 'What payment methods do you accept?',

@@ -96,22 +96,11 @@ export const CATEGORY_ICONS_DATA = [
     ringColor: 'from-pink-500 to-purple-500'
   },
   {
-    id: 'eye-masks',
-    category: 'Eye Masks',
-    name: 'Eye Masks',
-    shortName: 'Eye Masks',
-    image: '/images/eyemasks-skincare.jpg',
-    emoji: '🌙',
-    tag: 'Cloud Velvet',
-    gradient: 'from-indigo-400 via-purple-400 to-pink-400',
-    ringColor: 'from-indigo-500 to-purple-500'
-  },
-  {
     id: 'self-care',
     category: 'Self-Care',
     name: 'Self-Care',
     shortName: 'Self-Care',
-    image: '/images/asmr-packing.jpg',
+    image: '/images/eyemasks-skincare.jpg',
     emoji: '🌸',
     tag: 'Glow Routine',
     gradient: 'from-rose-400 via-teal-400 to-emerald-400',
@@ -129,6 +118,39 @@ export const CATEGORY_ICONS_DATA = [
     ringColor: 'from-pink-500 to-purple-600'
   },
   {
+    id: 'kawaii-stationery',
+    category: 'Kawaii Stationery',
+    name: 'Kawaii Stationery',
+    shortName: 'Stationery',
+    image: '/images/deluxe-giftbox.jpg',
+    emoji: '📝',
+    tag: 'Pastel Diaries',
+    gradient: 'from-amber-400 via-rose-400 to-pink-400',
+    ringColor: 'from-amber-500 to-pink-500'
+  },
+  {
+    id: 'bottles-mugs',
+    category: 'Bottles & Mugs',
+    name: 'Bottles & Mugs',
+    shortName: 'Bottles & Mugs',
+    image: '/images/deluxe-giftbox.jpg',
+    emoji: '🥛',
+    tag: 'Cute Drinkware',
+    gradient: 'from-teal-400 via-cyan-400 to-blue-500',
+    ringColor: 'from-teal-500 to-blue-500'
+  },
+  {
+    id: 'accessories',
+    category: 'Accessories',
+    name: 'Accessories',
+    shortName: 'Accessories',
+    image: '/images/charm-bracelets.jpg',
+    emoji: '✨',
+    tag: 'Everyday Cute',
+    gradient: 'from-purple-400 via-pink-400 to-amber-400',
+    ringColor: 'from-purple-500 to-pink-500'
+  },
+  {
     id: 'all-collections',
     category: 'All Items',
     name: 'All Collections',
@@ -144,6 +166,7 @@ export const CATEGORY_ICONS_DATA = [
 export default function CategoryIconsBar({ 
   activeCategory, 
   onSelectCategory,
+  products = [],
   className = ''
 }) {
   const scrollContainerRef = useRef(null);
@@ -158,16 +181,25 @@ export default function CategoryIconsBar({
     return () => window.removeEventListener('scoop_categories_updated', handleCatUpdate);
   }, []);
 
-  // Dynamically merge presets with any user-created categories from Admin Panel (e.g. "Stationery and bags")
+  // Dynamically merge presets with stored categories and products
   const displayItems = useMemo(() => {
     const iconDataMap = new Map(CATEGORY_ICONS_DATA.map(i => [i.category.toLowerCase(), i]));
     const list = [];
     const seen = new Set();
+    const ghostMergedSet = new Set(['eye masks', 'korean wallets', 'bottles', 'bracelets & anklets', 'eye masks & self-care']);
 
     // 1. Process all categories stored in categoryStore
     for (const cat of categoriesList) {
       if (!cat || typeof cat.name !== 'string' || !cat.name.trim()) continue;
-      const lower = cat.name.toLowerCase();
+      const lower = cat.name.toLowerCase().trim();
+      if (ghostMergedSet.has(lower)) continue;
+
+      // If products are loaded, ensure collection has items (or is a valid curated collection)
+      if (products && products.length > 0) {
+        const hasProducts = products.some(p => p.category && p.category.toLowerCase().trim() === lower);
+        if (!hasProducts) continue;
+      }
+
       if (!seen.has(lower)) {
         seen.add(lower);
         const preset = iconDataMap.get(lower);
@@ -195,14 +227,41 @@ export default function CategoryIconsBar({
       }
     }
 
-    // 2. Always append "All Collections" at the end
+    // 2. Also check any categories that exist on products but not in categoriesList
+    if (products && products.length > 0) {
+      for (const p of products) {
+        if (!p.category) continue;
+        const lower = p.category.toLowerCase().trim();
+        if (ghostMergedSet.has(lower) || seen.has(lower)) continue;
+
+        seen.add(lower);
+        const preset = iconDataMap.get(lower);
+        if (preset) {
+          list.push(preset);
+        } else {
+          list.push({
+            id: lower.replace(/[^a-z0-9]+/g, '-'),
+            category: p.category,
+            name: p.category,
+            shortName: p.category,
+            image: p.image || '/images/deluxe-giftbox.jpg',
+            emoji: '🎀',
+            tag: 'Curated ✨',
+            gradient: 'from-pink-400 via-purple-400 to-rose-400',
+            ringColor: 'from-pink-500 to-purple-600'
+          });
+        }
+      }
+    }
+
+    // 3. Always append "All Collections" at the end
     const allPreset = CATEGORY_ICONS_DATA.find(i => i.category === 'All Items');
     if (allPreset && !seen.has('all items')) {
       list.push(allPreset);
     }
 
     return list;
-  }, [categoriesList]);
+  }, [categoriesList, products]);
 
   const handleScroll = (direction) => {
     if (!scrollContainerRef.current) return;
