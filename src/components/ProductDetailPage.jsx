@@ -121,11 +121,12 @@ export default function ProductDetailPage({
   const touchStartRef = useRef({ x: 0, y: 0, time: 0, isHorizontal: null });
 
 
-  // Related products from same or complementary categories
+  // Related products from same or complementary collections
   const relatedProducts = useMemo(() => {
     if (!product || !Array.isArray(allProducts) || allProducts.length === 0) return [];
-    const sameCat = allProducts.filter(p => p.id !== product.id && p.category === product.category);
-    const otherCat = allProducts.filter(p => p.id !== product.id && p.category !== product.category);
+    const prodCol = product.collection || product.category;
+    const sameCat = allProducts.filter(p => p.id !== product.id && ((p.collection || p.category) === prodCol || (Array.isArray(p.collections) && p.collections.includes(prodCol))));
+    const otherCat = allProducts.filter(p => p.id !== product.id && !sameCat.includes(p));
     return [...sameCat, ...otherCat].slice(0, 4);
   }, [product, allProducts]);
 
@@ -435,10 +436,10 @@ export default function ProductDetailPage({
             <span className="hidden sm:inline">/</span>
             <button
               type="button"
-              onClick={() => onSelectCollection ? onSelectCollection(product.category) : onClose()}
+              onClick={() => onSelectCollection ? onSelectCollection(product.collection || product.category) : onClose()}
               className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition truncate max-w-[150px] sm:max-w-none"
             >
-              {product.category}
+              {product.collection || product.category}
             </button>
             <span>/</span>
             <span className="text-[#E60067] dark:text-pink-400 font-bold truncate max-w-[180px] sm:max-w-none">

@@ -126,7 +126,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
         <div className="p-5">
           <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider mb-1">
             <span className="text-[#E60067] dark:text-pink-400">
-              {product.category}
+              {product.collection || (Array.isArray(product.collections) && product.collections[0]) || product.category}
             </span>
             {product.rating && (
               <span className="text-amber-500 font-extrabold flex items-center gap-0.5">
@@ -479,7 +479,15 @@ export default function ProductCatalog({
     let list = products;
     if (activeCollection && activeCollection !== 'All Items') {
       const targetLower = activeCollection.toLowerCase();
-      list = products.filter(p => p.category && p.category.toLowerCase() === targetLower);
+      list = products.filter(p => {
+        if (Array.isArray(p.collections) && p.collections.some(c => c && c.toLowerCase() === targetLower)) {
+          return true;
+        }
+        if (p.collection && p.collection.toLowerCase() === targetLower) {
+          return true;
+        }
+        return p.category && p.category.toLowerCase() === targetLower;
+      });
     }
 
     if (searchQuery.trim()) {

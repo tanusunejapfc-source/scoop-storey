@@ -71,7 +71,7 @@ export default function AdminSidebar({
       group: 'CATALOG & STOCK',
       items: [
         { id: 'products', label: 'Products', icon: Package, badge: `${products.length}`, badgeColor: 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400' },
-        { id: 'categories', label: 'Categories & Merge', icon: Tags, badge: categoriesCount ? `${categoriesCount}` : null },
+        { id: 'categories', label: 'Collections', icon: Tags, badge: categoriesCount ? `${categoriesCount}` : null },
         { id: 'inventory', label: 'Stock & Inventory', icon: Boxes, badge: null }
       ]
     },

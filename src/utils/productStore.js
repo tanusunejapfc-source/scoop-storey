@@ -299,8 +299,16 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
     };
   }
 
+  const primaryCollection = p.collection || p.category;
+  const collectionsList = Array.isArray(p.collections) && p.collections.length > 0 
+    ? p.collections 
+    : [primaryCollection].filter(Boolean);
+
   return {
     ...p,
+    collection: primaryCollection,
+    collections: collectionsList,
+    category: primaryCollection,
     images: p.images || defaultImages,
     colors: p.colors || defaultColors,
     specifications: p.specifications || defaultSpecs,

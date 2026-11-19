@@ -1918,7 +1918,7 @@ export default function AdminPanel({
                        activeTab === 'orders' ? 'Orders & Fulfillment Telemetry' :
                        activeTab === 'customers' ? 'Customer CRM & Direct Contact' :
                        activeTab === 'products' ? 'Merchandise & Products Catalog' :
-                       activeTab === 'categories' ? 'Category & Merging Hub' :
+                       activeTab === 'categories' ? 'Collections & Merging Hub' :
                        activeTab === 'inventory' ? 'Stock & Inventory Management' :
                        activeTab === 'reviews' ? 'Ratings & Customer Reviews' :
                        activeTab === 'discounts' ? 'Coupons & Storefront CMS' :
@@ -3880,13 +3880,13 @@ export default function AdminPanel({
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-extrabold text-[#E60067] dark:text-pink-400 mb-2">
                       <Tags className="w-3.5 h-3.5" />
-                      <span>Category & Collection Manager</span>
+                      <span>Collections Manager</span>
                     </div>
                     <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white">
-                      Manage Store Categories & Collections
+                      Manage Store Collections
                     </h3>
                     <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-xl">
-                      Bracelets and Anklets are kept separate, and Eye Masks and Self-Care are kept separate. You can create custom categories, edit names, or bulk reassign products.
+                      Bracelets and Anklets are kept separate, and Eye Masks and Self-Care are kept separate. You can create custom collections, edit names, or bulk reassign products.
                     </p>
                   </div>
 
@@ -3897,7 +3897,7 @@ export default function AdminPanel({
                       className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-2 shadow-md cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>+ Add New Category</span>
+                      <span>+ Add New Collection</span>
                     </button>
 
                     <button
@@ -3906,7 +3906,7 @@ export default function AdminPanel({
                       className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
                     >
                       <GitMerge className="w-4 h-4" />
-                      <span>Merge Categories</span>
+                      <span>Merge Collections</span>
                     </button>
 
                     <button

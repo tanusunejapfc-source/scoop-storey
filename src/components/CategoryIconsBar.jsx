@@ -225,11 +225,11 @@ export default function CategoryIconsBar({
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#E60067] animate-pulse" />
             <span className="text-[11px] sm:text-xs font-display font-extrabold uppercase tracking-wider text-[#E60067] dark:text-pink-400">
-              Shop By Category
+              Explore Collections
             </span>
             <span className="text-neutral-400 text-xs hidden sm:inline">•</span>
             <span className="text-[11px] text-[#554664] dark:text-[#D5CBE2] font-semibold hidden sm:inline">
-              Tap any circle to explore its collection
+              Tap any circle to view its collection
             </span>
           </div>
 
