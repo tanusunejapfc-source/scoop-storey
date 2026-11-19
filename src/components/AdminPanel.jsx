@@ -1950,7 +1950,7 @@ export default function AdminPanel({
                     <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 font-semibold">
                       <span>Scoop Storey OS</span>
                       <span>/</span>
-                      <span className="font-extrabold text-[#E60067] dark:text-pink-400 capitalize">{activeTab}</span>
+                      <span className="font-extrabold text-[#E60067] dark:text-pink-400 capitalize">{activeTab === 'categories' ? 'Collections' : activeTab}</span>
                     </div>
                     <h2 className="font-display font-extrabold text-sm sm:text-base text-neutral-900 dark:text-white truncate">
                       {activeTab === 'dashboard' ? 'Executive Revenue Dashboard' :
@@ -3916,34 +3916,36 @@ export default function AdminPanel({
             {activeTab === 'categories' && (
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                 {/* Header Banner */}
-                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-rose-500/15 border-2 border-pink-200 dark:border-pink-900/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-extrabold text-[#E60067] dark:text-pink-400 mb-2">
+                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-rose-500/15 border-2 border-pink-200 dark:border-pink-900/60 flex flex-col gap-4">
+                  {/* Top: Title & Description */}
+                  <div className="max-w-3xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-xs font-extrabold text-[#E60067] dark:text-pink-400 mb-2 shadow-xs">
                       <Tags className="w-3.5 h-3.5" />
                       <span>Collections Manager</span>
                     </div>
-                    <h3 className="font-display font-extrabold text-xl text-[#231733] dark:text-white">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl text-[#231733] dark:text-white tracking-tight">
                       Manage Store Collections
                     </h3>
-                    <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-xl">
+                    <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 mt-1.5 leading-relaxed">
                       All active collections are automatically synced and kept organized. You can create custom collections, edit details, merge collections, or bulk reassign products. Ghost or merged collections with 0 products are automatically cleaned.
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                  {/* Bottom: Action Buttons Toolbar */}
+                  <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-pink-200/60 dark:border-pink-900/40">
                     <button
                       type="button"
                       onClick={handleOpenAddCategoryModal}
-                      className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-2 shadow-md cursor-pointer"
+                      className="px-4 py-2.5 rounded-2xl btn-3d-pink text-white font-display font-bold text-xs flex items-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>+ Add New Collection</span>
+                      <span>Add New Collection</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleOpenMergeCategoryModal()}
-                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
+                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <GitMerge className="w-4 h-4" />
                       <span>Merge Collections</span>
@@ -3959,7 +3961,7 @@ export default function AdminPanel({
                         });
                         soundFX.playPop(500);
                       }}
-                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md hover:opacity-95 transition cursor-pointer"
+                      className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-xs flex items-center gap-2 shadow-md hover:opacity-95 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <Layers className="w-4 h-4" />
                       <span>Bulk Move Products</span>
@@ -3968,7 +3970,7 @@ export default function AdminPanel({
                     <button
                       type="button"
                       onClick={handleCleanEmptyCategories}
-                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
+                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 shadow-xs hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                       title="Purge ghost and merged categories that have 0 products"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-pink-500" />
@@ -3978,7 +3980,7 @@ export default function AdminPanel({
                     <button
                       type="button"
                       onClick={handleResetCategoriesConfirm}
-                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
+                      className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 shadow-xs hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                       title="Reset Categories to Defaults"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
