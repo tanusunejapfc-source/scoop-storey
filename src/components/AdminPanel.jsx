@@ -873,8 +873,10 @@ export default function AdminPanel({
         return;
       }
 
+      let foundMatch = false;
       let updated = categoryList.map(c => {
-        if (c.name === oldName) {
+        if (c && c.name && c.name.trim().toLowerCase() === oldName.trim().toLowerCase()) {
+          foundMatch = true;
           return {
             ...c,
             id: slugifyCategory(trimmedName),
@@ -888,7 +890,7 @@ export default function AdminPanel({
         return c;
       });
 
-      if (!updated.some(c => c.name === trimmedName)) {
+      if (!foundMatch && !updated.some(c => c && c.name && c.name.trim().toLowerCase() === trimmedName.toLowerCase())) {
         updated.push({
           id: slugifyCategory(trimmedName),
           name: trimmedName,

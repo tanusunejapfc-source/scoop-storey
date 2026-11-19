@@ -205,32 +205,34 @@ export function getStoredCategories() {
           return true;
         });
         
-        // Migration: Merge "Korean Wallets", "Bags", and "Stationery and bags" into unified "Korean wallets and bags" (if not deleted)
+        // Migration: Clean up legacy fragmented categories ("Korean Wallets", "Bags", "Stationery and bags")
         if (!deletedNames.has('korean wallets and bags')) {
-          const isFragmentedWalletOrBag = (name) => {
+          const isOldFragment = (name) => {
             if (!name) return false;
             const lower = name.toLowerCase().trim();
             return lower === 'korean wallets' || 
                    lower === 'bags' || 
                    lower === 'stationery and bags' || 
-                   lower === 'stationery & bags' || 
-                   lower === 'korean wallets and bags' ||
-                   lower === 'korean wallets & bags';
+                   lower === 'stationery & bags';
           };
 
-          const hadFragmentedWalletOrBag = cleaned.some(c => isFragmentedWalletOrBag(c.name));
-          if (hadFragmentedWalletOrBag) {
-            cleaned = cleaned.filter(c => !isFragmentedWalletOrBag(c.name));
-            cleaned.push({
-              id: 'korean-wallets-and-bags',
-              name: 'Korean wallets and bags',
-              icon: '👛',
-              image: '/images/korean-wallets.jpg',
-              department: 'lifestyle',
-              badge: 'Boutique Hot 🔥',
-              description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
-              isDefault: true
-            });
+          const hasOldFragments = cleaned.some(c => isOldFragment(c.name));
+          const existingWalletCat = cleaned.find(c => c && c.name && (c.name.toLowerCase().trim() === 'korean wallets and bags' || c.name.toLowerCase().trim() === 'korean wallets & bags'));
+
+          if (hasOldFragments) {
+            cleaned = cleaned.filter(c => !isOldFragment(c.name));
+            if (!existingWalletCat) {
+              cleaned.push({
+                id: 'korean-wallets-and-bags',
+                name: 'Korean wallets and bags',
+                icon: '👛',
+                image: '/images/korean-wallets.jpg',
+                department: 'lifestyle',
+                badge: 'Boutique Hot 🔥',
+                description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
+                isDefault: true
+              });
+            }
           }
         }
 
