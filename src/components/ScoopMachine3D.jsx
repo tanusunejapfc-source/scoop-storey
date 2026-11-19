@@ -488,8 +488,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
     bowlBaseTrim2.position.y = 0.04;
     bowlGroup.add(bowlBaseTrim2);
 
-    // Under-Bowl Radiant Jewel Spotlight (Illuminates crystal and charms from within!)
-    const innerBowlSpot = new THREE.PointLight(0xff2a85, 3.2, 7.5);
+    // Under-Bowl Radiant Jewel Spotlight (Illuminates crystal with gentle warmth without bleaching charms)
+    const innerBowlSpot = new THREE.PointLight(0xff2a85, 1.4, 7.0);
     innerBowlSpot.position.set(0, 0.50, 0);
     bowlGroup.add(innerBowlSpot);
 
@@ -577,26 +577,28 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
     const heartGeo = createHeartGeometry();
     const gemGeo = new THREE.OctahedronGeometry(0.18, 0);
 
+    // Richer, deeper jewel and candy tones (contrasting vividly against pink lotus bowl)
     const charmColors = [
-      0xFF1493, // Deep pink
-      0x8A2BE2, // Purple amethyst
-      0xF59E0B, // Amber gold
-      0x00B4D8, // Aquamarine
-      0xFF4081, // Hot rose
-      0x10B981, // Emerald jade
-      0xFF007F, // Ruby
-      0x7209B7, // Royal plum
-      0xFFB703, // Sunshine topaz
-      0x06D6A0, // Mint tourmaline
-      0xEC4899  // Bubblegum
+      0x6B1199, // Deep royal amethyst
+      0x9F1239, // Deep garnet ruby
+      0x0E5E4E, // Deep emerald jade
+      0x1D4ED8, // Deep royal sapphire
+      0xC026D3, // Deep berry magenta
+      0xB45309, // Rich warm amber gold
+      0xBE123C, // Deep crimson rose
+      0x0F766E, // Deep peacock teal
+      0x7E22CE, // Deep velvet violet
+      0x4338CA, // Deep midnight indigo
+      0x9D174D, // Deep plum wine
+      0xD97706  // Rich honey topaz
     ];
 
-    for (let i = 0; i < 150; i++) {
-      // Basin ranges from y = 0.72 to y = 1.54
-      const y = 0.72 + Math.random() * 0.82;
-      const progress = (y - 0.72) / 0.82;
-      const radiusAtY = 0.75 + progress * 0.98;
-      const radius = Math.random() * (radiusAtY - 0.16);
+    for (let i = 0; i < 180; i++) {
+      // Basin ranges from y = 0.74 to y = 1.60
+      const y = 0.74 + Math.random() * 0.86;
+      const progress = (y - 0.74) / 0.86;
+      const radiusAtY = 0.78 + progress * 1.02;
+      const radius = Math.random() * (radiusAtY - 0.14);
       const angle = Math.random() * Math.PI * 2;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
@@ -611,17 +613,17 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
 
       const mat = new THREE.MeshPhysicalMaterial({
         color: charmColors[i % charmColors.length],
-        roughness: 0.10,
-        metalness: 0.22,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        reflectivity: 0.95
+        roughness: 0.22, // Balanced roughness so lighting reveals deep color rather than white glare
+        metalness: 0.16,
+        clearcoat: 0.70,
+        clearcoatRoughness: 0.08,
+        reflectivity: 0.85
       });
 
       const charm = new THREE.Mesh(geo, mat);
       charm.position.set(x, y, z);
       charm.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-      charm.scale.setScalar(0.70 + Math.random() * 0.35);
+      charm.scale.setScalar(0.72 + Math.random() * 0.36);
       charm.userData = { baseY: y };
       bowlCharmsGroup.add(charm);
     }
