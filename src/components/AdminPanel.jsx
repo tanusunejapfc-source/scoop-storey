@@ -90,6 +90,7 @@ import {
   deleteStoredCategory,
   getDeletedCategoryNames,
   removeCategoryFromDeleted,
+  fetchCategoriesFromCloud,
   DEFAULT_CATEGORY_METADATA
 } from '../utils/categoryStore';
 import { CATEGORY_ICONS_DATA } from './CategoryIconsBar';
@@ -679,8 +680,14 @@ export default function AdminPanel({
   // Category Store & Management
   const [categoryList, setCategoryList] = useState(getStoredCategories);
 
-  // Sync categoryList with storage on external changes
+  // Sync categoryList with storage on external changes and cloud storage
   useEffect(() => {
+    fetchCategoriesFromCloud().then(cloudCats => {
+      if (cloudCats && Array.isArray(cloudCats)) {
+        setCategoryList(cloudCats);
+      }
+    });
+
     const handleCatUpdate = (e) => {
       if (e?.detail) setCategoryList(e.detail);
       else setCategoryList(getStoredCategories());

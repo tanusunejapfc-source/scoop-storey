@@ -20,7 +20,7 @@ import {
 import { soundFX } from '../utils/audio';
 import { CATEGORIES, COLLECTIONS_CONFIG, DEPARTMENTS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
-import { getStoredCategories } from '../utils/categoryStore';
+import { getStoredCategories, fetchCategoriesFromCloud } from '../utils/categoryStore';
 // Product inquiries on WhatsApp handled via direct chat links (no unverified orders created)
 import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -255,8 +255,14 @@ export default function ProductCatalog({
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [categoriesList, setCategoriesList] = useState(getStoredCategories);
 
-  // Sync categoryList with storage on external admin changes
+  // Sync categoryList with cloud storage and local updates
   useEffect(() => {
+    fetchCategoriesFromCloud().then(cloudCats => {
+      if (cloudCats && Array.isArray(cloudCats)) {
+        setCategoriesList(cloudCats);
+      }
+    });
+
     const handleCatUpdate = (e) => {
       if (e?.detail) setCategoriesList(e.detail);
       else setCategoriesList(getStoredCategories());
@@ -365,6 +371,25 @@ export default function ProductCatalog({
     const seenCategories = new Set();
     const ghostMergedSet = new Set(['eye masks', 'korean wallets', 'bottles', 'bracelets & anklets', 'eye masks & self-care']);
 
+    const isStaleLocalImage = (url) => {
+      if (!url) return true;
+      return (
+        url === '/images/charm-bracelets.jpg' ||
+        url === '/images/bracelets-anklets.jpg' ||
+        url === '/images/eyemasks-skincare.jpg' ||
+        url === '/images/korean-wallets.jpg' ||
+        url === '/images/deluxe-giftbox.jpg'
+      );
+    };
+
+    const resolveCover = (catImg, configImg, categoryItems) => {
+      if (catImg && !isStaleLocalImage(catImg)) return catImg;
+      if (configImg && !isStaleLocalImage(configImg)) return configImg;
+      if (categoryItems && categoryItems[0]?.image) return categoryItems[0].image;
+      if (categoryItems && categoryItems[0]?.images?.[0]) return categoryItems[0].images[0];
+      return catImg || configImg || '/images/deluxe-giftbox.jpg';
+    };
+
     // 1. Process all categories stored in categoryStore
     for (const catMeta of categoriesList) {
       if (!catMeta || typeof catMeta.name !== 'string' || !catMeta.name.trim()) continue;
@@ -381,11 +406,12 @@ export default function ProductCatalog({
         const prices = items.map(p => p.priceINR).filter(Boolean);
         const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
         const previews = items.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
+        const finalCover = resolveCover(catMeta.image, config?.coverImage, items);
 
         if (config) {
           list.push({
             ...config,
-            coverImage: catMeta.image || config.coverImage,
+            coverImage: finalCover,
             badge: catMeta.badge || config.badge,
             description: catMeta.description || config.description,
             icon: catMeta.icon || config.icon,
@@ -404,7 +430,7 @@ export default function ProductCatalog({
             badge: catMeta.badge || 'New Drop 🎀',
             tagline: catMeta.description ? catMeta.description.slice(0, 60) : `Cute ${catMeta.name} collection`,
             description: catMeta.description || `Explore our handpicked ${catMeta.name} curation.`,
-            coverImage: catMeta.image || items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
+            coverImage: finalCover,
             gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
             borderHover: 'hover:border-pink-400',
             btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
@@ -430,10 +456,12 @@ export default function ProductCatalog({
         const prices = items.map(item => item.priceINR).filter(Boolean);
         const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
         const previews = items.slice(0, 4).map(item => item.image || item.images?.[0]).filter(Boolean);
+        const finalCover = resolveCover(null, config?.coverImage, items);
 
         if (config) {
           list.push({
             ...config,
+            coverImage: finalCover,
             itemsCount: items.length,
             minPrice,
             previews
@@ -448,7 +476,7 @@ export default function ProductCatalog({
             badge: 'Curated 🎀',
             tagline: `Explore our ${p.category} collection`,
             description: `Handpicked selection of items curated under ${p.category}.`,
-            coverImage: items[0]?.image || items[0]?.images?.[0] || '/images/deluxe-giftbox.jpg',
+            coverImage: finalCover,
             gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
             borderHover: 'hover:border-pink-400',
             btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500',
@@ -471,6 +499,12 @@ export default function ProductCatalog({
 
     // Check categoriesList for custom category
     const catMeta = categoriesList.find(c => c.name?.toLowerCase() === activeCollection.toLowerCase());
+    const items = products.filter(p => p.category && p.category.toLowerCase() === activeCollection.toLowerCase());
+    const firstImg = items[0]?.image || items[0]?.images?.[0];
+    const catImg = catMeta?.image && !catMeta.image.startsWith('/images/charm-bracelets') && !catMeta.image.startsWith('/images/bracelets-anklets') && !catMeta.image.startsWith('/images/eyemasks-skincare') && !catMeta.image.startsWith('/images/korean-wallets') && !catMeta.image.startsWith('/images/deluxe-giftbox')
+      ? catMeta.image
+      : (firstImg || catMeta?.image || '/images/deluxe-giftbox.jpg');
+
     return {
       name: activeCollection,
       category: activeCollection,
@@ -478,9 +512,9 @@ export default function ProductCatalog({
       badge: catMeta?.badge || 'New Drop 🎀',
       tagline: `Exclusive ${activeCollection} selection`,
       description: catMeta?.description || `Explore authentic products under ${activeCollection}.`,
-      coverImage: catMeta?.image || '/images/deluxe-giftbox.jpg'
+      coverImage: catImg
     };
-  }, [activeCollection, collections, categoriesList]);
+  }, [activeCollection, collections, categoriesList, products]);
 
   // Filtered & Sorted products for active collection view
   const activeProducts = useMemo(() => {

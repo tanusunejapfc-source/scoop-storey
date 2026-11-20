@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import MiniScoopIcon from './MiniScoopIcon';
-import { getStoredCategories } from '../utils/categoryStore';
+import { getStoredCategories, fetchCategoriesFromCloud } from '../utils/categoryStore';
 
 // Curated Category Icons matching Scoop Storey Kawaii Luxury Aesthetic
 export const CATEGORY_ICONS_DATA = [
@@ -34,7 +34,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Bracelets',
     name: 'Bracelets',
     shortName: 'Bracelets',
-    image: '/images/charm-bracelets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000022689-564739.png',
     emoji: '🎀',
     tag: 'Charm Links',
     gradient: 'from-purple-400 via-pink-400 to-indigo-500',
@@ -45,7 +45,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Anklets',
     name: 'Anklets',
     shortName: 'Anklets',
-    image: '/images/bracelets-anklets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020275-997799.jpg',
     emoji: '💫',
     tag: 'Liquid Gold',
     gradient: 'from-amber-400 via-orange-400 to-pink-400',
@@ -56,7 +56,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Make up',
     name: 'Make up',
     shortName: 'Make up',
-    image: '/images/eyemasks-skincare.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023632-055369.png',
     emoji: '💄',
     tag: 'Pastel Glow',
     gradient: 'from-rose-400 via-pink-400 to-fuchsia-400',
@@ -67,7 +67,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Soft Toys',
     name: 'Soft Toys',
     shortName: 'Soft Toys',
-    image: '/images/korean-wallets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024255-720651.jpg',
     emoji: '🧸',
     tag: 'Plushies',
     gradient: 'from-amber-400 via-rose-400 to-pink-400',
@@ -78,7 +78,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Key chains',
     name: 'Key chains',
     shortName: 'Keychains',
-    image: '/images/charm-bracelets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025663-831617.jpg',
     emoji: '🗝️',
     tag: 'Bag Charms',
     gradient: 'from-purple-400 via-pink-400 to-amber-400',
@@ -89,7 +89,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Hair Accessories',
     name: 'Hair Accessories',
     shortName: 'Hair Clips',
-    image: '/images/bracelets-anklets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024279-340427.jpg',
     emoji: '🌸',
     tag: 'Claw Clips',
     gradient: 'from-pink-400 via-purple-400 to-rose-400',
@@ -100,7 +100,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Self-Care',
     name: 'Self-Care',
     shortName: 'Self-Care',
-    image: '/images/eyemasks-skincare.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020284-107611.jpg',
     emoji: '🌸',
     tag: 'Glow Routine',
     gradient: 'from-rose-400 via-teal-400 to-emerald-400',
@@ -111,7 +111,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Korean wallets and bags',
     name: 'Korean wallets and bags',
     shortName: 'Wallets & Bags',
-    image: '/images/korean-wallets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg',
     emoji: '👛',
     tag: 'Quilted & Totes',
     gradient: 'from-pink-400 via-purple-400 to-rose-400',
@@ -122,7 +122,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Kawaii Stationery',
     name: 'Kawaii Stationery',
     shortName: 'Stationery',
-    image: '/images/deluxe-giftbox.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg',
     emoji: '📝',
     tag: 'Pastel Diaries',
     gradient: 'from-amber-400 via-rose-400 to-pink-400',
@@ -133,7 +133,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Bottles & Mugs',
     name: 'Bottles & Mugs',
     shortName: 'Bottles & Mugs',
-    image: '/images/deluxe-giftbox.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023670-563833.jpg',
     emoji: '🥛',
     tag: 'Cute Drinkware',
     gradient: 'from-teal-400 via-cyan-400 to-blue-500',
@@ -144,7 +144,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Accessories',
     name: 'Accessories',
     shortName: 'Accessories',
-    image: '/images/charm-bracelets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024681-197035.jpg',
     emoji: '✨',
     tag: 'Everyday Cute',
     gradient: 'from-purple-400 via-pink-400 to-amber-400',
@@ -155,13 +155,24 @@ export const CATEGORY_ICONS_DATA = [
     category: 'All Items',
     name: 'All Collections',
     shortName: 'Explore All',
-    image: '/images/deluxe-giftbox.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023670-563833.jpg',
     emoji: '🛍️',
     tag: 'All Goodies',
     gradient: 'from-purple-500 via-pink-500 to-amber-400',
     ringColor: 'from-purple-600 to-pink-500'
   }
 ];
+
+const isStaleLocalImage = (url) => {
+  if (!url) return true;
+  return (
+    url === '/images/charm-bracelets.jpg' ||
+    url === '/images/bracelets-anklets.jpg' ||
+    url === '/images/eyemasks-skincare.jpg' ||
+    url === '/images/korean-wallets.jpg' ||
+    url === '/images/deluxe-giftbox.jpg'
+  );
+};
 
 export default function CategoryIconsBar({ 
   activeCategory, 
@@ -173,6 +184,13 @@ export default function CategoryIconsBar({
   const [categoriesList, setCategoriesList] = useState(getStoredCategories);
 
   useEffect(() => {
+    // Sync with remote cloud storage so changes from Admin are live for all visitors
+    fetchCategoriesFromCloud().then(cloudCats => {
+      if (cloudCats && Array.isArray(cloudCats)) {
+        setCategoriesList(cloudCats);
+      }
+    });
+
     const handleCatUpdate = (e) => {
       if (e?.detail) setCategoriesList(e.detail);
       else setCategoriesList(getStoredCategories());
@@ -187,6 +205,15 @@ export default function CategoryIconsBar({
     const list = [];
     const seen = new Set();
     const ghostMergedSet = new Set(['eye masks', 'korean wallets', 'bottles', 'bracelets & anklets', 'eye masks & self-care']);
+
+    const resolveItemImage = (catImg, presetImg, categoryLower) => {
+      if (catImg && !isStaleLocalImage(catImg)) return catImg;
+      if (presetImg && !isStaleLocalImage(presetImg)) return presetImg;
+      const liveProd = products?.find(p => p.category && p.category.toLowerCase().trim() === categoryLower);
+      if (liveProd?.image) return liveProd.image;
+      if (liveProd?.images?.[0]) return liveProd.images[0];
+      return catImg || presetImg || '/images/deluxe-giftbox.jpg';
+    };
 
     // 1. Process all categories stored in categoryStore
     for (const cat of categoriesList) {
@@ -203,12 +230,13 @@ export default function CategoryIconsBar({
       if (!seen.has(lower)) {
         seen.add(lower);
         const preset = iconDataMap.get(lower);
+        const resolvedImage = resolveItemImage(cat.image, preset?.image, lower);
         if (preset) {
           list.push({
             ...preset,
             tag: cat.badge || preset.tag,
             emoji: cat.icon || preset.emoji,
-            image: cat.image || preset.image
+            image: resolvedImage
           });
         } else {
           // Custom category created in Admin Panel!
@@ -217,7 +245,7 @@ export default function CategoryIconsBar({
             category: cat.name,
             name: cat.name,
             shortName: cat.name,
-            image: cat.image || '/images/deluxe-giftbox.jpg',
+            image: resolvedImage,
             emoji: cat.icon || '🎀',
             tag: cat.badge || 'New Drop',
             gradient: 'from-pink-400 via-purple-400 to-rose-400',

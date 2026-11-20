@@ -1,5 +1,8 @@
+import { supabase } from './supabaseClient';
+
 const CATEGORIES_STORAGE_KEY = 'bhaskar_custom_categories_v2';
 const CATEGORIES_DELETED_KEY = 'bhaskar_deleted_categories_v2';
+export const CLOUD_CATEGORIES_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/categories.json';
 
 // Initial default rich category metadata based on store collections
 export const DEFAULT_CATEGORY_METADATA = [
@@ -27,7 +30,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'bracelets',
     name: 'Bracelets',
     icon: '🎀',
-    image: '/images/charm-bracelets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000022689-564739.png',
     department: 'jewelry',
     badge: 'Handcrafted Dainty ✨',
     description: 'Adjustable charm link bracelets, protective evil eye amulets, and fairy-core pastel glass beads.',
@@ -37,7 +40,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'anklets',
     name: 'Anklets',
     icon: '💫',
-    image: '/images/bracelets-anklets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020275-997799.jpg',
     department: 'jewelry',
     badge: 'Summer Shimmer ☀️',
     description: 'Sleek, fluid herringbone snake chains and dainty stationed beaded ankle chains.',
@@ -47,7 +50,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'makeup',
     name: 'Make up',
     icon: '💄',
-    image: '/images/eyemasks-skincare.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023632-055369.png',
     department: 'beauty',
     badge: 'Pastel Glow 💋',
     description: 'Fruit-tinted lip oils, bouncy jelly blush sticks, and radiant liquid glitter eyeshadows.',
@@ -57,7 +60,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'soft-toys',
     name: 'Soft Toys',
     icon: '🧸',
-    image: '/images/korean-wallets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024255-720651.jpg',
     department: 'lifestyle',
     badge: 'Super Fluffy ☁️',
     description: 'Cloud-soft cuddle plushies, squishy boba milk teas, and cute sleeping kitten pillows.',
@@ -67,7 +70,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'keychains',
     name: 'Key chains',
     icon: '🗝️',
-    image: '/images/charm-bracelets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025663-831617.jpg',
     department: 'lifestyle',
     badge: 'Kawaii Charms ✨',
     description: 'Floating liquid glitter bears, Sanrio anime bell straps, and handcrafted beaded phone charms.',
@@ -77,7 +80,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'hair-accessories',
     name: 'Hair Accessories',
     icon: '🎀',
-    image: '/images/bracelets-anklets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024279-340427.jpg',
     department: 'lifestyle',
     badge: 'Cute Styling 🌸',
     description: 'Matte pastel butterfly hair claws, velvet plush cloud scrunchies, and pearl barrette duos.',
@@ -87,7 +90,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'self-care',
     name: 'Self-Care',
     icon: '🌸',
-    image: '/images/eyemasks-skincare.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020284-107611.jpg',
     department: 'beauty',
     badge: 'Glow Routine ✨',
     description: 'Ultra-soft cloud velvet and silk sleeping masks, novelty soda-can wet wipes, deep-cleansing pore strips, and self-care essentials.',
@@ -97,7 +100,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'korean-wallets-and-bags',
     name: 'Korean wallets and bags',
     icon: '👛',
-    image: '/images/korean-wallets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg',
     department: 'lifestyle',
     badge: 'Boutique Hot 🔥',
     description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
@@ -107,7 +110,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'kawaii-stationery',
     name: 'Kawaii Stationery',
     icon: '📝',
-    image: '/images/deluxe-giftbox.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg',
     department: 'lifestyle',
     badge: 'Pastel Journaling ✨',
     description: 'Aesthetic floral diaries, magnetic bookmarks, kawaii sticky notes, and pastel journaling essentials.',
@@ -117,7 +120,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'bottles-mugs',
     name: 'Bottles & Mugs',
     icon: '🥛',
-    image: '/images/deluxe-giftbox.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023670-563833.jpg',
     department: 'lifestyle',
     badge: 'Cute Drinkware 🎀',
     description: 'Labubu sipper bottles, aesthetic pearl glass mugs, and cute bunny ear drinkware.',
@@ -127,7 +130,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'accessories',
     name: 'Accessories',
     icon: '✨',
-    image: '/images/charm-bracelets.jpg',
+    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024681-197035.jpg',
     department: 'lifestyle',
     badge: 'Everyday Cute ✨',
     description: 'Portable handheld mini fans, plushie compact mirrors, and aesthetic everyday accessories.',
@@ -226,7 +229,7 @@ export function getStoredCategories() {
                 id: 'korean-wallets-and-bags',
                 name: 'Korean wallets and bags',
                 icon: '👛',
-                image: '/images/korean-wallets.jpg',
+                image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg',
                 department: 'lifestyle',
                 badge: 'Boutique Hot 🔥',
                 description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
@@ -249,13 +252,28 @@ export function getStoredCategories() {
           }
         }
 
-        // Backfill image for any category that is missing an image
-        const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase(), d]));
+        // Backfill and upgrade image for any category that is missing an image or using stale placeholder
+        const isStaleLocal = (img) => {
+          if (!img) return true;
+          return (
+            img === '/images/charm-bracelets.jpg' ||
+            img === '/images/bracelets-anklets.jpg' ||
+            img === '/images/eyemasks-skincare.jpg' ||
+            img === '/images/korean-wallets.jpg' ||
+            img === '/images/deluxe-giftbox.jpg'
+          );
+        };
+
+        const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase().trim(), d]));
         const finalized = cleaned.map(c => {
-          const def = c.name ? defMap.get(c.name.toLowerCase()) : null;
+          const def = c.name ? defMap.get(c.name.toLowerCase().trim()) : null;
+          let img = c.image;
+          if (isStaleLocal(img) && def?.image) {
+            img = def.image;
+          }
           return {
             ...c,
-            image: c.image || def?.image || '/images/deluxe-giftbox.jpg'
+            image: img || def?.image || '/images/deluxe-giftbox.jpg'
           };
         });
 
@@ -276,12 +294,55 @@ export function getStoredCategories() {
   return DEFAULT_CATEGORY_METADATA.filter(c => !deletedNames.has(c.name.toLowerCase().trim()));
 }
 
-// Save categories to localStorage and dispatch event
+/**
+ * Fetch categories from Supabase cloud storage so all devices & visitors see latest custom collection images
+ */
+export async function fetchCategoriesFromCloud() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch(`${CLOUD_CATEGORIES_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const cloudCats = await res.json();
+      if (Array.isArray(cloudCats) && cloudCats.length > 0) {
+        const deletedNames = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
+        const filtered = cloudCats.filter(c => c && c.name && !deletedNames.has(c.name.toLowerCase().trim()));
+        try {
+          localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(filtered));
+        } catch {}
+        window.dispatchEvent(new CustomEvent('scoop_categories_updated', { detail: filtered }));
+        return filtered;
+      }
+    }
+  } catch (err) {
+    // Non-blocking fallback
+  }
+  return null;
+}
+
+// Save categories to localStorage, dispatch event, and sync to Supabase Cloud Storage
 export function saveStoredCategories(categories) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
     window.dispatchEvent(new CustomEvent('scoop_categories_updated', { detail: categories }));
+
+    // Asynchronously push to Supabase storage bucket so all devices see the updated collection images
+    if (supabase) {
+      try {
+        const jsonBlob = new Blob([JSON.stringify(categories, null, 2)], { type: 'application/json' });
+        supabase.storage
+          .from('product-images')
+          .upload('config/categories.json', jsonBlob, {
+            contentType: 'application/json',
+            upsert: true
+          })
+          .catch(cloudErr => {
+            console.warn('Could not sync categories to cloud storage:', cloudErr);
+          });
+      } catch (cloudErr) {
+        console.warn('Could not sync categories to cloud storage:', cloudErr);
+      }
+    }
   } catch (err) {
     console.error('Failed to save categories to localStorage:', err);
   }
