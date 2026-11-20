@@ -14,9 +14,50 @@ import {
   Power
 } from 'lucide-react';
 import { soundFX } from '../../utils/audio';
+import { supabase } from '../../utils/supabaseClient';
 
-const COUPONS_STORAGE_KEY = 'bhaskar_store_coupons_v1';
-const ANNOUNCEMENT_STORAGE_KEY = 'bhaskar_announcement_cms_v1';
+export const COUPONS_STORAGE_KEY = 'bhaskar_store_coupons_v1';
+export const ANNOUNCEMENT_STORAGE_KEY = 'bhaskar_announcement_cms_v1';
+export const CLOUD_DISCOUNTS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/discounts.json';
+
+export async function syncDiscountsToCloud(couponsData, announcementData) {
+  if (!supabase) return;
+  try {
+    const payload = {
+      coupons: couponsData,
+      announcement: announcementData,
+      updatedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    await supabase.storage
+      .from('product-images')
+      .upload('config/discounts.json', blob, {
+        upsert: true,
+        contentType: 'application/json'
+      });
+  } catch {}
+}
+
+export async function fetchDiscountsFromCloud() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch(`${CLOUD_DISCOUNTS_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object') {
+        if (Array.isArray(data.coupons)) {
+          try { localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(data.coupons)); } catch {}
+        }
+        if (data.announcement) {
+          try { localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(data.announcement)); } catch {}
+          window.dispatchEvent(new CustomEvent('scoop_announcement_updated', { detail: data.announcement }));
+        }
+        return data;
+      }
+    }
+  } catch {}
+  return null;
+}
 
 export const INITIAL_COUPONS = [
   { id: 'c1', code: 'PINK10', type: 'percent', value: 10, minSpend: 999, maxUses: 100, active: true },
@@ -58,6 +99,15 @@ export default function AdminDiscountsCMS() {
     }
   });
 
+  useEffect(() => {
+    fetchDiscountsFromCloud().then(data => {
+      if (data) {
+        if (Array.isArray(data.coupons)) setCoupons(data.coupons);
+        if (data.announcement) setAnnouncement(data.announcement);
+      }
+    });
+  }, []);
+
   const showToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(''), 2500);
@@ -68,9 +118,10 @@ export default function AdminDiscountsCMS() {
       localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(announcement));
       window.dispatchEvent(new CustomEvent('scoop_announcement_updated', { detail: announcement }));
     } catch {}
+    syncDiscountsToCloud(coupons, announcement);
     soundFX.playPop(650);
     soundFX.playChime();
-    showToast('Announcement Bar updated live!');
+    showToast('Announcement Bar updated live across all devices!');
   };
 
   const handleCreateCoupon = (e) => {
@@ -93,10 +144,11 @@ export default function AdminDiscountsCMS() {
     try {
       localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(updated));
     } catch {}
+    syncDiscountsToCloud(updated, announcement);
 
     setNewCode('');
     soundFX.playPop(700);
-    showToast(`Coupon ${codeClean} created!`);
+    showToast(`Coupon ${codeClean} created and synced live!`);
   };
 
   const handleToggleCoupon = (id) => {
@@ -105,6 +157,7 @@ export default function AdminDiscountsCMS() {
     try {
       localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(updated));
     } catch {}
+    syncDiscountsToCloud(updated, announcement);
     soundFX.playPop(500);
   };
 
@@ -114,8 +167,9 @@ export default function AdminDiscountsCMS() {
     try {
       localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(updated));
     } catch {}
+    syncDiscountsToCloud(updated, announcement);
     soundFX.playPop(400);
-    showToast('Coupon removed');
+    showToast('Coupon removed across all devices');
   };
 
   return (

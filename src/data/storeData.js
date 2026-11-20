@@ -138,405 +138,1908 @@ export const MYSTERY_SCOOP_CATEGORIES = [
 export const CHARM_LOOT_POOL = MYSTERY_SCOOP_CATEGORIES.flatMap(cat => cat.items);
 
 export const PRODUCTS = [
-    // --- MYSTERY SCOOPS ---
   {
-    id: 'scoop-mini',
-    name: 'Scoop Storey - Mini Scoop',
-    category: 'Mystery Scoops',
-    badge: 'Popular Starter 🎀',
-    priceINR: 799,
-    image: '/images/scoop-bowl.jpg',
-    description: 'Handpicked cute surprises just for you! Filled with 7–8 aesthetic kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.',
-    includes: [
-      '7–8 Handpicked Surprise Products',
-      'From 54 Official Scoop Board Items',
-      'Extra Free Surprise Gifts Included',
-      'Free Express Shipping Across India',
-      'Cute Packaging & Free Stickers'
-    ]
+    "id": "pend-sun",
+    "name": "Sunburst Celestial Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Golden Glow ☀️",
+    "priceINR": 199,
+    "image": "/images/pendants/sun-pendant.png",
+    "images": [
+      "/images/pendants/sun-pendant.png"
+    ],
+    "description": "Radiant embossed sun pendant with textured sun rays capturing ambient warmth and positivity.",
+    "includes": [
+      "Embossed Sun Rays",
+      "Gold-Tone Finish",
+      "Layer-Friendly Chain"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'scoop-midi',
-    name: 'Scoop Storey - Midi Scoop',
-    category: 'Mystery Scoops',
-    badge: 'Best Value 🔥',
-    priceINR: 1299,
-    image: '/images/scoop-bowl.jpg',
-    description: 'Our fan-favorite haul! 2 deep satisfying scoops packed with 12–15 premium kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.',
-    includes: [
-      '12–15 Handpicked Surprise Products',
-      'From 54 Official Scoop Board Items',
-      'Extra Free Surprise Gifts Included',
-      'Free Express Shipping Across India',
-      'ASMR Reel Filming Eligible'
-    ]
+    "id": "brac-evileye",
+    "name": "Evil Eye Protection Bracelet",
+    "category": "Bracelets",
+    "badge": "Good Luck 🧿",
+    "priceINR": 170,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000022689-564739.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000022689-564739.png"
+    ],
+    "description": "Traditional sapphire-blue and white evil eye talisman bead set on a radiant gold chain.",
+    "includes": [
+      "Protective Evil Eye Bead",
+      "Durable Links",
+      "Positive Vibe Packaging"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'scoop-big',
-    name: 'Scoop Storey - Big Scoop',
-    category: 'Mystery Scoops',
-    badge: 'Collector Choice ✨',
-    priceINR: 1799,
-    image: '/images/deluxe-giftbox.jpg',
-    description: 'The ultimate luxury hamper! Includes everything from a Mini Scoop + Midi Scoop with over 20+ aesthetic items drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), plushies, even more extra free gifts, and free delivery across India.',
-    includes: [
-      'Over 20+ Premium Items',
-      'From 54 Official Scoop Board Items',
-      'Everything from Mini + Midi Scoop',
-      'Even More Extra Free Gifts',
-      'Free Express Shipping Across India',
-      'VIP Hamper Packaging'
-    ]
-  },
-
-  // --- PENDANTS & CHAINS ---
-  {
-    id: 'pend-bow-heart',
-    name: 'Bow Heart Aesthetic Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Trending on Insta 🎀',
-    priceINR: 199,
-    image: '/images/pendants/bow-heart-pendant.png',
-    description: 'A dainty rose-gold bow tied atop a faceted crystal heart charm on a non-tarnish shimmer chain.',
-    includes: ['Anti-Tarnish Plating', 'Lobster Clasp with Extender', 'Velvet Jewelry Pouch', 'Prepaid Shipping']
+    "id": "anklet-snake",
+    "name": "Snake Chain Sleek Anklet",
+    "category": "Anklets",
+    "badge": "Must-Have ✨",
+    "priceINR": 150,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020275-997799.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020275-997799.jpg"
+    ],
+    "description": "The trendiest liquid gold snake chain anklet. Lies flat, won’t snag, and looks gorgeous with sneakers or heels.",
+    "includes": [
+      "Silky Smooth Links",
+      "Non-Snag Design",
+      "Extender Chain Included"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-heart',
-    name: 'Classic Heart Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Best Seller 💖',
-    priceINR: 199,
-    image: '/images/pendants/heart-pendant.png',
-    description: 'Classic high-polish romantic heart pendant on a delicate cable chain for everyday elegance.',
-    includes: ['Mirror Finish Heart', 'Hypoallergenic Chain', 'Gift Display Card', 'Prepaid Shipping']
+    "id": "anklet-minimal",
+    "name": "Classic Minimalist Bead Anklet",
+    "category": "Anklets",
+    "badge": "Subtle Dainty",
+    "priceINR": 120,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020271-024004.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020271-024004.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020269-028838.png"
+    ],
+    "description": "Ultra-dainty ankle chain with miniature stationed polished beads for that barely-there shimmer.",
+    "includes": [
+      "Stationed Bead Accents",
+      "Ultra-Lightweight",
+      "Everyday Summer Ready"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-snake-chain',
-    name: 'Snake Chain Minimalist Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Daily Wear ✨',
-    priceINR: 199,
-    image: '/images/pendants/snake-chain-pendant.png',
-    description: 'Sleek, fluid herringbone snake link chain featuring a polished micro-pendant for modern layering.',
-    includes: ['Liquid Smooth Snake Links', '18k Gold PVD Coating', 'Water-Resistant Finish', 'Hypoallergenic']
+    "id": "pend-heart",
+    "name": "Classic Heart Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Best Seller 💖",
+    "priceINR": 199,
+    "image": "/images/pendants/heart-pendant.png",
+    "images": [
+      "/images/pendants/heart-pendant.png"
+    ],
+    "description": "Classic high-polish romantic heart pendant on a delicate cable chain for everyday elegance.",
+    "includes": [
+      "Mirror Finish Heart",
+      "Hypoallergenic Chain",
+      "Gift Display Card",
+      "Prepaid Shipping"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-little-heart',
-    name: 'Little Heart Dainty Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Cute Essential 💖',
-    priceINR: 199,
-    image: '/images/pendants/little-heart-pendant.png',
-    description: 'A delicate polished puffed heart pendant that rests gracefully on your collarbone.',
-    includes: ['Subtle Mirror Polish', 'Adjustable 16-18" Length', 'Lightweight & Comfortable', 'Gift Packaging']
+    "id": "pend-little-heart",
+    "name": "Little Heart Dainty Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Cute Essential 💖",
+    "priceINR": 199,
+    "image": "/images/pendants/little-heart-pendant.png",
+    "images": [
+      "/images/pendants/little-heart-pendant.png"
+    ],
+    "description": "A delicate polished puffed heart pendant that rests gracefully on your collarbone.",
+    "includes": [
+      "Subtle Mirror Polish",
+      "Adjustable 16-18\" Length",
+      "Lightweight & Comfortable",
+      "Gift Packaging"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-rose-heart',
-    name: 'Rose Heart Deluxe Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Special Edition 🌹',
-    priceINR: 240,
-    image: '/images/pendants/rose-heart-pendant.png',
-    description: 'Intricately carved floral rose bloom encased inside a sculpted romantic heart frame.',
-    includes: ['Intricate Floral Relief', 'Premium Rose Gold Tone', 'Collector Backing Card']
+    "id": "pend-rose-heart",
+    "name": "Rose Heart Deluxe Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Special Edition 🌹",
+    "priceINR": 240,
+    "image": "/images/pendants/rose-heart-pendant.png",
+    "images": [
+      "/images/pendants/rose-heart-pendant.png"
+    ],
+    "description": "Intricately carved floral rose bloom encased inside a sculpted romantic heart frame.",
+    "includes": [
+      "Intricate Floral Relief",
+      "Premium Rose Gold Tone",
+      "Collector Backing Card",
+      "Anti-Tanish Coating"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-pearl',
-    name: 'Lustrous Pearl Drop Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Timeless Beauty 🦪',
-    priceINR: 240,
-    image: '/images/pendants/pearl-pendant.jpg',
-    description: 'Natural high-luster baroque pearl pendant suspended on a fine shimmer chain for a radiant touch.',
-    includes: ['Natural Luster Pearl', 'Tarnish-Resistant Alloy', 'Gift Ready Display Box']
+    "id": "pend-pearl",
+    "name": "Lustrous Pearl Drop Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Timeless Beauty 🦪",
+    "priceINR": 240,
+    "image": "/images/pendants/pearl-pendant.jpg",
+    "images": [
+      "/images/pendants/pearl-pendant.jpg"
+    ],
+    "description": "Natural high-luster baroque pearl pendant suspended on a fine shimmer chain for a radiant touch.",
+    "includes": [
+      "Natural Luster Pearl",
+      "Tarnish-Resistant Alloy",
+      "Gift Ready Display Box"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-monalisa',
-    name: 'Monalisa Lustrous Gem Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Elegant Classic ✨',
-    priceINR: 240,
-    image: '/images/pendants/monalisa-pendant.png',
-    description: 'Sculpted Monalisa faceted stone pendant accented with a sparkling pavé setting for timeless charm.',
-    includes: ['Faceted Crystal Setting', 'Tarnish-Resistant Alloy', 'Gift Ready Display Card']
+    "id": "pend-monalisa",
+    "name": "Monalisa Lustrous Gem Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Elegant Classic ✨",
+    "priceINR": 240,
+    "image": "/images/pendants/monalisa-pendant.png",
+    "images": [
+      "/images/pendants/monalisa-pendant.png"
+    ],
+    "description": "Sculpted Monalisa faceted stone pendant accented with a sparkling pavé setting for timeless charm.",
+    "includes": [
+      "Faceted Crystal Setting",
+      "Tarnish-Resistant Alloy",
+      "Gift Ready Display Card"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'pend-sun',
-    name: 'Sunburst Celestial Pendant',
-    category: 'Pendants & Chains',
-    badge: 'Golden Glow ☀️',
-    priceINR: 199,
-    image: '/images/pendants/sun-pendant.png',
-    description: 'Radiant embossed sun pendant with textured sun rays capturing ambient warmth and positivity.',
-    includes: ['Embossed Sun Rays', 'Gold-Tone Finish', 'Layer-Friendly Chain']
-  },
-
-  // --- BRACELETS ---
-  {
-    id: 'brac-butterfly',
-    name: 'Butterfly Charm Bracelet',
-    category: 'Bracelets',
-    badge: 'Insta Viral 🦋',
-    priceINR: 199,
-    image: '/images/bracelets/butterfly-charm-bracelet.png',
-    description: 'Dainty links holding iridescent fluttering butterfly charms that catch rainbow pastel hues in daylight.',
-    includes: ['Iridescent Acrylic Wings', 'Secure Lobster Lock', 'Adjustable Wrist Fit']
-  },
-  {
-    id: 'brac-flower',
-    name: 'Daisy Flower Charm Bracelet',
-    category: 'Bracelets',
-    badge: 'Fresh & Cute 🌸',
-    priceINR: 199,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Enamel-filled pastel daisy flowers strung along a sparkling gold chain for spring vibes.',
-    includes: ['Pastel Enamel Inlay', 'Golden Link Chain', 'Tarnish-Protected']
+    "id": "pend-bow-heart",
+    "name": "Bow Heart Aesthetic Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Trending on Insta 🎀",
+    "priceINR": 199,
+    "image": "/images/pendants/bow-heart-pendant.png",
+    "images": [
+      "/images/pendants/bow-heart-pendant.png"
+    ],
+    "description": "A dainty rose-gold bow tied atop a faceted crystal heart charm on a non-tarnish shimmer chain.",
+    "includes": [
+      "Anti-Tarnish Plating",
+      "Lobster Clasp with Extender",
+      "Velvet Jewelry Pouch",
+      "Prepaid Shipping"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'brac-leaf',
-    name: 'Botanical Leaf Vine Bracelet',
-    category: 'Bracelets',
-    badge: 'Subtle Chic 🍃',
-    priceINR: 199,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Finely textured leaf vine accents that wrap delicately around the wrist with graceful movement.',
-    includes: ['Sculpted Vine Details', 'Polished Finish', 'Universal Size']
+    "id": "pend-snake-chain",
+    "name": "Snake Chain Minimalist Pendant",
+    "category": "Pendants & Chains",
+    "badge": "Daily Wear ✨",
+    "priceINR": 199,
+    "image": "/images/pendants/snake-chain-pendant.png",
+    "images": [
+      "/images/pendants/snake-chain-pendant.png"
+    ],
+    "description": "Sleek, fluid herringbone snake link chain featuring a polished micro-pendant for modern layering.",
+    "includes": [
+      "Liquid Smooth Snake Links",
+      "18k Gold PVD Coating",
+      "Water-Resistant Finish",
+      "Hypoallergenic"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'brac-evileye',
-    name: 'Evil Eye Protection Bracelet',
-    category: 'Bracelets',
-    badge: 'Good Luck 🧿',
-    priceINR: 170,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Traditional sapphire-blue and white evil eye talisman bead set on a radiant gold chain.',
-    includes: ['Protective Evil Eye Bead', 'Durable Links', 'Positive Vibe Packaging']
-  },
-
-  // --- ANKLETS ---
-  {
-    id: 'anklet-snake',
-    name: 'Snake Chain Sleek Anklet',
-    category: 'Anklets',
-    badge: 'Must-Have ✨',
-    priceINR: 150,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'The trendiest liquid gold snake chain anklet. Lies flat, won’t snag, and looks gorgeous with sneakers or heels.',
-    includes: ['Silky Smooth Links', 'Non-Snag Design', 'Extender Chain Included']
-  },
-  {
-    id: 'anklet-minimal',
-    name: 'Classic Minimalist Bead Anklet',
-    category: 'Anklets',
-    badge: 'Subtle Dainty',
-    priceINR: 120,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Ultra-dainty ankle chain with miniature stationed polished beads for that barely-there shimmer.',
-    includes: ['Stationed Bead Accents', 'Ultra-Lightweight', 'Everyday Summer Ready']
-  },
-
-  // --- EYE MASKS ---
-  {
-    id: 'mask-kitty',
-    name: 'Hello Kitty Kawaii Eye Mask',
-    category: 'Self-Care',
-    badge: 'Super Soft 🐱',
-    priceINR: 99,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Plush velvet sleeping eye mask with adorable cat face embroidery. Blocks 100% light for restful naps.',
-    includes: ['Ultra-Soft Cloud Velvet', 'Gentle Elastic Strap', 'Total Light Blockout']
+    "id": "brac-butterfly",
+    "name": "Butterfly Kda Bracelet",
+    "category": "Bracelets",
+    "badge": "Insta Viral 🦋",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018047-101633.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018047-101633.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018048-103653.png"
+    ],
+    "description": "Dainty links holding iridescent fluttering butterfly Kda that catch rainbow pastel hues in daylight.",
+    "includes": [
+      "Iridescent Acrylic Wings",
+      "Secure Lobster Lock",
+      "Adjustable Wrist Fit"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'mask-miao',
-    name: 'Miao Kitten Sleeping Mask',
-    category: 'Self-Care',
-    badge: 'Cute ASMR 🐾',
-    priceINR: 99,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Cute pastel cartoon kitten eye mask with cooling comfort. A favorite in our unboxing parcels.',
-    includes: ['Breathable Fabric', 'Snug Elastic Comfort', 'Individually Sealed']
+    "id": "brac-leaf",
+    "name": "Botanical Leaf Vine  kda Bracelet",
+    "category": "Bracelets",
+    "badge": "Subtle Chic 🍃",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018049-530028.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018049-530028.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018050-533427.png"
+    ],
+    "description": "Finely textured leaf vine accents that wrap delicately around the wrist with graceful movement.",
+    "includes": [
+      "Sculpted Vine Details",
+      "Polished Finish",
+      "Universal Size"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'mask-heart',
-    name: 'Heart & Floral Silk Eye Mask',
-    category: 'Self-Care',
-    badge: 'Relaxing 💖',
-    priceINR: 99,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Silky smooth eye mask patterned with sweet pastel hearts and floral motifs for sensory sleep comfort.',
-    includes: ['Skin-Friendly Satin Lining', 'Padded Light Protection', 'Travel-Friendly']
-  },
-
-  // --- SELF-CARE ---
-  {
-    id: 'skincare-can-wipes',
-    name: 'Cute Soda Can Wet Wipes (30 Wipes)',
-    category: 'Self-Care',
-    badge: 'Viral Novelty 🥤',
-    priceINR: 99,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Novelty miniature soda can that opens from the pop-tab to dispense refreshing, lightly scented wet wipes.',
-    includes: ['Novelty Soda Can Dispenser', '30 Refreshing Wipes', 'Backpack Clip Keychain']
-  },
-  {
-    id: 'skincare-nose-strips',
-    name: 'Deep Cleansing Nose Pore Strips Pack',
-    category: 'Self-Care',
-    badge: 'Skincare Win 🌸',
-    priceINR: 119,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Pore clearing nose strips that instantly pull out blackheads and leave your nose silky smooth.',
-    includes: ['Pore Purifying Formula', 'Quick 10-Minute Action', 'Dermatologist Tested']
-  },
-
-  // --- KOREAN WALLETS AND BAGS ---
-  {
-    id: 'wallet-pink',
-    name: 'Soft Korean Aesthetic Wallet (Blush Pink)',
-    category: 'Korean wallets and bags',
-    badge: 'Boutique Hot 🔥',
-    priceINR: 250,
-    image: '/images/korean-wallets.jpg',
-    description: 'Quilted diamond-stitched soft leatherette pocket wallet with gold zip accents and a mini teddy bear charm pull.',
-    includes: ['Multiple Card Slots', 'Zippered Coin Pocket', 'Attached Mini Plush Bear Charm', 'Compact Pocket Size']
+    "id": "custom-item-141399",
+    "name": "Deep Flower Bracelet ",
+    "category": "Bracelets",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018019-167287.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018019-167287.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018020-171543.png"
+    ],
+    "description": "Aesthetic Kawaii jewelry hand-selected for Scoop Storey.",
+    "includes": [
+      "Anti-Tarnish Plating",
+      "Gift Display Box",
+      "Prepaid Shipping"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold",
+        "image": null
+      }
+    ],
+    "specifications": {
+      "Finish": "18K Gold Plated",
+      "Material": "Anti-Tarnish Alloy"
+    },
+    "inStock": true
   },
   {
-    id: 'wallet-white',
-    name: 'Soft Korean Minimalist Wallet (Ivory White)',
-    category: 'Korean wallets and bags',
-    badge: 'Clean Aesthetic 🤍',
-    priceINR: 250,
-    image: '/images/korean-wallets.jpg',
-    description: 'Chic creamy ivory quilted pocket wallet with durable gold hardware and a cute teddy charm. Fits in any mini bag.',
-    includes: ['Smooth Zipper Slider', 'Cash & Card Compartments', 'Aesthetic Pastel Finish']
-  },
-
-  // --- MAKE UP ---
-  {
-    id: 'prod-lip-gloss',
-    name: 'Kawaii Fruit Tinted Lip Gloss Oil',
-    category: 'Make up',
-    badge: 'Viral Glow 💋',
-    priceINR: 149,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'High-shine, non-sticky hydrating lip oil infused with sweet fruit essence and subtle plumping gloss for juicy lips.',
-    includes: ['Non-Sticky Mirror Glaze', 'Fruit Extract Hydration', 'Compact Roller Wand', 'Prepaid Shipping']
-  },
-  {
-    id: 'prod-jelly-blush',
-    name: 'Pastel Jelly Blush & Lip Tint Stick',
-    category: 'Make up',
-    badge: 'Dewy Finish 🌸',
-    priceINR: 199,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Bouncy cooling jelly tint stick that blends effortlessly on cheeks and lips for a fresh watercolor flush.',
-    includes: ['Buildable Watercolor Flush', 'Cooling Jelly Texture', 'Long-Lasting Stain', 'Travel Friendly']
-  },
-  {
-    id: 'prod-glitter-shadow',
-    name: 'Shimmer Glitter Liquid Eyeshadow Wand',
-    category: 'Make up',
-    badge: 'Aurora Shimmer ✨',
-    priceINR: 179,
-    image: '/images/eyemasks-skincare.jpg',
-    description: 'Ultra-reflective liquid shimmer eyeshadow packed with micro-fine iridescent sparkles that glide on smoothly without creasing.',
-    includes: ['Zero-Fallout Glaze', 'Quick-Dry Waterproof Wear', 'Precision Doe-Foot Wand', 'Hypoallergenic Safe']
-  },
-
-  // --- SOFT TOYS ---
-  {
-    id: 'prod-boba-plush',
-    name: 'Cloud-Soft Cuddle Boba Milk Tea Plushie',
-    category: 'Soft Toys',
-    badge: 'Super Fluffy 🧋',
-    priceINR: 299,
-    image: '/images/korean-wallets.jpg',
-    description: 'Squishy boba milk tea plush with embroidered smiling face, mini plush pearls, and a straw topper for infinite cozy cuddles.',
-    includes: ['Ultra-Squishy Down Cotton', 'Embroidered Facial Details', 'Anti-Deformation Fill', 'Safe for All Ages']
+    "id": "skincare-can-wipes",
+    "name": "Cute Unicorn Can Wet Wipes (30 Wipes)",
+    "category": "Self-Care",
+    "badge": "Viral Novelty 🥤",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020284-107611.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020284-107611.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020286-105611.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020288-101584.jpg"
+    ],
+    "description": "Novelty miniature soda can that opens from the pop-tab to dispense refreshing, lightly scented wet wipes.",
+    "includes": [
+      "Novelty Soda Can Dispenser",
+      "30 Refreshing Wipes",
+      "Backpack Clip Keychain"
+    ],
+    "colors": [
+      {
+        "hex": "#8ad1f2",
+        "name": "Sky Blue"
+      },
+      {
+        "hex": "#ebb3ff",
+        "name": "Baby Pink"
+      },
+      {
+        "hex": "#ffffff",
+        "name": "Cream"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'prod-bunny-plush',
-    name: 'Long-Eared Kawaii Bunny Snuggle Plushie',
-    category: 'Soft Toys',
-    badge: 'Sweet Snuggle 🐰',
-    priceINR: 349,
-    image: '/images/korean-wallets.jpg',
-    description: 'Extra silky bunny soft toy with floppy ears, pastel cheeks, and soft velvet fur. A customer favorite unboxing surprise.',
-    includes: ['Silky Minky Velvet Fur', 'Floppy Comfort Ears', 'Machine Washable Gentle', 'Gift Ready Packaging']
+    "id": "custom-item-056604",
+    "name": "Flower Kda Bracelet ",
+    "category": "Bracelets",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018051-086505.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018051-086505.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000018052-091556.png"
+    ],
+    "description": "Aesthetic Kawaii jewelry hand-selected for Scoop Storey.",
+    "includes": [
+      "Anti-Tarnish Plating",
+      "Gift Display Box",
+      "Prepaid Shipping"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {
+      "Finish": "18K Gold Plated",
+      "Material": "Anti-Tarnish Alloy",
+      "Packaging": "Velvet Gift Card"
+    },
+    "inStock": true
   },
   {
-    id: 'prod-kitten-pillow',
-    name: 'Sleeping Kitten Plush Pillow & Hand Warmer',
-    category: 'Soft Toys',
-    badge: 'Cozy Cloud 🐱',
-    priceINR: 399,
-    image: '/images/korean-wallets.jpg',
-    description: 'Elongated sleeping kitty plush cushion with side hand pockets to keep hands warm while relaxing or watching ASMR reels.',
-    includes: ['Dual Hand Warmer Pockets', 'Ergonomic Nap Contour', 'Plush Cloud Velvet Exterior', 'Stress-Relief Squeeze']
-  },
-
-  // --- KEY CHAINS ---
-  {
-    id: 'prod-floating-bear-key',
-    name: 'Floating Liquid Glitter Kawaii Bear Keychain',
-    category: 'Key chains',
-    badge: 'Floating Glitter ✨',
-    priceINR: 149,
-    image: '/images/charm-bracelets.jpg',
-    description: 'Enchanting liquid-filled acrylic bear charm with floating sparkles, matching silicone wrist strap, and gold lobster clasp.',
-    includes: ['Leak-Proof Oil Suspension', 'Silicone Wrist Strap', 'Gold-Plated Key Ring & Snap', 'Bag & Backpack Charm']
-  },
-  {
-    id: 'prod-sanrio-bell-key',
-    name: 'Sanrio-Style Anime Bell & Strap Keychain',
-    category: 'Key chains',
-    badge: 'Sweet Jingle 🎀',
-    priceINR: 129,
-    image: '/images/charm-bracelets.jpg',
-    description: 'Pastel anime character figure keychain accented with a crisp jingle bell and woven lanyard strap for bags and keys.',
-    includes: ['Crisp Pleasant Mini Bell', 'Heavy-Duty Key Ring', 'Scratch-Proof Matte Resin', 'Cute Daily Companion']
+    "id": "brac-flower",
+    "name": "Daisy Flower Charm Bracelet",
+    "category": "Bracelets",
+    "badge": "Fresh & Cute 🌸",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020266-433964.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020266-433964.png"
+    ],
+    "description": "Enamel-filled pastel daisy flowers strung along a sparkling gold chain for spring vibes.",
+    "includes": [
+      "Pastel Enamel Inlay",
+      "Golden Link Chain",
+      "Tarnish-Protected"
+    ],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "18K Yellow Gold"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'prod-wristlet-charm',
-    name: 'Aesthetic Pastel Beaded Wristlet Phone Charm',
-    category: 'Key chains',
-    badge: 'Y2K Aesthetic 🌸',
-    priceINR: 139,
-    image: '/images/charm-bracelets.jpg',
-    description: 'Handcrafted phone and bag wristlet stringed with iridescent hearts, acrylic pearls, and pastel flower beads.',
-    includes: ['Heavy-Duty Braided Cord', 'Iridescent Pearl Beads', 'Universal Phone Case Loop', 'Anti-Drop Wrist Strap']
-  },
-
-  // --- HAIR ACCESSORIES ---
-  {
-    id: 'prod-butterfly-claw',
-    name: 'Matte Butterfly Hair Claw Clip (Duo Set)',
-    category: 'Hair Accessories',
-    badge: 'Non-Slip Hold 🦋',
-    priceINR: 149,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Pair of durable pastel matte butterfly hair claws with reinforced spring tension for effortless half-up or bun hairstyles.',
-    includes: ['Set of 2 Claws', 'Non-Slip Soft-Touch Teeth', 'Rust-Proof Metal Spring', 'Gentle On Scalp']
-  },
-  {
-    id: 'prod-cloud-scrunchie',
-    name: 'Fluffy Cloud Plush Scrunchie Duo Pack',
-    category: 'Hair Accessories',
-    badge: 'Velvet Cloud ☁️',
-    priceINR: 99,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Oversized ultra-soft plush velvet scrunchies that hold your hair firmly without kinks, breakage, or hair pulling.',
-    includes: ['Pack of 2 Soft Scrunchies', 'Zero-Damage Gentle Hold', 'High-Elasticity Core', 'Wearable as Wrist Bracelet']
+    "id": "mask-kitty",
+    "name": "Hello Kitty Kawaii Eye Mask",
+    "category": "Self-Care",
+    "badge": "Super Soft 🐱",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020328-310048.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020328-310048.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020383-314912.jpg"
+    ],
+    "description": "Plush velvet sleeping eye mask with adorable cat face embroidery. Blocks 100% light for restful naps.",
+    "includes": [
+      "Ultra-Soft Cloud Velvet",
+      "Gentle Elastic Strap",
+      "Total Light Blockout"
+    ],
+    "colors": [
+      {
+        "hex": "#2A2A2A",
+        "name": "Midnight Black"
+      },
+      {
+        "hex": "#8f8f8f",
+        "name": "Ash grey"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
   },
   {
-    id: 'prod-pearl-pins',
-    name: 'Korean Crystal Pearl Decorative Bobby Pin Duo',
-    category: 'Hair Accessories',
-    badge: 'Pearl Glam 🦪',
-    priceINR: 129,
-    image: '/images/bracelets-anklets.jpg',
-    description: 'Hand-wired lustrous pearl and sparkling crystal barrette pins designed to instantly elevate side-parted and braided hair.',
-    includes: ['Duo Set of 2 Pins', 'Hand-Strung Luster Pearls', 'Strong Grip No-Snag Clips', 'Velvet Display Backing']
+    "id": "mask-miao",
+    "name": "Miao Kitten Sleeping Mask",
+    "category": "Self-Care",
+    "badge": "Cute ASMR 🐾",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020336-417159.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020336-417159.jpg"
+    ],
+    "description": "Cute pastel cartoon kitten eye mask with cooling comfort. A favorite in our unboxing parcels.",
+    "includes": [
+      "Breathable Fabric",
+      "Snug Elastic Comfort",
+      "Individually Sealed"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-013024",
+    "name": "Silk White Floral Eye mask ",
+    "category": "Self-Care",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020354-070072.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020354-070072.jpg"
+    ],
+    "description": "Aesthetic Kawaii jewelry hand-selected for Scoop Storey.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "Standard",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-510204",
+    "name": "Refreshing Wet Wipes (25 Wipes)",
+    "category": "Self-Care",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020295-597814.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020295-597814.jpg"
+    ],
+    "description": "Aesthetic Kawaii jewelry hand-selected for Scoop Storey.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#f7b50c",
+        "name": "Vitamin C",
+        "image": null
+      },
+      {
+        "hex": "#5ba834",
+        "name": "Alovera",
+        "image": null
+      },
+      {
+        "hex": "#f2bbf1",
+        "name": "Rose",
+        "image": null
+      },
+      {
+        "hex": "#c22f33",
+        "name": "Strawberry",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "skincare-nose-strips",
+    "name": "Deep Cleansing Nose Pore Strips (4Pack)",
+    "category": "Self-Care",
+    "badge": "Skincare Win 🌸",
+    "priceINR": 119,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020561-841285.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020561-841285.jpg"
+    ],
+    "description": "Pore clearing nose strips that instantly pull out blackheads and leave your nose silky smooth.",
+    "includes": [
+      "Pore Purifying Formula",
+      "Quick 10-Minute Action",
+      "Dermatologist Tested"
+    ],
+    "colors": [
+      {
+        "hex": "#000000",
+        "name": "Charcoal"
+      },
+      {
+        "hex": "#7cb041",
+        "name": "Green tea"
+      },
+      {
+        "hex": "#493e8c",
+        "name": "Lavender"
+      },
+      {
+        "hex": "#f5b00f",
+        "name": "Vitamin C"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "mask-heart",
+    "name": "Heart & Floral Eye Mask",
+    "category": "Self-Care",
+    "badge": "Relaxing 💖",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020332-575859.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020332-575859.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020379-580772.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020380-578894.jpg"
+    ],
+    "description": " Smooth eye mask patterned with sweet pastel hearts and floral motifs for sensory sleep comfort.",
+    "includes": [
+      "Skin-Friendly Satin Lining",
+      "Padded Light Protection",
+      "Travel-Friendly"
+    ],
+    "colors": [
+      {
+        "hex": "#2A2A2A",
+        "name": "Midnight Black"
+      },
+      {
+        "hex": "#74bff7",
+        "name": "Sky blue"
+      },
+      {
+        "hex": "#f2c2ed",
+        "name": "Baby pink"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-375406",
+    "name": "Blusher",
+    "category": "Make up",
+    "badge": "New Arrival ✨",
+    "priceINR": 149,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023632-055369.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023632-055369.png"
+    ],
+    "description": "Liquid Blusher \n\nLightweight, blendable & long lasting.\nFresh flush look in seconds.\nPerfect for daily & party wear.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#e663c0",
+        "name": "Pink",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-960821",
+    "name": "Sheet Mask",
+    "category": "Self-Care",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023058-634200.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023058-634200.jpg"
+    ],
+    "description": "Self- care through our Sheet mask and see the Glow",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#ff881a",
+        "name": "Vitamin C",
+        "image": null
+      },
+      {
+        "hex": "#000000",
+        "name": "Charcoal",
+        "image": null
+      },
+      {
+        "hex": "#9e0d6b",
+        "name": "Mix fruit",
+        "image": null
+      },
+      {
+        "hex": "#c48b35",
+        "name": "24K Gold",
+        "image": null
+      },
+      {
+        "hex": "#2aad18",
+        "name": "Tender Coconut",
+        "image": null
+      },
+      {
+        "hex": "#1d6b2e",
+        "name": "Cucumber",
+        "image": null
+      },
+      {
+        "hex": "#3c7cb5",
+        "name": "H2O",
+        "image": null
+      },
+      {
+        "hex": "#289993",
+        "name": "Hydra Facial",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-374508",
+    "name": "Labubu Bottles",
+    "category": "Bottles & Mugs",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023670-563833.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023670-563833.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023678-781701.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023674-570054.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023671-567411.jpg"
+    ],
+    "description": "Cute Water Bottle - Labubu Edition\n\nSuper cute transparent pink bottle with fun cartoon print.\nEasy straw sipper - just flip & drink.\nLeak-proof, lightweight & easy to carry.\nPerfect for school, college, gym & travel.\n\nStay Hydrated, Stay Cute!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#f291e7",
+        "name": "Pink",
+        "image": null
+      },
+      {
+        "hex": "#c080ed",
+        "name": "Lavender",
+        "image": null
+      },
+      {
+        "hex": "#789ff5",
+        "name": "Blue",
+        "image": null
+      },
+      {
+        "hex": "#1bc4ae",
+        "name": "Sea green",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-524486",
+    "name": "Pearl Glass Cute Mug",
+    "category": "Bottles & Mugs",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023727-559877.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023727-559877.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023754-580696.jpg"
+    ],
+    "description": "Aesthetic Kawaii jewelry hand-selected for Scoop Storey.",
+    "includes": [
+      "Anti-Tarnish Plating",
+      "Gift Display Box",
+      "Prepaid Shipping"
+    ],
+    "colors": [
+      {
+        "hex": "#eda6d0",
+        "name": "Baby pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023727-559877.jpg"
+      },
+      {
+        "hex": "#edd974",
+        "name": "Yellow",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023754-580696.jpg"
+      }
+    ],
+    "specifications": {
+      "Finish": "18K Gold Plated",
+      "Material": "Anti-Tarnish Alloy",
+      "Packaging": "Velvet Gift Card"
+    },
+    "inStock": true
+  },
+  {
+    "id": "custom-item-788918",
+    "name": "Highlighters ",
+    "category": "Make up",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023502-903291.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023502-903291.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023505-902007.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023513-900718.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023519-897253.jpg"
+    ],
+    "description": "Pigmented Highlighters ",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "Standard",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-751639",
+    "name": "Floral Magnetic Bookmark",
+    "category": "Kawaii Stationery",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024333-288862.jpg"
+    ],
+    "description": "📚✨ Magnetic Bookmark - Set of 6 pcs\nFloral Design | Magnetic Clip | No Page Damage\nFor Books, Diary, Journal",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#8ec9ed",
+        "name": "Sky blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024333-288862.jpg"
+      },
+      {
+        "hex": "#d98db5",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-602117",
+    "name": "Plushie Soft Labubu Doll",
+    "category": "Soft Toys",
+    "badge": "New Arrival ✨",
+    "priceINR": 299,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024255-720651.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024255-720651.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024256-718929.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024257-716559.jpg"
+    ],
+    "description": "Plushie Blush Labubu 🐰✨ Fluffy, dreamy & totally adorable!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#ffa8a8",
+        "name": "Peach",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024257-716559.jpg"
+      },
+      {
+        "hex": "#81c4e6",
+        "name": "Sky Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024255-720651.jpg"
+      },
+      {
+        "hex": "#41b091",
+        "name": "Green",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024256-718929.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-052853",
+    "name": "Plushie Cute bunny🩷",
+    "category": "Soft Toys",
+    "badge": "New Arrival ✨",
+    "priceINR": 349,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024183-215693.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024183-215693.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024203-214295.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024146-209936.jpg"
+    ],
+    "description": "Soft  Bunny Keychain 🐰💙 Floral dress, super cute & soft!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#ebbee2",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024183-215693.jpg"
+      },
+      {
+        "hex": "#faf2f2",
+        "name": "Off white",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024146-209936.jpg"
+      },
+      {
+        "hex": "#8ecaed",
+        "name": "Sky Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024203-214295.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-713043",
+    "name": "Floral Big Diary",
+    "category": "Kawaii Stationery",
+    "badge": "New Arrival ✨",
+    "priceINR": 205,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024390-038768.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024390-038768.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024389-046768.jpg"
+    ],
+    "description": "Best Friends Forever Diary - A5 Big Size, 180 Pages\nPremium Hardbound Cover with Orange Roses Design\nPink Floral Inner Pages with Horizontal Lines + Red Ribbon Bookmark\nBest Gift for BFF, Girls, Friendship Day & Birthday - 1 Diary",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#bd4d4d",
+        "name": "Brown",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024390-038768.jpg"
+      },
+      {
+        "hex": "#dbb8b8",
+        "name": "Beige",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024389-046768.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-992353",
+    "name": "Labubu Lipgloss",
+    "category": "Make up",
+    "badge": "New Arrival ✨",
+    "priceINR": 139,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024062-023958.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024062-023958.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024060-034709.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024061-028039.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024063-018270.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024064-012739.jpg"
+    ],
+    "description": "Labubu Lip Gloss - Sheer Pink Shade, High Shine, Hydrating & Non-Sticky, Long Lasting. Cute Labubu design, perfect for daily wear & gifting.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#46c2a7",
+        "name": "Sea Green",
+        "image": null
+      },
+      {
+        "hex": "#ffccf2",
+        "name": "Baby pink",
+        "image": null
+      },
+      {
+        "hex": "#b08be0",
+        "name": "Lavender",
+        "image": null
+      },
+      {
+        "hex": "#eaffab",
+        "name": "Lemon",
+        "image": null
+      },
+      {
+        "hex": "#ffb8b8",
+        "name": "Peach",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-480945",
+    "name": "Bunny Ear Mug",
+    "category": "Bottles & Mugs",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023710-654236.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023710-654236.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023707-652337.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023724-656135.jpg"
+    ],
+    "description": "Bunny Sip Mug\n\nGlass Mug+ Cute Bunny Lid + Straw Lid.\nLeak Proof, BPA Free & Easy to Carry.\nYour Cutest Sip Partner!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#f564b1",
+        "name": "Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023710-654236.jpg"
+      },
+      {
+        "hex": "#fce8e8",
+        "name": "Beige",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023724-656135.jpg"
+      },
+      {
+        "hex": "#3d8754",
+        "name": "Olive",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023707-652337.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-604104",
+    "name": "Lip Oil",
+    "category": "Make up",
+    "badge": "New Arrival ✨",
+    "priceINR": 139,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023802-811643.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023802-811643.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023799-817537.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023814-791387.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023804-808218.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023810-803779.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023811-796367.jpg"
+    ],
+    "description": "Lip Oil - Nourish, Hydrate & Shine\n\nGet soft, juicy & glossy lips in one swipe! This lightweight Lip Oil deeply moisturizes and softens your lips, adds a natural shine, and keeps them hydrated all day. Non-sticky, gentle & safe for daily use.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#e663c0",
+        "name": "Pink",
+        "image": null
+      },
+      {
+        "hex": "#c70000",
+        "name": "Red",
+        "image": null
+      },
+      {
+        "hex": "#ffff30",
+        "name": "Yellow",
+        "image": null
+      },
+      {
+        "hex": "#ffbfbf",
+        "name": "Peach",
+        "image": null
+      },
+      {
+        "hex": "#6eb6ff",
+        "name": "Sky Blue",
+        "image": null
+      },
+      {
+        "hex": "#974dff",
+        "name": "Purple",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "prod-thermal-flask",
+    "name": "Mini Pastel Insulated Stainless Steel Flask (350ml)",
+    "category": "Mystery Scoops",
+    "badge": "All-Day Cold ❄️",
+    "priceINR": 420,
+    "image": "/images/deluxe-giftbox.jpg",
+    "images": [
+      "/images/deluxe-giftbox.jpg",
+      "/images/deluxe-giftbox.jpg",
+      "/images/scoop-bowl.jpg",
+      "/images/asmr-packing.jpg"
+    ],
+    "description": "Pocket-sized double-wall vacuum insulated stainless steel thermos that keeps drinks cold or hot for over 12 hours.",
+    "includes": [
+      "12-Hour Temperature Retain",
+      "Double-Wall 304 Steel",
+      "Pocket & Mini-Bag Friendly",
+      "Powder-Coated Pastel Shell"
+    ],
+    "colors": [
+      {
+        "hex": "#FFB6C1",
+        "name": "Pastel Pink"
+      },
+      {
+        "hex": "#A8E6CF",
+        "name": "Mint Green"
+      },
+      {
+        "hex": "#DED2F9",
+        "name": "Lilac Purple"
+      },
+      {
+        "hex": "#FFD3B6",
+        "name": "Sunset Ombre"
+      }
+    ],
+    "specifications": {
+      "Capacity": "350ml - 800ml Ergonomic Everyday Volume",
+      "Cleaning": "Easy Disassemble Wide Mouth Opening",
+      "Features": "Leak-Proof Lock Cap with Straw & Adjustable Strap",
+      "Material": "Food-Grade BPA-Free Tritan & 304 Stainless Steel",
+      "Thermal Retain": "Keeps beverages fresh and temperature controlled"
+    },
+    "inStock": true
+  },
+  {
+    "id": "prod-gradient-bottle",
+    "name": "Pastel Gradient Motivational Bottle (800ml)",
+    "category": "Mystery Scoops",
+    "badge": "Hydration Chic 🌸",
+    "priceINR": 349,
+    "image": "/images/deluxe-giftbox.jpg",
+    "images": [
+      "/images/deluxe-giftbox.jpg",
+      "/images/deluxe-giftbox.jpg",
+      "/images/scoop-bowl.jpg",
+      "/images/asmr-packing.jpg"
+    ],
+    "description": "Stunning pastel ombre frosted bottle with hourly hydration markers, ergonomic grip handle, and spill-resistant flip lid.",
+    "includes": [
+      "Hourly Time Goal Markers",
+      "Frosted Velvet Touch Body",
+      "Durable Carry Loop Handle",
+      "Wide Mouth for Ice Cubes"
+    ],
+    "colors": [
+      {
+        "hex": "#FFB6C1",
+        "name": "Pastel Pink"
+      },
+      {
+        "hex": "#A8E6CF",
+        "name": "Mint Green"
+      },
+      {
+        "hex": "#DED2F9",
+        "name": "Lilac Purple"
+      },
+      {
+        "hex": "#FFD3B6",
+        "name": "Sunset Ombre"
+      }
+    ],
+    "specifications": {
+      "Capacity": "350ml - 800ml Ergonomic Everyday Volume",
+      "Cleaning": "Easy Disassemble Wide Mouth Opening",
+      "Features": "Leak-Proof Lock Cap with Straw & Adjustable Strap",
+      "Material": "Food-Grade BPA-Free Tritan & 304 Stainless Steel",
+      "Thermal Retain": "Keeps beverages fresh and temperature controlled"
+    },
+    "inStock": true
+  },
+  {
+    "id": "prod-bear-sipper",
+    "name": "Kawaii Bear Sipper Bottle with Strap (600ml)",
+    "category": "Mystery Scoops",
+    "badge": "Viral Sipper 🥤",
+    "priceINR": 399,
+    "image": "/images/deluxe-giftbox.jpg",
+    "images": [
+      "/images/deluxe-giftbox.jpg",
+      "/images/deluxe-giftbox.jpg",
+      "/images/scoop-bowl.jpg",
+      "/images/asmr-packing.jpg"
+    ],
+    "description": "Adorable frosted bear water bottle with soft silicone straw, leak-proof lock lid, and detachable adjustable shoulder strap.",
+    "includes": [
+      "BPA-Free Food Grade Tritan",
+      "One-Click Pop Straw Cap",
+      "Adjustable Crossbody Strap",
+      "Leak-Proof Silicone Seal"
+    ],
+    "colors": [
+      {
+        "hex": "#FFB6C1",
+        "name": "Pastel Pink"
+      },
+      {
+        "hex": "#A8E6CF",
+        "name": "Mint Green"
+      },
+      {
+        "hex": "#DED2F9",
+        "name": "Lilac Purple"
+      },
+      {
+        "hex": "#FFD3B6",
+        "name": "Sunset Ombre"
+      }
+    ],
+    "specifications": {
+      "Capacity": "350ml - 800ml Ergonomic Everyday Volume",
+      "Cleaning": "Easy Disassemble Wide Mouth Opening",
+      "Features": "Leak-Proof Lock Cap with Straw & Adjustable Strap",
+      "Material": "Food-Grade BPA-Free Tritan & 304 Stainless Steel",
+      "Thermal Retain": "Keeps beverages fresh and temperature controlled"
+    },
+    "inStock": true
+  },
+  {
+    "id": "custom-item-795398",
+    "name": "Kawaii Socks",
+    "category": "Self-Care",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024420-868838.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024420-868838.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024422-867051.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024426-863214.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024433-859317.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024446-854591.jpg"
+    ],
+    "description": "🧸 Kawaii Cute Ankle Socks - Teddy & Floral Collection 🧦\n\nSoftest socks you will ever wear!\n\n✓ Super Soft Cotton - No irritation, full day comfort\n✓ Cute 3D Fluffy Teddy & Small Flowers\n✓ Low Ankle Size - Perfect for shoes\n✓ Stretchable - One size for all girls\n✓ Frill Lace Border\n\nBest for College, Office, Daily Wear & Gifting\n\nAvailable in Pink Teddy, Yellow Floral & More Designs",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": "Yellow",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024433-859317.jpg"
+      },
+      {
+        "hex": "#f288b4",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024446-854591.jpg"
+      },
+      {
+        "hex": "#000000",
+        "name": "Black",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024420-868838.jpg"
+      },
+      {
+        "hex": "#ffffff",
+        "name": "Floral White",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024426-863214.jpg"
+      },
+      {
+        "hex": "#eda6cd",
+        "name": "Floral Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024422-867051.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-290705",
+    "name": "Floral Diary(Medium)",
+    "category": "Kawaii Stationery",
+    "badge": "New Arrival ✨",
+    "priceINR": 149,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024369-539994.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024369-539994.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024380-523733.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024376-532816.jpg"
+    ],
+    "description": "Friendship Forever Medium Diary - A5 Size, 160 Pages\nHardbound Cover with BFF Trophy & Friends Illustration Design\nCute Unicorn & Fairy Butterfly Inner Pages with Colorful Border + Lines\nPerfect Gift for Best Friends, Girls, School Journal, Birthday Gift - 1 Diary",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#914949",
+        "name": "Brown",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024376-532816.jpg"
+      },
+      {
+        "hex": "#e3d1d1",
+        "name": "Biege",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024369-539994.jpg"
+      },
+      {
+        "hex": "#d4198c",
+        "name": "Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024380-523733.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-395494",
+    "name": "Insulated Lunch Bags",
+    "category": "Korean wallets and bags",
+    "badge": "New Arrival ✨",
+    "priceINR": 197,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024522-659097.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024518-672053.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024507-664208.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024526-652340.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024537-644075.jpg"
+    ],
+    "description": "Insulated Lunch Bag\n✓ Hot/Cold 4-6 Hours\n✓ Waterproof & Washable\n✓ Cute Bunny Print\n✓ Spacious & Portable\nFor School, Office, Picnic\nSize: 21x19x14cm",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#d0f5bf",
+        "name": "Sea Green",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg"
+      },
+      {
+        "hex": "#fcacdb",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024537-644075.jpg"
+      },
+      {
+        "hex": "#000000",
+        "name": "Black",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024522-659097.jpg"
+      },
+      {
+        "hex": "#262642",
+        "name": "Navy Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024518-672053.jpg"
+      },
+      {
+        "hex": "#bd6fa9",
+        "name": "Onion",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024507-664208.jpg"
+      },
+      {
+        "hex": "#757575",
+        "name": "Grey",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024526-652340.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-261681",
+    "name": "Korean Sling Bag",
+    "category": "Korean wallets and bags",
+    "badge": "New Arrival ✨",
+    "priceINR": 449,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024697-392666.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024697-392666.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024705-397375.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024701-390053.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024709-384601.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024713-381537.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024717-376939.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024727-371317.jpg"
+    ],
+    "description": "Knitted Bag, Soft, lightweight & spacious. Hand + shoulder carry.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#785959",
+        "name": "Mocha Brown",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024697-392666.jpg"
+      },
+      {
+        "hex": "#e072e0",
+        "name": "Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024709-384601.jpg"
+      },
+      {
+        "hex": "#26a644",
+        "name": "Green",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024713-381537.jpg"
+      },
+      {
+        "hex": "#6dd1de",
+        "name": "Sky Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024701-390053.jpg"
+      },
+      {
+        "hex": "#8146f0",
+        "name": "Lavender",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024717-376939.jpg"
+      },
+      {
+        "hex": "#000000",
+        "name": "Black",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024705-397375.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "wallet-white",
+    "name": "Soft Korean Minimalist Wallet ",
+    "category": "Korean wallets and bags",
+    "badge": "Clean Aesthetic 🤍",
+    "priceINR": 250,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound3601577665415700584-948820.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound3601577665415700584-948820.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound6308014432477278144-075762.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound9186225392587529994-080952.png"
+    ],
+    "description": "Chic creamy ivory quilted pocket wallet with durable gold hardware and a cute teddy charm. Fits in any mini bag.",
+    "includes": [
+      "Smooth Zipper Slider",
+      "Cash & Card Compartments",
+      "Aesthetic Pastel Finish"
+    ],
+    "colors": [
+      {
+        "hex": "#fff0f0",
+        "name": "Ivory White",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound3601577665415700584-948820.png"
+      },
+      {
+        "hex": "#d4a5d0",
+        "name": "Blush pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound6308014432477278144-075762.png"
+      },
+      {
+        "hex": "#6e4b36",
+        "name": "Chocolate Brown",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/inbound9186225392587529994-080952.png"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-067783",
+    "name": "Portable Mini Hand fan ",
+    "category": "Accessories",
+    "badge": "New Arrival ✨",
+    "priceINR": 275,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024681-197035.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024681-197035.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024672-200055.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024677-194411.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024685-158336.jpg"
+    ],
+    "description": "🎀 Mini Portable Hand Fan 💨\nCute. Powerful. Portable.\nFull Speed | USB Charge | Lightweight | Pocket Size\nStay cute in this heat!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#E5C158",
+        "name": " Yellow ",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024677-194411.jpg"
+      },
+      {
+        "hex": "#edaddc",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024685-158336.jpg"
+      },
+      {
+        "hex": "#3e7052",
+        "name": "Bottle Green",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024672-200055.jpg"
+      },
+      {
+        "hex": "#4bc4a4",
+        "name": "Sea Green",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024681-197035.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-352970",
+    "name": "Tubby Bear Sticky Notes",
+    "category": "Kawaii Stationery",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024322-580333.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024322-580333.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024320-558451.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024321-554459.jpg"
+    ],
+    "description": "🐻💜 Tubby Bear Sticky Notes -\n70 Sheets | Cute Bear Shape | Strong Sticky\nFor To-Do, Journal, Study\nScoopStorey ",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#b495f0",
+        "name": "Lavender",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024322-580333.jpg"
+      },
+      {
+        "hex": "#d991c8",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024321-554459.jpg"
+      },
+      {
+        "hex": "#8ec9ed",
+        "name": "Sky Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024320-558451.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-409538",
+    "name": "Plushie Mirror ",
+    "category": "Accessories",
+    "badge": "New Arrival ✨",
+    "priceINR": 449,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024569-493092.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024569-493092.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024585-490418.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024594-488965.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024597-486027.jpg"
+    ],
+    "description": "🎀 Plushie Mirror 🪞\nSoft Plush | Clear Mirror | Pocket Size\nCute & Handy 💖",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#d16f6f",
+        "name": "Brown",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024597-486027.jpg"
+      },
+      {
+        "hex": "#e381c1",
+        "name": "Blush Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024569-493092.jpg"
+      },
+      {
+        "hex": "#ffbde8",
+        "name": "Baby pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024594-488965.jpg"
+      },
+      {
+        "hex": "#b370ff",
+        "name": "Lavender",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024585-490418.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-093697",
+    "name": "Lipstick Pouch",
+    "category": "Korean wallets and bags",
+    "badge": "New Arrival ✨",
+    "priceINR": 249,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024651-141482.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024651-141482.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024636-152651.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024648-147029.jpg"
+    ],
+    "description": "Luxury Lipstick Pouch- Cute mini pouch with keychain & satin scarf. Lipstick, coin, earbuds sab rakh lo.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#422c2c",
+        "name": "Chocolate Brown",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024651-141482.jpg"
+      },
+      {
+        "hex": "#fff0f0",
+        "name": "Beige",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024636-152651.jpg"
+      },
+      {
+        "hex": "#000000",
+        "name": "Black",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024648-147029.jpg"
+      }
+    ],
+    "specifications": {
+      "Finish": "18K Gold Plated",
+      "Material": "Anti-Tarnish Alloy",
+      "Packaging": "Velvet Gift Card"
+    },
+    "inStock": true
+  },
+  {
+    "id": "custom-item-261431",
+    "name": "Comb & Mirror Combo",
+    "category": "Hair Accessories",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024279-340427.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024279-340427.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024305-187566.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024297-344840.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024284-333044.jpg"
+    ],
+    "description": "Aesthetic Kawaii jewelry hand-selected for Scoop Storey.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#b283d4",
+        "name": "Lavender",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024279-340427.jpg"
+      },
+      {
+        "hex": "#e5abf5",
+        "name": "Baby Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024297-344840.jpg"
+      },
+      {
+        "hex": "#bde4ff",
+        "name": "Sky Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024284-333044.jpg"
+      },
+      {
+        "hex": "#eeffa1",
+        "name": "Lemon",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024305-187566.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-734868",
+    "name": "Unicorn Lipgloss ",
+    "category": "Make up",
+    "badge": "New Arrival ✨",
+    "priceINR": 139,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024024-052396.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024024-052396.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024028-065203.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024030-061943.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024022-048382.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024014-045154.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024032-057976.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024026-055408.jpg"
+    ],
+    "description": "Unicorn Pen Lip Gloss - Pink Glitter Shine, Glossy, Long Lasting & Super Hydrating. Cute pen design, perfect for daily wear & gifting.",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#f04a13",
+        "name": "Orange",
+        "image": null
+      },
+      {
+        "hex": "#f5a9a9",
+        "name": "Peach",
+        "image": null
+      },
+      {
+        "hex": "#f59fbf",
+        "name": "Baby Pink",
+        "image": null
+      },
+      {
+        "hex": "#9557f2",
+        "name": "Lavender",
+        "image": null
+      },
+      {
+        "hex": "#6bb7fa",
+        "name": "Sky blue",
+        "image": null
+      },
+      {
+        "hex": "#fff491",
+        "name": "Lemon",
+        "image": null
+      },
+      {
+        "hex": "#66d4b8",
+        "name": "Sea Green",
+        "image": null
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-382812",
+    "name": "Pom Pom Doll keychain ",
+    "category": "Key chains",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025663-831617.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025663-831617.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025659-836347.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025666-827907.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025673-825258.jpg"
+    ],
+    "description": " Doll Keychain 💖✨\nSuper soft fluffy pom-pom, cute doll face with glasses & tiny pom-pom feet! 🎀\nYour bag's new best friend!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#ab0707",
+        "name": "Red",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025659-836347.png"
+      },
+      {
+        "hex": "#e2ff63",
+        "name": "Neon Green",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025666-827907.jpg"
+      },
+      {
+        "hex": "#cb9af5",
+        "name": "Lavender",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025663-831617.jpg"
+      },
+      {
+        "hex": "#c94d89",
+        "name": "Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025673-825258.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-537341",
+    "name": "Hello Kitty Keychain",
+    "category": "Key chains",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025621-808786.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025621-808786.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025628-574296.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025626-571474.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025624-569229.jpg"
+    ],
+    "description": "Hello Kitty Lucky Day Keychain 🎀✨\nCute Hello Kitty with pretty bow + Lucky Day strap! ✨\nYour bag, keys & mood - sab lucky!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#af74c4",
+        "name": " Lavender ",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025624-569229.jpg"
+      },
+      {
+        "hex": "#4196c4",
+        "name": " Blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025628-574296.jpg"
+      },
+      {
+        "hex": "#ffabe9",
+        "name": "Pink",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025626-571474.jpg"
+      },
+      {
+        "hex": "#b81818",
+        "name": "Red",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025621-808786.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-664535",
+    "name": "Camera Keychain 📸😻",
+    "category": "Key chains",
+    "badge": "New Arrival ✨",
+    "priceINR": 99,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025600-777506.png",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025600-777506.png",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025606-772513.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025611-769728.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025614-766524.jpg"
+    ],
+    "description": "Camera Keychain 📸✨\nCute mini camera design with tiny bell charm! 🔔\nYour bag's cutest click! DM to order 📩",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#ffea00",
+        "name": "Capybara ",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025600-777506.png"
+      },
+      {
+        "hex": "#39005e",
+        "name": "Nezha",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025611-769728.jpg"
+      },
+      {
+        "hex": "#e6cf3e",
+        "name": "Sahur",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025614-766524.jpg"
+      },
+      {
+        "hex": "#8b48d4",
+        "name": "Cinnamoroll",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025606-772513.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "custom-item-976246",
+    "name": "Bubble Tea Keychain ",
+    "category": "Key chains",
+    "badge": "New Arrival ✨",
+    "priceINR": 199,
+    "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025652-104092.jpg",
+    "images": [
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025652-104092.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025655-094655.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025658-090845.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025636-087399.jpg",
+      "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025676-210752.jpg"
+    ],
+    "description": "Bubble Tea Keychain 🧋✨\nCute mini bubble cup with tiny boba balls inside + Bubble strap! 💖\nShake karo, shine karo - your bag's cutest sip!",
+    "includes": [],
+    "colors": [
+      {
+        "hex": "#77b9e6",
+        "name": "Sky blue",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025655-094655.jpg"
+      },
+      {
+        "hex": "#b88df7",
+        "name": "Lavender",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025676-210752.jpg"
+      },
+      {
+        "hex": "#e6dd40",
+        "name": "Yellow",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025652-104092.jpg"
+      },
+      {
+        "hex": "#b32d2d",
+        "name": "Red",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025636-087399.jpg"
+      },
+      {
+        "hex": "#4b9fd6",
+        "name": "Balloon",
+        "image": "https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025658-090845.jpg"
+      }
+    ],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "scoop-mini",
+    "name": "Scoop Storey - Mini Scoop",
+    "category": "Mystery Scoops",
+    "badge": "Popular Starter 🎀",
+    "priceINR": 799,
+    "image": "/images/scoop-bowl.jpg",
+    "images": [
+      "/images/scoop-bowl.jpg",
+      "/images/asmr-packing.jpg",
+      "/images/deluxe-giftbox.jpg"
+    ],
+    "description": "Handpicked cute surprises just for you! Filled with 7–8 aesthetic kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.",
+    "includes": [
+      "7–8 Handpicked Surprise Products",
+      "From 54 Official Scoop Board Items",
+      "Extra Free Surprise Gifts Included",
+      "Free Express Shipping Across India",
+      "Cute Packaging & Free Stickers"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "scoop-midi",
+    "name": "Scoop Storey - Midi Scoop",
+    "category": "Mystery Scoops",
+    "badge": "Best Value 🔥",
+    "priceINR": 1299,
+    "image": "/images/scoop-bowl.jpg",
+    "images": [
+      "/images/scoop-bowl.jpg",
+      "/images/asmr-packing.jpg",
+      "/images/deluxe-giftbox.jpg"
+    ],
+    "description": "Our fan-favorite haul! 2 deep satisfying scoops packed with 12–15 premium kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.",
+    "includes": [
+      "12–15 Handpicked Surprise Products",
+      "From 54 Official Scoop Board Items",
+      "Extra Free Surprise Gifts Included",
+      "Free Express Shipping Across India",
+      "ASMR Reel Filming Eligible"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
+  },
+  {
+    "id": "scoop-big",
+    "name": "Scoop Storey - Big Scoop",
+    "category": "Mystery Scoops",
+    "badge": "Collector Choice ✨",
+    "priceINR": 1799,
+    "image": "/images/deluxe-giftbox.jpg",
+    "images": [
+      "/images/deluxe-giftbox.jpg",
+      "/images/scoop-bowl.jpg",
+      "/images/asmr-packing.jpg"
+    ],
+    "description": "The ultimate luxury hamper! Includes everything from a Mini Scoop + Midi Scoop with over 20+ aesthetic items drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), plushies, even more extra free gifts, and free delivery across India.",
+    "includes": [
+      "Over 20+ Premium Items",
+      "From 54 Official Scoop Board Items",
+      "Everything from Mini + Midi Scoop",
+      "Even More Extra Free Gifts",
+      "Free Express Shipping Across India",
+      "VIP Hamper Packaging"
+    ],
+    "colors": [],
+    "specifications": {},
+    "inStock": true
   }
 ];
 

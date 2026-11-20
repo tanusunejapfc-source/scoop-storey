@@ -1,4 +1,40 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from './supabaseClient';
+
+export const CLOUD_REELS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/reels.json';
+
+export async function fetchReelsFromCloud() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch(`${CLOUD_REELS_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    }
+  } catch {}
+  return null;
+}
+
+export async function syncReelsToCloud(reelsList) {
+  if (!supabase) return;
+  try {
+    const lean = reelsList.map(r => ({
+      ...r,
+      videoUrl: (r.videoUrl && r.videoUrl.startsWith('data:') && r.videoUrl.length > 200000)
+        ? ''
+        : r.videoUrl
+    }));
+    const blob = new Blob([JSON.stringify(lean, null, 2)], { type: 'application/json' });
+    await supabase.storage
+      .from('product-images')
+      .upload('config/reels.json', blob, {
+        upsert: true,
+        contentType: 'application/json'
+      });
+  } catch {}
+}
 
 export const DEFAULT_REELS = [
   {
@@ -232,6 +268,9 @@ export function saveStoredReels(reels) {
   } catch {
     // ignore
   }
+
+  // 4. Asynchronously push to Supabase Cloud Storage so all devices see the new reels
+  syncReelsToCloud(reels);
 }
 
 // Automatically extract video frame as thumbnail
@@ -301,9 +340,19 @@ export function useStoreReels() {
   const [reels, setReels] = useState(() => getStoredReels());
   const [loading, setLoading] = useState(true);
 
-  // Initialize from IndexedDB on client-side
+  // Initialize from IndexedDB & Cloud on client-side
   useEffect(() => {
     let isMounted = true;
+
+    // Fetch live reels from cloud storage
+    fetchReelsFromCloud().then(cloudReels => {
+      if (isMounted && Array.isArray(cloudReels) && cloudReels.length > 0) {
+        memoryReels = cloudReels;
+        setReels(cloudReels);
+        saveStoredReels(cloudReels);
+      }
+    });
+
     getIDBReels().then((idbReels) => {
       if (!isMounted) return;
       if (idbReels && Array.isArray(idbReels) && idbReels.length > 0) {

@@ -1,8 +1,9 @@
 import { supabase } from './supabaseClient';
 
-const CATEGORIES_STORAGE_KEY = 'bhaskar_custom_categories_v2';
-const CATEGORIES_DELETED_KEY = 'bhaskar_deleted_categories_v2';
+const CATEGORIES_STORAGE_KEY = 'bhaskar_custom_categories_v3';
+const CATEGORIES_DELETED_KEY = 'bhaskar_deleted_categories_v3';
 export const CLOUD_CATEGORIES_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/categories.json';
+export const CLOUD_DELETED_CATEGORIES_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/deleted-categories.json';
 
 // Initial default rich category metadata based on store collections
 export const DEFAULT_CATEGORY_METADATA = [
@@ -159,6 +160,19 @@ export function getDeletedCategoryNames() {
   return [];
 }
 
+export async function syncDeletedCategoriesToCloud(deletedList) {
+  if (!supabase) return;
+  try {
+    const blob = new Blob([JSON.stringify(deletedList, null, 2)], { type: 'application/json' });
+    await supabase.storage
+      .from('product-images')
+      .upload('config/deleted-categories.json', blob, {
+        upsert: true,
+        contentType: 'application/json'
+      });
+  } catch {}
+}
+
 /**
  * Record an explicit deletion tombstone
  */
@@ -170,6 +184,7 @@ export function recordCategoryDeletion(categoryName) {
     if (!deleted.some(d => d.toLowerCase() === clean.toLowerCase())) {
       deleted.push(clean);
       localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(deleted));
+      syncDeletedCategoriesToCloud(deleted);
     }
   } catch {}
 }
@@ -184,6 +199,7 @@ export function removeCategoryFromDeleted(categoryName) {
     const clean = categoryName.trim().toLowerCase();
     const filtered = deleted.filter(d => d.toLowerCase() !== clean);
     localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(filtered));
+    syncDeletedCategoriesToCloud(filtered);
   } catch {}
 }
 
@@ -196,7 +212,7 @@ export function getStoredCategories() {
 
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         // Filter out legacy combined categories, merged categories (e.g. Eye Masks into Self-Care), and any explicitly deleted categories
         let cleaned = parsed.filter(c => {
           if (!c || typeof c.name !== 'string' || !c.name.trim()) return false;
@@ -242,47 +258,16 @@ export function getStoredCategories() {
         // Migration: Always remove legacy "Bottles" category
         cleaned = cleaned.filter(c => c && c.name && c.name.toLowerCase().trim() !== 'bottles');
 
-        // Backfill any missing default categories (e.g. Kawaii Stationery, Bottles & Mugs, Accessories)
-        const existingLowerNames = new Set(cleaned.map(c => c.name.toLowerCase().trim()));
-        for (const def of DEFAULT_CATEGORY_METADATA) {
-          const lower = def.name.toLowerCase().trim();
-          if (!existingLowerNames.has(lower) && !deletedNames.has(lower)) {
-            cleaned.push(def);
-            existingLowerNames.add(lower);
-          }
-        }
-
-        // Backfill and upgrade image for any category that is missing an image or using stale placeholder
-        const isStaleLocal = (img) => {
-          if (!img) return true;
-          return (
-            img === '/images/charm-bracelets.jpg' ||
-            img === '/images/bracelets-anklets.jpg' ||
-            img === '/images/eyemasks-skincare.jpg' ||
-            img === '/images/korean-wallets.jpg' ||
-            img === '/images/deluxe-giftbox.jpg'
-          );
-        };
-
         const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase().trim(), d]));
         const finalized = cleaned.map(c => {
           const def = c.name ? defMap.get(c.name.toLowerCase().trim()) : null;
-          let img = c.image;
-          if (isStaleLocal(img) && def?.image) {
-            img = def.image;
-          }
           return {
             ...c,
-            image: img || def?.image || '/images/deluxe-giftbox.jpg'
+            image: c.image || def?.image || '/images/deluxe-giftbox.jpg'
           };
         });
 
-        // Persist reconciled categories to localStorage
-        try {
-          localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(finalized));
-        } catch {}
-
-        return finalized;
+        return finalized.length > 0 ? finalized : DEFAULT_CATEGORY_METADATA;
       }
     }
   } catch (err) {
@@ -300,6 +285,19 @@ export function getStoredCategories() {
 export async function fetchCategoriesFromCloud() {
   if (typeof window === 'undefined') return null;
   try {
+    // Also fetch deleted categories list from cloud
+    try {
+      const delRes = await fetch(`${CLOUD_DELETED_CATEGORIES_URL}?t=${Date.now()}`);
+      if (delRes.ok) {
+        const cloudDeleted = await delRes.json();
+        if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
+          const localDeleted = getDeletedCategoryNames();
+          const combined = Array.from(new Set([...localDeleted, ...cloudDeleted]));
+          localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(combined));
+        }
+      }
+    } catch {}
+
     const res = await fetch(`${CLOUD_CATEGORIES_URL}?t=${Date.now()}`);
     if (res.ok) {
       const cloudCats = await res.json();

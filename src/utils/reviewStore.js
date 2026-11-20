@@ -15,6 +15,35 @@ export const INITIAL_REVIEWS = [
   ...INITIAL_PRODUCT_REVIEWS
 ];
 
+export const CLOUD_REVIEWS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/reviews.json';
+
+export async function syncReviewsToCloud(reviewsList) {
+  if (!supabase) return;
+  try {
+    const blob = new Blob([JSON.stringify(reviewsList, null, 2)], { type: 'application/json' });
+    await supabase.storage
+      .from('product-images')
+      .upload('config/reviews.json', blob, {
+        upsert: true,
+        contentType: 'application/json'
+      });
+  } catch {}
+}
+
+export async function fetchReviewsFromCloud() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch(`${CLOUD_REVIEWS_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    }
+  } catch {}
+  return null;
+}
+
 let inMemoryReviews = null;
 
 // Helper to cleanse any old lingering Bhaskar / Bhasker mentions
@@ -95,6 +124,7 @@ function persistReviews(reviewsList) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('scoop_reviews_updated', { detail: reviewsList }));
   }
+  syncReviewsToCloud(reviewsList);
 }
 
 /**
@@ -291,6 +321,16 @@ export function useReviews(productId = null) {
   }, []);
 
   useEffect(() => {
+    fetchReviewsFromCloud().then(cloudReviews => {
+      if (cloudReviews && Array.isArray(cloudReviews) && cloudReviews.length > 0) {
+        inMemoryReviews = cloudReviews;
+        setReviews(cloudReviews);
+        try {
+          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(cloudReviews));
+        } catch {}
+      }
+    });
+
     const handleUpdate = (e) => {
       if (e?.detail && Array.isArray(e.detail)) {
         setReviews(e.detail);

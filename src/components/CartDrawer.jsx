@@ -36,6 +36,7 @@ import { dispatchAllOrderNotifications } from '../utils/notificationService';
 import { trackCheckoutStarted, trackOrderCompleted } from '../utils/analyticsTelemetry';
 import { usePaymentSettings, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
+import { CLOUD_DISCOUNTS_URL } from './admin/AdminDiscountsCMS';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh',
@@ -177,6 +178,22 @@ export default function CartDrawer({
       setCheckoutStep('cart');
     }
   }, [checkoutStep, isMinimumMet]);
+
+  // Sync latest merchant discount coupons from cloud storage
+  useEffect(() => {
+    if (isOpen) {
+      fetch(`${CLOUD_DISCOUNTS_URL}?t=${Date.now()}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.coupons && Array.isArray(data.coupons)) {
+            try {
+              localStorage.setItem('bhaskar_store_coupons_v1', JSON.stringify(data.coupons));
+            } catch {}
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen]);
 
   // Return to cart items smoothly and scroll to top
   const handleBackToCart = () => {
