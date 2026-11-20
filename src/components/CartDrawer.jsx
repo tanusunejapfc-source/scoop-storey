@@ -95,7 +95,7 @@ export default function CartDrawer({
 
   // Payment Settings & Checkout Step
   const { settings: paymentSettings } = usePaymentSettings();
-  const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'upi_payment'
+  const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'address' | 'upi_payment'
   const [paymentMode, setPaymentMode] = useState('full_prepaid'); // 'full_prepaid' | 'partial_cod'
   const [currentOrderId, setCurrentOrderId] = useState('');
   const [upiRefNumber, setUpiRefNumber] = useState('');
@@ -171,9 +171,9 @@ export default function CartDrawer({
   const itemsRemainingForMin = Math.max(0, minItemCount - totalItemCount);
   const amountRemainingForMin = Math.max(0, minAmountINR - totalINR);
 
-  // If cart drops below order requirements while on payment step, return to cart immediately
+  // If cart drops below order requirements while on address or payment step, return to cart immediately
   useEffect(() => {
-    if (checkoutStep === 'upi_payment' && !isMinimumMet) {
+    if (checkoutStep !== 'cart' && !isMinimumMet) {
       setCheckoutStep('cart');
     }
   }, [checkoutStep, isMinimumMet]);
@@ -182,6 +182,15 @@ export default function CartDrawer({
   const handleBackToCart = () => {
     soundFX.playPop(500);
     setCheckoutStep('cart');
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 25);
+  };
+
+  // Return to address step smoothly and scroll to top
+  const handleBackToAddress = () => {
+    soundFX.playPop(500);
+    setCheckoutStep('address');
     setTimeout(() => {
       cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }, 25);
@@ -414,6 +423,24 @@ export default function CartDrawer({
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
+  // Transition to Delivery Address Step (Separated from bag view for clean, un-congested UX)
+  const handleProceedToAddress = () => {
+    if (!isMinimumMet) {
+      soundFX.playPop(300);
+      alert(
+        `⚠️ Order Rule: Add any 3 products OR reach ₹499 total to checkout.\n\nYou currently have ${totalItemCount} item(s) (₹${totalINR}). Please add ${itemsRemainingForMin} more product(s) or ₹${amountRemainingForMin} to unlock payment.`
+      );
+      return;
+    }
+
+    soundFX.playPop(600);
+    setCheckoutStep('address');
+    setAddressErrors({});
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }, 20);
+  };
+
   // Transition to UPI & QR Payment Step
   const handleProceedToUpiPayment = () => {
     if (!isMinimumMet) {
@@ -421,6 +448,7 @@ export default function CartDrawer({
       alert(
         `⚠️ Order Rule: Add any 3 products OR reach ₹499 total to checkout.\n\nYou currently have ${totalItemCount} item(s) (₹${totalINR}). Please add ${itemsRemainingForMin} more product(s) or ₹${amountRemainingForMin} to unlock payment.`
       );
+      setCheckoutStep('cart');
       return;
     }
 
@@ -620,15 +648,30 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  onClick={handleBackToAddress}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
+                  title="Return to Address Details"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Address</span>
+                </button>
+                <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hidden xs:inline">
+                  Step 3: Pay QR
+                </span>
+              </div>
+            ) : checkoutStep === 'address' ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
                   onClick={handleBackToCart}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
                   title="Return to Cart to add/remove items"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Edit Bag</span>
+                  <span>Back to Bag</span>
                 </button>
                 <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hidden xs:inline">
-                  Step 2: Pay QR
+                  Step 2: Delivery Details
                 </span>
               </div>
             ) : (
@@ -648,9 +691,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
             )}
 
             <div className="flex items-center gap-2">
-              {checkoutStep === 'upi_payment' && (
+              {checkoutStep !== 'cart' && (
                 <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                  ₹{totalINR}
+                  ₹{paymentMode === 'partial_cod' ? paymentBreakdown.payNowINR : totalINR}
                 </span>
               )}
               <button
@@ -702,28 +745,37 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
             ) : checkoutStep === 'upi_payment' ? (
               <div className="space-y-4 animate-fadeIn">
                 {/* PROMINENT TOP BACK TO EDIT BANNER CARD */}
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-[#251A38] dark:via-[#2A1E40] dark:to-[#251A38] border-2 border-pink-200 dark:border-pink-900/60 flex items-center justify-between shadow-xs">
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-[#251A38] dark:via-[#2A1E40] dark:to-[#251A38] border-2 border-pink-200 dark:border-pink-900/60 flex items-center justify-between shadow-xs">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#E60067] dark:text-pink-300 font-bold shrink-0">
                       <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-neutral-900 dark:text-white">
-                        Need to change items or address?
+                        Need to change address or items?
                       </div>
                       <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
                         {totalItemCount} item(s) in bag • You can edit anytime
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleBackToCart}
-                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-800 shrink-0 cursor-pointer flex items-center gap-1 active:scale-95 transition"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Edit Cart</span>
-                  </button>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleBackToAddress}
+                      className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-800 cursor-pointer flex items-center gap-1 active:scale-95 transition"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Address</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBackToCart}
+                      className="px-2 py-1.5 rounded-xl bg-pink-50 dark:bg-neutral-700 hover:bg-pink-100 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-200 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-700 cursor-pointer flex items-center gap-1 active:scale-95 transition"
+                    >
+                      <span>Bag</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* PAYMENT OPTION SELECTOR (100% PREPAID vs PARTIAL COD) */}
@@ -1128,235 +1180,34 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   </button>
                 </div>
               </div>
-            ) : (
-              <>
-                {/* REWARD & PROGRESS BAR */}
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-neutral-900 dark:text-white flex items-center gap-1.5">
-                      <Gift className="w-3.5 h-3.5 text-[#E60067]" />
-                      <span>
-                        {!isMinimumMet
-                          ? `Add ${itemsRemainingForMin} more item${itemsRemainingForMin > 1 ? 's' : ''} or ₹${amountRemainingForMin} to unlock Checkout!`
-                          : totalINR < 599
-                            ? `Add ₹${599 - totalINR} more to unlock a Free Mystery Charm Pack! 🎁`
-                            : totalINR < 999
-                              ? `Add ₹${999 - totalINR} more for VIP Deluxe Box Packaging! 👑`
-                              : `🎉 All VIP Milestone Rewards Unlocked!`}
-                      </span>
-                    </span>
-                    <span className="text-[11px] font-black text-[#E60067] dark:text-pink-400">
-                      {!isMinimumMet ? `${totalItemCount}/3 Items (or ₹499)` : totalINR >= 999 ? 'VIP Unlocked' : `₹${totalINR}`}
-                    </span>
-                  </div>
-
-                  {/* Progress track */}
-                  <div className="w-full h-2 rounded-full bg-pink-100 dark:bg-neutral-800 overflow-hidden relative">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#E60067] via-purple-500 to-pink-500 transition-all duration-500"
-                      style={{
-                        width: !isMinimumMet
-                          ? `${Math.max(Math.min(100, (totalItemCount / 3) * 60), Math.min(60, (totalINR / 499) * 60))}%`
-                          : totalINR < 599
-                            ? `${60 + Math.min(25, ((totalINR - 499) / 100) * 25)}%`
-                            : totalINR < 999
-                              ? `${85 + Math.min(15, ((totalINR - 599) / 400) * 15)}%`
-                              : '100%'
-                      }}
-                    />
-                  </div>
-
-                  {/* Milestone Icons */}
-                  <div className="flex items-center justify-between text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 pt-0.5">
-                    <span className={isMinimumMet ? 'text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1' : ''}>
-                      {isMinimumMet ? '✓ Checkout Unlocked' : '3 Items / ₹499'}
-                    </span>
-                    <span className={totalINR >= 599 ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
-                      {totalINR >= 599 ? '✓ Free Charm Pack' : '₹599 Free Charm'}
-                    </span>
-                    <span className={totalINR >= 999 ? 'text-amber-600 dark:text-amber-400 font-bold' : ''}>
-                      {totalINR >= 999 ? '✓ VIP Deluxe Box' : '₹999 VIP Box'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Cart Items */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider px-1">
-                    <span>Items In Bag ({totalItemCount})</span>
-                    <span className="text-[11px] font-medium lowercase text-neutral-400">Total Price</span>
-                  </div>
-
-                  {cartItems.map((item) => {
-                    const itemKey = item.cartKey || item.id;
-                    return (
-                      <div
-                        key={itemKey}
-                        className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
-                      >
-                        <img
-                          src={item.image || '/images/deluxe-giftbox.jpg'}
-                          alt={item.name}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
-                          }}
-                          className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
-                              {item.name}
-                            </h5>
-                            <span className="font-display font-black text-xs sm:text-sm text-[#E60067] dark:text-pink-400 shrink-0">
-                              ₹{item.priceINR * item.qty}
-                            </span>
-                          </div>
-
-                          {item.selectedColor && (
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              {item.selectedColorHex && (
-                                <span
-                                  className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
-                                  style={{ backgroundColor: item.selectedColorHex }}
-                                />
-                              )}
-                              <span className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
-                                Color: {item.selectedColor}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Qty controls */}
-                          <div className="flex items-center justify-between gap-2 mt-2">
-                            <div className="flex items-center rounded-lg bg-pink-100/60 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700">
-                              <button
-                                onClick={() => {
-                                  onUpdateQty(itemKey, item.qty - 1);
-                                  soundFX.playPop(420);
-                                }}
-                                className="p-1 hover:text-pink-600 transition"
-                                aria-label="Decrease quantity"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="px-2 text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                                {item.qty}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  onUpdateQty(itemKey, item.qty + 1);
-                                  soundFX.playPop(520);
-                                }}
-                                className="p-1 hover:text-pink-600 transition"
-                                aria-label="Increase quantity"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
-                            </div>
-
-                            <button
-                              onClick={() => {
-                                onRemoveItem(itemKey);
-                                soundFX.playPop(350);
-                              }}
-                              className="text-neutral-400 hover:text-red-500 p-1.5 transition rounded-lg hover:bg-rose-50 dark:hover:bg-neutral-800"
-                              aria-label="Remove item"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* BUNDLE UNLOCK ASSISTANT: Quick-Add Items to reach 3 items */}
-                {!isMinimumMet && bundleAddOns.length > 0 && (
-                  <div data-bundle-helper className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
-                        <h5 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white">
-                          Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} or ₹{amountRemainingForMin} to unlock!
-                        </h5>
-                      </div>
-                      <span className="text-[10px] font-bold text-[#E60067] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
-                        Pocket-Friendly ✨
-                      </span>
+            ) : checkoutStep === 'address' ? (
+              <div className="space-y-4 animate-fadeIn">
+                {/* ORDER RECAP CHIP */}
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-[#251A38] dark:via-[#2A1E40] dark:to-[#251A38] border border-pink-200 dark:border-pink-900/60 flex items-center justify-between shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#E60067] dark:text-pink-300 font-bold shrink-0">
+                      <ShoppingBag className="w-4 h-4" />
                     </div>
-
-                    <p className="text-[11px] text-[#554664] dark:text-[#D5CBE2] font-medium">
-                      Tap to add any cute add-on under ₹250 directly to your bag:
-                    </p>
-
-                    <div className="flex items-stretch gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
-                      {bundleAddOns.map((addon) => (
-                        <div
-                          key={addon.id}
-                          className="w-32 sm:w-36 shrink-0 p-2 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/40 shadow-xs flex flex-col justify-between"
-                        >
-                          <div className="space-y-1">
-                            <div className="w-full aspect-[4/5] rounded-lg bg-neutral-100 dark:bg-neutral-700 overflow-hidden flex items-center justify-center">
-                              <img
-                                src={addon.image || (Array.isArray(addon.images) && addon.images[0]) || '/images/deluxe-giftbox.jpg'}
-                                alt={addon.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
-                                }}
-                              />
-                            </div>
-                            <h6 className="font-display font-bold text-[11px] text-[#231733] dark:text-white line-clamp-1">
-                              {addon.name}
-                            </h6>
-                            <div className="text-xs font-black text-[#E60067] dark:text-pink-400">
-                              ₹{addon.priceINR}
-                            </div>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleQuickAddBundleItem(addon)}
-                            className="mt-2 w-full py-1.5 px-2 rounded-lg bg-[#E60067] hover:bg-[#D8005A] text-white font-display font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer active:scale-95 transition"
-                          >
-                            <Plus className="w-3 h-3" />
-                            <span>Add</span>
-                          </button>
-                        </div>
-                      ))}
-
-                      {/* Card at end of scroll to view full collection */}
-                      <button
-                        type="button"
-                        onClick={handleGoToCollections}
-                        className="w-32 sm:w-36 shrink-0 p-3 rounded-xl bg-gradient-to-b from-pink-100/90 to-purple-100/90 dark:from-pink-950/70 dark:to-purple-950/70 border-2 border-dashed border-[#E60067]/50 hover:border-[#E60067] flex flex-col items-center justify-center text-center cursor-pointer transition active:scale-95 shadow-xs group"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center text-[#E60067] mb-1.5 shadow-xs group-hover:scale-110 transition">
-                          <ArrowRight className="w-4 h-4" />
-                        </div>
-                        <span className="font-display font-extrabold text-[11px] text-[#231733] dark:text-white leading-tight">
-                          View Full Collection
-                        </span>
-                        <span className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold mt-1">
-                          Browse All →
-                        </span>
-                      </button>
+                    <div>
+                      <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                        {totalItemCount} item{totalItemCount > 1 ? 's' : ''} in Bag
+                      </div>
+                      <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                        {paymentMode === 'partial_cod'
+                          ? `Partial Payment • ₹${paymentBreakdown.payNowINR} Advance`
+                          : `100% Prepaid • ₹${totalINR} Total`}
+                      </div>
                     </div>
-
-                    {/* Dedicated Button to View Full Collection in Center Card */}
-                    <button
-                      type="button"
-                      onClick={handleGoToCollections}
-                      className="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-pink-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-800 shadow-xs cursor-pointer transition active:scale-[0.99]"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
-                      <span>View Full Collection & Browse All Goodies →</span>
-                    </button>
                   </div>
-                )}
+                  <button
+                    type="button"
+                    onClick={handleBackToCart}
+                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-[11px] shadow-xs border border-pink-200 dark:border-pink-800 shrink-0 cursor-pointer flex items-center gap-1 active:scale-95 transition"
+                  >
+                    <ArrowLeft className="w-3 h-3" />
+                    <span>Edit Bag</span>
+                  </button>
+                </div>
 
                 {/* ADDRESS & CONTACT DETAILS FORM */}
                 <div
@@ -1620,6 +1471,236 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     />
                   </div>
                 </div>
+              </div>
+            ) : (
+              <>
+                {/* REWARD & PROGRESS BAR */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-neutral-900 dark:text-white flex items-center gap-1.5">
+                      <Gift className="w-3.5 h-3.5 text-[#E60067]" />
+                      <span>
+                        {!isMinimumMet
+                          ? `Add ${itemsRemainingForMin} more item${itemsRemainingForMin > 1 ? 's' : ''} or ₹${amountRemainingForMin} to unlock Checkout!`
+                          : totalINR < 599
+                            ? `Add ₹${599 - totalINR} more to unlock a Free Mystery Charm Pack! 🎁`
+                            : totalINR < 999
+                              ? `Add ₹${999 - totalINR} more for VIP Deluxe Box Packaging! 👑`
+                              : `🎉 All VIP Milestone Rewards Unlocked!`}
+                      </span>
+                    </span>
+                    <span className="text-[11px] font-black text-[#E60067] dark:text-pink-400">
+                      {!isMinimumMet ? `${totalItemCount}/3 Items (or ₹499)` : totalINR >= 999 ? 'VIP Unlocked' : `₹${totalINR}`}
+                    </span>
+                  </div>
+
+                  {/* Progress track */}
+                  <div className="w-full h-2 rounded-full bg-pink-100 dark:bg-neutral-800 overflow-hidden relative">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#E60067] via-purple-500 to-pink-500 transition-all duration-500"
+                      style={{
+                        width: !isMinimumMet
+                          ? `${Math.max(Math.min(100, (totalItemCount / 3) * 60), Math.min(60, (totalINR / 499) * 60))}%`
+                          : totalINR < 599
+                            ? `${60 + Math.min(25, ((totalINR - 499) / 100) * 25)}%`
+                            : totalINR < 999
+                              ? `${85 + Math.min(15, ((totalINR - 599) / 400) * 15)}%`
+                              : '100%'
+                      }}
+                    />
+                  </div>
+
+                  {/* Milestone Icons */}
+                  <div className="flex items-center justify-between text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 pt-0.5">
+                    <span className={isMinimumMet ? 'text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1' : ''}>
+                      {isMinimumMet ? '✓ Checkout Unlocked' : '3 Items / ₹499'}
+                    </span>
+                    <span className={totalINR >= 599 ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
+                      {totalINR >= 599 ? '✓ Free Charm Pack' : '₹599 Free Charm'}
+                    </span>
+                    <span className={totalINR >= 999 ? 'text-amber-600 dark:text-amber-400 font-bold' : ''}>
+                      {totalINR >= 999 ? '✓ VIP Deluxe Box' : '₹999 VIP Box'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Cart Items */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider px-1">
+                    <span>Items In Bag ({totalItemCount})</span>
+                    <span className="text-[11px] font-medium lowercase text-neutral-400">Total Price</span>
+                  </div>
+
+                  {cartItems.map((item) => {
+                    const itemKey = item.cartKey || item.id;
+                    return (
+                      <div
+                        key={itemKey}
+                        className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
+                      >
+                        <img
+                          src={item.image || '/images/deluxe-giftbox.jpg'}
+                          alt={item.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          }}
+                          className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
+                              {item.name}
+                            </h5>
+                            <span className="font-display font-black text-xs sm:text-sm text-[#E60067] dark:text-pink-400 shrink-0">
+                              ₹{item.priceINR * item.qty}
+                            </span>
+                          </div>
+
+                          {item.selectedColor && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {item.selectedColorHex && (
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                                  style={{ backgroundColor: item.selectedColorHex }}
+                                />
+                              )}
+                              <span className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
+                                Color: {item.selectedColor}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Qty controls */}
+                          <div className="flex items-center justify-between gap-2 mt-2">
+                            <div className="flex items-center rounded-lg bg-pink-100/60 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700">
+                              <button
+                                onClick={() => {
+                                  onUpdateQty(itemKey, item.qty - 1);
+                                  soundFX.playPop(420);
+                                }}
+                                className="p-1 hover:text-pink-600 transition"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="px-2 text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                                {item.qty}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  onUpdateQty(itemKey, item.qty + 1);
+                                  soundFX.playPop(520);
+                                }}
+                                className="p-1 hover:text-pink-600 transition"
+                                aria-label="Increase quantity"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                onRemoveItem(itemKey);
+                                soundFX.playPop(350);
+                              }}
+                              className="text-neutral-400 hover:text-red-500 p-1.5 transition rounded-lg hover:bg-rose-50 dark:hover:bg-neutral-800"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* BUNDLE UNLOCK ASSISTANT: Quick-Add Items to reach 3 items */}
+                {!isMinimumMet && bundleAddOns.length > 0 && (
+                  <div data-bundle-helper className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                        <h5 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white">
+                          Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} or ₹{amountRemainingForMin} to unlock!
+                        </h5>
+                      </div>
+                      <span className="text-[10px] font-bold text-[#E60067] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
+                        Pocket-Friendly ✨
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-[#554664] dark:text-[#D5CBE2] font-medium">
+                      Tap to add any cute add-on under ₹250 directly to your bag:
+                    </p>
+
+                    <div className="flex items-stretch gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
+                      {bundleAddOns.map((addon) => (
+                        <div
+                          key={addon.id}
+                          className="w-32 sm:w-36 shrink-0 p-2 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/40 shadow-xs flex flex-col justify-between"
+                        >
+                          <div className="space-y-1">
+                            <div className="w-full aspect-[4/5] rounded-lg bg-neutral-100 dark:bg-neutral-700 overflow-hidden flex items-center justify-center">
+                              <img
+                                src={addon.image || (Array.isArray(addon.images) && addon.images[0]) || '/images/deluxe-giftbox.jpg'}
+                                alt={addon.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                }}
+                              />
+                            </div>
+                            <h6 className="font-display font-bold text-[11px] text-[#231733] dark:text-white line-clamp-1">
+                              {addon.name}
+                            </h6>
+                            <div className="text-xs font-black text-[#E60067] dark:text-pink-400">
+                              ₹{addon.priceINR}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAddBundleItem(addon)}
+                            className="mt-2 w-full py-1.5 px-2 rounded-lg bg-[#E60067] hover:bg-[#D8005A] text-white font-display font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer active:scale-95 transition"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add</span>
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Card at end of scroll to view full collection */}
+                      <button
+                        type="button"
+                        onClick={handleGoToCollections}
+                        className="w-32 sm:w-36 shrink-0 p-3 rounded-xl bg-gradient-to-b from-pink-100/90 to-purple-100/90 dark:from-pink-950/70 dark:to-purple-950/70 border-2 border-dashed border-[#E60067]/50 hover:border-[#E60067] flex flex-col items-center justify-center text-center cursor-pointer transition active:scale-95 shadow-xs group"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center text-[#E60067] mb-1.5 shadow-xs group-hover:scale-110 transition">
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                        <span className="font-display font-extrabold text-[11px] text-[#231733] dark:text-white leading-tight">
+                          View Full Collection
+                        </span>
+                        <span className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold mt-1">
+                          Browse All →
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Dedicated Button to View Full Collection in Center Card */}
+                    <button
+                      type="button"
+                      onClick={handleGoToCollections}
+                      className="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-pink-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-800 shadow-xs cursor-pointer transition active:scale-[0.99]"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
+                      <span>View Full Collection & Browse All Goodies →</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Promo Code Form */}
                 <div className="p-3.5 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 space-y-2">
@@ -1651,16 +1732,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
             )}
           </div>
 
-          {/* Sticky Bottom Controls & Checkout Confirmation */}
+          {/* Sticky Bottom Controls for Step 1: Bag */}
           {cartItems.length > 0 && checkoutStep === 'cart' && (
             <div className="p-4 sm:p-5 border-t border-pink-100 dark:border-pink-900/30 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)]">
-              {/* Validation Warning Notice if fields missing */}
-              {Object.keys(addressErrors).length > 0 && (
-                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
-                  <span>Please fill in your delivery address and contact details above to confirm order.</span>
-                </div>
-              )}
 
               {/* Payment Option Selector at Bottom */}
               <div className="space-y-1.5">
@@ -1810,25 +1884,15 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} (or reach ₹499) to unlock</span>
                   </button>
-                ) : paymentMode === 'partial_cod' ? (
-                  /* Partial COD Button */
-                  <button
-                    type="button"
-                    onClick={handleProceedToUpiPayment}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:to-pink-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
-                  >
-                    <QrCode className="w-4 h-4" />
-                    <span>Proceed with Partial Payment • Pay ₹{paymentBreakdown.payNowINR} Advance</span>
-                  </button>
                 ) : (
-                  /* Single Primary Prepaid UPI & QR Checkout */
+                  /* Proceed to Checkout / Address Step Button */
                   <button
                     type="button"
-                    onClick={handleProceedToUpiPayment}
+                    onClick={handleProceedToAddress}
                     className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
                   >
-                    <QrCode className="w-4 h-4" />
-                    <span>Proceed to Pay ₹{totalINR} (UPI QR Code)</span>
+                    <span>Proceed to Checkout</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 )}
 
@@ -1855,6 +1919,67 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     <span>Need help? Chat with Tanu on WhatsApp</span>
                   </a>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sticky Bottom Controls for Step 2: Delivery Address */}
+          {cartItems.length > 0 && checkoutStep === 'address' && (
+            <div className="p-4 sm:p-5 border-t border-pink-100 dark:border-pink-900/30 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)] animate-fadeIn">
+              {/* Validation Warning Notice if fields missing */}
+              {Object.keys(addressErrors).length > 0 && (
+                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                  <span>Please fill in the required address fields highlighted above.</span>
+                </div>
+              )}
+
+              {/* Order total preview line */}
+              <div className="flex items-center justify-between text-xs pb-1">
+                <div>
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    {paymentMode === 'partial_cod' ? 'Advance to Pay Now:' : 'Total Payable:'}{' '}
+                  </span>
+                  <span className="font-extrabold text-sm text-neutral-900 dark:text-white">
+                    ₹{paymentMode === 'partial_cod' ? paymentBreakdown.payNowINR : totalINR}
+                  </span>
+                  {paymentMode === 'partial_cod' && (
+                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold block">
+                      (₹{paymentBreakdown.balanceCodINR} cash due on delivery)
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+                  Free Delivery Across India
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleProceedToUpiPayment}
+                  className={`w-full py-3.5 rounded-2xl text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] ${
+                    paymentMode === 'partial_cod'
+                      ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:to-pink-700'
+                      : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700'
+                  }`}
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>
+                    {paymentMode === 'partial_cod'
+                      ? `Proceed to Pay ₹${paymentBreakdown.payNowINR} Advance (UPI) →`
+                      : `Proceed to Pay ₹${totalINR} (UPI QR Code) →`}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleBackToCart}
+                  className="w-full text-center py-1 text-xs font-bold text-neutral-500 dark:text-neutral-400 hover:text-pink-600 dark:hover:text-pink-400 transition cursor-pointer"
+                >
+                  ← Back to Bag to Edit Items
+                </button>
               </div>
             </div>
           )}
