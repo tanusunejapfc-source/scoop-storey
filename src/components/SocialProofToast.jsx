@@ -9,7 +9,7 @@ const RECENT_ACTIVITIES = [
     item: 'Pearl Glass Cute Mug',
     variant: 'Baby pink',
     time: '2 mins ago',
-    image: '/images/deluxe-giftbox.jpg',
+    image: '/images/deluxe-giftbox.webp',
     reel: true
   },
   {
@@ -18,7 +18,7 @@ const RECENT_ACTIVITIES = [
     item: 'Midi Mystery Scoop ✨',
     variant: 'Pastel Kawaii',
     time: '4 mins ago',
-    image: '/images/scoop-bowl.jpg',
+    image: '/images/scoop-bowl.webp',
     reel: true
   },
   {
@@ -27,7 +27,7 @@ const RECENT_ACTIVITIES = [
     item: 'Labubu Lipgloss',
     variant: 'Peach',
     time: '6 mins ago',
-    image: '/images/eyemasks-skincare.jpg',
+    image: '/images/eyemasks-skincare.webp',
     reel: false
   },
   {
@@ -36,7 +36,7 @@ const RECENT_ACTIVITIES = [
     item: 'Korean Quilted Pastel Wallet',
     variant: 'Baby Pink',
     time: '8 mins ago',
-    image: '/images/korean-wallets.jpg',
+    image: '/images/korean-wallets.webp',
     reel: true
   },
   {
@@ -45,7 +45,7 @@ const RECENT_ACTIVITIES = [
     item: 'Butterfly Charm Bracelet',
     variant: '18K Yellow Gold',
     time: '12 mins ago',
-    image: '/images/charm-bracelets.jpg',
+    image: '/images/charm-bracelets.webp',
     reel: false
   },
   {
@@ -54,7 +54,7 @@ const RECENT_ACTIVITIES = [
     item: 'Mini Mystery Scoop Studio',
     variant: 'Mix Charms',
     time: '15 mins ago',
-    image: '/images/scoop-bowl.jpg',
+    image: '/images/scoop-bowl.webp',
     reel: true
   }
 ];

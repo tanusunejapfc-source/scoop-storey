@@ -34,7 +34,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Got 3 rare charms and the cutest bear keychain! ✨",
     "comment": "Tanu genuinely scoops generously! I was worried I would only get small beads, but I got a gorgeous butterfly charm, faceted crystal, and mini lip oil. Worth every single rupee.",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -108,7 +108,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Best impulse buy of the month! 🎁",
     "comment": "Was hesitant about prepaid orders but Scoop Storey is 100% legit. Got tracking details on WhatsApp immediately and package arrived safely in bubble wrap.",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -182,7 +182,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Got 3 rare charms and the cutest bear keychain! ✨",
     "comment": "Tanu genuinely scoops generously! I was worried I would only get small beads, but I got a gorgeous butterfly charm, faceted crystal, and mini lip oil. Worth every single rupee.",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -256,7 +256,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Best impulse buy of the month! 🎁",
     "comment": "Was hesitant about prepaid orders but Scoop Storey is 100% legit. Got tracking details on WhatsApp immediately and package arrived safely in bubble wrap.",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -348,7 +348,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sister ke birthday gift ke liye mangwaya tha, she was screaming! 🎀",
     "comment": "Unboxing ka maza hi alag tha. Pink shredded paper, aesthetic greeting card aur itne sare cute items. Meri behen ko bohot zyada pasand aaya. Ab apne liye bhi ek scoop order karungi!",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -422,7 +422,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Bohot achi variety aayi parcel me ✨",
     "comment": "Lip gloss, claw clip, stickers aur 8 cute charms! Quality sach me achi hai. Dosto ko bhi recommend kiya hai maine.",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -496,7 +496,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Prepaid order tha thoda darr tha but super legit nikla! 🌸",
     "comment": "Order place karte hi WhatsApp pe tracking mil gaya tha aur 3 din me Gurgaon deliver ho gaya. Sare charms ekdum scratchless aur glossy hain. Packaging 100/10!",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -570,7 +570,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Instagram reel dekh ke order kiya tha, sach me bohot pyara hai! 💖",
     "comment": "Maine Big Scoop order kiya tha aur video me packing dekh ke excitement level alag hi tha! Charms bohot heavy aur high quality ke hain, plastic bilkul nahi lagte. Extra stickers aur free candy ke liye thank you Tanu di! 10/10 recommend karungi.",
     "images": [
-      "/images/scoop-bowl.jpg"
+      "/images/scoop-bowl.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -644,7 +644,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Addictive ASMR scoop experience 🍨",
     "comment": "Super fast delivery to Mumbai in 3 days. Loved every surprise item in my scoop. They are heavy, glossy and not cheap plastic at all.",
     "images": [
-      "/images/deluxe-giftbox.jpg"
+      "/images/deluxe-giftbox.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -718,7 +718,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Great haul, loved the variety 🧸",
     "comment": "Received a lovely mix of stationery, cute beauty essentials, and aesthetic charms. Exactly what I wanted from a mystery scoop parcel.",
     "images": [
-      "/images/deluxe-giftbox.jpg"
+      "/images/deluxe-giftbox.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -792,7 +792,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Addictive ASMR scoop experience 🍨",
     "comment": "Super fast delivery to Mumbai in 3 days. Loved every surprise item in my scoop. They are heavy, glossy and not cheap plastic at all.",
     "images": [
-      "/images/deluxe-giftbox.jpg"
+      "/images/deluxe-giftbox.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -866,7 +866,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Great haul, loved the variety 🧸",
     "comment": "Received a lovely mix of stationery, cute beauty essentials, and aesthetic charms. Exactly what I wanted from a mystery scoop parcel.",
     "images": [
-      "/images/deluxe-giftbox.jpg"
+      "/images/deluxe-giftbox.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -940,7 +940,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Packaging dekh ke hi premium feel aa gaya 🎁",
     "comment": "Cute pink pouch me aaya aur sath me jewelry care tips bhi the. Wax seal box bohot aesthetic lagta hai. Best gifting option!",
     "images": [
-      "/images/pendants/bow-heart-pendant.png"
+      "/images/pendants/bow-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1014,7 +1014,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "College me sabne pucha kahan se liya! 💖",
     "comment": "Itna dainty aur elegant lagta hai collarbone pe. Simple white shirt ya kurti dono pe bohot aesthetic look deta hai. Clasp bhi bohot strong hai aur chain silky smooth hai.",
     "images": [
-      "/images/pendants/bow-heart-pendant.png"
+      "/images/pendants/bow-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1088,7 +1088,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof test pass ho gaya! 💧✨",
     "comment": "Diwali pe regular use kiya, haath dhote waqt bhi nahi utara. Bilkul dull nahi hua. Full paisa vasool pendant!",
     "images": [
-      "/images/pendants/bow-heart-pendant.png"
+      "/images/pendants/bow-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1162,7 +1162,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sensitive skin ke liye perfect hai 🌸",
     "comment": "Meri skin bohot jaldi react karti hai fake metal se, but isko 1 month se daily pehan rahi hu zero itching ya redness. Quality sach me top notch hai.",
     "images": [
-      "/images/pendants/bow-heart-pendant.png"
+      "/images/pendants/bow-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1236,7 +1236,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof test passed! 💧",
     "comment": "Washed my hands and took showers without taking it off. Color is still sparkling bright gold. Best anti-tarnish brand on Instagram right now.",
     "images": [
-      "/images/pendants/heart-pendant.png"
+      "/images/pendants/heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1310,7 +1310,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hypoallergenic and so gentle on sensitive skin 🌸",
     "comment": "My skin usually reacts badly to fake jewelry within 2 hours. I have been wearing this pendant non-stop for 3 weeks with zero redness or irritation. Extremely happy!",
     "images": [
-      "/images/pendants/heart-pendant.png"
+      "/images/pendants/heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1384,7 +1384,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Very dainty and pretty 💫",
     "comment": "Chain length is perfect for sitting right below the collarbone. Cute design and feels solid in hand. Very satisfied with my purchase.",
     "images": [
-      "/images/pendants/heart-pendant.png"
+      "/images/pendants/heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1458,7 +1458,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Perfect layering necklace! 🎀",
     "comment": "Pairs so well with both western dresses and Indian kurtis. The clasp is sturdy and the pendant has a nice substantial feel to it. Beautiful craftsmanship.",
     "images": [
-      "/images/pendants/heart-pendant.png"
+      "/images/pendants/heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1550,7 +1550,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Bohot sundar chain hai, simple aur classy 💫",
     "comment": "Daily wear ke liye best hai. Office me sabhi colleagues ne compliment diya. Delivery Delhi me 3 din me ho gayi thi.",
     "images": [
-      "/images/pendants/snake-chain-pendant.png"
+      "/images/pendants/snake-chain-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1624,7 +1624,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Real gold jaisi finishing hai, bilkul brassy nahi lagti 🎀",
     "comment": "Warm golden tone hai jo Tanishq ya CaratLane jaisa lagta hai. Price ke hisab se itni premium quality milna impossible hai Instagram pe. Loved it!",
     "images": [
-      "/images/pendants/snake-chain-pendant.png"
+      "/images/pendants/snake-chain-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1698,7 +1698,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sach me 100% anti-tarnish hai, daily wear kar rahi hu! ✨",
     "comment": "Mujhe Mumbai ke humid weather me imitation jewelry pehanne se neck pe green marks ho jate the, but is chain ke sath bilkul aisa nahi hua! Gym me aur shower me bhi pehana, shine abhi bhi real 18K gold jaisi hai.",
     "images": [
-      "/images/pendants/snake-chain-pendant.png"
+      "/images/pendants/snake-chain-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1772,7 +1772,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Packaging dekh ke hi premium feel aa gaya 🎁",
     "comment": "Cute pink pouch me aaya aur sath me jewelry care tips bhi the. Wax seal box bohot aesthetic lagta hai. Best gifting option!",
     "images": [
-      "/images/pendants/snake-chain-pendant.png"
+      "/images/pendants/snake-chain-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1846,7 +1846,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "College me sabne pucha kahan se liya! 💖",
     "comment": "Itna dainty aur elegant lagta hai collarbone pe. Simple white shirt ya kurti dono pe bohot aesthetic look deta hai. Clasp bhi bohot strong hai aur chain silky smooth hai.",
     "images": [
-      "/images/pendants/snake-chain-pendant.png"
+      "/images/pendants/snake-chain-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1902,7 +1902,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Wore it for 2 months straight, zero tarnish! ✨",
     "comment": "I have worn this in the shower, during gym workouts, and in Mumbai humidity. It has NOT turned green at all! Genuine anti-tarnish 18K PVD gold finish. Looks like real gold jewelry.",
     "images": [
-      "/images/pendants/little-heart-pendant.png"
+      "/images/pendants/little-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -1976,7 +1976,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Packaging was like a luxury boutique parcel 🎁",
     "comment": "Came in a sturdy jewelry pouch with anti-tarnish care tips. The gold shine is warm and rich, not yellow or brassy. 10/10.",
     "images": [
-      "/images/pendants/little-heart-pendant.png"
+      "/images/pendants/little-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2050,7 +2050,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Dainty, elegant, and so luxurious 💖",
     "comment": "The chain is silky smooth and catches the light beautifully. I get so many compliments in college whenever I wear it. Looks way more expensive than it actually is!",
     "images": [
-      "/images/pendants/little-heart-pendant.png"
+      "/images/pendants/little-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2124,7 +2124,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof test passed! 💧",
     "comment": "Washed my hands and took showers without taking it off. Color is still sparkling bright gold. Best anti-tarnish brand on Instagram right now.",
     "images": [
-      "/images/pendants/little-heart-pendant.png"
+      "/images/pendants/little-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2198,7 +2198,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "College me sabne pucha kahan se liya! 💖",
     "comment": "Itna dainty aur elegant lagta hai collarbone pe. Simple white shirt ya kurti dono pe bohot aesthetic look deta hai. Clasp bhi bohot strong hai aur chain silky smooth hai.",
     "images": [
-      "/images/pendants/rose-heart-pendant.png"
+      "/images/pendants/rose-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2272,7 +2272,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof test pass ho gaya! 💧✨",
     "comment": "Diwali pe regular use kiya, haath dhote waqt bhi nahi utara. Bilkul dull nahi hua. Full paisa vasool pendant!",
     "images": [
-      "/images/pendants/rose-heart-pendant.png"
+      "/images/pendants/rose-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2346,7 +2346,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sensitive skin ke liye perfect hai 🌸",
     "comment": "Meri skin bohot jaldi react karti hai fake metal se, but isko 1 month se daily pehan rahi hu zero itching ya redness. Quality sach me top notch hai.",
     "images": [
-      "/images/pendants/rose-heart-pendant.png"
+      "/images/pendants/rose-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2420,7 +2420,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Bohot sundar chain hai, simple aur classy 💫",
     "comment": "Daily wear ke liye best hai. Office me sabhi colleagues ne compliment diya. Delivery Delhi me 3 din me ho gayi thi.",
     "images": [
-      "/images/pendants/rose-heart-pendant.png"
+      "/images/pendants/rose-heart-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2494,7 +2494,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hypoallergenic and so gentle on sensitive skin 🌸",
     "comment": "My skin usually reacts badly to fake jewelry within 2 hours. I have been wearing this pendant non-stop for 3 weeks with zero redness or irritation. Extremely happy!",
     "images": [
-      "/images/pendants/pearl-pendant.jpg"
+      "/images/pendants/pearl-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2568,7 +2568,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Very dainty and pretty 💫",
     "comment": "Chain length is perfect for sitting right below the collarbone. Cute design and feels solid in hand. Very satisfied with my purchase.",
     "images": [
-      "/images/pendants/pearl-pendant.jpg"
+      "/images/pendants/pearl-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2642,7 +2642,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Perfect layering necklace! 🎀",
     "comment": "Pairs so well with both western dresses and Indian kurtis. The clasp is sturdy and the pendant has a nice substantial feel to it. Beautiful craftsmanship.",
     "images": [
-      "/images/pendants/pearl-pendant.jpg"
+      "/images/pendants/pearl-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2716,7 +2716,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Wore it for 2 months straight, zero tarnish! ✨",
     "comment": "I have worn this in the shower, during gym workouts, and in Mumbai humidity. It has NOT turned green at all! Genuine anti-tarnish 18K PVD gold finish. Looks like real gold jewelry.",
     "images": [
-      "/images/pendants/pearl-pendant.jpg"
+      "/images/pendants/pearl-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2790,7 +2790,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Packaging was like a luxury boutique parcel 🎁",
     "comment": "Came in a sturdy jewelry pouch with anti-tarnish care tips. The gold shine is warm and rich, not yellow or brassy. 10/10.",
     "images": [
-      "/images/pendants/pearl-pendant.jpg"
+      "/images/pendants/pearl-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2846,7 +2846,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Real gold jaisi finishing hai, bilkul brassy nahi lagti 🎀",
     "comment": "Warm golden tone hai jo Tanishq ya CaratLane jaisa lagta hai. Price ke hisab se itni premium quality milna impossible hai Instagram pe. Loved it!",
     "images": [
-      "/images/pendants/monalisa-pendant.png"
+      "/images/pendants/monalisa-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2920,7 +2920,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sach me 100% anti-tarnish hai, daily wear kar rahi hu! ✨",
     "comment": "Mujhe Mumbai ke humid weather me imitation jewelry pehanne se neck pe green marks ho jate the, but is chain ke sath bilkul aisa nahi hua! Gym me aur shower me bhi pehana, shine abhi bhi real 18K gold jaisi hai.",
     "images": [
-      "/images/pendants/monalisa-pendant.png"
+      "/images/pendants/monalisa-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -2994,7 +2994,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Packaging dekh ke hi premium feel aa gaya 🎁",
     "comment": "Cute pink pouch me aaya aur sath me jewelry care tips bhi the. Wax seal box bohot aesthetic lagta hai. Best gifting option!",
     "images": [
-      "/images/pendants/monalisa-pendant.png"
+      "/images/pendants/monalisa-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3068,7 +3068,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "College me sabne pucha kahan se liya! 💖",
     "comment": "Itna dainty aur elegant lagta hai collarbone pe. Simple white shirt ya kurti dono pe bohot aesthetic look deta hai. Clasp bhi bohot strong hai aur chain silky smooth hai.",
     "images": [
-      "/images/pendants/monalisa-pendant.png"
+      "/images/pendants/monalisa-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3142,7 +3142,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Packaging was like a luxury boutique parcel 🎁",
     "comment": "Came in a sturdy jewelry pouch with anti-tarnish care tips. The gold shine is warm and rich, not yellow or brassy. 10/10.",
     "images": [
-      "/images/pendants/sun-pendant.png"
+      "/images/pendants/sun-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3216,7 +3216,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Dainty, elegant, and so luxurious 💖",
     "comment": "The chain is silky smooth and catches the light beautifully. I get so many compliments in college whenever I wear it. Looks way more expensive than it actually is!",
     "images": [
-      "/images/pendants/sun-pendant.png"
+      "/images/pendants/sun-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3290,7 +3290,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof test passed! 💧",
     "comment": "Washed my hands and took showers without taking it off. Color is still sparkling bright gold. Best anti-tarnish brand on Instagram right now.",
     "images": [
-      "/images/pendants/sun-pendant.png"
+      "/images/pendants/sun-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3364,7 +3364,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hypoallergenic and so gentle on sensitive skin 🌸",
     "comment": "My skin usually reacts badly to fake jewelry within 2 hours. I have been wearing this pendant non-stop for 3 weeks with zero redness or irritation. Extremely happy!",
     "images": [
-      "/images/pendants/sun-pendant.png"
+      "/images/pendants/sun-pendant.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3456,7 +3456,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Chhote wrist ke liye perfect adjustable fit hai! 🎀",
     "comment": "Meri wrist bohot patli hai to normal bracelets gir jate hain, but iske extender links bohot helpful hain. Pastel charms bohot pyare lagte hain haath me.",
     "images": [
-      "/images/bracelets/butterfly-charm-bracelet.png"
+      "/images/bracelets/butterfly-charm-bracelet.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3530,7 +3530,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Chhote wrist ke liye perfect adjustable fit hai! 🎀",
     "comment": "Meri wrist bohot patli hai to normal bracelets gir jate hain, but iske extender links bohot helpful hain. Pastel charms bohot pyare lagte hain haath me.",
     "images": [
-      "/images/bracelets/butterfly-charm-bracelet.png"
+      "/images/bracelets/butterfly-charm-bracelet.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3604,7 +3604,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Chhote wrist ke liye perfect adjustable fit hai! 🎀",
     "comment": "Meri wrist bohot patli hai to normal bracelets gir jate hain, but iske extender links bohot helpful hain. Pastel charms bohot pyare lagte hain haath me.",
     "images": [
-      "/images/bracelets/butterfly-charm-bracelet.png"
+      "/images/bracelets/butterfly-charm-bracelet.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3678,7 +3678,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Chhote wrist ke liye perfect adjustable fit hai! 🎀",
     "comment": "Meri wrist bohot patli hai to normal bracelets gir jate hain, but iske extender links bohot helpful hain. Pastel charms bohot pyare lagte hain haath me.",
     "images": [
-      "/images/bracelets/butterfly-charm-bracelet.png"
+      "/images/bracelets/butterfly-charm-bracelet.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3752,7 +3752,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Chhote wrist ke liye perfect adjustable fit hai! 🎀",
     "comment": "Meri wrist bohot patli hai to normal bracelets gir jate hain, but iske extender links bohot helpful hain. Pastel charms bohot pyare lagte hain haath me.",
     "images": [
-      "/images/bracelets/butterfly-charm-bracelet.png"
+      "/images/bracelets/butterfly-charm-bracelet.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3790,7 +3790,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy clasp and doesn’t catch on clothing 💖",
     "comment": "The links are smoothly polished so it doesn’t pull knitted sweaters or hair. Love layering it alongside my smartwatch.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3864,7 +3864,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Wards off the evil eye in style 🧿✨",
     "comment": "The evil eye charm has fine detailing and the gold chain has kept its shine even after daily wear. Super happy with the quality.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -3938,7 +3938,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Such a cute fairy-core aesthetic bracelet 🌸",
     "comment": "The pastel charms make the softest, delicate tinkling sound. Wore it to a brunch party and three different girls asked me where I bought it from!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4012,7 +4012,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Adjustable chain fits my small wrist perfectly! 🎀",
     "comment": "I always struggle to find bracelets that don’t slip off my small wrist. The extender links on this are great! The enamel work is smooth and vibrant.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4104,7 +4104,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Charms ki quality itni solid hai socha nahi tha 💖",
     "comment": "Kahi se bhi rough edges nahi hain aur kapdo me nahi atakta. Sweet tinkling sound aati hai jab haath hilao. Loved it!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4178,7 +4178,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Charms ki quality itni solid hai socha nahi tha 💖",
     "comment": "Kahi se bhi rough edges nahi hain aur kapdo me nahi atakta. Sweet tinkling sound aati hai jab haath hilao. Loved it!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4252,7 +4252,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Charms ki quality itni solid hai socha nahi tha 💖",
     "comment": "Kahi se bhi rough edges nahi hain aur kapdo me nahi atakta. Sweet tinkling sound aati hai jab haath hilao. Loved it!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4326,7 +4326,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Charms ki quality itni solid hai socha nahi tha 💖",
     "comment": "Kahi se bhi rough edges nahi hain aur kapdo me nahi atakta. Sweet tinkling sound aati hai jab haath hilao. Loved it!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4400,7 +4400,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Charms ki quality itni solid hai socha nahi tha 💖",
     "comment": "Kahi se bhi rough edges nahi hain aur kapdo me nahi atakta. Sweet tinkling sound aati hai jab haath hilao. Loved it!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4438,7 +4438,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Adjustable chain fits my small wrist perfectly! 🎀",
     "comment": "I always struggle to find bracelets that don’t slip off my small wrist. The extender links on this are great! The enamel work is smooth and vibrant.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4512,7 +4512,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Gifted this to my sister and she cried happy tears! 🎁",
     "comment": "The pink box presentation and wax seal made it feel so personal. Sister hasn’t taken it off since she opened it.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4586,7 +4586,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy clasp and doesn’t catch on clothing 💖",
     "comment": "The links are smoothly polished so it doesn’t pull knitted sweaters or hair. Love layering it alongside my smartwatch.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4660,7 +4660,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Wards off the evil eye in style 🧿✨",
     "comment": "The evil eye charm has fine detailing and the gold chain has kept its shine even after daily wear. Super happy with the quality.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4734,7 +4734,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Such a cute fairy-core aesthetic bracelet 🌸",
     "comment": "The pastel charms make the softest, delicate tinkling sound. Wore it to a brunch party and three different girls asked me where I bought it from!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4790,7 +4790,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Feet pe itna graceful aur minimal look deta hai 💫",
     "comment": "Daily sneakers aur sandals dono ke sath suit karta hai. Shine bohot rich hai aur clasp lock bohot secure hai. Definitely worth buying!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4864,7 +4864,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Pure gold anklet jaisa shine karta hai 💕",
     "comment": "Dainty look hai par chain sturdy hai, chalte waqt tutne ka darr nahi rehta. Packaging bhi bohot cute thi.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -4938,7 +4938,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Goa trip pe pehana tha, sea water me bhi fade nahi hua! 🌊✨",
     "comment": "Liquid snake chain bohot smooth hai ankle pe. Na baal khinchte hain na salwar me phasta hai. Bilkul waterproof hai, bilkul tarnish nahi hua!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5012,7 +5012,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Feet pe itna graceful aur minimal look deta hai 💫",
     "comment": "Daily sneakers aur sandals dono ke sath suit karta hai. Shine bohot rich hai aur clasp lock bohot secure hai. Definitely worth buying!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5086,7 +5086,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Pure gold anklet jaisa shine karta hai 💕",
     "comment": "Dainty look hai par chain sturdy hai, chalte waqt tutne ka darr nahi rehta. Packaging bhi bohot cute thi.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5124,7 +5124,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Doesn’t pinch or pull ankle hairs! 🌸",
     "comment": "Super comfortable to sleep in. The anti-tarnish coating is genuine. Excellent quality from Scoop Storey.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5198,7 +5198,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof and beach-ready! 🌊✨",
     "comment": "Took this on a trip to Goa and wore it in the sea water and pool. Dried it off and it’s still sparkling gold with zero tarnish or discoloration!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5272,7 +5272,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Fluid herringbone chain feels like liquid gold 💫",
     "comment": "So smooth against the ankle skin. It doesn’t catch on salwar hems or sneakers. Adds such a dainty, feminine touch to any outfit.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5346,7 +5346,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Doesn’t pinch or pull ankle hairs! 🌸",
     "comment": "Super comfortable to sleep in. The anti-tarnish coating is genuine. Excellent quality from Scoop Storey.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5420,7 +5420,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Waterproof and beach-ready! 🌊✨",
     "comment": "Took this on a trip to Goa and wore it in the sea water and pool. Dried it off and it’s still sparkling gold with zero tarnish or discoloration!",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5476,7 +5476,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna soft hai jaise cloud pe so rahi hu! ☁️😴",
     "comment": "Laptop screen time ke baad aankhon ko itna sukoon milta hai. Light bilkul pass nahi hoti aur elastic band sir dard nahi karta.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5550,7 +5550,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hostel me late night study lights se bachne ka best jugad 🌙✨",
     "comment": "Roommate late night light on rakhti hai par is mask ke sath pitch dark sleep aati hai. Hair blowout bhi kharab nahi hota.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5624,7 +5624,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Embroidery bohot neat aur kawaii hai 🎀",
     "comment": "Fabric silk jaisa silky aur cooling hai. Travel ke liye bag me carry karna bohot easy hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5698,7 +5698,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna soft hai jaise cloud pe so rahi hu! ☁️😴",
     "comment": "Laptop screen time ke baad aankhon ko itna sukoon milta hai. Light bilkul pass nahi hoti aur elastic band sir dard nahi karta.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5790,7 +5790,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Super cute embroidery and doesn’t ruin blowout hair 🎀",
     "comment": "The elastic band has the perfect tension—not too tight, but stays put even if you toss and turn at night. The kawaii design is adorable!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5864,7 +5864,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hostel essential for uninterrupted sleep! 🌙✨",
     "comment": "My roommates keep the study lamp on late, but with this mask I sleep in total pitch darkness. Fabric is breathable and doesn’t cause sweat.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -5938,7 +5938,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Like sleeping on a soft marshmallow cloud! ☁️😴",
     "comment": "The silk fabric is so soothing on tired eyes after looking at a laptop all day. Blocks out 100% of room light without pressing uncomfortably on eyelashes.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6012,7 +6012,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Super cute embroidery and doesn’t ruin blowout hair 🎀",
     "comment": "The elastic band has the perfect tension—not too tight, but stays put even if you toss and turn at night. The kawaii design is adorable!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6086,7 +6086,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hostel essential for uninterrupted sleep! 🌙✨",
     "comment": "My roommates keep the study lamp on late, but with this mask I sleep in total pitch darkness. Fabric is breathable and doesn’t cause sweat.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6142,7 +6142,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Embroidery bohot neat aur kawaii hai 🎀",
     "comment": "Fabric silk jaisa silky aur cooling hai. Travel ke liye bag me carry karna bohot easy hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6216,7 +6216,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna soft hai jaise cloud pe so rahi hu! ☁️😴",
     "comment": "Laptop screen time ke baad aankhon ko itna sukoon milta hai. Light bilkul pass nahi hoti aur elastic band sir dard nahi karta.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6290,7 +6290,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Hostel me late night study lights se bachne ka best jugad 🌙✨",
     "comment": "Roommate late night light on rakhti hai par is mask ke sath pitch dark sleep aati hai. Hair blowout bhi kharab nahi hota.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6364,7 +6364,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Embroidery bohot neat aur kawaii hai 🎀",
     "comment": "Fabric silk jaisa silky aur cooling hai. Travel ke liye bag me carry karna bohot easy hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6438,7 +6438,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna soft hai jaise cloud pe so rahi hu! ☁️😴",
     "comment": "Laptop screen time ke baad aankhon ko itna sukoon milta hai. Light bilkul pass nahi hoti aur elastic band sir dard nahi karta.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6476,7 +6476,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Pore strips pulled out so many stubborn blackheads! 🌸",
     "comment": "Followed the instructions to wet the nose bridge properly and the strip adhered firmly. Peeled off cleanly and my nose felt baby smooth immediately.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6550,7 +6550,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Pore strips pulled out so many stubborn blackheads! 🌸",
     "comment": "Followed the instructions to wet the nose bridge properly and the strip adhered firmly. Peeled off cleanly and my nose felt baby smooth immediately.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6624,7 +6624,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Pore strips pulled out so many stubborn blackheads! 🌸",
     "comment": "Followed the instructions to wet the nose bridge properly and the strip adhered firmly. Peeled off cleanly and my nose felt baby smooth immediately.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6698,7 +6698,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Pore strips pulled out so many stubborn blackheads! 🌸",
     "comment": "Followed the instructions to wet the nose bridge properly and the strip adhered firmly. Peeled off cleanly and my nose felt baby smooth immediately.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6772,7 +6772,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Soda can wet wipes bohot cute aur handy hain! 🥤✨",
     "comment": "College tote bag me aur car me carry karna bohot convenient hai. Wipes dry nahi hote aur fragrance bohot mild aur refreshing hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6846,7 +6846,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Soda can wet wipes bohot cute aur handy hain! 🥤✨",
     "comment": "College tote bag me aur car me carry karna bohot convenient hai. Wipes dry nahi hote aur fragrance bohot mild aur refreshing hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6920,7 +6920,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Soda can wet wipes bohot cute aur handy hain! 🥤✨",
     "comment": "College tote bag me aur car me carry karna bohot convenient hai. Wipes dry nahi hote aur fragrance bohot mild aur refreshing hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -6994,7 +6994,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Soda can wet wipes bohot cute aur handy hain! 🥤✨",
     "comment": "College tote bag me aur car me carry karna bohot convenient hai. Wipes dry nahi hote aur fragrance bohot mild aur refreshing hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7068,7 +7068,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Soda can wet wipes bohot cute aur handy hain! 🥤✨",
     "comment": "College tote bag me aur car me carry karna bohot convenient hai. Wipes dry nahi hote aur fragrance bohot mild aur refreshing hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7124,7 +7124,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Got so many compliments at college! 💖",
     "comment": "Everyone in my class wanted to know where I bought this pastel wallet. Arrived neatly packaged in protective wrap with zero chemical odor.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7198,7 +7198,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Cloud-quilted texture is so buttery soft! ☁️👛",
     "comment": "The vegan leather feels premium and squishy. Holds 8 cards, coins, and folded notes without bulging awkwardly. Fits into my small baguette bag easily.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7272,7 +7272,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Smooth gold zip that never snags ✨",
     "comment": "Hardware quality is fantastic. The pastel color matches the photos 100%. Looks like an expensive Korean lifestyle brand purchase.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7346,7 +7346,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Got so many compliments at college! 💖",
     "comment": "Everyone in my class wanted to know where I bought this pastel wallet. Arrived neatly packaged in protective wrap with zero chemical odor.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7438,7 +7438,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Puff quilted feel itna soft hai jaise baby pillow! ☁️👛",
     "comment": "Blush pink shade exactly Pinterest aesthetic jaisa hai. 6 cards, cash aur mini lipstick sab fit ho gaya mere small sling bag me.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7512,7 +7512,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Gold zipper bohot smooth hai, bilkul atakta nahi ✨",
     "comment": "Stitching bohot clean hai aur koi cheap smell nahi thi. Quality dekh ke lagta hai 1000+ ka wallet hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7586,7 +7586,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "College me sabhi ladkiyo ne compliment kiya 🎀",
     "comment": "Itna chic aur compact hai. Daily metro card nikaalna bohot easy ho gaya hai isse.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7660,7 +7660,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Puff quilted feel itna soft hai jaise baby pillow! ☁️👛",
     "comment": "Blush pink shade exactly Pinterest aesthetic jaisa hai. 6 cards, cash aur mini lipstick sab fit ho gaya mere small sling bag me.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7752,7 +7752,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Jelly blush gives the most natural youthful flush 🌸",
     "comment": "Bounces on the cheeks and blends effortlessly with just fingertips. Doesn’t disturb my sunscreen or base underneath. Super cute tube too!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7826,7 +7826,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Liquid glitter eyeshadow with ZERO fallout! ✨💖",
     "comment": "Dries down quickly and stays in place all night without flaking into my eyes. The shimmer catches stage and wedding lights like magic.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7900,7 +7900,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Juicy glassy lips without that annoying sticky feel! 💄✨",
     "comment": "Gives the prettiest dewy reflection and hydrates lips for hours. The subtle fruity scent is delicious and the tint looks so natural on Indian skin tones.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -7974,7 +7974,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Jelly blush gives the most natural youthful flush 🌸",
     "comment": "Bounces on the cheeks and blends effortlessly with just fingertips. Doesn’t disturb my sunscreen or base underneath. Super cute tube too!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8048,7 +8048,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Liquid glitter eyeshadow with ZERO fallout! ✨💖",
     "comment": "Dries down quickly and stays in place all night without flaking into my eyes. The shimmer catches stage and wedding lights like magic.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8104,7 +8104,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Glitter eyeshadow ka zero fallout hai! ✨💖",
     "comment": "Dry hone ke baad bilkul failta nahi. Party lights me aankhein itni chamakti hain, loved the shimmer wand!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8178,7 +8178,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Lips pe bilkul chip-chip nahi hota, itna juicy shine! 💄✨",
     "comment": "Glassy reflection deta hai aur lips dry nahi hote. Sweet fruity fragrance hai aur Indian skin tone pe natural pink tint lagta hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8252,7 +8252,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Jelly blush ka natural dewy glow bohot natural hai 🌸",
     "comment": "Fingers se easily blend ho jata hai aur base foundation ko disturb nahi karta. College ke liye no-makeup makeup look ke liye best hai.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8326,7 +8326,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Glitter eyeshadow ka zero fallout hai! ✨💖",
     "comment": "Dry hone ke baad bilkul failta nahi. Party lights me aankhein itni chamakti hain, loved the shimmer wand!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8418,7 +8418,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Juicy glassy lips without that annoying sticky feel! 💄✨",
     "comment": "Gives the prettiest dewy reflection and hydrates lips for hours. The subtle fruity scent is delicious and the tint looks so natural on Indian skin tones.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8492,7 +8492,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Jelly blush gives the most natural youthful flush 🌸",
     "comment": "Bounces on the cheeks and blends effortlessly with just fingertips. Doesn’t disturb my sunscreen or base underneath. Super cute tube too!",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8566,7 +8566,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Liquid glitter eyeshadow with ZERO fallout! ✨💖",
     "comment": "Dries down quickly and stays in place all night without flaking into my eyes. The shimmer catches stage and wedding lights like magic.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8640,7 +8640,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Juicy glassy lips without that annoying sticky feel! 💄✨",
     "comment": "Gives the prettiest dewy reflection and hydrates lips for hours. The subtle fruity scent is delicious and the tint looks so natural on Indian skin tones.",
     "images": [
-      "/images/eyemasks-skincare.jpg"
+      "/images/eyemasks-skincare.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8714,7 +8714,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8788,7 +8788,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8862,7 +8862,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -8936,7 +8936,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9010,7 +9010,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9048,7 +9048,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Daughter gasped with joy when she unboxed it! 🎀✨",
     "comment": "The package arrived wrapped like a fairytale parcel. The plushie is generously stuffed and springs right back when squeezed. Pure happiness.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9122,7 +9122,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Daughter gasped with joy when she unboxed it! 🎀✨",
     "comment": "The package arrived wrapped like a fairytale parcel. The plushie is generously stuffed and springs right back when squeezed. Pure happiness.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9196,7 +9196,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Daughter gasped with joy when she unboxed it! 🎀✨",
     "comment": "The package arrived wrapped like a fairytale parcel. The plushie is generously stuffed and springs right back when squeezed. Pure happiness.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9270,7 +9270,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Daughter gasped with joy when she unboxed it! 🎀✨",
     "comment": "The package arrived wrapped like a fairytale parcel. The plushie is generously stuffed and springs right back when squeezed. Pure happiness.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9362,7 +9362,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9436,7 +9436,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9510,7 +9510,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9584,7 +9584,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Itna zyada squishy aur soft cuddle buddy hai! 🧸💖",
     "comment": "Fabric microfiber hai to fur bilkul shed nahi hota. Face stitching itni cute hai. Study table pe mera constant partner ban gaya hai.",
     "images": [
-      "/images/korean-wallets.jpg"
+      "/images/korean-wallets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9658,7 +9658,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9732,7 +9732,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9806,7 +9806,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9880,7 +9880,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -9954,7 +9954,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Floating glitter bear itna mesmerizing lagta hai! 🧸✨",
     "comment": "Scooty aur car keys dono me clip kar liya hai. Sunlight me liquid glitter bohot sundar lagta hai. Metal ring bohot sturdy hai.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10028,7 +10028,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Floating glitter bear itna mesmerizing lagta hai! 🧸✨",
     "comment": "Scooty aur car keys dono me clip kar liya hai. Sunlight me liquid glitter bohot sundar lagta hai. Metal ring bohot sturdy hai.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10102,7 +10102,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Floating glitter bear itna mesmerizing lagta hai! 🧸✨",
     "comment": "Scooty aur car keys dono me clip kar liya hai. Sunlight me liquid glitter bohot sundar lagta hai. Metal ring bohot sturdy hai.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10176,7 +10176,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Floating glitter bear itna mesmerizing lagta hai! 🧸✨",
     "comment": "Scooty aur car keys dono me clip kar liya hai. Sunlight me liquid glitter bohot sundar lagta hai. Metal ring bohot sturdy hai.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10250,7 +10250,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Floating glitter bear itna mesmerizing lagta hai! 🧸✨",
     "comment": "Scooty aur car keys dono me clip kar liya hai. Sunlight me liquid glitter bohot sundar lagta hai. Metal ring bohot sturdy hai.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10306,7 +10306,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10380,7 +10380,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10454,7 +10454,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10528,7 +10528,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10602,7 +10602,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Sturdy phone wristlet that actually holds heavy phones 📱💖",
     "comment": "The cord is thick and securely fastened. I don’t worry about dropping my phone while walking. The pastel beads are high quality and don’t chip.",
     "images": [
-      "/images/charm-bracelets.jpg"
+      "/images/charm-bracelets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10658,7 +10658,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10732,7 +10732,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10806,7 +10806,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10880,7 +10880,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -10972,7 +10972,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Cloud plush scrunchie leaves ZERO hair creases ☁️🎀",
     "comment": "The elastic is gentle and the velvet fabric doesn’t snag or pull out hair strands when removing. Wore it to bed and hair was smooth in the morning.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11046,7 +11046,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Cloud plush scrunchie leaves ZERO hair creases ☁️🎀",
     "comment": "The elastic is gentle and the velvet fabric doesn’t snag or pull out hair strands when removing. Wore it to bed and hair was smooth in the morning.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11120,7 +11120,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Cloud plush scrunchie leaves ZERO hair creases ☁️🎀",
     "comment": "The elastic is gentle and the velvet fabric doesn’t snag or pull out hair strands when removing. Wore it to bed and hair was smooth in the morning.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11194,7 +11194,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Cloud plush scrunchie leaves ZERO hair creases ☁️🎀",
     "comment": "The elastic is gentle and the velvet fabric doesn’t snag or pull out hair strands when removing. Wore it to bed and hair was smooth in the morning.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11268,7 +11268,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Cloud plush scrunchie leaves ZERO hair creases ☁️🎀",
     "comment": "The elastic is gentle and the velvet fabric doesn’t snag or pull out hair strands when removing. Wore it to bed and hair was smooth in the morning.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11306,7 +11306,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11380,7 +11380,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11454,7 +11454,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",
@@ -11528,7 +11528,7 @@ export const INITIAL_PRODUCT_REVIEWS = [
     "title": "Finally thick hair ke liye strong grip wala claw clip mila! 🦋✨",
     "comment": "Mere baal bohot heavy aur ghane hain, normal clips tut jate the. Iska spring bohot strong hai aur matte finish baalo ko tightly hold karta hai pura din.",
     "images": [
-      "/images/bracelets-anklets.jpg"
+      "/images/bracelets-anklets.webp"
     ],
     "verifiedBuyer": true,
     "status": "published",

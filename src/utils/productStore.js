@@ -171,84 +171,84 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
   if (p.category === 'Pendants & Chains') {
     defaultImages = [
       p.image,
-      '/images/pendants.jpg',
-      '/images/asmr-packing.jpg',
-      '/images/deluxe-giftbox.jpg'
+      '/images/pendants.webp',
+      '/images/asmr-packing.webp',
+      '/images/deluxe-giftbox.webp'
     ];
   } else if (p.category === 'Bracelets') {
     defaultImages = [
       p.image,
-      '/images/charm-bracelets.jpg',
-      '/images/asmr-packing.jpg',
-      '/images/deluxe-giftbox.jpg'
+      '/images/charm-bracelets.webp',
+      '/images/asmr-packing.webp',
+      '/images/deluxe-giftbox.webp'
     ];
   } else if (p.category === 'Anklets') {
     defaultImages = [
       p.image,
-      '/images/bracelets-anklets.jpg',
-      '/images/asmr-packing.jpg'
+      '/images/bracelets-anklets.webp',
+      '/images/asmr-packing.webp'
     ];
   } else if (p.category === 'Eye Masks') {
     defaultImages = [
       p.image,
-      '/images/eyemasks-skincare.jpg',
-      '/images/asmr-packing.jpg'
+      '/images/eyemasks-skincare.webp',
+      '/images/asmr-packing.webp'
     ];
   } else if (p.category === 'Self-Care') {
     defaultImages = [
       p.image,
-      '/images/eyemasks-skincare.jpg',
-      '/images/deluxe-giftbox.jpg'
+      '/images/eyemasks-skincare.webp',
+      '/images/deluxe-giftbox.webp'
     ];
   } else if (p.category === 'Korean wallets and bags' || p.category === 'Korean Wallets' || p.category === 'Bags') {
     defaultImages = [
       p.image,
-      '/images/korean-wallets.jpg',
-      '/images/deluxe-giftbox.jpg',
-      '/images/asmr-packing.jpg'
+      '/images/korean-wallets.webp',
+      '/images/deluxe-giftbox.webp',
+      '/images/asmr-packing.webp'
     ];
   } else if (p.category === 'Make up') {
     defaultImages = [
       p.image,
-      '/images/eyemasks-skincare.jpg',
-      '/images/asmr-packing.jpg',
-      '/images/deluxe-giftbox.jpg'
+      '/images/eyemasks-skincare.webp',
+      '/images/asmr-packing.webp',
+      '/images/deluxe-giftbox.webp'
     ];
   } else if (p.category === 'Bottles') {
     defaultImages = [
       p.image,
-      '/images/deluxe-giftbox.jpg',
-      '/images/scoop-bowl.jpg',
-      '/images/asmr-packing.jpg'
+      '/images/deluxe-giftbox.webp',
+      '/images/scoop-bowl.webp',
+      '/images/asmr-packing.webp'
     ];
   } else if (p.category === 'Soft Toys') {
     defaultImages = [
       p.image,
-      '/images/korean-wallets.jpg',
-      '/images/deluxe-giftbox.jpg',
-      '/images/scoop-bowl.jpg'
+      '/images/korean-wallets.webp',
+      '/images/deluxe-giftbox.webp',
+      '/images/scoop-bowl.webp'
     ];
   } else if (p.category === 'Key chains') {
     defaultImages = [
       p.image,
-      '/images/charm-bracelets.jpg',
-      '/images/pendants.jpg',
-      '/images/scoop-bowl.jpg'
+      '/images/charm-bracelets.webp',
+      '/images/pendants.webp',
+      '/images/scoop-bowl.webp'
     ];
   } else if (p.category === 'Hair Accessories') {
     defaultImages = [
       p.image,
-      '/images/bracelets-anklets.jpg',
-      '/images/charm-bracelets.jpg',
-      '/images/eyemasks-skincare.jpg'
+      '/images/bracelets-anklets.webp',
+      '/images/charm-bracelets.webp',
+      '/images/eyemasks-skincare.webp'
     ];
   } else {
     defaultImages = [
       p.image,
-      '/images/scoop-chart-beauty-accessories.jpg',
-      '/images/scoop-chart-stationery-lifestyle.jpg',
-      '/images/deluxe-giftbox.jpg',
-      '/images/asmr-packing.jpg'
+      '/images/scoop-chart-beauty-accessories.webp',
+      '/images/scoop-chart-stationery-lifestyle.webp',
+      '/images/deluxe-giftbox.webp',
+      '/images/asmr-packing.webp'
     ];
   }
 

@@ -1175,7 +1175,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
       name: `${scoopResult.tier.name} (${scoopResult.items.length} Won Items)`,
       price: scoopResult.tier.priceINR,
       priceINR: scoopResult.tier.priceINR,
-      image: '/images/scoop-bowl.jpg',
+      image: '/images/scoop-bowl.webp',
       category: 'Mystery Scoops',
       scoopedItems: scoopResult.items,
       quantity: 1,
@@ -1202,7 +1202,7 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
       name: tier.name,
       price: tier.priceINR,
       priceINR: tier.priceINR,
-      image: tier.id.includes('big') ? '/images/deluxe-giftbox.jpg' : '/images/scoop-bowl.jpg',
+      image: tier.id.includes('big') ? '/images/deluxe-giftbox.webp' : '/images/scoop-bowl.webp',
       category: 'Mystery Scoops',
       qty: 1,
       isScoopTier: true,
@@ -1891,11 +1891,11 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div 
-                      onClick={() => setSelectedChartPhoto('/images/scoop-chart-beauty-accessories.jpg')}
+                      onClick={() => setSelectedChartPhoto('/images/scoop-chart-beauty-accessories.webp')}
                       className="group relative rounded-2xl overflow-hidden border-2 border-pink-200 dark:border-pink-900/60 shadow-md cursor-pointer hover:border-pink-400 transition"
                     >
                       <img 
-                        src="/images/scoop-chart-beauty-accessories.jpg" 
+                        src="/images/scoop-chart-beauty-accessories.webp" 
                         alt="Beauty Essentials & Accessories Chart" 
                         className="w-full h-80 object-cover object-top group-hover:scale-102 transition duration-300"
                       />
@@ -1908,11 +1908,11 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
                     </div>
 
                     <div 
-                      onClick={() => setSelectedChartPhoto('/images/scoop-chart-stationery-lifestyle.jpg')}
+                      onClick={() => setSelectedChartPhoto('/images/scoop-chart-stationery-lifestyle.webp')}
                       className="group relative rounded-2xl overflow-hidden border-2 border-pink-200 dark:border-pink-900/60 shadow-md cursor-pointer hover:border-pink-400 transition"
                     >
                       <img 
-                        src="/images/scoop-chart-stationery-lifestyle.jpg" 
+                        src="/images/scoop-chart-stationery-lifestyle.webp" 
                         alt="Stationery & Lifestyle Chart" 
                         className="w-full h-80 object-cover object-top group-hover:scale-102 transition duration-300"
                       />

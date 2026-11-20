@@ -1,30 +1,36 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
-import GlobalSearchModal from './components/GlobalSearchModal';
-import OrderTrackingModal from './components/OrderTrackingModal';
-import WishlistDrawer from './components/WishlistDrawer';
 import BoutiqueHero from './components/BoutiqueHero';
-import ScoopMachine3D from './components/ScoopMachine3D';
 import ProductCatalog from './components/ProductCatalog';
-import ProductDetailPage from './components/ProductDetailPage';
-import ReelsShowcase from './components/ReelsShowcase';
-import BrandStory from './components/BrandStory';
-import Testimonials from './components/Testimonials';
-import StoreFAQ from './components/StoreFAQ';
-import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import SocialProofToast from './components/SocialProofToast';
-import PolicyModal from './components/PolicyModal';
-import ReviewModal from './components/ReviewModal';
+import ScoopMachineSkeleton from './components/ScoopMachineSkeleton';
 import { useStoreProducts } from './utils/productStore';
 import { categoryToSlug, slugToCategory } from './data/storeData';
 import { soundFX } from './utils/audio';
 import { sendHeartbeat, trackPageView, trackAddToCart, initLivePresence, updateLivePresence } from './utils/analyticsTelemetry';
 
-// Lazy-load heavy AdminPanel (315KB+ source) so normal customers never download it on page visit
+// 🚀 Performance-Optimized Lazy Loading:
+// 1. Heavy 3D Three.js Scoop Machine & Canvas (~680KB total) deferred so page loads instantly
+const ScoopMachine3D = lazy(() => import('./components/ScoopMachine3D'));
+
+// 2. Modals & Drawers loaded strictly on-demand when user opens them
+const CartDrawer = lazy(() => import('./components/CartDrawer'));
+const ProductDetailPage = lazy(() => import('./components/ProductDetailPage'));
+const GlobalSearchModal = lazy(() => import('./components/GlobalSearchModal'));
+const OrderTrackingModal = lazy(() => import('./components/OrderTrackingModal'));
+const WishlistDrawer = lazy(() => import('./components/WishlistDrawer'));
+const PolicyModal = lazy(() => import('./components/PolicyModal'));
+const ReviewModal = lazy(() => import('./components/ReviewModal'));
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
+
+// 3. Below-the-fold content deferred
+const ReelsShowcase = lazy(() => import('./components/ReelsShowcase'));
+const BrandStory = lazy(() => import('./components/BrandStory'));
+const Testimonials = lazy(() => import('./components/Testimonials'));
+const StoreFAQ = lazy(() => import('./components/StoreFAQ'));
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -307,7 +313,7 @@ export default function App() {
           ...product, 
           cartKey: itemKey, 
           qty: addQuantity,
-          image: product.image || (product.images?.[0] || '/images/deluxe-giftbox.jpg')
+          image: product.image || (product.images?.[0] || '/images/deluxe-giftbox.webp')
         }
       ];
     });
@@ -362,17 +368,24 @@ export default function App() {
       {selectedProduct ? (
         /* 1. DEDICATED SEPARATE PRODUCT DETAIL PAGE VIEW (Shopify Standard Layout) */
         <main className="min-h-[85vh]">
-          <ProductDetailPage
-            key={selectedProduct.id}
-            product={selectedProduct}
-            allProducts={products}
-            activeCollection={activeCollection}
-            onSelectCollection={handleSelectCategory}
-            onOpenReviewModal={handleOpenReviewModal}
-            onClose={() => handleSelectProduct(null)}
-            onAddToCart={handleAddToCart}
-            onSelectProduct={handleSelectProduct}
-          />
+          <Suspense fallback={
+            <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
+              <span className="font-display font-extrabold text-sm text-[#E60067]">Opening Cute Goodie Details... 🎀</span>
+            </div>
+          }>
+            <ProductDetailPage
+              key={selectedProduct.id}
+              product={selectedProduct}
+              allProducts={products}
+              activeCollection={activeCollection}
+              onSelectCollection={handleSelectCategory}
+              onOpenReviewModal={handleOpenReviewModal}
+              onClose={() => handleSelectProduct(null)}
+              onAddToCart={handleAddToCart}
+              onSelectProduct={handleSelectProduct}
+            />
+          </Suspense>
         </main>
       ) : activeCollection ? (
         /* 2. DEDICATED SEPARATE CATEGORY / COLLECTION PAGE VIEW */
@@ -380,7 +393,9 @@ export default function App() {
           {/* If viewing Mystery Scoops category, display the 3D scoop machine prominently on this page! */}
           {activeCollection === 'Mystery Scoops' && (
             <div className="pt-2 pb-4">
-              <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+              <Suspense fallback={<ScoopMachineSkeleton isHero={false} />}>
+                <ScoopMachine3D onAddToCart={handleAddToCart} isDark={isDark} />
+              </Suspense>
             </div>
           )}
 
@@ -398,7 +413,9 @@ export default function App() {
         <main>
           {/* 3D INTERACTIVE VIP MYSTERY SCOOP STUDIO - FLAGSHIP HERO SECTION */}
           <div className="relative pt-1 pb-4 sm:pt-2 sm:pb-6">
-            <ScoopMachine3D isHero={true} onAddToCart={handleAddToCart} isDark={isDark} />
+            <Suspense fallback={<ScoopMachineSkeleton isHero={true} />}>
+              <ScoopMachine3D isHero={true} onAddToCart={handleAddToCart} isDark={isDark} />
+            </Suspense>
           </div>
 
           {/* STYLISH CATEGORY ICONS BAR (Story Bubbles - ONLY DISPLAYED ON HOMEPAGE!) */}
@@ -417,17 +434,20 @@ export default function App() {
             onSelectCollection={handleSelectCategory}
           />
 
-          {/* ASMR & INSTAGRAM REELS SHOWCASE */}
-          <ReelsShowcase />
+          {/* BELOW THE FOLD CONTENT DEFERRED */}
+          <Suspense fallback={<div className="min-h-[160px]" />}>
+            {/* ASMR & INSTAGRAM REELS SHOWCASE */}
+            <ReelsShowcase />
 
-          {/* BRAND STORY & PHILOSOPHY */}
-          <BrandStory />
+            {/* BRAND STORY & PHILOSOPHY */}
+            <BrandStory />
 
-          {/* CUSTOMER TESTIMONIALS */}
-          <Testimonials onOpenReviewModal={handleOpenReviewModal} />
+            {/* CUSTOMER TESTIMONIALS */}
+            <Testimonials onOpenReviewModal={handleOpenReviewModal} />
 
-          {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
-          <StoreFAQ />
+            {/* COMPREHENSIVE STORE FAQ & JEWELRY CARE HUB */}
+            <StoreFAQ />
+          </Suspense>
         </main>
       )}
 
@@ -463,57 +483,81 @@ export default function App() {
       )}
 
       {/* CART DRAWER */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQty={handleUpdateQty}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-        onAddToCart={handleAddToCart}
-        catalogProducts={products}
-      />
+      {isCartOpen && (
+        <Suspense fallback={null}>
+          <CartDrawer
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cartItems={cartItems}
+            onUpdateQty={handleUpdateQty}
+            onRemoveItem={handleRemoveItem}
+            onClearCart={handleClearCart}
+            onAddToCart={handleAddToCart}
+            catalogProducts={products}
+          />
+        </Suspense>
+      )}
 
       {/* GLOBAL INSTANT SEARCH MODAL */}
-      <GlobalSearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        products={products}
-        onSelectProduct={handleSelectProduct}
-        onAddToCart={handleAddToCart}
-      />
+      {isSearchOpen && (
+        <Suspense fallback={null}>
+          <GlobalSearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            products={products}
+            onSelectProduct={handleSelectProduct}
+            onAddToCart={handleAddToCart}
+          />
+        </Suspense>
+      )}
 
       {/* SELF-SERVICE ORDER TRACKING MODAL */}
-      <OrderTrackingModal
-        isOpen={isTrackingOpen}
-        onClose={() => setIsTrackingOpen(false)}
-      />
+      {isTrackingOpen && (
+        <Suspense fallback={null}>
+          <OrderTrackingModal
+            isOpen={isTrackingOpen}
+            onClose={() => setIsTrackingOpen(false)}
+          />
+        </Suspense>
+      )}
 
       {/* WISHLIST FAVORITES DRAWER */}
-      <WishlistDrawer
-        isOpen={isWishlistOpen}
-        onClose={() => setIsWishlistOpen(false)}
-        onAddToCart={handleAddToCart}
-        onOpenProduct={handleSelectProduct}
-      />
+      {isWishlistOpen && (
+        <Suspense fallback={null}>
+          <WishlistDrawer
+            isOpen={isWishlistOpen}
+            onClose={() => setIsWishlistOpen(false)}
+            onAddToCart={handleAddToCart}
+            onOpenProduct={handleSelectProduct}
+          />
+        </Suspense>
+      )}
 
       {/* OFFICIAL STORE POLICY & SUPPORT MODAL */}
-      <PolicyModal
-        isOpen={isPolicyOpen}
-        onClose={() => setIsPolicyOpen(false)}
-        initialTab={policyTab}
-      />
+      {isPolicyOpen && (
+        <Suspense fallback={null}>
+          <PolicyModal
+            isOpen={isPolicyOpen}
+            onClose={() => setIsPolicyOpen(false)}
+            initialTab={policyTab}
+          />
+        </Suspense>
+      )}
 
       {/* CUSTOMER REVIEW SUBMISSION MODAL */}
-      <ReviewModal
-        isOpen={isReviewModalOpen}
-        onClose={() => {
-          setIsReviewModalOpen(false);
-          setReviewModalProduct(null);
-        }}
-        initialProduct={reviewModalProduct}
-        products={products}
-      />
+      {isReviewModalOpen && (
+        <Suspense fallback={null}>
+          <ReviewModal
+            isOpen={isReviewModalOpen}
+            onClose={() => {
+              setIsReviewModalOpen(false);
+              setReviewModalProduct(null);
+            }}
+            initialProduct={reviewModalProduct}
+            products={products}
+          />
+        </Suspense>
+      )}
 
       {/* FLOATING WHATSAPP SUPPORT WIDGET */}
       <FloatingWhatsApp />

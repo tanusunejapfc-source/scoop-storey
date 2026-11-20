@@ -356,7 +356,7 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
                       <div key={i} className="py-2 flex items-center justify-between gap-3 text-xs">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <img
-                            src={item.image || '/images/deluxe-giftbox.jpg'}
+                            src={item.image || '/images/deluxe-giftbox.webp'}
                             alt={item.name}
                             className="w-10 h-12 rounded-xl object-cover border border-pink-100 dark:border-neutral-700 shrink-0"
                             onError={(e) => { 

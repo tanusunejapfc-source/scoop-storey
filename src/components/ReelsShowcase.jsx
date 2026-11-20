@@ -136,7 +136,7 @@ export default function ReelsShowcase() {
                 />
               ) : (
                 <img
-                  src={reel.image || '/images/asmr-packing.jpg'}
+                  src={reel.image || '/images/asmr-packing.webp'}
                   alt={reel.title}
                   className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
                   onError={(e) => { 

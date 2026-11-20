@@ -66,12 +66,13 @@ const ProductCardItem = React.memo(function ProductCardItem({
         {/* 4:5 Standard E-Commerce Ratio Container */}
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
           <img
-            src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
+            src={product.image || product.images?.[0] || '/images/deluxe-giftbox.webp'}
             alt={product.name}
             loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.currentTarget.onerror = null;
-              e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+              e.currentTarget.src = '/images/deluxe-giftbox.webp';
             }}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -374,11 +375,11 @@ export default function ProductCatalog({
     const isStaleLocalImage = (url) => {
       if (!url) return true;
       return (
-        url === '/images/charm-bracelets.jpg' ||
-        url === '/images/bracelets-anklets.jpg' ||
-        url === '/images/eyemasks-skincare.jpg' ||
-        url === '/images/korean-wallets.jpg' ||
-        url === '/images/deluxe-giftbox.jpg'
+        url === '/images/charm-bracelets.webp' ||
+        url === '/images/bracelets-anklets.webp' ||
+        url === '/images/eyemasks-skincare.webp' ||
+        url === '/images/korean-wallets.webp' ||
+        url === '/images/deluxe-giftbox.webp'
       );
     };
 
@@ -387,7 +388,7 @@ export default function ProductCatalog({
       if (configImg && !isStaleLocalImage(configImg)) return configImg;
       if (categoryItems && categoryItems[0]?.image) return categoryItems[0].image;
       if (categoryItems && categoryItems[0]?.images?.[0]) return categoryItems[0].images[0];
-      return catImg || configImg || '/images/deluxe-giftbox.jpg';
+      return catImg || configImg || '/images/deluxe-giftbox.webp';
     };
 
     // 1. Process all categories stored in categoryStore
@@ -503,7 +504,7 @@ export default function ProductCatalog({
     const firstImg = items[0]?.image || items[0]?.images?.[0];
     const catImg = catMeta?.image && !catMeta.image.startsWith('/images/charm-bracelets') && !catMeta.image.startsWith('/images/bracelets-anklets') && !catMeta.image.startsWith('/images/eyemasks-skincare') && !catMeta.image.startsWith('/images/korean-wallets') && !catMeta.image.startsWith('/images/deluxe-giftbox')
       ? catMeta.image
-      : (firstImg || catMeta?.image || '/images/deluxe-giftbox.jpg');
+      : (firstImg || catMeta?.image || '/images/deluxe-giftbox.webp');
 
     return {
       name: activeCollection,
@@ -777,10 +778,12 @@ export default function ProductCatalog({
                       <img
                         src={col.coverImage}
                         alt={col.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          e.currentTarget.src = '/images/deluxe-giftbox.webp';
                         }}
                       />
                       {/* Subtle Gradient Overlay */}
@@ -874,11 +877,13 @@ export default function ProductCatalog({
                     <div className="space-y-2">
                       <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
                         <img
-                          src={product.image || product.images?.[0] || '/images/deluxe-giftbox.jpg'}
+                          src={product.image || product.images?.[0] || '/images/deluxe-giftbox.webp'}
                           alt={product.name}
+                          loading="lazy"
+                          decoding="async"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            e.currentTarget.src = '/images/deluxe-giftbox.webp';
                           }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />

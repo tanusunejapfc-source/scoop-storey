@@ -138,7 +138,7 @@ export async function saveProductToSupabase(product) {
       category: product.category,
       badge: product.badge || '',
       price_inr: Number(product.priceINR) || 199,
-      image: product.image || (Array.isArray(product.images) && product.images[0]) || '/images/deluxe-giftbox.jpg',
+      image: product.image || (Array.isArray(product.images) && product.images[0]) || '/images/deluxe-giftbox.webp',
       images: Array.isArray(product.images) ? product.images : [product.image],
       description: product.description || '',
       includes: Array.isArray(product.includes) ? product.includes : [],

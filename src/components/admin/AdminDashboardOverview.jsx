@@ -117,7 +117,7 @@ export default function AdminDashboardOverview({
             name: item.name,
             qty: 0,
             revenue: 0,
-            image: item.image || '/images/deluxe-giftbox.jpg'
+            image: item.image || '/images/deluxe-giftbox.webp'
           };
         }
         productSalesMap[item.name].qty += qty;
@@ -530,7 +530,7 @@ export default function AdminDashboardOverview({
                       alt={p.name} 
                       onError={(e) => {
                         e.currentTarget.onerror = null;
-                        e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                        e.currentTarget.src = '/images/deluxe-giftbox.webp';
                       }}
                       className="w-10 h-10 rounded-xl object-cover shrink-0 border border-pink-200/60"
                     />

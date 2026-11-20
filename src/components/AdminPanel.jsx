@@ -97,24 +97,24 @@ import { CATEGORY_ICONS_DATA } from './CategoryIconsBar';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const PRESET_LOCAL_IMAGES = [
-  { label: 'Pearl Pendant', url: '/images/pendants/pearl-pendant.jpg' },
-  { label: 'Monalisa Gem', url: '/images/pendants/monalisa-pendant.png' },
-  { label: 'Sunburst Pendant', url: '/images/pendants/sun-pendant.png' },
-  { label: 'Bow Heart Pendant', url: '/images/pendants/bow-heart-pendant.png' },
-  { label: 'Heart Pendant', url: '/images/pendants/heart-pendant.png' },
-  { label: 'Little Heart', url: '/images/pendants/little-heart-pendant.png' },
-  { label: 'Rose Heart', url: '/images/pendants/rose-heart-pendant.png' },
-  { label: 'Snake Chain Pendant', url: '/images/pendants/snake-chain-pendant.png' },
-  { label: 'Pendants Collection', url: '/images/pendants.jpg' },
-  { label: 'Bracelets Collection', url: '/images/charm-bracelets.jpg' },
-  { label: 'Anklets Collection', url: '/images/bracelets-anklets.jpg' },
-  { label: 'Butterfly Charm Bracelet', url: '/images/bracelets/butterfly-charm-bracelet.png' },
-  { label: 'Scoop Bowl', url: '/images/scoop-bowl.jpg' },
-  { label: 'Deluxe Gift Box', url: '/images/deluxe-giftbox.jpg' },
-  { label: 'Eye Masks Collection', url: '/images/eyemasks-skincare.jpg' },
-  { label: 'Self-Care Essentials', url: '/images/eyemasks-skincare.jpg' },
-  { label: 'Korean wallets and bags', url: '/images/korean-wallets.jpg' },
-  { label: 'ASMR Packing Stage', url: '/images/asmr-packing.jpg' }
+  { label: 'Pearl Pendant', url: '/images/pendants/pearl-pendant.webp' },
+  { label: 'Monalisa Gem', url: '/images/pendants/monalisa-pendant.webp' },
+  { label: 'Sunburst Pendant', url: '/images/pendants/sun-pendant.webp' },
+  { label: 'Bow Heart Pendant', url: '/images/pendants/bow-heart-pendant.webp' },
+  { label: 'Heart Pendant', url: '/images/pendants/heart-pendant.webp' },
+  { label: 'Little Heart', url: '/images/pendants/little-heart-pendant.webp' },
+  { label: 'Rose Heart', url: '/images/pendants/rose-heart-pendant.webp' },
+  { label: 'Snake Chain Pendant', url: '/images/pendants/snake-chain-pendant.webp' },
+  { label: 'Pendants Collection', url: '/images/pendants.webp' },
+  { label: 'Bracelets Collection', url: '/images/charm-bracelets.webp' },
+  { label: 'Anklets Collection', url: '/images/bracelets-anklets.webp' },
+  { label: 'Butterfly Charm Bracelet', url: '/images/bracelets/butterfly-charm-bracelet.webp' },
+  { label: 'Scoop Bowl', url: '/images/scoop-bowl.webp' },
+  { label: 'Deluxe Gift Box', url: '/images/deluxe-giftbox.webp' },
+  { label: 'Eye Masks Collection', url: '/images/eyemasks-skincare.webp' },
+  { label: 'Self-Care Essentials', url: '/images/eyemasks-skincare.webp' },
+  { label: 'Korean wallets and bags', url: '/images/korean-wallets.webp' },
+  { label: 'ASMR Packing Stage', url: '/images/asmr-packing.webp' }
 ];
 
 const PRESET_COLORS = [
@@ -511,7 +511,7 @@ export default function AdminPanel({
       comments: '420',
       audio: 'Original Audio - Tanu ASMR',
       tag: '#mysteryscoop #asmrpacking #scoopstorey',
-      image: '/images/asmr-packing.jpg',
+      image: '/images/asmr-packing.webp',
       videoUrl: '',
       instagramUrl: 'https://www.instagram.com/scoopstorey/'
     });
@@ -606,7 +606,7 @@ export default function AdminPanel({
         updateReel({
           ...found,
           videoUrl: videoCdnUrl,
-          image: posterDataUrl || found.image || '/images/asmr-packing.jpg'
+          image: posterDataUrl || found.image || '/images/asmr-packing.webp'
         });
         showToast('Video saved to Reel! 🎥');
         soundFX.playSuccess();
@@ -615,7 +615,7 @@ export default function AdminPanel({
       setReelFormData(prev => ({
         ...prev,
         videoUrl: videoCdnUrl,
-        image: prev.image && prev.image !== '/images/asmr-packing.jpg' ? prev.image : (posterDataUrl || prev.image || '/images/asmr-packing.jpg')
+        image: prev.image && prev.image !== '/images/asmr-packing.webp' ? prev.image : (posterDataUrl || prev.image || '/images/asmr-packing.webp')
       }));
       showToast('Video attached! Click Save Reel to publish.');
       soundFX.playSuccess();
@@ -862,7 +862,7 @@ export default function AdminPanel({
         id: slugifyCategory(trimmedName),
         name: trimmedName,
         icon: categoryModal.icon || '🎀',
-        image: categoryModal.image || '/images/deluxe-giftbox.jpg',
+        image: categoryModal.image || '/images/deluxe-giftbox.webp',
         badge: categoryModal.badge || 'New Drop 🎀',
         description: categoryModal.description || `Cute ${trimmedName} collection.`,
         isDefault: false
@@ -889,7 +889,7 @@ export default function AdminPanel({
             id: slugifyCategory(trimmedName),
             name: trimmedName,
             icon: categoryModal.icon || c.icon || '✨',
-            image: categoryModal.image !== undefined ? categoryModal.image : (c.image || '/images/deluxe-giftbox.jpg'),
+            image: categoryModal.image !== undefined ? categoryModal.image : (c.image || '/images/deluxe-giftbox.webp'),
             badge: categoryModal.badge,
             description: categoryModal.description
           };
@@ -902,7 +902,7 @@ export default function AdminPanel({
           id: slugifyCategory(trimmedName),
           name: trimmedName,
           icon: categoryModal.icon || '✨',
-          image: categoryModal.image || '/images/deluxe-giftbox.jpg',
+          image: categoryModal.image || '/images/deluxe-giftbox.webp',
           badge: categoryModal.badge || '',
           description: categoryModal.description || '',
           isDefault: false
@@ -988,7 +988,7 @@ export default function AdminPanel({
         id: slugifyCategory(target),
         name: target,
         icon: sourceMeta?.icon || '🎀',
-        image: sourceMeta?.image || '/images/deluxe-giftbox.jpg',
+        image: sourceMeta?.image || '/images/deluxe-giftbox.webp',
         badge: 'Merged Collection 🎀',
         description: `Explore our unified ${target} collection.`,
         isDefault: false
@@ -1211,7 +1211,7 @@ export default function AdminPanel({
 
     // Normalize images safely
     const rawImages = Array.isArray(prod.images) ? prod.images.filter(Boolean) : (prod.image ? [prod.image] : []);
-    const validImages = rawImages.length > 0 ? rawImages : ['/images/deluxe-giftbox.jpg'];
+    const validImages = rawImages.length > 0 ? rawImages : ['/images/deluxe-giftbox.webp'];
 
     // Normalize colors safely (handle string elements, missing hex, missing name)
     let validColors = [{ name: 'Standard', hex: '#E5C158', image: null }];
@@ -1255,8 +1255,8 @@ export default function AdminPanel({
       priceINR: 199,
       badge: 'New Arrival ✨',
       description: 'Aesthetic Kawaii jewelry hand-selected for Scoop Storey.',
-      image: '/images/pendants.jpg',
-      images: ['/images/pendants.jpg', '/images/asmr-packing.jpg'],
+      image: '/images/pendants.webp',
+      images: ['/images/pendants.webp', '/images/asmr-packing.webp'],
       colors: [
         { name: '18K Yellow Gold', hex: '#E5C158', image: null },
         { name: 'Rose Gold', hex: '#E0A899', image: null }
@@ -1378,7 +1378,7 @@ export default function AdminPanel({
       return {
         ...prev,
         images: nextImages,
-        image: nextImages[0] || '/images/deluxe-giftbox.jpg'
+        image: nextImages[0] || '/images/deluxe-giftbox.webp'
       };
     });
     soundFX.playPop(400);
@@ -1578,7 +1578,7 @@ export default function AdminPanel({
       return;
     }
 
-    const primaryImage = formData.image || formData.images[0] || '/images/deluxe-giftbox.jpg';
+    const primaryImage = formData.image || formData.images[0] || '/images/deluxe-giftbox.webp';
     const allImages = formData.images && formData.images.length > 0
       ? [primaryImage, ...formData.images.filter(x => x !== primaryImage)]
       : [primaryImage];
@@ -2429,11 +2429,11 @@ export default function AdminPanel({
                                   className="p-2 rounded-xl bg-white dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 flex items-center gap-2 text-xs"
                                 >
                                   <img
-                                    src={it.image || '/images/deluxe-giftbox.jpg'}
+                                    src={it.image || '/images/deluxe-giftbox.webp'}
                                     alt={it.name}
                                     onError={(e) => {
                                       e.currentTarget.onerror = null;
-                                      e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                      e.currentTarget.src = '/images/deluxe-giftbox.webp';
                                     }}
                                     className="w-10 h-10 rounded-lg object-cover bg-pink-50 dark:bg-neutral-800 p-0.5 border border-pink-200/50 shrink-0"
                                   />
@@ -3150,11 +3150,11 @@ export default function AdminPanel({
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <img
-                          src={p.image || p.images?.[0] || '/images/deluxe-giftbox.jpg'}
+                          src={p.image || p.images?.[0] || '/images/deluxe-giftbox.webp'}
                           alt={p.name}
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            e.currentTarget.src = '/images/deluxe-giftbox.webp';
                           }}
                           className="w-14 h-18 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
                         />
@@ -3328,12 +3328,12 @@ export default function AdminPanel({
                   <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50/70 via-purple-50/40 to-pink-50/70 dark:from-pink-950/30 dark:to-neutral-900 border border-pink-200/80 dark:border-pink-900/50 flex flex-col sm:flex-row items-center gap-4">
                     <div className="relative w-20 h-25 aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border-2 border-pink-400 shadow-sm shrink-0 flex items-center justify-center">
                       <img
-                        src={formData.image || formData.images[0] || '/images/deluxe-giftbox.jpg'}
+                        src={formData.image || formData.images[0] || '/images/deluxe-giftbox.webp'}
                         alt="Primary Preview"
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                          e.currentTarget.src = '/images/deluxe-giftbox.webp';
                         }}
                       />
                       <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-[#E60067] text-white text-[9px] font-black uppercase">
@@ -3381,7 +3381,7 @@ export default function AdminPanel({
                                 alt={`Gallery ${idx + 1}`} 
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
-                                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                  e.currentTarget.src = '/images/deluxe-giftbox.webp';
                                 }}
                                 className="w-full h-full object-cover rounded-lg"
                               />
@@ -3493,7 +3493,7 @@ export default function AdminPanel({
                             handleAddImage();
                           }
                         }}
-                        placeholder="e.g. /images/pendants/pearl-pendant.jpg or https://..."
+                        placeholder="e.g. /images/pendants/pearl-pendant.webp or https://..."
                         className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400"
                       />
 
@@ -3656,7 +3656,7 @@ export default function AdminPanel({
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
                                         e.currentTarget.onerror = null;
-                                        e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                        e.currentTarget.src = '/images/deluxe-giftbox.webp';
                                       }}
                                     />
                                   </div>
@@ -4281,14 +4281,14 @@ export default function AdminPanel({
                         </span>
                         <div className="grid grid-cols-4 gap-1.5">
                           {[
-                            { name: 'Scoop Bowl', src: '/images/scoop-bowl.jpg' },
-                            { name: 'Pendants', src: '/images/pendants.jpg' },
-                            { name: 'Charms', src: '/images/charm-bracelets.jpg' },
-                            { name: 'Anklets', src: '/images/bracelets-anklets.jpg' },
-                            { name: 'Gift Box', src: '/images/deluxe-giftbox.jpg' },
-                            { name: 'Wallets', src: '/images/korean-wallets.jpg' },
-                            { name: 'Skincare', src: '/images/eyemasks-skincare.jpg' },
-                            { name: 'ASMR', src: '/images/asmr-packing.jpg' },
+                            { name: 'Scoop Bowl', src: '/images/scoop-bowl.webp' },
+                            { name: 'Pendants', src: '/images/pendants.webp' },
+                            { name: 'Charms', src: '/images/charm-bracelets.webp' },
+                            { name: 'Anklets', src: '/images/bracelets-anklets.webp' },
+                            { name: 'Gift Box', src: '/images/deluxe-giftbox.webp' },
+                            { name: 'Wallets', src: '/images/korean-wallets.webp' },
+                            { name: 'Skincare', src: '/images/eyemasks-skincare.webp' },
+                            { name: 'ASMR', src: '/images/asmr-packing.webp' },
                           ].map(preset => (
                             <button
                               key={preset.src}
@@ -4738,7 +4738,7 @@ export default function AdminPanel({
                               />
                             ) : (
                               <img
-                                src={reel.image || '/images/asmr-packing.jpg'}
+                                src={reel.image || '/images/asmr-packing.webp'}
                                 alt={reel.title}
                                 className="w-full h-full object-cover"
                                 onError={(e) => { 
@@ -4954,11 +4954,11 @@ export default function AdminPanel({
                           />
 
                           <img
-                            src={p.image || p.images?.[0] || '/images/deluxe-giftbox.jpg'}
+                            src={p.image || p.images?.[0] || '/images/deluxe-giftbox.webp'}
                             alt={p.name}
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                              e.currentTarget.src = '/images/deluxe-giftbox.webp';
                             }}
                             className="w-9 h-11 rounded-lg object-cover bg-neutral-100 dark:bg-neutral-900 border shrink-0"
                           />
@@ -5176,7 +5176,7 @@ export default function AdminPanel({
 
                       <div className="flex items-center gap-3">
                         <img
-                          src={reelFormData.image || '/images/asmr-packing.jpg'}
+                          src={reelFormData.image || '/images/asmr-packing.webp'}
                           alt="Poster preview"
                           className="w-14 h-20 rounded-xl object-cover bg-neutral-900 border border-pink-200 shrink-0"
                           onError={(e) => { 
@@ -5201,7 +5201,7 @@ export default function AdminPanel({
                             type="text"
                             value={reelFormData.image?.startsWith('data:') ? '' : reelFormData.image}
                             onChange={(e) => setReelFormData(prev => ({ ...prev, image: e.target.value }))}
-                            placeholder="Or enter image URL (/images/asmr-packing.jpg)"
+                            placeholder="Or enter image URL (/images/asmr-packing.webp)"
                             className="w-full px-3 py-1.5 text-xs rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none"
                           />
                         </div>

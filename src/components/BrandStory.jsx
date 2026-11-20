@@ -32,7 +32,7 @@ export default function BrandStory() {
         <div className="lg:col-span-6 relative">
           <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-neutral-800">
             <img
-              src="/images/deluxe-giftbox.jpg"
+              src="/images/deluxe-giftbox.webp"
               alt="Scoop Storey Unboxing"
               className="w-full h-[420px] object-cover"
             />

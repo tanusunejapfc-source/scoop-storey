@@ -11,7 +11,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'mystery-scoops',
     name: 'Mystery Scoops',
     icon: '🍨',
-    image: '/images/scoop-bowl.jpg',
+    image: '/images/scoop-bowl.webp',
     department: 'scoops',
     badge: 'Popular ASMR Hauls 🎀',
     description: 'Hand-curated 3D mystery scoop parcels packed with resin charms, pendants, and surprises.',
@@ -21,7 +21,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'pendants-chains',
     name: 'Pendants & Chains',
     icon: '✨',
-    image: '/images/pendants.jpg',
+    image: '/images/pendants.webp',
     department: 'jewelry',
     badge: 'Anti-Tarnish 💖',
     description: 'Dainty 18K gold and rose-gold plated necklaces, bow hearts, Monalisa gems, and pearls.',
@@ -263,7 +263,7 @@ export function getStoredCategories() {
           const def = c.name ? defMap.get(c.name.toLowerCase().trim()) : null;
           return {
             ...c,
-            image: c.image || def?.image || '/images/deluxe-giftbox.jpg'
+            image: c.image || def?.image || '/images/deluxe-giftbox.webp'
           };
         });
 

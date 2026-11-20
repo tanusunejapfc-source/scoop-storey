@@ -58,7 +58,7 @@ export default function ProductDetailPage({
         }
       }
     }
-    return list.length > 0 ? list : ['/images/deluxe-giftbox.jpg'];
+    return list.length > 0 ? list : ['/images/deluxe-giftbox.webp'];
   }, [baseImages, colors]);
 
   // Helper: locate matching image index for any color variant (exact, keyword, or positional)
@@ -506,7 +506,7 @@ export default function ProductDetailPage({
                       draggable={false}
                       onError={(e) => {
                         e.currentTarget.onerror = null;
-                        e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                        e.currentTarget.src = '/images/deluxe-giftbox.webp';
                       }}
                       className="w-full h-full object-cover pointer-events-none select-none"
                     />
@@ -597,7 +597,7 @@ export default function ProductDetailPage({
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            e.currentTarget.src = '/images/deluxe-giftbox.webp';
                           }}
                         />
                         {matchedColor && (
@@ -1231,11 +1231,11 @@ export default function ProductDetailPage({
                     >
                       <div className="aspect-square rounded-xl overflow-hidden bg-white dark:bg-neutral-900 mb-1.5 border border-pink-100 dark:border-neutral-800">
                         <img
-                          src={rel.image || (rel.images?.[0]) || '/images/deluxe-giftbox.jpg'}
+                          src={rel.image || (rel.images?.[0]) || '/images/deluxe-giftbox.webp'}
                           alt={rel.name}
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            e.currentTarget.src = '/images/deluxe-giftbox.webp';
                           }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />

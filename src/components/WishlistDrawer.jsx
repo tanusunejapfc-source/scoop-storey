@@ -123,7 +123,7 @@ export default function WishlistDrawer({
                       }}
                     >
                       <img
-                        src={item.image || '/images/deluxe-giftbox.jpg'}
+                        src={item.image || '/images/deluxe-giftbox.webp'}
                         alt={item.name}
                         className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-700 border border-pink-100 dark:border-neutral-700 shrink-0"
                         onError={(e) => { 

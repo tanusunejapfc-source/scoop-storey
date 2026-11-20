@@ -11,7 +11,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Mystery Scoops',
     name: 'Mystery Scoops',
     shortName: '3D Scoops',
-    image: '/images/scoop-bowl.jpg',
+    image: '/images/scoop-bowl.webp',
     icon: MiniScoopIcon,
     emoji: '✨',
     tag: 'Live ASMR',
@@ -23,7 +23,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Pendants & Chains',
     name: 'Pendants & Chains',
     shortName: 'Pendants',
-    image: '/images/pendants.jpg',
+    image: '/images/pendants.webp',
     emoji: '✨',
     tag: '18K Gold',
     gradient: 'from-amber-400 via-pink-400 to-rose-400',
@@ -166,11 +166,11 @@ export const CATEGORY_ICONS_DATA = [
 const isStaleLocalImage = (url) => {
   if (!url) return true;
   return (
-    url === '/images/charm-bracelets.jpg' ||
-    url === '/images/bracelets-anklets.jpg' ||
-    url === '/images/eyemasks-skincare.jpg' ||
-    url === '/images/korean-wallets.jpg' ||
-    url === '/images/deluxe-giftbox.jpg'
+    url === '/images/charm-bracelets.webp' ||
+    url === '/images/bracelets-anklets.webp' ||
+    url === '/images/eyemasks-skincare.webp' ||
+    url === '/images/korean-wallets.webp' ||
+    url === '/images/deluxe-giftbox.webp'
   );
 };
 
@@ -212,7 +212,7 @@ export default function CategoryIconsBar({
       const liveProd = products?.find(p => p.category && p.category.toLowerCase().trim() === categoryLower);
       if (liveProd?.image) return liveProd.image;
       if (liveProd?.images?.[0]) return liveProd.images[0];
-      return catImg || presetImg || '/images/deluxe-giftbox.jpg';
+      return catImg || presetImg || '/images/deluxe-giftbox.webp';
     };
 
     // 1. Process all categories stored in categoryStore
@@ -272,7 +272,7 @@ export default function CategoryIconsBar({
             category: p.category,
             name: p.category,
             shortName: p.category,
-            image: p.image || '/images/deluxe-giftbox.jpg',
+            image: p.image || '/images/deluxe-giftbox.webp',
             emoji: '🎀',
             tag: 'Curated ✨',
             gradient: 'from-pink-400 via-purple-400 to-rose-400',
@@ -373,7 +373,7 @@ export default function CategoryIconsBar({
                           alt={item.name}
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            e.currentTarget.src = '/images/deluxe-giftbox.webp';
                           }}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />

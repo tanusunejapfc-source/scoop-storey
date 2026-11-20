@@ -553,7 +553,7 @@ export default function CartDrawer({
       name: item.name || 'Scoop Storey Item',
       priceINR: Number(item.priceINR || item.price || 0),
       qty: Number(item.qty || 1),
-      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.jpg',
+      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.webp',
       selectedColor: item.selectedColor || null,
       selectedColorHex: item.selectedColorHex || null
     }));
@@ -1556,11 +1556,11 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         className="p-3 rounded-2xl glass-panel border border-pink-100 dark:border-pink-900/30 flex items-center gap-3 transition hover:border-pink-300"
                       >
                         <img
-                          src={item.image || '/images/deluxe-giftbox.jpg'}
+                          src={item.image || '/images/deluxe-giftbox.webp'}
                           alt={item.name}
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                            e.currentTarget.src = '/images/deluxe-giftbox.webp';
                           }}
                           className="w-14 h-16 rounded-xl object-cover bg-neutral-100 dark:bg-neutral-800 border border-pink-200/50 shrink-0"
                         />
@@ -1661,12 +1661,12 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           <div className="space-y-1">
                             <div className="w-full aspect-[4/5] rounded-lg bg-neutral-100 dark:bg-neutral-700 overflow-hidden flex items-center justify-center">
                               <img
-                                src={addon.image || (Array.isArray(addon.images) && addon.images[0]) || '/images/deluxe-giftbox.jpg'}
+                                src={addon.image || (Array.isArray(addon.images) && addon.images[0]) || '/images/deluxe-giftbox.webp'}
                                 alt={addon.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
-                                  e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                                  e.currentTarget.src = '/images/deluxe-giftbox.webp';
                                 }}
                               />
                             </div>

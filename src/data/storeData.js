@@ -144,9 +144,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Golden Glow ☀️",
     "priceINR": 199,
-    "image": "/images/pendants/sun-pendant.png",
+    "image": "/images/pendants/sun-pendant.webp",
     "images": [
-      "/images/pendants/sun-pendant.png"
+      "/images/pendants/sun-pendant.webp"
     ],
     "description": "Radiant embossed sun pendant with textured sun rays capturing ambient warmth and positivity.",
     "includes": [
@@ -225,9 +225,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Best Seller 💖",
     "priceINR": 199,
-    "image": "/images/pendants/heart-pendant.png",
+    "image": "/images/pendants/heart-pendant.webp",
     "images": [
-      "/images/pendants/heart-pendant.png"
+      "/images/pendants/heart-pendant.webp"
     ],
     "description": "Classic high-polish romantic heart pendant on a delicate cable chain for everyday elegance.",
     "includes": [
@@ -251,9 +251,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Cute Essential 💖",
     "priceINR": 199,
-    "image": "/images/pendants/little-heart-pendant.png",
+    "image": "/images/pendants/little-heart-pendant.webp",
     "images": [
-      "/images/pendants/little-heart-pendant.png"
+      "/images/pendants/little-heart-pendant.webp"
     ],
     "description": "A delicate polished puffed heart pendant that rests gracefully on your collarbone.",
     "includes": [
@@ -277,9 +277,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Special Edition 🌹",
     "priceINR": 240,
-    "image": "/images/pendants/rose-heart-pendant.png",
+    "image": "/images/pendants/rose-heart-pendant.webp",
     "images": [
-      "/images/pendants/rose-heart-pendant.png"
+      "/images/pendants/rose-heart-pendant.webp"
     ],
     "description": "Intricately carved floral rose bloom encased inside a sculpted romantic heart frame.",
     "includes": [
@@ -303,9 +303,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Timeless Beauty 🦪",
     "priceINR": 240,
-    "image": "/images/pendants/pearl-pendant.jpg",
+    "image": "/images/pendants/pearl-pendant.webp",
     "images": [
-      "/images/pendants/pearl-pendant.jpg"
+      "/images/pendants/pearl-pendant.webp"
     ],
     "description": "Natural high-luster baroque pearl pendant suspended on a fine shimmer chain for a radiant touch.",
     "includes": [
@@ -328,9 +328,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Elegant Classic ✨",
     "priceINR": 240,
-    "image": "/images/pendants/monalisa-pendant.png",
+    "image": "/images/pendants/monalisa-pendant.webp",
     "images": [
-      "/images/pendants/monalisa-pendant.png"
+      "/images/pendants/monalisa-pendant.webp"
     ],
     "description": "Sculpted Monalisa faceted stone pendant accented with a sparkling pavé setting for timeless charm.",
     "includes": [
@@ -353,9 +353,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Trending on Insta 🎀",
     "priceINR": 199,
-    "image": "/images/pendants/bow-heart-pendant.png",
+    "image": "/images/pendants/bow-heart-pendant.webp",
     "images": [
-      "/images/pendants/bow-heart-pendant.png"
+      "/images/pendants/bow-heart-pendant.webp"
     ],
     "description": "A dainty rose-gold bow tied atop a faceted crystal heart charm on a non-tarnish shimmer chain.",
     "includes": [
@@ -379,9 +379,9 @@ export const PRODUCTS = [
     "category": "Pendants & Chains",
     "badge": "Daily Wear ✨",
     "priceINR": 199,
-    "image": "/images/pendants/snake-chain-pendant.png",
+    "image": "/images/pendants/snake-chain-pendant.webp",
     "images": [
-      "/images/pendants/snake-chain-pendant.png"
+      "/images/pendants/snake-chain-pendant.webp"
     ],
     "description": "Sleek, fluid herringbone snake link chain featuring a polished micro-pendant for modern layering.",
     "includes": [
@@ -1194,12 +1194,12 @@ export const PRODUCTS = [
     "category": "Mystery Scoops",
     "badge": "All-Day Cold ❄️",
     "priceINR": 420,
-    "image": "/images/deluxe-giftbox.jpg",
+    "image": "/images/deluxe-giftbox.webp",
     "images": [
-      "/images/deluxe-giftbox.jpg",
-      "/images/deluxe-giftbox.jpg",
-      "/images/scoop-bowl.jpg",
-      "/images/asmr-packing.jpg"
+      "/images/deluxe-giftbox.webp",
+      "/images/deluxe-giftbox.webp",
+      "/images/scoop-bowl.webp",
+      "/images/asmr-packing.webp"
     ],
     "description": "Pocket-sized double-wall vacuum insulated stainless steel thermos that keeps drinks cold or hot for over 12 hours.",
     "includes": [
@@ -1241,12 +1241,12 @@ export const PRODUCTS = [
     "category": "Mystery Scoops",
     "badge": "Hydration Chic 🌸",
     "priceINR": 349,
-    "image": "/images/deluxe-giftbox.jpg",
+    "image": "/images/deluxe-giftbox.webp",
     "images": [
-      "/images/deluxe-giftbox.jpg",
-      "/images/deluxe-giftbox.jpg",
-      "/images/scoop-bowl.jpg",
-      "/images/asmr-packing.jpg"
+      "/images/deluxe-giftbox.webp",
+      "/images/deluxe-giftbox.webp",
+      "/images/scoop-bowl.webp",
+      "/images/asmr-packing.webp"
     ],
     "description": "Stunning pastel ombre frosted bottle with hourly hydration markers, ergonomic grip handle, and spill-resistant flip lid.",
     "includes": [
@@ -1288,12 +1288,12 @@ export const PRODUCTS = [
     "category": "Mystery Scoops",
     "badge": "Viral Sipper 🥤",
     "priceINR": 399,
-    "image": "/images/deluxe-giftbox.jpg",
+    "image": "/images/deluxe-giftbox.webp",
     "images": [
-      "/images/deluxe-giftbox.jpg",
-      "/images/deluxe-giftbox.jpg",
-      "/images/scoop-bowl.jpg",
-      "/images/asmr-packing.jpg"
+      "/images/deluxe-giftbox.webp",
+      "/images/deluxe-giftbox.webp",
+      "/images/scoop-bowl.webp",
+      "/images/asmr-packing.webp"
     ],
     "description": "Adorable frosted bear water bottle with soft silicone straw, leak-proof lock lid, and detachable adjustable shoulder strap.",
     "includes": [
@@ -1974,11 +1974,11 @@ export const PRODUCTS = [
     "category": "Mystery Scoops",
     "badge": "Popular Starter 🎀",
     "priceINR": 799,
-    "image": "/images/scoop-bowl.jpg",
+    "image": "/images/scoop-bowl.webp",
     "images": [
-      "/images/scoop-bowl.jpg",
-      "/images/asmr-packing.jpg",
-      "/images/deluxe-giftbox.jpg"
+      "/images/scoop-bowl.webp",
+      "/images/asmr-packing.webp",
+      "/images/deluxe-giftbox.webp"
     ],
     "description": "Handpicked cute surprises just for you! Filled with 7–8 aesthetic kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.",
     "includes": [
@@ -1998,11 +1998,11 @@ export const PRODUCTS = [
     "category": "Mystery Scoops",
     "badge": "Best Value 🔥",
     "priceINR": 1299,
-    "image": "/images/scoop-bowl.jpg",
+    "image": "/images/scoop-bowl.webp",
     "images": [
-      "/images/scoop-bowl.jpg",
-      "/images/asmr-packing.jpg",
-      "/images/deluxe-giftbox.jpg"
+      "/images/scoop-bowl.webp",
+      "/images/asmr-packing.webp",
+      "/images/deluxe-giftbox.webp"
     ],
     "description": "Our fan-favorite haul! 2 deep satisfying scoops packed with 12–15 premium kawaii products drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), extra free gifts, and free delivery across India.",
     "includes": [
@@ -2022,11 +2022,11 @@ export const PRODUCTS = [
     "category": "Mystery Scoops",
     "badge": "Collector Choice ✨",
     "priceINR": 1799,
-    "image": "/images/deluxe-giftbox.jpg",
+    "image": "/images/deluxe-giftbox.webp",
     "images": [
-      "/images/deluxe-giftbox.jpg",
-      "/images/scoop-bowl.jpg",
-      "/images/asmr-packing.jpg"
+      "/images/deluxe-giftbox.webp",
+      "/images/scoop-bowl.webp",
+      "/images/asmr-packing.webp"
     ],
     "description": "The ultimate luxury hamper! Includes everything from a Mini Scoop + Midi Scoop with over 20+ aesthetic items drawn from our 54-item official scoop board (Beauty Essentials, Accessories, Stationery & Lifestyle), plushies, even more extra free gifts, and free delivery across India.",
     "includes": [
@@ -2078,7 +2078,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Popular ASMR Hauls 🎀',
     tagline: 'Hand-Scooped Charms, Keychain & Blind Surprises',
     description: 'Dip directly into hundreds of handcrafted Kawaii charms, pastel pearls, and VIP mystery blind boxes packed live on Instagram Reels.',
-    coverImage: '/images/scoop-bowl.jpg',
+    coverImage: '/images/scoop-bowl.webp',
     gradient: 'from-pink-500/15 via-rose-500/10 to-purple-500/20',
     borderHover: 'hover:border-pink-400',
     btnGradient: 'bg-gradient-to-r from-pink-500 to-rose-500'
@@ -2092,7 +2092,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Korean Anti-Tarnish 💖',
     tagline: '18K Yellow & Rose Gold Plated Aesthetic Necklaces',
     description: 'Anti-tarnish, water-resistant dainty chains, sparkling bow hearts, sculpted Monalisa crystals, and lustrous baroque pearls.',
-    coverImage: '/images/pendants.jpg',
+    coverImage: '/images/pendants.webp',
     gradient: 'from-amber-500/15 via-pink-500/10 to-rose-500/20',
     borderHover: 'hover:border-amber-400',
     btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'

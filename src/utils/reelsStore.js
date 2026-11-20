@@ -45,7 +45,7 @@ export const DEFAULT_REELS = [
     comments: '1,280',
     audio: 'Original Audio - Scoop Storey (ASMR)',
     tag: '#mysteryscoop #asmrpacking #satisfying',
-    image: '/images/asmr-packing.jpg',
+    image: '/images/asmr-packing.webp',
     videoUrl: '',
     instagramUrl: 'https://www.instagram.com/scoopstorey/'
   },
@@ -57,7 +57,7 @@ export const DEFAULT_REELS = [
     comments: '2,410',
     audio: 'Pure ASMR Charm Clinks • Tanu',
     tag: '#kawaiicharms #resinart #scoopstorey',
-    image: '/images/scoop-bowl.jpg',
+    image: '/images/scoop-bowl.webp',
     videoUrl: '',
     instagramUrl: 'https://www.instagram.com/scoopstorey/'
   },
@@ -69,7 +69,7 @@ export const DEFAULT_REELS = [
     comments: '890',
     audio: 'Pastel Dreams Chill Beats • Tanu',
     tag: '#phonestrap #y2kcharms #crafttok',
-    image: '/images/charm-bracelets.jpg',
+    image: '/images/charm-bracelets.webp',
     videoUrl: '',
     instagramUrl: 'https://www.instagram.com/scoopstorey/'
   },
@@ -81,7 +81,7 @@ export const DEFAULT_REELS = [
     comments: '3,840',
     audio: 'Unboxing Happiness • Scoop Storey',
     tag: '#blindbox #unboxinghappiness #kawaiiaesthetic',
-    image: '/images/deluxe-giftbox.jpg',
+    image: '/images/deluxe-giftbox.webp',
     videoUrl: '',
     instagramUrl: 'https://www.instagram.com/scoopstorey/'
   }

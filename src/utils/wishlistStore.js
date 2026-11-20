@@ -42,7 +42,7 @@ export function toggleWishlistItem(product) {
       priceINR: product.priceINR,
       category: product.category,
       badge: product.badge || 'Popular ✨',
-      image: product.image || (Array.isArray(product.images) && product.images[0]) || '/images/deluxe-giftbox.jpg',
+      image: product.image || (Array.isArray(product.images) && product.images[0]) || '/images/deluxe-giftbox.webp',
       colors: product.colors || []
     };
     updated = [cleanItem, ...current];

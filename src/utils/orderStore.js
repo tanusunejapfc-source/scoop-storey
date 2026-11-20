@@ -36,7 +36,7 @@ export const INITIAL_SAMPLE_ORDERS = [
         qty: 1,
         selectedColor: 'Pastel Kawaii Mix',
         selectedColorHex: '#FFAAA6',
-        image: '/images/scoop-bowl.jpg'
+        image: '/images/scoop-bowl.webp'
       },
       {
         id: 'pend-bow-heart',
@@ -45,7 +45,7 @@ export const INITIAL_SAMPLE_ORDERS = [
         qty: 1,
         selectedColor: 'Rose Gold',
         selectedColorHex: '#E0A899',
-        image: '/images/pendants/bow-heart-pendant.png'
+        image: '/images/pendants/bow-heart-pendant.webp'
       }
     ],
     totalItemCount: 2,
@@ -86,7 +86,7 @@ export const INITIAL_SAMPLE_ORDERS = [
         qty: 1,
         selectedColor: 'Rose Gold',
         selectedColorHex: '#E0A899',
-        image: '/images/pendants/pearl-pendant.jpg'
+        image: '/images/pendants/pearl-pendant.webp'
       },
       {
         id: 'brac-butterfly',
@@ -95,7 +95,7 @@ export const INITIAL_SAMPLE_ORDERS = [
         qty: 1,
         selectedColor: 'Pastel Rainbow',
         selectedColorHex: '#FFB6C1',
-        image: '/images/bracelets-anklets.jpg'
+        image: '/images/bracelets-anklets.webp'
       },
       {
         id: 'mask-kitty',
@@ -104,7 +104,7 @@ export const INITIAL_SAMPLE_ORDERS = [
         qty: 1,
         selectedColor: 'Kawaii Pink',
         selectedColorHex: '#FFB6C1',
-        image: '/images/eyemasks-skincare.jpg'
+        image: '/images/eyemasks-skincare.webp'
       }
     ],
     totalItemCount: 3,
@@ -129,7 +129,7 @@ export function sanitizeOrder(order) {
     name: item.name || 'Scoop Storey Item',
     priceINR: Number(item.priceINR || item.price || 0),
     qty: Number(item.qty || item.quantity || 1),
-    image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.jpg',
+    image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.webp',
     selectedColor: item.selectedColor || null,
     selectedColorHex: item.selectedColorHex || null
   }));

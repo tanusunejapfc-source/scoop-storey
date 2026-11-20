@@ -10,7 +10,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Pendants & Chains',
     tagline: 'Waterproof • Sweatproof • Real PVD Gold',
     badge: 'Bestseller 🔥',
-    image: '/images/pendants.jpg',
+    image: '/images/pendants.webp',
     price: '₹199',
     accentColor: 'from-amber-500 to-pink-500',
     tags: ['18K PVD Gold', 'Waterproof', 'No Green Skin']
@@ -21,7 +21,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Korean wallets and bags',
     tagline: 'Diamond Quilt • Pastel Kawaii Chic',
     badge: 'Trending 👛',
-    image: '/images/korean-wallets.jpg',
+    image: '/images/korean-wallets.webp',
     price: '₹249',
     accentColor: 'from-pink-500 to-rose-400',
     tags: ['Pastel Aesthetics', 'Gold Zip Hardware', 'Viral on Reels']
@@ -32,7 +32,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Bracelets',
     tagline: 'Hand-strung with Love & Kawaii Charms',
     badge: 'Customer Fav 🎀',
-    image: '/images/charm-bracelets.jpg',
+    image: '/images/charm-bracelets.webp',
     price: '₹149',
     accentColor: 'from-purple-500 to-pink-500',
     tags: ['Adjustable Fit', 'Enamel Charms', 'Gift Ready']
@@ -43,7 +43,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Mystery Scoops',
     tagline: 'Dip & Cascade 54+ Rare Lucky Charms',
     badge: 'VIP Studio 🍨',
-    image: '/images/deluxe-giftbox.jpg',
+    image: '/images/deluxe-giftbox.webp',
     price: '₹299',
     accentColor: 'from-rose-500 to-purple-600',
     tags: ['Live Reel Packing', 'Guaranteed Surprises', 'ASMR Audio']
