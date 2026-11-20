@@ -1237,9 +1237,6 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
         <h1 className="text-3xl sm:text-5xl lg:text-[56px] font-display font-black tracking-tight text-[#231733] dark:text-white leading-[1.12]">
           Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
         </h1>
-        <p className="mt-3 text-sm sm:text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-2xl mx-auto">
-          Dip the 18K rose-gold scoop into the iridescent rose quartz crystal coupe, scoop your surprise kawaii treasures, and watch them cascade live on Instagram Reels!
-        </p>
 
         {/* Live Trust Metrics Bar */}
         <div className="mt-4 flex items-center justify-center gap-2.5 sm:gap-6 text-[11px] sm:text-xs font-bold text-[#554664] dark:text-[#D5CBE2] flex-wrap">
