@@ -149,12 +149,31 @@ export default function CartDrawer({
   const addressRef = useRef(null);
   const cartContentRef = useRef(null);
 
-  // Cart totals & calculations
-  const totalItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
-  const subtotalINR = cartItems.reduce((acc, item) => acc + item.priceINR * item.qty, 0);
+  // Authoritative price resolver protecting against client-side price tampering
+  const getAuthoritativePrice = (itemId, fallbackPrice) => {
+    if (!itemId) return Number(fallbackPrice || 0);
+    const catalogItem = (Array.isArray(catalogProducts) && catalogProducts.find(p => p.id === itemId)) ||
+                        DEFAULT_PRODUCTS.find(p => p.id === itemId);
+    if (catalogItem && (catalogItem.priceINR || catalogItem.price)) {
+      return Number(catalogItem.priceINR || catalogItem.price);
+    }
+    return Number(fallbackPrice || 0);
+  };
+
+  // Cart totals & calculations with authoritative prices
+  const totalItemCount = cartItems.reduce((acc, item) => acc + Math.max(1, Math.min(20, Math.floor(Number(item.qty || 1)))), 0);
+  const subtotalINR = cartItems.reduce((acc, item) => {
+    const verifiedPrice = getAuthoritativePrice(item.id, item.priceINR);
+    const verifiedQty = Math.max(1, Math.min(20, Math.floor(Number(item.qty || 1))));
+    return acc + verifiedPrice * verifiedQty;
+  }, 0);
 
   const discountAmountINR = useMemo(() => {
     if (appliedCoupon) {
+      // Re-verify minimum spend condition
+      if (appliedCoupon.minSpend && subtotalINR < Number(appliedCoupon.minSpend)) {
+        return 0;
+      }
       if (appliedCoupon.type === 'percent') {
         return Math.round(subtotalINR * (Number(appliedCoupon.value) / 100));
       }
@@ -589,15 +608,19 @@ export default function CartDrawer({
 
     const utrDisplay = 'Screenshot Attached';
 
-    const cleanItems = cartItems.map(item => ({
-      id: item.id || '',
-      name: item.name || 'Scoop Storey Item',
-      priceINR: Number(item.priceINR || item.price || 0),
-      qty: Number(item.qty || 1),
-      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.webp',
-      selectedColor: item.selectedColor || null,
-      selectedColorHex: item.selectedColorHex || null
-    }));
+    const cleanItems = cartItems.map(item => {
+      const verifiedPrice = getAuthoritativePrice(item.id, item.priceINR);
+      const verifiedQty = Math.max(1, Math.min(20, Math.floor(Number(item.qty || 1))));
+      return {
+        id: item.id || '',
+        name: item.name || 'Scoop Storey Item',
+        priceINR: verifiedPrice,
+        qty: verifiedQty,
+        image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.webp',
+        selectedColor: item.selectedColor || null,
+        selectedColorHex: item.selectedColorHex || null
+      };
+    });
 
     const isPartialCod = Boolean(paymentBreakdown.isPartialCod);
     const newOrder = {

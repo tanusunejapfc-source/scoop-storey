@@ -11,13 +11,61 @@
   <title>Scoop Storey | Collect Happiness • 3D Kawaii Mystery Scoops & Charms</title>
   <meta name="description"
     content="Official 3D interactive experience for @scoopstorey. Hand-curated mystery scoops, kawaii resin charms, ASMR order packing, and cute collectibles. Collect Happiness." />
+  <link rel="canonical" href="https://scoopstorey.com/" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#E60067" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Scoop Storey | 3D Mystery Scoops" />
   <meta property="og:description"
     content="Take an interactive 3D mystery scoop! Curated kawaii charms, ASMR packaging & happiness delivered to your door." />
   <meta property="og:image" content="/brand-avatar.jpg" />
+  <meta property="og:url" content="https://scoopstorey.com/" />
   <meta property="og:type" content="website" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Scoop Storey | 3D Mystery Scoops" />
+  <meta name="twitter:description" content="Take an interactive 3D mystery scoop! Curated kawaii charms, ASMR packaging & happiness delivered to your door." />
+  <meta name="twitter:image" content="/brand-avatar.jpg" />
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://scoopstorey.com/#organization",
+        "name": "Scoop Storey",
+        "url": "https://scoopstorey.com",
+        "logo": "https://scoopstorey.com/brand-avatar.jpg",
+        "sameAs": [
+          "https://www.instagram.com/scoopstorey"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://scoopstorey.com/#website",
+        "url": "https://scoopstorey.com",
+        "name": "Scoop Storey",
+        "publisher": {
+          "@id": "https://scoopstorey.com/#organization"
+        }
+      },
+      {
+        "@type": "Store",
+        "@id": "https://scoopstorey.com/#store",
+        "name": "Scoop Storey",
+        "description": "India's 1st 3D Interactive ASMR Mystery Scoop Studio. Dainty jewelry, kawaii accessories, and cute collectibles.",
+        "url": "https://scoopstorey.com",
+        "priceRange": "₹99 - ₹1799",
+        "paymentAccepted": "UPI, Cash on Delivery",
+        "currenciesAccepted": "INR"
+      }
+    ]
+  }
+  </script>
 
   <!-- Meta Pixel Code -->
   <script>
@@ -34,14 +82,14 @@
   </script>
   <!-- End Meta Pixel Code -->
 
-  <!-- Google Fonts: Fredoka (Playful Kawaii Display), Plus Jakarta Sans (Ultra-clean Modern Body), Caveat (Whimsical Script) -->
+  <!-- Google Fonts: Fredoka, Plus Jakarta Sans, Caveat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
     rel="stylesheet">
 
-  <!-- Prevent mobile browsers (Chrome/Safari/Samsung) from auto-scrolling to cached offsets or section hashes on initial open -->
+  <!-- Prevent mobile browsers from auto-scrolling to cached offsets or section hashes on initial open -->
   <script>
     (function () {
       if ('scrollRestoration' in history) {

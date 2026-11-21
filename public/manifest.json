@@ -1,0 +1,21 @@
+{
+  "name": "Scoop Storey | Collect Happiness",
+  "short_name": "Scoop Storey",
+  "description": "3D Interactive ASMR Mystery Scoop Studio. Dainty Jewelry & Kawaii Accessories.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8FA",
+  "theme_color": "#E60067",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/brand-avatar.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

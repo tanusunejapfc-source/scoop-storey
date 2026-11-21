@@ -435,3 +435,92 @@ export async function fetchOrdersFromSupabase() {
     return null;
   }
 }
+
+/**
+ * Privacy-safe public order tracking lookup
+ * Returns ONLY the single matched order with masked customer PII
+ */
+export async function fetchSingleOrderForTracking(searchQuery) {
+  if (!supabase || !searchQuery) return null;
+  const cleanQ = String(searchQuery).trim();
+  if (!cleanQ || cleanQ.length < 3) return null;
+
+  try {
+    const isOrderId = cleanQ.toUpperCase().startsWith('SS-');
+    let query = supabase
+      .from('orders')
+      .select('*')
+      .neq('status', 'Order Deleted');
+
+    if (isOrderId) {
+      query = query.ilike('order_id', cleanQ.toUpperCase());
+    } else {
+      query = query.ilike('order_id', `%${cleanQ}%`);
+    }
+
+    const { data, error } = await query.limit(1);
+
+    if (error) {
+      console.warn('Order tracking query error:', error.message);
+      return null;
+    }
+
+    if (Array.isArray(data) && data.length > 0) {
+      const row = data[0];
+      const cust = row.customer || {};
+
+      // Mask customer phone for privacy (+91 98123*****)
+      let rawPhone = String(cust.phone || '').replace(/\D/g, '');
+      if (rawPhone.length === 12 && rawPhone.startsWith('91')) {
+        rawPhone = rawPhone.slice(2);
+      }
+      const maskedPhone = rawPhone.length >= 10
+        ? `+91 ${rawPhone.slice(0, 5)}*****`
+        : (rawPhone ? '******' : '');
+
+      // Mask customer name (First Name + Last Initial)
+      const nameParts = String(cust.fullName || 'Collector').trim().split(/\s+/);
+      const maskedName = nameParts.length > 1
+        ? `${nameParts[0]} ${nameParts[nameParts.length - 1][0]}.`
+        : nameParts[0] || 'Collector';
+
+      // Mask PIN code (400***)
+      const rawPin = String(cust.pincode || '').replace(/\D/g, '');
+      const maskedPin = rawPin.length === 6 ? `${rawPin.slice(0, 3)}***` : '';
+
+      return {
+        orderId: row.order_id,
+        timestamp: new Date(row.created_at).getTime(),
+        date: new Date(row.created_at).toLocaleDateString('en-IN', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        status: row.status || 'Order Confirmed',
+        courierName: row.courier_name || null,
+        trackingNumber: row.tracking_number || null,
+        items: Array.isArray(row.items) ? row.items.map(it => ({
+          id: it.id,
+          name: it.name,
+          qty: it.qty,
+          selectedColor: it.selectedColor,
+          image: it.image
+        })) : [],
+        totalINR: Number(row.total_inr) || 0,
+        subtotalINR: Number(row.subtotal_inr) || Number(row.total_inr) || 0,
+        filmOnReel: row.film_on_reel || null,
+        customer: {
+          fullName: maskedName,
+          city: cust.city || 'India',
+          state: cust.state || '',
+          pincode: maskedPin,
+          phone: maskedPhone
+        }
+      };
+    }
+  } catch (err) {
+    console.warn('Order tracking lookup exception:', err);
+  }
+  return null;
+}
+

@@ -1,0 +1,6 @@
+# Scoop Storey Robots.txt
+User-agent: *
+Allow: /
+Disallow: /#admin
+
+Sitemap: https://scoopstorey.com/sitemap.xml

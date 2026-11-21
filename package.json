@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "node scripts/test_master_audit.cjs",
     "preview": "vite preview"
   },
   "dependencies": {

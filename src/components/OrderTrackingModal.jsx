@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { getStoredOrders } from '../utils/orderStore';
-import { fetchOrdersFromSupabase } from '../utils/supabaseClient';
+import { fetchSingleOrderForTracking } from '../utils/supabaseClient';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const STATUS_STEPS = [
@@ -41,41 +41,25 @@ function getStepIndex(status) {
 export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' }) {
   const [query, setQuery] = useState(initialQuery);
   const [searched, setSearched] = useState(false);
+  const [isSearchingCloud, setIsSearchingCloud] = useState(false);
   const [matchedOrder, setMatchedOrder] = useState(null);
   const [allOrders, setAllOrders] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
+      // Load ONLY the local visitor's own orders for privacy
       const orders = getStoredOrders() || [];
       setAllOrders(orders);
       if (initialQuery) {
         setQuery(initialQuery);
         handleLookup(initialQuery, orders);
       }
-
-      // Seamlessly fetch cloud orders for cross-device customer tracking
-      fetchOrdersFromSupabase().then(cloudOrders => {
-        if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
-          setAllOrders(prev => {
-            const merged = [...cloudOrders];
-            (prev || []).forEach(local => {
-              if (!merged.some(c => c.orderId === local.orderId)) {
-                merged.push(local);
-              }
-            });
-            if (initialQuery) {
-              handleLookup(initialQuery, merged);
-            }
-            return merged;
-          });
-        }
-      }).catch(() => {});
     }
   }, [isOpen, initialQuery]);
 
   if (!isOpen) return null;
 
-  const handleLookup = (searchStr = query, ordersList = allOrders) => {
+  const handleLookup = async (searchStr = query, ordersList = allOrders) => {
     const q = (searchStr || '').trim().toLowerCase().replace(/^#/, '');
     setSearched(true);
     soundFX.playPop(520);
@@ -85,24 +69,33 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
       return;
     }
 
-    // Match by exact or partial orderId, or customer phone, or customer name
-    const found = ordersList.find(order => {
+    // 1. Check current visitor's own stored orders first
+    const foundLocal = (ordersList || []).find(order => {
       const id = (order.orderId || '').toLowerCase();
       const phone = (order.customer?.phone || '').toLowerCase().replace(/\D/g, '');
       const cleanQ = q.replace(/\D/g, '');
-      const name = (order.customer?.fullName || '').toLowerCase();
-      const reel = (order.filmOnReel || '').toLowerCase();
 
       return (
         id === q ||
-        id.includes(q) ||
-        (cleanQ.length >= 6 && phone.includes(cleanQ)) ||
-        (name.length >= 3 && name.includes(q)) ||
-        (reel && reel.includes(q))
+        (cleanQ.length === 10 && phone === cleanQ)
       );
     });
 
-    setMatchedOrder(found || null);
+    if (foundLocal) {
+      setMatchedOrder(foundLocal);
+      return;
+    }
+
+    // 2. Query Supabase securely for the single specific order (privacy-masked)
+    setIsSearchingCloud(true);
+    try {
+      const cloudMatch = await fetchSingleOrderForTracking(q);
+      setMatchedOrder(cloudMatch || null);
+    } catch {
+      setMatchedOrder(null);
+    } finally {
+      setIsSearchingCloud(false);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -175,9 +168,11 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
               <button
                 type="button"
                 onClick={() => handleLookup()}
-                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#E60067] to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-xs sm:text-sm shadow-md active:scale-95 transition shrink-0"
+                disabled={isSearchingCloud}
+                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#E60067] to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-xs sm:text-sm shadow-md active:scale-95 transition shrink-0 flex items-center gap-1.5 disabled:opacity-75"
               >
-                Track Now
+                {isSearchingCloud && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                <span>{isSearchingCloud ? 'Searching...' : 'Track Now'}</span>
               </button>
             </div>
 

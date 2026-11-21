@@ -234,7 +234,16 @@ export default function AdminPanel({
   onResetDefaults
 }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem('bhaskar_admin_auth') === 'true';
+    const isAuth = sessionStorage.getItem('bhaskar_admin_auth') === 'true';
+    const authTime = Number(sessionStorage.getItem('bhaskar_admin_auth_time') || 0);
+    const THIRTY_MINUTES = 30 * 60 * 1000;
+    if (isAuth && (Date.now() - authTime) < THIRTY_MINUTES) {
+      sessionStorage.setItem('bhaskar_admin_auth_time', String(Date.now()));
+      return true;
+    }
+    sessionStorage.removeItem('bhaskar_admin_auth');
+    sessionStorage.removeItem('bhaskar_admin_auth_time');
+    return false;
   });
   const [passcode, setPasscode] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
@@ -1152,6 +1161,7 @@ export default function AdminPanel({
     if (entered && entered === storedPass) {
       setIsAuthenticated(true);
       sessionStorage.setItem('bhaskar_admin_auth', 'true');
+      sessionStorage.setItem('bhaskar_admin_auth_time', String(Date.now()));
       setPasscodeError('');
       setFailedAttempts(0);
       setLockoutUntil(0);
@@ -1936,6 +1946,7 @@ export default function AdminPanel({
                     onLock={() => {
                       setIsAuthenticated(false);
                       sessionStorage.removeItem('bhaskar_admin_auth');
+                      sessionStorage.removeItem('bhaskar_admin_auth_time');
                       soundFX.playPop(400);
                       showToast('Logged out of Admin');
                     }}
@@ -1964,6 +1975,7 @@ export default function AdminPanel({
                 onLock={() => {
                   setIsAuthenticated(false);
                   sessionStorage.removeItem('bhaskar_admin_auth');
+                  sessionStorage.removeItem('bhaskar_admin_auth_time');
                   soundFX.playPop(400);
                   showToast('Logged out of Admin');
                 }}

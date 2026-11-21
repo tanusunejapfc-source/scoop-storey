@@ -767,7 +767,7 @@ export default function ProductDetailPage({
                     </span>
                     <button
                       onClick={() => {
-                        setQuantity(quantity + 1);
+                        setQuantity(Math.min(20, quantity + 1));
                         soundFX.playPop(520);
                       }}
                       className="w-8 h-8 rounded-xl bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white shadow-xs hover:bg-pink-50 transition cursor-pointer"
@@ -1282,7 +1282,7 @@ export default function ProductDetailPage({
             </span>
             <button
               onClick={() => {
-                setQuantity(quantity + 1);
+                setQuantity(Math.min(20, quantity + 1));
                 soundFX.playPop(520);
               }}
               className="w-7 h-7 rounded-lg bg-white dark:bg-neutral-700 flex items-center justify-center font-bold text-neutral-800 dark:text-white text-xs shadow-xs"
