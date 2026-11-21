@@ -6062,6 +6062,61 @@ export default function AdminPanel({
                         </button>
                       </div>
                     </div>
+
+                    {/* META PIXEL & AD TRACKING CARD */}
+                    <div className="bg-white dark:bg-[#1E172E] p-5 sm:p-6 rounded-3xl border border-pink-200/80 dark:border-pink-900/50 shadow-sm space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/40">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-lg">
+                            ∞
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
+                              <span>Meta Pixel & Ads</span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-400">
+                                ● Active
+                              </span>
+                            </h4>
+                            <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                              Instagram & Facebook Ads tracking
+                            </span>
+                          </div>
+                        </div>
+
+                        <a
+                          href="https://business.facebook.com/events_manager2"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-bold text-[#E60067] dark:text-pink-400 hover:underline flex items-center gap-1"
+                        >
+                          <span>Events Manager</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 rounded-2xl bg-pink-50/40 dark:bg-neutral-900/60 border border-pink-100 dark:border-pink-900/40 space-y-1">
+                          <span className="text-[10px] font-bold uppercase text-neutral-400">Connected Pixel ID</span>
+                          <div className="font-mono text-xs font-bold text-neutral-900 dark:text-white flex items-center justify-between">
+                            <span>1588839646601190</span>
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Live & Tracking</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5 pt-1">
+                          <span className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 block">
+                            Standard E-Commerce Events Tracked:
+                          </span>
+                          <div className="grid grid-cols-2 gap-1.5 text-[11px] text-neutral-600 dark:text-neutral-400">
+                            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> PageView</div>
+                            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> ViewContent</div>
+                            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> AddToCart</div>
+                            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> InitiateCheckout</div>
+                            <div className="flex items-center gap-1.5 col-span-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Purchase (Prepaid & COD values)</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

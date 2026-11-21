@@ -251,6 +251,20 @@ export function sendHeartbeat() {
 }
 
 /**
+ * Safe Meta Pixel (fbq) Tracker
+ * Dispatches standard e-commerce events to Meta Ads / Instagram Ads
+ */
+export function trackMetaPixel(eventName, params = {}) {
+  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    try {
+      window.fbq('track', eventName, params);
+    } catch (err) {
+      console.warn('Meta Pixel dispatch error:', err);
+    }
+  }
+}
+
+/**
  * Real Page View event
  */
 export function trackPageView(pagePath, productName = null) {
@@ -269,6 +283,15 @@ export function trackPageView(pagePath, productName = null) {
     title: productName ? `Browsed "${productName}"` : `Visited ${pagePath || 'Home'}`,
     timestamp: Date.now()
   });
+
+  // Meta Pixel PageView & ViewContent
+  trackMetaPixel('PageView');
+  if (productName) {
+    trackMetaPixel('ViewContent', {
+      content_name: productName,
+      content_type: 'product'
+    });
+  }
 }
 
 /**
@@ -291,6 +314,15 @@ export function trackAddToCart(product, qty = 1) {
     title: `Added "${product?.name || 'Item'}" to bag (₹${product?.priceINR || 0})`,
     timestamp: Date.now()
   });
+
+  // Meta Pixel AddToCart
+  trackMetaPixel('AddToCart', {
+    content_name: product?.name || 'Item',
+    content_ids: [product?.id || 'item'],
+    content_type: 'product',
+    value: Number(product?.priceINR || 0) * Number(qty || 1),
+    currency: 'INR'
+  });
 }
 
 /**
@@ -311,6 +343,13 @@ export function trackCheckoutStarted(totalINR, itemCount) {
     type: 'checkout_step',
     title: `Opened Checkout (${itemCount || 1} items • ₹${totalINR || 0})`,
     timestamp: Date.now()
+  });
+
+  // Meta Pixel InitiateCheckout
+  trackMetaPixel('InitiateCheckout', {
+    value: Number(totalINR) || 0,
+    currency: 'INR',
+    num_items: Number(itemCount) || 1
   });
 }
 
@@ -334,6 +373,16 @@ export function trackOrderCompleted(order) {
     city: order?.customer?.city,
     state: order?.customer?.state,
     timestamp: Date.now()
+  });
+
+  // Meta Pixel Purchase conversion event
+  trackMetaPixel('Purchase', {
+    content_type: 'product',
+    content_ids: (order?.items || []).map(it => it.id || it.name),
+    value: Number(order?.totalINR) || 0,
+    currency: 'INR',
+    num_items: Number(order?.totalItemCount) || (order?.items || []).length || 1,
+    order_id: order?.orderId
   });
 }
 
