@@ -181,14 +181,58 @@ export async function deleteProductFromSupabase(productId) {
 }
 
 /**
+ * Upload customer payment screenshot proof to Supabase Storage ('product-images/payments/' bucket path)
+ * Returns permanent public URL accessible worldwide by Admin
+ */
+export async function uploadPaymentProofToSupabase(fileOrBlob, orderId = 'order') {
+  if (!supabase) return null;
+  try {
+    const ext = fileOrBlob.name ? fileOrBlob.name.split('.').pop().toLowerCase() : 'jpg';
+    const filePath = `payments/receipt-${orderId.replace(/[^a-zA-Z0-9_-]/g, '')}-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, fileOrBlob, {
+        contentType: fileOrBlob.type || 'image/jpeg',
+        cacheControl: '31536000',
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.warn('Payment proof storage upload error:', uploadError);
+      return null;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return urlData?.publicUrl || null;
+  } catch (err) {
+    console.warn('Payment proof upload exception:', err);
+    return null;
+  }
+}
+
+/**
  * Save an order to Supabase
  */
 export async function saveOrderToSupabase(order) {
   if (!supabase) return false;
   try {
+    const proofUrl = order.paymentScreenshot || order.customer?.paymentScreenshot || null;
+    const customerPayload = {
+      ...(order.customer || {}),
+      paymentScreenshot: proofUrl,
+      payment_screenshot: proofUrl,
+      advancePaidINR: order.advancePaidINR ?? null,
+      balanceDueOnDeliveryINR: order.balanceDueOnDeliveryINR ?? null,
+      isPartialCod: Boolean(order.isPartialCod)
+    };
+
     const row = {
       order_id: order.orderId,
-      customer: order.customer,
+      customer: customerPayload,
       items: order.items,
       total_inr: order.totalINR,
       subtotal_inr: order.subtotalINR,
@@ -235,30 +279,44 @@ export async function fetchOrdersFromSupabase() {
     }
 
     if (Array.isArray(data) && data.length > 0) {
-      return data.map(row => ({
-        orderId: row.order_id,
-        timestamp: new Date(row.created_at).getTime(),
-        date: new Date(row.created_at).toLocaleDateString('en-IN', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        source: row.payment_method === 'WhatsApp Direct' ? 'WhatsApp Order' : (row.payment_method || 'Prepaid UPI / QR Code'),
-        status: row.status || 'WhatsApp Verification Pending',
-        paymentMethod: row.payment_method || 'UPI QR Code',
-        upiRefNumber: row.upi_ref_number || null,
-        customer: row.customer || { fullName: 'Customer', phone: '', city: '', state: '' },
-        items: Array.isArray(row.items) ? row.items : [],
-        totalItemCount: Number(row.total_item_count) || (Array.isArray(row.items) ? row.items.length : 1),
-        subtotalINR: Number(row.subtotal_inr) || Number(row.total_inr) || 0,
-        discountAmountINR: Number(row.discount_amount_inr) || 0,
-        shippingINR: Number(row.shipping_inr) || 0,
-        totalINR: Number(row.total_inr) || 0,
-        filmOnReel: row.film_on_reel || null,
-        additionalNotes: row.additional_notes || null
-      }));
+      return data.map(row => {
+        const cust = row.customer || { fullName: 'Customer', phone: '', city: '', state: '' };
+        const screenshot = cust.paymentScreenshot || cust.payment_screenshot || row.payment_screenshot || null;
+        const isPartial = Boolean(
+          cust.isPartialCod || 
+          row.payment_method?.toLowerCase().includes('partial') || 
+          row.status?.toLowerCase().includes('partial')
+        );
+
+        return {
+          orderId: row.order_id,
+          timestamp: new Date(row.created_at).getTime(),
+          date: new Date(row.created_at).toLocaleDateString('en-IN', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          source: row.payment_method === 'WhatsApp Direct' ? 'WhatsApp Order' : (row.payment_method || 'Prepaid UPI / QR Code'),
+          status: row.status || 'WhatsApp Verification Pending',
+          paymentMethod: row.payment_method || 'UPI QR Code',
+          upiRefNumber: row.upi_ref_number || null,
+          paymentScreenshot: screenshot,
+          isPartialCod: isPartial,
+          advancePaidINR: cust.advancePaidINR ?? (isPartial ? Math.round((Number(row.total_inr) || 0) * 0.2) : null),
+          balanceDueOnDeliveryINR: cust.balanceDueOnDeliveryINR ?? (isPartial ? (Number(row.total_inr) || 0) - Math.round((Number(row.total_inr) || 0) * 0.2) : 0),
+          customer: cust,
+          items: Array.isArray(row.items) ? row.items : [],
+          totalItemCount: Number(row.total_item_count) || (Array.isArray(row.items) ? row.items.length : 1),
+          subtotalINR: Number(row.subtotal_inr) || Number(row.total_inr) || 0,
+          discountAmountINR: Number(row.discount_amount_inr) || 0,
+          shippingINR: Number(row.shipping_inr) || 0,
+          totalINR: Number(row.total_inr) || 0,
+          filmOnReel: row.film_on_reel || null,
+          additionalNotes: row.additional_notes || null
+        };
+      });
     }
     return [];
   } catch (err) {

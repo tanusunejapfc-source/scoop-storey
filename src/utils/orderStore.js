@@ -134,11 +134,12 @@ export function sanitizeOrder(order) {
     selectedColorHex: item.selectedColorHex || null
   }));
 
-  // Limit payment screenshot size if present (keep only if under 200KB)
-  let cleanScreenshot = order.paymentScreenshot || null;
-  if (cleanScreenshot && typeof cleanScreenshot === 'string' && cleanScreenshot.length > 250000) {
-    cleanScreenshot = cleanScreenshot.slice(0, 250000);
-  }
+  // Extract payment screenshot from any valid location without corrupting base64/URL
+  let cleanScreenshot = order.paymentScreenshot || 
+    order.payment_screenshot || 
+    order.customer?.paymentScreenshot || 
+    order.customer?.payment_screenshot || 
+    null;
 
   return {
     orderId: order.orderId || `SS-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -150,11 +151,14 @@ export function sanitizeOrder(order) {
       hour: '2-digit',
       minute: '2-digit'
     }),
-    source: order.source || 'Prepaid Order',
+    source: order.source || (order.isPartialCod ? 'Partial COD' : 'Prepaid Order'),
     status: order.status || 'Pending Verification',
-    paymentMethod: order.paymentMethod || (order.source?.includes('UPI') ? 'UPI QR Code' : 'WhatsApp'),
+    paymentMethod: order.paymentMethod || (order.isPartialCod ? 'Partial COD' : (order.source?.includes('UPI') ? 'UPI QR Code' : 'WhatsApp')),
     upiRefNumber: order.upiRefNumber || null,
     paymentScreenshot: cleanScreenshot,
+    isPartialCod: Boolean(order.isPartialCod),
+    advancePaidINR: order.advancePaidINR ?? (order.customer?.advancePaidINR ?? null),
+    balanceDueOnDeliveryINR: order.balanceDueOnDeliveryINR ?? (order.customer?.balanceDueOnDeliveryINR ?? null),
     customer: {
       fullName: order.customer?.fullName || 'Customer',
       phone: order.customer?.phone || '',
@@ -162,7 +166,11 @@ export function sanitizeOrder(order) {
       landmark: order.customer?.landmark || '',
       pincode: order.customer?.pincode || '',
       city: order.customer?.city || '',
-      state: order.customer?.state || 'Maharashtra'
+      state: order.customer?.state || 'Maharashtra',
+      paymentScreenshot: cleanScreenshot,
+      advancePaidINR: order.advancePaidINR ?? null,
+      balanceDueOnDeliveryINR: order.balanceDueOnDeliveryINR ?? null,
+      isPartialCod: Boolean(order.isPartialCod)
     },
     items: sanitizedItems,
     totalItemCount: order.totalItemCount || sanitizedItems.reduce((acc, it) => acc + it.qty, 0),

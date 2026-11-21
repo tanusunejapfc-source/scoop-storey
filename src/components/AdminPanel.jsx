@@ -56,7 +56,9 @@ import {
   TrendingUp,
   Users,
   Boxes,
-  Percent
+  Percent,
+  Camera,
+  CheckCircle2
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import AdminSidebar from './admin/AdminSidebar';
@@ -260,6 +262,7 @@ export default function AdminPanel({
   const [toastMessage, setToastMessage] = useState('');
   const [copiedOrderId, setCopiedOrderId] = useState(null);
   const [printingOrder, setPrintingOrder] = useState(null);
+  const [viewingReceiptImage, setViewingReceiptImage] = useState(null);
 
   // Global Ctrl+K / Cmd+K Spotlight Listener
   useEffect(() => {
@@ -2201,6 +2204,11 @@ export default function AdminPanel({
                     {filteredOrders.map((ord) => {
                       const isWhatsApp = ord.source?.includes('WhatsApp');
                       const cust = ord.customer || {};
+                      const paymentProof = ord.paymentScreenshot || 
+                        ord.payment_screenshot || 
+                        cust.paymentScreenshot || 
+                        cust.payment_screenshot || 
+                        null;
 
                       return (
                         <div
@@ -2209,7 +2217,7 @@ export default function AdminPanel({
                         >
                           {/* Order Header */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-pink-100 dark:border-neutral-800">
-                            <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-2.5 flex-wrap">
                               <span className="font-display font-black text-sm text-[#E60067] dark:text-pink-400">
                                 {ord.orderId}
                               </span>
@@ -2234,6 +2242,18 @@ export default function AdminPanel({
                                 )}
                                 <span>{ord.isPartialCod ? `Partial COD (₹${ord.advancePaidINR} Adv • ₹${ord.balanceDueOnDeliveryINR} COD)` : ord.source}</span>
                               </span>
+
+                              {paymentProof && (
+                                <button
+                                  type="button"
+                                  onClick={() => setViewingReceiptImage(paymentProof)}
+                                  className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/80 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700 flex items-center gap-1 cursor-pointer transition shadow-xs"
+                                  title="Click to view payment receipt screenshot"
+                                >
+                                  <Camera className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                                  <span>Receipt Attached 📸</span>
+                                </button>
+                              )}
 
                               <span className="text-[11px] text-neutral-400 flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
@@ -2396,22 +2416,53 @@ export default function AdminPanel({
                               </div>
                             )}
 
-                            {/* Payment Screenshot if uploaded */}
-                            {ord.paymentScreenshot && (
-                              <div className="mt-2 p-2 rounded-xl bg-pink-50/70 dark:bg-neutral-800/70 border border-pink-200 dark:border-neutral-700 flex items-center justify-between gap-2 text-xs">
-                                <div className="flex items-center gap-2">
-                                  <img src={ord.paymentScreenshot} alt="Receipt" className="w-9 h-9 rounded-lg object-cover border" />
-                                  <span className="font-bold text-neutral-800 dark:text-neutral-200">Customer attached receipt screenshot</span>
+                            {/* Payment Screenshot Proof (Prominent High-Res Verification Box) */}
+                            {paymentProof && (
+                              <div className="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-rose-50/90 via-pink-50/70 to-purple-50/80 dark:from-neutral-800 dark:to-neutral-850 border-2 border-rose-200 dark:border-rose-900/60 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                                <div className="flex items-center gap-3">
+                                  <div 
+                                    onClick={() => setViewingReceiptImage(paymentProof)}
+                                    className="relative group cursor-pointer shrink-0"
+                                    title="Click to zoom / view full screenshot"
+                                  >
+                                    <img 
+                                      src={paymentProof} 
+                                      alt="Payment Receipt" 
+                                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-rose-300 dark:border-rose-700 shadow-sm group-hover:scale-105 group-hover:border-[#E60067] transition-all bg-white" 
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Eye className="w-5 h-5 text-white" />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-1.5 font-display font-black text-rose-700 dark:text-rose-300 text-sm">
+                                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                      <span>Customer Attached Receipt Screenshot 📸</span>
+                                    </div>
+                                    <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                                      Uploaded by customer during UPI payment. Click to inspect full image with transaction UTR & time.
+                                    </p>
+                                  </div>
                                 </div>
-                                <a
-                                  href={ord.paymentScreenshot}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-pink-300 text-[#E60067] font-bold text-[11px] flex items-center gap-1 hover:bg-pink-50"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  <span>View Image</span>
-                                </a>
+                                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => setViewingReceiptImage(paymentProof)}
+                                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#FF1493] to-[#E60067] hover:opacity-95 text-white font-display font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>View Full Image</span>
+                                  </button>
+                                  <a
+                                    href={paymentProof}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-pink-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200 font-bold text-xs flex items-center gap-1.5 hover:bg-pink-50 transition"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                    <span>Open Tab</span>
+                                  </a>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -5914,6 +5965,53 @@ export default function AdminPanel({
         isOpen={!!printingOrder}
         onClose={() => setPrintingOrder(null)}
       />
+
+      {/* FULLSCREEN RECEIPT SCREENSHOT LIGHTBOX MODAL */}
+      {viewingReceiptImage && (
+        <div 
+          onClick={() => setViewingReceiptImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn cursor-zoom-out"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-3xl p-3 sm:p-4 shadow-2xl flex flex-col border-2 border-pink-200 dark:border-neutral-800 cursor-default animate-in zoom-in-95 duration-200"
+          >
+            <div className="flex items-center justify-between pb-3 mb-2 border-b border-pink-100 dark:border-neutral-800">
+              <div className="flex items-center gap-2">
+                <Camera className="w-4 h-4 text-[#E60067]" />
+                <h4 className="font-display font-extrabold text-sm text-neutral-900 dark:text-white">
+                  Verified Payment Screenshot Proof
+                </h4>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={viewingReceiptImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-xl bg-pink-100 dark:bg-pink-950/60 hover:bg-pink-200 text-[#E60067] dark:text-pink-300 text-xs font-bold flex items-center gap-1 transition"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>Open Original</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setViewingReceiptImage(null)}
+                  className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="overflow-auto max-h-[75vh] flex items-center justify-center bg-neutral-950/10 dark:bg-black/40 rounded-2xl p-2 border border-black/5 dark:border-white/5">
+              <img 
+                src={viewingReceiptImage} 
+                alt="Payment Receipt Screenshot" 
+                className="max-w-full max-h-[70vh] object-contain rounded-xl shadow-md"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   </div>
 );

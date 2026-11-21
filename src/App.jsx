@@ -1,8 +1,9 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
 import BoutiqueHero from './components/BoutiqueHero';
 import ProductCatalog from './components/ProductCatalog';
+import AddedToCartToast from './components/AddedToCartToast';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import SocialProofToast from './components/SocialProofToast';
@@ -45,6 +46,8 @@ export default function App() {
   const [activeCollection, setActiveCollection] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewModalProduct, setReviewModalProduct] = useState(null);
+  const [addedToastItem, setAddedToastItem] = useState(null);
+  const toastTimeoutRef = useRef(null);
 
   const handleOpenReviewModal = (product = null) => {
     setReviewModalProduct(product);
@@ -317,7 +320,22 @@ export default function App() {
         }
       ];
     });
-    setIsCartOpen(true);
+
+    // DO NOT open cart directly! (User requested: add to bag without opening cart)
+    // Show non-intrusive "Added to Bag" toast with "Go to Bag" option for a few seconds
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setAddedToastItem({
+      ...product,
+      qty: addQuantity,
+      image: product.image || (product.images?.[0] || '/images/deluxe-giftbox.jpg'),
+      priceINR: product.priceINR || product.price || 0,
+      timestamp: Date.now()
+    });
+    toastTimeoutRef.current = setTimeout(() => {
+      setAddedToastItem(null);
+    }, 4500);
   };
 
   const handleUpdateQty = (key, newQty) => {
@@ -497,6 +515,15 @@ export default function App() {
           />
         </Suspense>
       )}
+
+      {/* QUICK ADDED TO BAG TOAST (Option to go to cart for few seconds) */}
+      <AddedToCartToast
+        item={addedToastItem}
+        cartCount={totalCartCount}
+        onOpenCart={() => setIsCartOpen(true)}
+        onClose={() => setAddedToastItem(null)}
+        durationMs={4500}
+      />
 
       {/* GLOBAL INSTANT SEARCH MODAL */}
       {isSearchOpen && (

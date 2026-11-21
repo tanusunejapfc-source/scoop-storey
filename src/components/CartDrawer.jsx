@@ -37,6 +37,7 @@ import { trackCheckoutStarted, trackOrderCompleted } from '../utils/analyticsTel
 import { usePaymentSettings, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 import { CLOUD_DISCOUNTS_URL } from './admin/AdminDiscountsCMS';
+import { uploadPaymentProofToSupabase } from '../utils/supabaseClient';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh',
@@ -102,6 +103,7 @@ export default function CartDrawer({
   const [upiRefNumber, setUpiRefNumber] = useState('');
   const [upiRefError, setUpiRefError] = useState('');
   const [paymentScreenshot, setPaymentScreenshot] = useState(null);
+  const [isUploadingScreenshot, setIsUploadingScreenshot] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
 
   // Auto PIN Code detection states
@@ -521,6 +523,22 @@ export default function CartDrawer({
           const compressed = canvas.toDataURL('image/jpeg', 0.7);
           setPaymentScreenshot(compressed);
           soundFX.playPop(600);
+
+          // Upload compressed image to Supabase Storage in background for permanent admin visibility
+          canvas.toBlob(async (blob) => {
+            if (!blob) return;
+            setIsUploadingScreenshot(true);
+            try {
+              const cloudUrl = await uploadPaymentProofToSupabase(blob, currentOrderId || 'order');
+              if (cloudUrl) {
+                setPaymentScreenshot(cloudUrl);
+              }
+            } catch (err) {
+              console.warn('Could not sync screenshot to cloud storage:', err);
+            } finally {
+              setIsUploadingScreenshot(false);
+            }
+          }, 'image/jpeg', 0.8);
         } catch {
           setPaymentScreenshot(event.target.result);
         }
@@ -581,7 +599,10 @@ export default function CartDrawer({
       advancePercentage: paymentBreakdown.advancePercentage,
       upiRefNumber: utrDisplay,
       paymentScreenshot: paymentScreenshot || null,
-      customer: { ...addressData },
+      customer: { 
+        ...addressData,
+        paymentScreenshot: paymentScreenshot || null
+      },
       items: cleanItems,
       totalItemCount,
       subtotalINR,
@@ -1130,11 +1151,18 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                             className="w-12 h-12 object-cover rounded-lg border border-black/10 shadow-xs shrink-0"
                           />
                           <div>
-                            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 block">
-                              Screenshot attached! ✨
+                            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                              {isUploadingScreenshot ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-pink-600" />
+                                  <span>Syncing screenshot to cloud... ☁️</span>
+                                </>
+                              ) : (
+                                <span>Screenshot attached! ✨</span>
+                              )}
                             </span>
-                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
-                              Payment proof ready for verification
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5">
+                              {isUploadingScreenshot ? 'Optimizing receipt proof for Tanu' : 'Payment proof saved & ready for Admin verification'}
                             </span>
                           </div>
                         </div>
