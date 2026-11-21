@@ -1,9 +1,74 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, saveOrderToSupabase, fetchOrdersFromSupabase } from './supabaseClient';
+import { 
+  supabase, 
+  saveOrderToSupabase, 
+  fetchOrdersFromSupabase,
+  updateOrderStatusInSupabase,
+  updateOrderTrackingInSupabase,
+  deleteOrderFromSupabase,
+  clearAllOrdersFromSupabase
+} from './supabaseClient';
 
 const ORDERS_STORAGE_KEY = 'bhaskar_store_orders_v1';
+const STORAGE_KEY_DELETED_ORDERS = 'bhaskar_deleted_order_ids_v1';
+const CLOUD_DELETED_ORDERS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/deleted-orders.json';
 
-// Initial dummy orders so the admin panel has beautiful sample data right away
+let inMemoryDeletedOrderIds = null;
+
+export function getDeletedOrderIds() {
+  if (inMemoryDeletedOrderIds && Array.isArray(inMemoryDeletedOrderIds)) {
+    return inMemoryDeletedOrderIds;
+  }
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DELETED_ORDERS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        inMemoryDeletedOrderIds = parsed;
+        return parsed;
+      }
+    }
+  } catch {}
+  return [];
+}
+
+export async function fetchDeletedOrderIdsFromCloud() {
+  if (typeof window === 'undefined') return getDeletedOrderIds();
+  try {
+    const res = await fetch(`${CLOUD_DELETED_ORDERS_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const cloudDeleted = await res.json();
+      if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
+        const merged = Array.from(new Set([...getDeletedOrderIds(), ...cloudDeleted]));
+        inMemoryDeletedOrderIds = merged;
+        try {
+          localStorage.setItem(STORAGE_KEY_DELETED_ORDERS, JSON.stringify(merged));
+        } catch {}
+        return merged;
+      }
+    }
+  } catch {}
+  return getDeletedOrderIds();
+}
+
+export async function syncDeletedOrderIdsToCloud(deletedList) {
+  if (!supabase) return;
+  try {
+    const blob = new Blob([JSON.stringify(deletedList, null, 2)], { type: 'application/json' });
+    await supabase.storage
+      .from('product-images')
+      .upload('config/deleted-orders.json', blob, {
+        upsert: true,
+        cacheControl: '0',
+        contentType: 'application/json'
+      });
+  } catch (err) {
+    console.warn('Failed to sync deleted orders to cloud:', err);
+  }
+}
+
+// Initial dummy orders (only used if store is completely uninitialized)
 export const INITIAL_SAMPLE_ORDERS = [
   {
     orderId: 'SS-924110',
@@ -321,24 +386,25 @@ export function exportOrdersToCourierCSV(ordersList) {
 }
 
 export function getStoredOrders() {
-  if (memoryOrders && Array.isArray(memoryOrders) && memoryOrders.length > 0) {
+  if (memoryOrders !== null && Array.isArray(memoryOrders)) {
     return memoryOrders;
   }
 
   try {
     const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         memoryOrders = parsed;
         return parsed;
       }
     }
   } catch (err) {
-    console.warn('Failed to read orders from localStorage, using memory/sample orders:', err);
+    console.warn('Failed to read orders from localStorage:', err);
   }
 
-  memoryOrders = [...INITIAL_SAMPLE_ORDERS];
+  // Safe default - empty list so 0 orders is respected
+  memoryOrders = [];
   return memoryOrders;
 }
 
@@ -399,6 +465,10 @@ export function saveOrderToStore(order) {
 
 export function updateOrderStatusInStore(orderId, newStatus) {
   try {
+    // 1. Update in Supabase cloud database
+    updateOrderStatusInSupabase(orderId, newStatus);
+
+    // 2. Update local state
     const existing = getStoredOrders();
     const updated = existing.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o);
     memoryOrders = updated;
@@ -415,8 +485,23 @@ export function updateOrderStatusInStore(orderId, newStatus) {
   }
 }
 
-export function deleteOrderFromStore(orderId) {
+export async function deleteOrderFromStore(orderId) {
   try {
+    // 1. Add orderId to cloud deleted list and sync to storage
+    const currentDeleted = getDeletedOrderIds();
+    if (!currentDeleted.includes(orderId)) {
+      const nextDeleted = [...currentDeleted, orderId];
+      inMemoryDeletedOrderIds = nextDeleted;
+      try {
+        localStorage.setItem(STORAGE_KEY_DELETED_ORDERS, JSON.stringify(nextDeleted));
+      } catch {}
+      await syncDeletedOrderIdsToCloud(nextDeleted);
+    }
+
+    // 2. Delete from Supabase cloud database
+    await deleteOrderFromSupabase(orderId);
+
+    // 3. Remove from local store and memory cache
     const existing = getStoredOrders();
     const updated = existing.filter(o => o.orderId !== orderId);
     memoryOrders = updated;
@@ -428,18 +513,38 @@ export function deleteOrderFromStore(orderId) {
     }
 
     window.dispatchEvent(new CustomEvent('scoop_orders_updated', { detail: updated }));
+    return true;
   } catch (err) {
     console.error('Failed to delete order:', err);
+    return false;
   }
 }
 
-export function clearAllOrdersFromStore() {
+export async function clearAllOrdersFromStore() {
   try {
+    const existing = getStoredOrders();
+    const existingIds = existing.map(o => o.orderId);
+
+    // 1. Mark all existing orders as deleted in cloud storage tombstone
+    const currentDeleted = getDeletedOrderIds();
+    const nextDeleted = Array.from(new Set([...currentDeleted, ...existingIds]));
+    inMemoryDeletedOrderIds = nextDeleted;
+    try {
+      localStorage.setItem(STORAGE_KEY_DELETED_ORDERS, JSON.stringify(nextDeleted));
+    } catch {}
+    await syncDeletedOrderIdsToCloud(nextDeleted);
+
+    // 2. Delete / purge all from Supabase
+    await clearAllOrdersFromSupabase(existingIds);
+
+    // 3. Clear memory and localStorage completely
     memoryOrders = [];
-    localStorage.removeItem(ORDERS_STORAGE_KEY);
+    localStorage.setItem(ORDERS_STORAGE_KEY, '[]');
     window.dispatchEvent(new CustomEvent('scoop_orders_updated', { detail: [] }));
+    return true;
   } catch (err) {
     console.error('Failed to clear orders:', err);
+    return false;
   }
 }
 
@@ -447,31 +552,40 @@ export function useStoreOrders() {
   const [orders, setOrders] = useState(() => getStoredOrders());
 
   const refreshOrders = useCallback(async () => {
-    // 1. Fetch live cloud orders from Supabase first
+    // 1. Fetch deleted order IDs from cloud first
+    let deletedIds = [];
+    try {
+      deletedIds = await fetchDeletedOrderIdsFromCloud();
+    } catch {}
+    const deletedSet = new Set(deletedIds || []);
+
+    // 2. Fetch live cloud orders from Supabase
     try {
       const cloudOrders = await fetchOrdersFromSupabase();
-      if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
-        // Pure cloud sync - replace sample data with actual live orders
-        memoryOrders = cloudOrders;
-        setOrders(cloudOrders);
+      if (Array.isArray(cloudOrders)) {
+        // Filter out any tombstoned / deleted orders
+        const activeCloud = cloudOrders.filter(o => !deletedSet.has(o.orderId));
+        memoryOrders = activeCloud;
+        setOrders(activeCloud);
         try {
-          localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(cloudOrders));
+          localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(activeCloud));
         } catch {}
-        return cloudOrders;
+        return activeCloud;
       }
     } catch (err) {
       console.warn('Failed to fetch orders from Supabase:', err);
     }
 
-    // 2. Fallback to localStorage if offline or Supabase empty
+    // 3. Fallback to localStorage if offline
     try {
       const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-      if (raw) {
+      if (raw !== null) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          memoryOrders = parsed;
-          setOrders(parsed);
-          return parsed;
+        if (Array.isArray(parsed)) {
+          const activeLocal = parsed.filter(o => !deletedSet.has(o.orderId));
+          memoryOrders = activeLocal;
+          setOrders(activeLocal);
+          return activeLocal;
         }
       }
     } catch {
@@ -479,8 +593,9 @@ export function useStoreOrders() {
     }
 
     const fresh = getStoredOrders();
-    setOrders(fresh);
-    return fresh;
+    const activeFresh = fresh.filter(o => !deletedSet.has(o.orderId));
+    setOrders(activeFresh);
+    return activeFresh;
   }, []);
 
   useEffect(() => {
@@ -533,24 +648,26 @@ export function useStoreOrders() {
     return saved;
   };
 
-  const updateStatus = (orderId, newStatus) => {
+  const updateStatus = async (orderId, newStatus) => {
     updateOrderStatusInStore(orderId, newStatus);
-    refreshOrders();
+    await refreshOrders();
   };
 
-  const updateTracking = (orderId, trackingData) => {
+  const updateTracking = async (orderId, trackingData) => {
     updateOrderTrackingInStore(orderId, trackingData);
-    refreshOrders();
+    await refreshOrders();
   };
 
-  const deleteOrder = (orderId) => {
-    deleteOrderFromStore(orderId);
-    refreshOrders();
+  const deleteOrder = async (orderId) => {
+    await deleteOrderFromStore(orderId);
+    setOrders(prev => prev.filter(o => o.orderId !== orderId));
+    await refreshOrders();
   };
 
-  const clearOrders = () => {
-    clearAllOrdersFromStore();
+  const clearOrders = async () => {
+    await clearAllOrdersFromStore();
     setOrders([]);
+    await refreshOrders();
   };
 
   return {

@@ -263,6 +263,110 @@ export async function saveOrderToSupabase(order) {
 }
 
 /**
+ * Update order status in Supabase
+ */
+export async function updateOrderStatusInSupabase(orderId, newStatus) {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('order_id', orderId);
+
+    if (error) {
+      console.warn('Supabase update order status error:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Supabase update status exception:', err);
+    return false;
+  }
+}
+
+/**
+ * Update courier tracking details in Supabase
+ */
+export async function updateOrderTrackingInSupabase(orderId, { status, courierName, trackingNumber }) {
+  if (!supabase) return false;
+  try {
+    const patch = {};
+    if (status) patch.status = status;
+    if (courierName !== undefined) patch.courier_name = courierName;
+    if (trackingNumber !== undefined) patch.tracking_number = trackingNumber;
+
+    const { error } = await supabase
+      .from('orders')
+      .update(patch)
+      .eq('order_id', orderId);
+
+    return !error;
+  } catch (err) {
+    console.warn('Supabase update tracking exception:', err);
+    return false;
+  }
+}
+
+/**
+ * Delete an order from Supabase (soft delete mark + hard delete attempt)
+ */
+export async function deleteOrderFromSupabase(orderId) {
+  if (!supabase) return false;
+  try {
+    // 1. Mark as Order Deleted so any select queries immediately ignore it
+    await supabase
+      .from('orders')
+      .update({ status: 'Order Deleted' })
+      .eq('order_id', orderId);
+
+    // 2. Also attempt hard delete in case RLS permits it
+    await supabase
+      .from('orders')
+      .delete()
+      .eq('order_id', orderId);
+
+    return true;
+  } catch (err) {
+    console.warn('Supabase delete order exception:', err);
+    return false;
+  }
+}
+
+/**
+ * Clear all orders from Supabase
+ */
+export async function clearAllOrdersFromSupabase(orderIds = []) {
+  if (!supabase) return false;
+  try {
+    if (Array.isArray(orderIds) && orderIds.length > 0) {
+      await supabase
+        .from('orders')
+        .update({ status: 'Order Deleted' })
+        .in('order_id', orderIds);
+
+      await supabase
+        .from('orders')
+        .delete()
+        .in('order_id', orderIds);
+    } else {
+      await supabase
+        .from('orders')
+        .update({ status: 'Order Deleted' })
+        .neq('status', 'Order Deleted');
+
+      await supabase
+        .from('orders')
+        .delete()
+        .neq('order_id', '___NEVER_MATCH___');
+    }
+    return true;
+  } catch (err) {
+    console.warn('Supabase clear orders exception:', err);
+    return false;
+  }
+}
+
+/**
  * Fetch all real orders from Supabase cloud database
  */
 export async function fetchOrdersFromSupabase() {
@@ -271,6 +375,7 @@ export async function fetchOrdersFromSupabase() {
     const { data, error } = await supabase
       .from('orders')
       .select('*')
+      .neq('status', 'Order Deleted')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -279,7 +384,13 @@ export async function fetchOrdersFromSupabase() {
     }
 
     if (Array.isArray(data) && data.length > 0) {
-      return data.map(row => {
+      // Filter out any orders marked as deleted
+      const activeRows = data.filter(row => {
+        const s = (row.status || '').toLowerCase();
+        return !s.includes('deleted') && !s.includes('order deleted');
+      });
+
+      return activeRows.map(row => {
         const cust = row.customer || { fullName: 'Customer', phone: '', city: '', state: '' };
         const screenshot = cust.paymentScreenshot || cust.payment_screenshot || row.payment_screenshot || null;
         const isPartial = Boolean(

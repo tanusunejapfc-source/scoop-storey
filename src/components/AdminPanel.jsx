@@ -2153,22 +2153,26 @@ export default function AdminPanel({
                     </div>
                     <div className="flex items-center gap-1">
                       <button
+                        type="button"
                         onClick={handleManualRefresh}
-                        className={`p-1.5 rounded-xl text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-800 transition ${isRefreshing ? 'animate-spin' : ''}`}
-                        title="Refresh live orders"
+                        className={`p-1.5 rounded-xl text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-800 transition cursor-pointer ${isRefreshing ? 'animate-spin' : ''}`}
+                        title="Sync & refresh live orders from cloud"
                       >
                         <RefreshCw className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => {
-                          if (window.confirm('Clear all stored customer orders?')) {
-                            clearOrders();
+                        type="button"
+                        onClick={async () => {
+                          if (window.confirm('Clear all stored customer orders? This will permanently remove all orders.')) {
+                            setIsRefreshing(true);
+                            await clearOrders();
                             soundFX.playPop(300);
-                            showToast('Order history cleared.');
+                            showToast('All order records cleared! 🗑️');
+                            setIsRefreshing(false);
                           }
                         }}
-                        className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
-                        title="Clear orders"
+                        className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                        title="Clear all orders"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -2309,14 +2313,15 @@ export default function AdminPanel({
                               </select>
 
                               <button
-                                onClick={() => {
-                                  if (window.confirm(`Delete order ${ord.orderId}?`)) {
-                                    deleteOrder(ord.orderId);
+                                type="button"
+                                onClick={async () => {
+                                  if (window.confirm(`Delete order ${ord.orderId}? This cannot be undone.`)) {
+                                    await deleteOrder(ord.orderId);
                                     soundFX.playPop(300);
-                                    showToast(`Order ${ord.orderId} removed`);
+                                    showToast(`Order ${ord.orderId} deleted permanently`);
                                   }
                                 }}
-                                className="p-1.5 text-neutral-400 hover:text-rose-500 transition"
+                                className="p-1.5 text-neutral-400 hover:text-rose-500 transition cursor-pointer"
                                 title="Delete Order"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
