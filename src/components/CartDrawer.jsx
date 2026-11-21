@@ -11,6 +11,7 @@ import {
   MapPin,
   User,
   Phone,
+  Mail,
   Home,
   Building2,
   CheckCircle2,
@@ -115,13 +116,27 @@ export default function CartDrawer({
   const [addressData, setAddressData] = useState(() => {
     try {
       const saved = localStorage.getItem('bhaskar_delivery_address');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          fullName: '',
+          phone: '',
+          email: '',
+          streetAddress: '',
+          landmark: '',
+          city: '',
+          state: 'Maharashtra',
+          pincode: '',
+          ...parsed
+        };
+      }
     } catch {
       // ignore
     }
     return {
       fullName: '',
       phone: '',
+      email: '',
       streetAddress: '',
       landmark: '',
       city: '',
@@ -303,6 +318,12 @@ export default function CartDrawer({
     const cleanPhone = addressData.phone.replace(/\D/g, '');
     if (!cleanPhone || cleanPhone.length < 10) {
       errors.phone = '10-digit mobile number is required';
+    }
+    if (addressData.email && addressData.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(addressData.email.trim())) {
+        errors.email = 'Please enter a valid email address';
+      }
     }
     if (!addressData.streetAddress.trim()) {
       errors.streetAddress = 'Flat / House No. and Street address are required';
@@ -649,7 +670,7 @@ ${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : 
 📍 DELIVERY ADDRESS & CONTACT:
 • Name: ${addressData.fullName}
 • Mobile/WhatsApp: +91 ${addressData.phone}
-• Address: ${addressData.streetAddress}
+${addressData.email ? `• Email: ${addressData.email.trim()}\n` : ''}• Address: ${addressData.streetAddress}
 ${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
 • PIN Code: ${addressData.pincode}
 
@@ -665,7 +686,8 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
     addressData.streetAddress.trim() &&
     addressData.city.trim() &&
     addressData.state.trim() &&
-    addressData.pincode.replace(/\D/g, '').length === 6
+    addressData.pincode.replace(/\D/g, '').length === 6 &&
+    (!addressData.email || !addressData.email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addressData.email.trim()))
   );
 
   return (
@@ -1343,6 +1365,41 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           </span>
                         )}
                       </div>
+                    </div>
+
+                    {/* Email Address (For Order Updates & Auto-Receipt) */}
+                    <div>
+                      <label className="flex items-center justify-between text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                        <span className="flex items-center gap-1">
+                          <Mail className="w-3 h-3 text-pink-500" />
+                          <span>Email Address</span>
+                          <span className="text-[10px] font-medium text-pink-500 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 px-1.5 py-0.5 rounded-md ml-1">For Order Receipt</span>
+                        </span>
+                        <span className="text-[10px] text-neutral-400 font-normal">Optional</span>
+                      </label>
+                      <div className="relative">
+                        <Mail className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="email"
+                          value={addressData.email || ''}
+                          onChange={(e) => handleAddressChange('email', e.target.value)}
+                          placeholder="e.g. ananya@gmail.com"
+                          className={`w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border transition focus:outline-none focus:ring-1 ${
+                            addressErrors.email
+                              ? 'border-rose-400 focus:ring-rose-400'
+                              : 'border-pink-200 dark:border-neutral-700 focus:ring-pink-400'
+                          }`}
+                        />
+                      </div>
+                      {addressErrors.email ? (
+                        <span className="text-[10px] text-rose-500 font-semibold mt-0.5 block">
+                          {addressErrors.email}
+                        </span>
+                      ) : (
+                        <span className="text-[9.5px] text-neutral-400 dark:text-neutral-500 mt-0.5 block">
+                          💌 Order confirmation receipt & parcel tracking link will be sent here
+                        </span>
+                      )}
                     </div>
 
                     {/* Street Address */}

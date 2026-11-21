@@ -78,7 +78,8 @@ import {
   getNotificationSettings, 
   saveNotificationSettings, 
   testTelegram, 
-  testEmail, 
+  testEmail,
+  testCustomerEmail,
   ORDER_BROADCAST_CHANNEL 
 } from '../utils/notificationService';
 import { saveStoredProducts } from '../utils/productStore';
@@ -365,6 +366,7 @@ export default function AdminPanel({
   const [notifSettings, setNotifSettings] = useState(() => getNotificationSettings());
   const [testingTelegram, setTestingTelegram] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
+  const [testingCustomerEmail, setTestingCustomerEmail] = useState(false);
 
   // Real-time Order Listener for Cash Register Chime & Instant Notification
   useEffect(() => {
@@ -454,6 +456,24 @@ export default function AdminPanel({
       showToast(`✅ Test email sent to ${notifSettings.email.recipientEmail}! Check your inbox 📬`);
     } else {
       showToast(`❌ Email error: ${result.error || 'Failed to send'}`);
+    }
+  };
+
+  const handleTestCustomerEmail = async () => {
+    const targetEmail = notifSettings.email.recipientEmail || 'scoopstorey77@gmail.com';
+    setTestingCustomerEmail(true);
+    soundFX.playPop(500);
+    const result = await testCustomerEmail(
+      targetEmail,
+      notifSettings.email.web3formsAccessKey,
+      notifSettings.email.resendApiKey
+    );
+    setTestingCustomerEmail(false);
+    if (result.success) {
+      soundFX.playCashRegister();
+      showToast(`✅ Sample Customer Receipt sent to ${targetEmail}! Check your inbox 💌`);
+    } else {
+      showToast(`❌ Customer email error: ${result.error || 'Failed to send'}`);
     }
   };
 
@@ -5641,12 +5661,12 @@ export default function AdminPanel({
                                 ...prev,
                                 email: { ...prev.email, recipientEmail: e.target.value }
                               }))}
-                              placeholder="e.g. scoopstorey@gmail.com"
+                              placeholder="e.g. scoopstorey77@gmail.com"
                               className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
                             />
                           </div>
                           <span className="text-[11px] text-neutral-500 dark:text-neutral-400 block">
-                            Every time a customer confirms payment, full order details (Address, Phone, Items, UTR) will be sent here.
+                            Every time a customer confirms payment, full order details (Address, Phone, Email, Items, UTR & Screenshot link) are sent to this inbox.
                           </span>
                         </div>
 
@@ -5702,7 +5722,7 @@ export default function AdminPanel({
                                 rel="noopener noreferrer"
                                 className="text-[11px] font-bold text-[#E60067] dark:text-pink-400 hover:underline flex items-center gap-1"
                               >
-                                <span>Get Your Free Key in 5s</span>
+                                <span>Get Free Key for scoopstorey77@gmail.com</span>
                                 <ExternalLink className="w-3 h-3" />
                               </a>
                             </div>
@@ -5717,7 +5737,7 @@ export default function AdminPanel({
                               className="w-full px-3 py-2 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 font-mono text-[11px] text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-pink-400"
                             />
                             <p className="text-[10px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                              💡 <strong>How it works:</strong> Go to <a href="https://web3forms.com" target="_blank" rel="noopener noreferrer" className="text-pink-600 underline">web3forms.com</a>, type your Gmail address, and they immediately email you a free access key. Paste it here to link your Gmail directly!
+                              💡 <strong>Quick Setup:</strong> Open <a href="https://web3forms.com" target="_blank" rel="noopener noreferrer" className="text-pink-600 underline font-semibold">web3forms.com</a>, type <strong>scoopstorey77@gmail.com</strong>, and copy the free access key sent to your inbox. Paste it here to link your Gmail directly!
                             </p>
                           </div>
                         )}
@@ -5740,6 +5760,101 @@ export default function AdminPanel({
                             />
                           </div>
                         )}
+
+                        {/* Customer Confirmation Auto-Receipt Settings */}
+                        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-pink-50/80 to-purple-50/80 dark:from-neutral-900/80 dark:to-neutral-900/40 border border-pink-200/80 dark:border-pink-900/50 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">💌</span>
+                              <div>
+                                <h5 className="font-display font-bold text-xs text-neutral-900 dark:text-white">
+                                  Customer Confirmation Email (Auto-Receipt)
+                                </h5>
+                                <span className="text-[10.5px] text-neutral-500 dark:text-neutral-400 block">
+                                  Customers get an order receipt with tracking & studio contact
+                                </span>
+                              </div>
+                            </div>
+
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={notifSettings.email?.customerConfirmationEnabled !== false}
+                                onChange={(e) => setNotifSettings(prev => ({
+                                  ...prev,
+                                  email: { ...prev.email, customerConfirmationEnabled: e.target.checked }
+                                }))}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#E60067]" />
+                            </label>
+                          </div>
+
+                          <div className="space-y-2 pt-1 text-[11px] text-neutral-600 dark:text-neutral-300">
+                            <div className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                              <span><strong>Customer Email Field:</strong> Now live on checkout! Customers enter their email to receive order updates.</span>
+                            </div>
+                            <div className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                              <span><strong>Web3Forms Auto-Reply:</strong> Enable "Autoresponder" in your Web3Forms dashboard to auto-email customers with your brand header.</span>
+                            </div>
+                            <div className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                              <span><strong>1-Click Reply from Gmail:</strong> Order alert emails have customer reply-to preconfigured, so you can email customers with 1 click from Gmail!</span>
+                            </div>
+                          </div>
+
+                          {/* Optional Resend API Key for Direct HTML Emails */}
+                          <div className="space-y-1 pt-1">
+                            <div className="flex items-center justify-between">
+                              <label className="font-bold text-[11px] text-neutral-700 dark:text-neutral-300">
+                                Direct Resend API Key <span className="font-normal text-neutral-400">(Optional • 3,000 free emails/mo)</span>
+                              </label>
+                              <a
+                                href="https://resend.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-pink-600 hover:underline flex items-center gap-0.5"
+                              >
+                                <span>resend.com</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            </div>
+                            <input
+                              type="password"
+                              value={notifSettings.email?.resendApiKey || ''}
+                              onChange={(e) => setNotifSettings(prev => ({
+                                ...prev,
+                                email: { ...prev.email, resendApiKey: e.target.value }
+                              }))}
+                              placeholder="re_123456789... (leave blank to use Web3Forms)"
+                              className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 font-mono text-[11px] text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-pink-400"
+                            />
+                          </div>
+
+                          {/* Test Customer Receipt Button */}
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              disabled={testingCustomerEmail}
+                              onClick={handleTestCustomerEmail}
+                              className="w-full py-2 px-3 rounded-xl border border-pink-300 dark:border-pink-800 bg-white dark:bg-neutral-800 text-pink-700 dark:text-pink-300 font-bold text-xs hover:bg-pink-50 dark:hover:bg-neutral-700 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                            >
+                              {testingCustomerEmail ? (
+                                <>
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-pink-600" />
+                                  <span>Sending Sample Customer Receipt...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-3.5 h-3.5 text-pink-600" />
+                                  <span>Send Sample Customer Order Receipt 💌</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
 
                         {/* Email Action Buttons */}
                         <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5">

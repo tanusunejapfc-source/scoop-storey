@@ -188,7 +188,7 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'shipping' }
                 </a>
 
                 <a
-                  href="mailto:scoopstorey@gmail.com"
+                  href="mailto:scoopstorey77@gmail.com"
                   className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center gap-3 hover:scale-[1.01] transition"
                 >
                   <div className="p-2.5 rounded-xl bg-[#E60067] text-white">
@@ -196,7 +196,7 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'shipping' }
                   </div>
                   <div>
                     <span className="text-[10px] font-bold uppercase text-rose-700 dark:text-rose-400 block">Official Email</span>
-                    <strong className="text-xs text-neutral-900 dark:text-white truncate block">scoopstorey@gmail.com</strong>
+                    <strong className="text-xs text-neutral-900 dark:text-white truncate block">scoopstorey77@gmail.com</strong>
                   </div>
                 </a>
               </div>
