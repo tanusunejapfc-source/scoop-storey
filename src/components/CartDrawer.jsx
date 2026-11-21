@@ -319,7 +319,9 @@ export default function CartDrawer({
     if (!cleanPhone || cleanPhone.length < 10) {
       errors.phone = '10-digit mobile number is required';
     }
-    if (addressData.email && addressData.email.trim()) {
+    if (!addressData.email || !addressData.email.trim()) {
+      errors.email = 'Email address is required for order receipt & tracking updates';
+    } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(addressData.email.trim())) {
         errors.email = 'Please enter a valid email address';
@@ -683,11 +685,12 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
   const isAddressFilled = Boolean(
     addressData.fullName.trim() &&
     addressData.phone.replace(/\D/g, '').length === 10 &&
+    addressData.email && addressData.email.trim() &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addressData.email.trim()) &&
     addressData.streetAddress.trim() &&
     addressData.city.trim() &&
     addressData.state.trim() &&
-    addressData.pincode.replace(/\D/g, '').length === 6 &&
-    (!addressData.email || !addressData.email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addressData.email.trim()))
+    addressData.pincode.replace(/\D/g, '').length === 6
   );
 
   return (
@@ -1373,9 +1376,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                         <span className="flex items-center gap-1">
                           <Mail className="w-3 h-3 text-pink-500" />
                           <span>Email Address</span>
+                          <span className="text-pink-500">*</span>
                           <span className="text-[10px] font-medium text-pink-500 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 px-1.5 py-0.5 rounded-md ml-1">For Order Receipt</span>
                         </span>
-                        <span className="text-[10px] text-neutral-400 font-normal">Optional</span>
+                        <span className="text-[10px] text-pink-500 font-semibold">Required</span>
                       </label>
                       <div className="relative">
                         <Mail className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2" />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { saveOrderToSupabase, fetchOrdersFromSupabase } from './supabaseClient';
+import { supabase, saveOrderToSupabase, fetchOrdersFromSupabase } from './supabaseClient';
 
 const ORDERS_STORAGE_KEY = 'bhaskar_store_orders_v1';
 
@@ -446,13 +446,29 @@ export function clearAllOrdersFromStore() {
 export function useStoreOrders() {
   const [orders, setOrders] = useState(() => getStoredOrders());
 
-  const refreshOrders = useCallback(() => {
-    // Force re-read from storage/memory
+  const refreshOrders = useCallback(async () => {
+    // 1. Fetch live cloud orders from Supabase first
+    try {
+      const cloudOrders = await fetchOrdersFromSupabase();
+      if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+        // Pure cloud sync - replace sample data with actual live orders
+        memoryOrders = cloudOrders;
+        setOrders(cloudOrders);
+        try {
+          localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(cloudOrders));
+        } catch {}
+        return cloudOrders;
+      }
+    } catch (err) {
+      console.warn('Failed to fetch orders from Supabase:', err);
+    }
+
+    // 2. Fallback to localStorage if offline or Supabase empty
     try {
       const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           memoryOrders = parsed;
           setOrders(parsed);
           return parsed;
@@ -461,31 +477,35 @@ export function useStoreOrders() {
     } catch {
       // fallback to memory
     }
+
     const fresh = getStoredOrders();
     setOrders(fresh);
     return fresh;
   }, []);
 
   useEffect(() => {
-    // Fetch live orders from Supabase cloud database
-    fetchOrdersFromSupabase().then(cloudOrders => {
-      if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
-        setOrders(prev => {
-          const merged = [...cloudOrders];
-          (prev || []).forEach(local => {
-            if (!merged.some(c => c.orderId === local.orderId)) {
-              merged.push(local);
-            }
-          });
-          memoryOrders = merged;
-          try {
-            localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
-      }
-    });
-  }, []);
+    // Fetch live orders from Supabase cloud database immediately
+    refreshOrders();
+
+    // Setup Supabase Realtime channel for instant live updates across devices
+    if (supabase) {
+      const channel = supabase
+        .channel('realtime_admin_orders_sync')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'orders' },
+          (payload) => {
+            console.log('⚡ Realtime Supabase order event received:', payload);
+            refreshOrders();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [refreshOrders]);
 
   useEffect(() => {
     const handleUpdate = (e) => {

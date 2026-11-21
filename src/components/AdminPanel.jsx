@@ -76,6 +76,7 @@ import { useStoreOrders, exportOrdersToCourierCSV } from '../utils/orderStore';
 import { usePaymentSettings, getQrDisplayUrl } from '../utils/paymentStore';
 import { 
   getNotificationSettings, 
+  fetchNotificationSettingsFromCloud,
   saveNotificationSettings, 
   testTelegram, 
   testEmail,
@@ -354,11 +355,11 @@ export default function AdminPanel({
     }
   }, [isOpen, refreshOrders]);
 
-  const handleManualRefresh = () => {
+  const handleManualRefresh = async () => {
     setIsRefreshing(true);
     soundFX.playPop(550);
-    refreshOrders();
-    showToast('Orders refreshed! 🎀');
+    await refreshOrders();
+    showToast('Orders refreshed from cloud! 🎀');
     setTimeout(() => setIsRefreshing(false), 600);
   };
 
@@ -367,6 +368,13 @@ export default function AdminPanel({
   const [testingTelegram, setTestingTelegram] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
   const [testingCustomerEmail, setTestingCustomerEmail] = useState(false);
+
+  // Sync notification settings from cloud on mount
+  useEffect(() => {
+    fetchNotificationSettingsFromCloud().then(cloud => {
+      if (cloud) setNotifSettings(cloud);
+    });
+  }, []);
 
   // Real-time Order Listener for Cash Register Chime & Instant Notification
   useEffect(() => {
@@ -413,11 +421,11 @@ export default function AdminPanel({
     };
   }, [refreshOrders]);
 
-  const handleSaveNotifications = (e) => {
+  const handleSaveNotifications = async (e) => {
     e?.preventDefault();
-    saveNotificationSettings(notifSettings);
+    await saveNotificationSettings(notifSettings);
     soundFX.playSuccess();
-    showToast('Notification settings saved successfully! ✨');
+    showToast('Alert settings saved & synced across all customer devices! ✨');
   };
 
   const handleTestTelegram = async () => {

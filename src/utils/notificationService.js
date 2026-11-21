@@ -2,9 +2,14 @@
 // Supports: Telegram Bot Instant Push, Direct Email Alerts (Web3Forms/Formspree), & Real-time Sound Chimes
 
 import { soundFX } from './audio';
+import { supabase } from './supabaseClient';
 
 const NOTIFICATION_CONFIG_KEY = 'bhaskar_store_notifications_v1';
 export const ORDER_BROADCAST_CHANNEL = 'bhaskar_store_order_events';
+export const CLOUD_NOTIFICATIONS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/notifications.json';
+
+// In-memory cache for fast lookup
+let memoryNotificationSettings = null;
 
 // Default Settings
 export const DEFAULT_NOTIFICATION_SETTINGS = {
@@ -30,31 +35,85 @@ export const DEFAULT_NOTIFICATION_SETTINGS = {
 };
 
 /**
- * Retrieve saved notification preferences
+ * Retrieve saved notification preferences (from memory / localStorage)
  */
 export function getNotificationSettings() {
+  if (memoryNotificationSettings) return memoryNotificationSettings;
+
   try {
     const raw = localStorage.getItem(NOTIFICATION_CONFIG_KEY);
-    if (!raw) return DEFAULT_NOTIFICATION_SETTINGS;
-    const parsed = JSON.parse(raw);
-    return {
-      ...DEFAULT_NOTIFICATION_SETTINGS,
-      ...parsed,
-      telegram: { ...DEFAULT_NOTIFICATION_SETTINGS.telegram, ...(parsed.telegram || {}) },
-      email: { ...DEFAULT_NOTIFICATION_SETTINGS.email, ...(parsed.email || {}) },
-      sound: { ...DEFAULT_NOTIFICATION_SETTINGS.sound, ...(parsed.sound || {}) },
-    };
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const merged = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        ...parsed,
+        telegram: { ...DEFAULT_NOTIFICATION_SETTINGS.telegram, ...(parsed.telegram || {}) },
+        email: { ...DEFAULT_NOTIFICATION_SETTINGS.email, ...(parsed.email || {}) },
+        sound: { ...DEFAULT_NOTIFICATION_SETTINGS.sound, ...(parsed.sound || {}) },
+      };
+      memoryNotificationSettings = merged;
+      return merged;
+    }
   } catch {
-    return DEFAULT_NOTIFICATION_SETTINGS;
+    // fallback
   }
+
+  memoryNotificationSettings = DEFAULT_NOTIFICATION_SETTINGS;
+  return memoryNotificationSettings;
 }
 
 /**
- * Save notification preferences
+ * Fetch latest notification settings from Supabase Cloud Storage
+ * Ensures every customer checkout on mobile/desktop uses the admin's live keys
  */
-export function saveNotificationSettings(settings) {
+export async function fetchNotificationSettingsFromCloud() {
   try {
+    const res = await fetch(`${CLOUD_NOTIFICATIONS_URL}?t=${Date.now()}`);
+    if (res.ok) {
+      const cloud = await res.json();
+      if (cloud && typeof cloud === 'object') {
+        const merged = {
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          ...cloud,
+          telegram: { ...DEFAULT_NOTIFICATION_SETTINGS.telegram, ...(cloud.telegram || {}) },
+          email: { ...DEFAULT_NOTIFICATION_SETTINGS.email, ...(cloud.email || {}) },
+          sound: { ...DEFAULT_NOTIFICATION_SETTINGS.sound, ...(cloud.sound || {}) },
+        };
+        memoryNotificationSettings = merged;
+        try {
+          localStorage.setItem(NOTIFICATION_CONFIG_KEY, JSON.stringify(merged));
+        } catch (_) {}
+        return merged;
+      }
+    }
+  } catch (err) {
+    // Non-blocking fallback
+  }
+  return getNotificationSettings();
+}
+
+/**
+ * Save notification preferences to both LocalStorage and Supabase Cloud Storage
+ */
+export async function saveNotificationSettings(settings) {
+  try {
+    memoryNotificationSettings = settings;
     localStorage.setItem(NOTIFICATION_CONFIG_KEY, JSON.stringify(settings));
+
+    // Upload to Supabase cloud storage so all customers across all devices use the new key
+    if (supabase) {
+      try {
+        const jsonBlob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+        await supabase.storage
+          .from('product-images')
+          .upload('config/notifications.json', jsonBlob, {
+            contentType: 'application/json',
+            upsert: true
+          });
+      } catch (cloudErr) {
+        console.warn('Could not sync notifications to cloud storage:', cloudErr);
+      }
+    }
     return true;
   } catch (e) {
     console.error('Failed to save notification settings:', e);
@@ -421,15 +480,22 @@ export async function dispatchAllOrderNotifications(order) {
   // 1. Broadcast locally for instant cash register chime in Admin Panel
   broadcastNewOrder(order);
 
-  // 2. Dispatch Telegram Bot alert asynchronously
-  const telegramPromise = sendTelegramAlert(order).catch(e => console.warn('Telegram alert failed:', e));
+  // 2. Fetch latest live cloud notification settings (access key, recipient email)
+  let liveSettings = getNotificationSettings();
+  try {
+    const cloud = await fetchNotificationSettingsFromCloud();
+    if (cloud) liveSettings = cloud;
+  } catch (_) {}
 
-  // 3. Dispatch Email alert to Store Owner (scoopstorey77@gmail.com)
-  const emailPromise = sendEmailAlert(order).catch(e => console.warn('Store alert email failed:', e));
+  // 3. Dispatch Telegram Bot alert asynchronously
+  const telegramPromise = sendTelegramAlert(order, liveSettings).catch(e => console.warn('Telegram alert failed:', e));
 
-  // 4. Dispatch Customer confirmation receipt email (if customer provided email)
+  // 4. Dispatch Email alert to Store Owner (scoopstorey77@gmail.com)
+  const emailPromise = sendEmailAlert(order, liveSettings).catch(e => console.warn('Store alert email failed:', e));
+
+  // 5. Dispatch Customer confirmation receipt email (if customer provided email)
   const customerEmailPromise = order.customer?.email
-    ? sendCustomerConfirmationEmail(order).catch(e => console.warn('Customer receipt email failed:', e))
+    ? sendCustomerConfirmationEmail(order, liveSettings).catch(e => console.warn('Customer receipt email failed:', e))
     : Promise.resolve({ success: false, reason: 'No customer email' });
 
   // Allow them to run without blocking user UX
