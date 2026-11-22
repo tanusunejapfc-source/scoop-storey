@@ -113,7 +113,7 @@ export default function SocialProofToast({ onSelectProduct, products = [] }) {
   return (
     <div 
       onClick={handleClick}
-      className="fixed bottom-5 left-4 sm:bottom-6 sm:left-6 z-40 max-w-[320px] sm:max-w-xs rounded-2xl glass-panel border border-pink-200/90 dark:border-pink-900/60 shadow-xl p-3 sm:p-3.5 flex items-center gap-3 cursor-pointer group hover:scale-[1.02] transition-all animate-in fade-in slide-in-from-bottom-5 duration-300"
+      className="fixed top-24 left-3 right-3 sm:top-auto sm:bottom-6 sm:left-6 sm:right-auto z-40 sm:max-w-xs rounded-2xl glass-panel border border-pink-200/90 dark:border-pink-900/60 shadow-xl p-3 sm:p-3.5 flex items-center gap-3 cursor-pointer group hover:scale-[1.02] transition-all animate-in fade-in slide-in-from-top-4 sm:slide-in-from-bottom-5 duration-300"
       style={{ backdropFilter: 'blur(16px)' }}
       role="status"
       aria-live="polite"

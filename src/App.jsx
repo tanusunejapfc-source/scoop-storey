@@ -590,10 +590,12 @@ export default function App() {
       <FloatingWhatsApp />
 
       {/* RECENT VERIFIED PURCHASES / SOCIAL PROOF TOAST */}
-      <SocialProofToast
-        products={products}
-        onSelectProduct={handleSelectProduct}
-      />
+      {!addedToastItem && (
+        <SocialProofToast
+          products={products}
+          onSelectProduct={handleSelectProduct}
+        />
+      )}
 
       {/* FOOTER */}
       <Footer 

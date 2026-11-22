@@ -1265,7 +1265,7 @@ export default function ProductDetailPage({
         </div>
 
         {/* Mobile Sticky Quick Add to Bag Bottom Bar */}
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-2.5 bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-t border-pink-200 dark:border-pink-900/60 shadow-[0_-8px_20px_rgba(0,0,0,0.12)] flex items-center gap-2.5">
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-30 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] bg-white/95 dark:bg-[#1E172E]/95 backdrop-blur-md border-t border-pink-200 dark:border-pink-900/60 shadow-[0_-8px_20px_rgba(0,0,0,0.12)] flex items-center gap-2.5">
           <div className="flex items-center rounded-xl bg-pink-100/70 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 p-0.5 shrink-0">
             <button
               onClick={() => {

@@ -34,7 +34,7 @@ export default function FloatingWhatsApp() {
   };
 
   return (
-    <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-40 select-none">
+    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 select-none">
       {/* Expanded Chat Box Popup */}
       {isOpen && (
         <div 
