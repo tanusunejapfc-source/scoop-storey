@@ -26,7 +26,7 @@ import {
   BarChart2
 } from 'lucide-react';
 import { soundFX } from '../../utils/audio';
-import { getTelemetryData } from '../../utils/analyticsTelemetry';
+import { getTelemetryData, fetchCloudSessions } from '../../utils/analyticsTelemetry';
 
 export default function AdminAnalyticsLive({
   orders = [],
@@ -38,6 +38,18 @@ export default function AdminAnalyticsLive({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [realtimePresence, setRealtimePresence] = useState(null);
+  const [cloudSessions, setCloudSessions] = useState([]);
+
+  // Fetch real cross-device sessions from Supabase cloud storage
+  useEffect(() => {
+    let isMounted = true;
+    fetchCloudSessions().then(sessions => {
+      if (isMounted && Array.isArray(sessions) && sessions.length > 0) {
+        setCloudSessions(sessions);
+      }
+    });
+    return () => { isMounted = false; };
+  }, [tick]);
 
   // Listen to true live presence sync from Supabase Realtime
   useEffect(() => {
@@ -59,10 +71,8 @@ export default function AdminAnalyticsLive({
   }, []);
 
   const telemetry = useMemo(() => {
-    return getTelemetryData(orders, timeRange);
-    // tick triggers refresh
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orders, timeRange, tick]);
+    return getTelemetryData(orders, timeRange, cloudSessions);
+  }, [orders, timeRange, tick, cloudSessions]);
 
   const liveVisitors = realtimePresence?.liveVisitors !== undefined 
     ? realtimePresence.liveVisitors 
@@ -76,13 +86,17 @@ export default function AdminAnalyticsLive({
     ? realtimePresence.activeCheckouts 
     : telemetry.activeCheckoutsRightNow;
 
-  const handleManualRefresh = () => {
+  const handleManualRefresh = async () => {
     soundFX.playPop(600);
     setIsRefreshing(true);
+    const cloud = await fetchCloudSessions();
+    if (Array.isArray(cloud) && cloud.length > 0) {
+      setCloudSessions(cloud);
+    }
     setTick(prev => prev + 1);
     setTimeout(() => {
       setIsRefreshing(false);
-      showToast('Live telemetry refreshed!');
+      showToast('Live cloud telemetry refreshed! ☁️');
     }, 400);
   };
 
