@@ -26,7 +26,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Lock,
-  Download
+  Download,
+  Truck
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
