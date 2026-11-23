@@ -593,11 +593,47 @@ export default function CartDrawer({
     reader.readAsDataURL(file);
   };
 
-  // Final Order Confirmation with Verified Payment Screenshot
-  const handleConfirmUpiOrder = () => {
-    if (!paymentScreenshot) {
-      setUpiRefError('⚠️ Please upload your payment screenshot after completing payment.');
+  // 1-Tap Quick Order on WhatsApp (Direct chat with Tanu)
+  const handleQuickWhatsAppOrder = () => {
+    if (!hasItems) {
       soundFX.playPop(300);
+      alert('Your cart is empty! Please add some cute items to order.');
+      return;
+    }
+
+    soundFX.playPop(700);
+    soundFX.playChime();
+
+    const orderItemsSummary = cartItems
+      .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
+      .join('\n');
+
+    const msg = `Hi Scoop Storey! 🎀 Mujhe yeh cute goodies order karne hain:
+
+🛍️ ITEMS IN BAG:
+${orderItemsSummary}
+
+${discountAmountINR > 0 ? `🏷️ Discount Applied: -₹${discountAmountINR}\n` : ''}🚚 Delivery: ${isFreeShipping ? 'FREE (Across India ✨)' : `₹${shippingINR}`}
+💰 Total: ₹${totalINR} (${totalItemCount} ${totalItemCount === 1 ? 'item' : 'items'})
+
+Maine bag me items select kar liye hain. Please delivery address & payment details share kar dijiye! ✨`;
+
+    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  // Place & Book Order with Address directly on WhatsApp
+  const handleDirectAddressWhatsAppOrder = () => {
+    if (!hasItems) {
+      soundFX.playPop(300);
+      alert('Your cart is empty! Please add some cute items to checkout.');
+      return;
+    }
+
+    const errors = validateAddress();
+    if (Object.keys(errors).length > 0) {
+      setAddressErrors(errors);
+      soundFX.playPop(300);
+      addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -609,7 +645,94 @@ export default function CartDrawer({
       colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
     });
 
-    const utrDisplay = 'Screenshot Attached';
+    const newId = currentOrderId || `SS-${Math.floor(100000 + Math.random() * 900000)}`;
+    const cleanItems = cartItems.map(item => ({
+      id: item.id || '',
+      name: item.name || 'Scoop Storey Item',
+      priceINR: getAuthoritativePrice(item.id, item.priceINR),
+      qty: Math.max(1, Math.min(20, Math.floor(Number(item.qty || 1)))),
+      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.webp',
+      selectedColor: item.selectedColor || null,
+      selectedColorHex: item.selectedColorHex || null
+    }));
+
+    const isPartialCod = Boolean(paymentBreakdown.isPartialCod);
+    const newOrder = {
+      orderId: newId,
+      timestamp: Date.now(),
+      date: new Date().toLocaleDateString('en-IN', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      source: 'WhatsApp Order with Address',
+      status: 'WhatsApp Verification Pending',
+      paymentMethod: isPartialCod ? 'Partial COD (WhatsApp)' : 'WhatsApp Direct',
+      isPartialCod,
+      advancePaidINR: paymentBreakdown.payNowINR,
+      balanceDueOnDeliveryINR: paymentBreakdown.balanceCodINR,
+      codFeeINR: paymentBreakdown.codFeeINR,
+      advancePercentage: paymentBreakdown.advancePercentage,
+      upiRefNumber: 'WhatsApp Verified',
+      paymentScreenshot: null,
+      customer: { ...addressData },
+      items: cleanItems,
+      totalItemCount,
+      subtotalINR,
+      discountAmountINR,
+      shippingINR,
+      totalINR: paymentBreakdown.finalTotalINR,
+      filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
+      additionalNotes: additionalNotes.trim() || null
+    };
+
+    saveOrderToStore(newOrder);
+    trackOrderCompleted(newOrder);
+    dispatchAllOrderNotifications(newOrder);
+
+    onClearCart();
+    setOrderCompleteData(newOrder);
+    setCheckoutStep('cart');
+
+    const orderItemsSummary = cleanItems
+      .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
+      .join('\n');
+
+    const msg = `Hi Scoop Storey! 🎀 Mera Order book kar dijiye!
+
+Order ID: ${newId}
+💰 Total: ₹${paymentBreakdown.finalTotalINR} (${totalItemCount} items)
+🚚 Delivery: ${isFreeShipping ? 'FREE (Across India ✨)' : `₹${shippingINR}`}
+
+🛍️ ITEMS ORDERED:
+${orderItemsSummary}
+${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${additionalNotes.trim() ? `📝 Notes: ${additionalNotes.trim()}\n` : ''}
+📍 DELIVERY ADDRESS:
+• Name: ${addressData.fullName}
+• Mobile/WhatsApp: +91 ${addressData.phone}
+${addressData.email ? `• Email: ${addressData.email.trim()}\n` : ''}• Address: ${addressData.streetAddress}
+${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
+• PIN Code: ${addressData.pincode}
+
+Maine delivery details enter kar di hain. Please payment method confirm karke parcel pack kar dijiye! ✨`;
+
+    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  // Final Order Confirmation (Screenshot is OPTIONAL - customer can provide on WhatsApp)
+  const handleConfirmUpiOrder = () => {
+    soundFX.playSuccess();
+    confetti({
+      particleCount: 120,
+      spread: 85,
+      origin: { y: 0.5 },
+      colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385']
+    });
+
+    const hasScreenshot = Boolean(paymentScreenshot);
+    const utrDisplay = hasScreenshot ? 'Screenshot Attached' : 'Proof on WhatsApp';
 
     const cleanItems = cartItems.map(item => {
       const verifiedPrice = getAuthoritativePrice(item.id, item.priceINR);
@@ -636,10 +759,10 @@ export default function CartDrawer({
         hour: '2-digit',
         minute: '2-digit'
       }),
-      source: isPartialCod ? 'Partial COD (Advance Paid)' : 'Prepaid UPI / QR Code',
-      status: isPartialCod
-        ? 'Partial COD - Advance Paid (Screenshot Attached)'
-        : 'Payment Received (Screenshot Attached)',
+      source: isPartialCod ? 'Partial COD' : 'Prepaid UPI / QR Code',
+      status: hasScreenshot
+        ? (isPartialCod ? 'Partial COD - Advance Paid (Screenshot Attached)' : 'Payment Received (Screenshot Attached)')
+        : (isPartialCod ? 'Partial COD - Advance Verification Pending' : 'UPI - Pending WhatsApp Verification'),
       paymentMethod: isPartialCod ? 'Partial COD' : 'UPI QR Code',
       isPartialCod,
       advancePaidINR: paymentBreakdown.payNowINR,
@@ -662,7 +785,7 @@ export default function CartDrawer({
       additionalNotes: additionalNotes.trim() || null
     };
 
-    // 1. Save to persistent order store & dispatch Telegram, Email, and Chime alerts
+    // 1. Save to persistent order store & Supabase immediately (Captures all customer details!)
     saveOrderToStore(newOrder);
     trackOrderCompleted(newOrder);
     dispatchAllOrderNotifications(newOrder);
@@ -681,7 +804,7 @@ export default function CartDrawer({
 
     const paymentSummaryText = isPartialCod
       ? `📦 PAYMENT TYPE: Partial COD (Advance Booking)
-✅ Advance Paid via UPI: ₹${paymentBreakdown.payNowINR} (${paymentBreakdown.advancePercentage}% Advance)
+✅ Advance to Pay: ₹${paymentBreakdown.payNowINR} (${paymentBreakdown.advancePercentage}% Advance)
 💵 Balance to Collect in Cash on Delivery: ₹${paymentBreakdown.balanceCodINR}
 🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+)' : `₹${shippingINR}`}
 💰 Total Order Value: ₹${paymentBreakdown.finalTotalINR}`
@@ -689,11 +812,23 @@ export default function CartDrawer({
 🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+)' : `₹${shippingINR}`}
 💰 Total Paid: ₹${totalINR} (${totalItemCount} items)`;
 
+    const proofSummaryText = hasScreenshot
+      ? '📸 Payment Proof: Attached via Screenshot in Web App'
+      : '📸 Payment Proof: Main screenshot abhi WhatsApp pe bhej raha/rahi hu ✨';
+
+    const closingUserMsg = hasScreenshot
+      ? (isPartialCod 
+          ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar diya hai aur screenshot attach kar diya hai. Remaining ₹${paymentBreakdown.balanceCodINR} cash delivery ke time dunga/dungi. Please verify karke parcel dispatch kar dijiye! ✨`
+          : `Maine UPI payment successfully transfer kar diya hai aur screenshot attach kar diya hai. Please verify karke packing start kar dijiye! ✨`)
+      : (isPartialCod
+          ? `Mera order book kar dijiye! Main ₹${paymentBreakdown.payNowINR} advance UPI screenshot yaha chat me bhej raha/rahi hu. Remaining ₹${paymentBreakdown.balanceCodINR} delivery ke time cash dungi! ✨`
+          : `Mera order book kar dijiye! Main payment transfer karke uska screenshot yaha chat me bhej raha/rahi hu. Please verify karke packing start kar dijiye! ✨`);
+
     const msg = `Hi Scoop Storey! 🎀 Mera Order confirm ho gaya hai!
 
 Order ID: ${currentOrderId}
 ${paymentSummaryText}
-📸 Payment Proof: Attached via Screenshot
+${proofSummaryText}
 🛍️ ITEMS ORDERED:
 ${orderItemsSummary}
 ${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'my_account'})\n` : ''}${additionalNotes.trim() ? `📝 Additional Notes: ${additionalNotes.trim()}\n` : ''}
@@ -704,7 +839,7 @@ ${addressData.email ? `• Email: ${addressData.email.trim()}\n` : ''}• Addres
 ${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
 • PIN Code: ${addressData.pincode}
 
-${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar diya hai aur screenshot attach kar diya hai. Remaining ₹${paymentBreakdown.balanceCodINR} cash delivery ke time dunga/dungi. Please verify karke parcel dispatch kar dijiye! ✨` : `Maine UPI payment successfully transfer kar diya hai aur screenshot attach kar diya hai. Please verify karke packing start kar dijiye! ✨`}`;
+${closingUserMsg}`;
 
     const encoded = encodeURIComponent(msg);
     window.open(`https://wa.me/918199922653?text=${encoded}`, '_blank', 'noopener,noreferrer');
@@ -1194,19 +1329,23 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       2
                     </div>
                     <div>
-                      <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                        Upload Payment Screenshot
+                      <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
+                        <span>Payment Screenshot</span>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                          Optional • Send on WhatsApp
+                        </span>
                       </h4>
                       <p className="text-[10px] text-neutral-500">
-                        Required to verify your payment and start packing!
+                        Upload here or share payment screenshot directly on WhatsApp after booking!
                       </p>
                     </div>
                   </div>
 
-                  {/* Screenshot Upload (Required) */}
+                  {/* Screenshot Upload (Optional) */}
                   <div>
-                    <label className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 block mb-1">
-                      Payment Screenshot <span className="text-rose-500">*</span>
+                    <label className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 flex items-center justify-between mb-1">
+                      <span>Payment Screenshot</span>
+                      <span className="text-[10px] font-semibold text-neutral-400">(Optional)</span>
                     </label>
                     {paymentScreenshot ? (
                       <div className="relative rounded-xl overflow-hidden border border-emerald-300 dark:border-emerald-700 p-2.5 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-between">
@@ -1256,10 +1395,10 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                           </div>
                           <div>
                             <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 block">
-                              Tap to upload payment screenshot
+                              Tap to upload screenshot (Optional)
                             </span>
                             <span className="text-[10px] text-neutral-400 mt-0.5 block">
-                              Supports JPG, PNG, WebP (from GPay, PhonePe, Paytm, etc.)
+                              You can upload here, or share your payment screenshot directly on WhatsApp after booking!
                             </span>
                           </div>
                           <input
@@ -1285,11 +1424,18 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   <button
                     type="button"
                     onClick={handleConfirmUpiOrder}
-                    className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Confirm Order & Send on WhatsApp</span>
+                    <span>
+                      {paymentScreenshot
+                        ? 'Confirm Order & Send on WhatsApp (Proof Attached 📸)'
+                        : 'Confirm & Book Order (Verify on WhatsApp 💬)'}
+                    </span>
                   </button>
+                  <p className="text-center text-[10px] text-neutral-400 mt-1.5">
+                    ✨ Your details and items will be instantly booked and saved!
+                  </p>
                 </div>
               </div>
             ) : checkoutStep === 'address' ? (
@@ -2039,10 +2185,26 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
 
               {/* Checkout Action Buttons */}
               <div className="space-y-2 pt-1">
+                {/* 1-Tap Quick Order on WhatsApp */}
+                <button
+                  type="button"
+                  onClick={handleQuickWhatsAppOrder}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-display font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-5 h-5 text-white fill-current" />
+                  <span>💬 1-Tap Quick Order on WhatsApp</span>
+                </button>
+
+                <div className="flex items-center gap-2 py-0.5">
+                  <div className="flex-1 h-px bg-pink-100 dark:bg-neutral-800" />
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">or fill address online</span>
+                  <div className="flex-1 h-px bg-pink-100 dark:bg-neutral-800" />
+                </div>
+
                 <button
                   type="button"
                   onClick={handleProceedToAddress}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-pink-500/25 transition cursor-pointer"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-pink-500/25 transition cursor-pointer"
                 >
                   <span>Proceed to Delivery Details</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2052,7 +2214,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                 <button
                   type="button"
                   onClick={handleShareBagOnWhatsApp}
-                  className="w-full py-2.5 rounded-2xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
+                  className="w-full py-2 rounded-2xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
                   title="Share your bag with someone on WhatsApp"
                 >
                   <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
@@ -2123,6 +2285,16 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       ? `Proceed to Pay ₹${paymentBreakdown.payNowINR} Advance (UPI) →`
                       : `Proceed to Pay ₹${totalINR} (UPI QR Code) →`}
                   </span>
+                </button>
+
+                {/* 1-Tap Book Directly on WhatsApp with Address */}
+                <button
+                  type="button"
+                  onClick={handleDirectAddressWhatsAppOrder}
+                  className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer active:scale-[0.99]"
+                >
+                  <WhatsAppIcon className="w-4 h-4 text-white fill-current" />
+                  <span>💬 Book & Pay Directly on WhatsApp</span>
                 </button>
 
                 <button
@@ -2199,14 +2371,14 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     📸 Screenshot Attached
                   </span>
                 </div>
-              ) : orderCompleteData.upiRefNumber && (
+              ) : (
                 <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 font-bold">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Payment Proof:</span>
+                    <span>Booking Status:</span>
                   </div>
                   <span className="font-bold text-emerald-900 dark:text-emerald-100 text-xs">
-                    {orderCompleteData.upiRefNumber}
+                    💬 Verify via WhatsApp
                   </span>
                 </div>
               )}
@@ -2252,16 +2424,16 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
               {orderCompleteData.isPartialCod
-                ? 'Your Partial COD order and advance payment screenshot have been recorded! Remaining balance will be collected in Cash by the courier.'
-                : 'Your prepaid order and payment screenshot have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Tanu directly with your payment screenshot.'}
+                ? 'Your Partial COD order details have been recorded! Remaining balance will be collected in Cash by the courier.'
+                : 'Your order details have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Tanu directly to confirm your order.'}
             </p>
 
             <div className="space-y-2">
               <a
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(
                   orderCompleteData.isPartialCod
-                    ? `Hi Tanu! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance Paid: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nAdvance payment done via UPI! Please verify and pack!`
-                    : `Hi Tanu! 🎀 Mera Prepaid Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n📸 Payment Proof: Screenshot Attached via UPI\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPayment done via UPI! Please verify and pack!`
+                    ? `Hi Tanu! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n${orderCompleteData.paymentScreenshot ? '📸 Payment Proof: Screenshot Attached via UPI' : '📸 Payment Proof: Chat me share kar raha/rahi hu'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPlease verify and pack! ✨`
+                    : `Hi Tanu! 🎀 Mera Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n${orderCompleteData.paymentScreenshot ? '📸 Payment Proof: Screenshot Attached via UPI' : '📸 Payment Proof: Chat me share kar raha/rahi hu'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPlease verify and pack! ✨`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
