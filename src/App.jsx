@@ -48,6 +48,7 @@ export default function App() {
   const [reviewModalProduct, setReviewModalProduct] = useState(null);
   const [addedToastItem, setAddedToastItem] = useState(null);
   const toastTimeoutRef = useRef(null);
+  const historyInsertedRef = useRef(false);
 
   const handleOpenReviewModal = (product = null) => {
     setReviewModalProduct(product);
@@ -135,6 +136,34 @@ export default function App() {
 
   // Handle URL hash & browser back/forward buttons (popstate & hashchange)
   useEffect(() => {
+    // 🛡️ History Insertion for Meta / Instagram Ads direct product & collection links
+    // When a customer clicks a direct product ad from Instagram/Facebook, the browser history only has [Instagram] -> [Product Page].
+    // If they press the phone's hardware back button after adding to cart, they are booted out of the site back to Instagram.
+    // By replacing the initial landing state with Home and pushing the Product state, Back navigates them to the Storefront!
+    if (typeof window !== 'undefined' && window.history?.replaceState && window.history?.pushState) {
+      const initialHash = window.location.hash || '';
+      const state = window.history.state;
+      const isProductLink = initialHash.startsWith('#product-');
+      const isCollectionLink = initialHash.startsWith('#collection-');
+
+      if ((isProductLink || isCollectionLink) && !state?.scoop_history_inserted && !historyInsertedRef.current) {
+        historyInsertedRef.current = true;
+        try {
+          const cleanHomeUrl = window.location.pathname + window.location.search;
+          // Step 1: Replace direct landing entry with Homepage Storefront entry
+          window.history.replaceState({ page: 'storefront', scoop_history_inserted: true }, '', cleanHomeUrl);
+          // Step 2: Push deep-linked page on top so it becomes the current active page
+          window.history.pushState(
+            { page: isProductLink ? 'product' : 'collection', scoop_history_inserted: true },
+            '',
+            cleanHomeUrl + initialHash
+          );
+        } catch (e) {
+          console.warn('History insertion skipped:', e);
+        }
+      }
+    }
+
     const handleNavigation = (isInitial = false) => {
       const hash = window.location.hash;
 
@@ -147,8 +176,9 @@ export default function App() {
 
       // 2. Product Detail Modal
       if (hash.startsWith('#product-')) {
-        const prodId = hash.replace('#product-', '');
-        const found = products.find(p => p.id === prodId);
+        const rawId = hash.replace('#product-', '');
+        const prodId = rawId.split('?')[0].split('&')[0];
+        const found = products.find(p => p.id === prodId || String(p.id).toLowerCase() === prodId.toLowerCase());
         if (found) setSelectedProduct(found);
       } else {
         setSelectedProduct(null);
@@ -156,7 +186,8 @@ export default function App() {
 
       // 3. Collection Navigation
       if (hash.startsWith('#collection-')) {
-        const colId = hash.replace('#collection-', '');
+        const rawCol = hash.replace('#collection-', '');
+        const colId = rawCol.split('?')[0].split('&')[0];
         const foundCategory = slugToCategory(colId, products);
         if (foundCategory) {
           setActiveCollection(foundCategory);
@@ -294,6 +325,20 @@ export default function App() {
     if (document.body) document.body.scrollTop = 0;
   };
 
+  // Safe handler for closing ProductDetailPage (synchronizes on-screen Back with browser Back)
+  const handleCloseProduct = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+      setTimeout(() => {
+        if (window.location.hash.startsWith('#product-')) {
+          handleSelectProduct(null);
+        }
+      }, 180);
+    } else {
+      handleSelectProduct(null);
+    }
+  };
+
   // Cart operations with color variant support
   const handleAddToCart = (product) => {
     trackAddToCart(product, product.qty || 1);
@@ -399,7 +444,7 @@ export default function App() {
               activeCollection={activeCollection}
               onSelectCollection={handleSelectCategory}
               onOpenReviewModal={handleOpenReviewModal}
-              onClose={() => handleSelectProduct(null)}
+              onClose={handleCloseProduct}
               onAddToCart={handleAddToCart}
               onSelectProduct={handleSelectProduct}
             />
