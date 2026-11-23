@@ -192,39 +192,24 @@ const ProductCardItem = React.memo(function ProductCardItem({
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onSelectProduct?.(product)}
-              className="py-2 px-3 rounded-xl bg-pink-50 dark:bg-neutral-800 hover:bg-pink-100 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-400 font-display font-bold text-xs tracking-wide transition border border-pink-200 dark:border-neutral-700 flex items-center gap-1"
-              title="Choose Colors & See Details"
-            >
-              <Palette className="w-3.5 h-3.5" />
-              <span>Colors</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => handleQuickAdd(product, e)}
-              className={`py-2 px-3.5 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 ${
-                isJustAdded
-                  ? 'bg-emerald-600 text-white shadow-lg'
-                  : 'btn-3d-pink text-white'
-              }`}
-            >
-              {isJustAdded ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-white" />
-                  <span>Added!</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                  <span>Add</span>
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => onSelectProduct?.(product)}
+            className="py-2 px-3.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+            title={colorCount > 1 ? "Choose Colors & View Details" : "View Product Details"}
+          >
+            {colorCount > 1 ? (
+              <>
+                <Palette className="w-3.5 h-3.5 text-white" />
+                <span>Choose Colors</span>
+              </>
+            ) : (
+              <>
+                <Eye className="w-3.5 h-3.5 text-white" />
+                <span>View Details</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Inquire on WhatsApp Link */}
@@ -920,37 +905,20 @@ export default function ProductCatalog({
                     </div>
 
                     <div className="pt-2 mt-2 border-t border-pink-100 dark:border-neutral-800 flex items-center justify-between gap-1.5">
+                      <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 truncate">
+                        {product.colors?.length > 1 ? `${product.colors.length} Colors Available` : 'In Stock'}
+                      </span>
+
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleEnterCollection(product.category);
+                          onSelectProduct?.(product);
                         }}
-                        className="text-[10px] font-bold text-neutral-500 hover:text-[#E60067] transition truncate"
+                        className="py-1 px-2.5 rounded-xl btn-3d-pink text-white font-display font-bold text-[11px] transition-all flex items-center gap-1 shrink-0 cursor-pointer"
                       >
-                        View →
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => handleQuickAdd(product, e)}
-                        className={`py-1 px-2.5 rounded-xl font-display font-bold text-[11px] transition-all flex items-center gap-1 shrink-0 ${
-                          isJustAdded
-                            ? 'bg-emerald-600 text-white'
-                            : 'btn-3d-pink text-white'
-                        }`}
-                      >
-                        {isJustAdded ? (
-                          <>
-                            <Check className="w-3 h-3" />
-                            <span>Added</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag className="w-3 h-3" />
-                            <span>Add</span>
-                          </>
-                        )}
+                        <Eye className="w-3 h-3 text-white" />
+                        <span>View</span>
                       </button>
                     </div>
                   </div>
