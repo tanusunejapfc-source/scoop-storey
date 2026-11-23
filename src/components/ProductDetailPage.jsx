@@ -622,7 +622,7 @@ export default function ProductDetailPage({
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-50/60 dark:bg-neutral-800/60 border border-purple-100 dark:border-neutral-700">
                 <Truck className="w-4 h-4 text-purple-600 shrink-0" />
-                <span>100% Free Shipping</span>
+                <span>Free Shipping ₹499+</span>
               </div>
             </div>
           </div>
@@ -803,7 +803,7 @@ export default function ProductDetailPage({
                 {/* Inquire on WhatsApp Link */}
                 <a
                   href={`https://wa.me/918199922653?text=${encodeURIComponent(
-                    `Hi Scoop Storey! 🎀 Mujhe "${product.name}" (${selectedColor?.name || 'Standard'}) ke baare me inquiry karni hai. (Prepaid Store • Min 3 items)`
+                    `Hi Scoop Storey! 🎀 Mujhe "${product.name}" (${selectedColor?.name || 'Standard'}) ke baare me inquiry karni hai. (Prepaid Store • Free Shipping ₹499+)`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -1040,9 +1040,9 @@ export default function ProductDetailPage({
                 {/* Tab 3: Shipping & Policies */}
                 {activeTab === 'shipping' && (
                   <div className="p-3 rounded-xl bg-pink-50/70 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700 text-xs space-y-1.5 text-neutral-700 dark:text-neutral-300 animate-fadeIn">
-                    <p>• <strong>Order Rule:</strong> Minimum 3 Products (or any order above ₹499).</p>
-                    <p>• <strong>Payment:</strong> 100% Prepaid via UPI QR Code only.</p>
-                    <p>• <strong>Delivery:</strong> 100% Free Express Delivery across India on all prepaid orders.</p>
+                    <p>• <strong>Order Rule:</strong> No minimum order required! Order any single item or combination.</p>
+                    <p>• <strong>Shipping:</strong> FREE Express Delivery on all orders ₹499+ (Flat ₹49 below ₹499).</p>
+                    <p>• <strong>Payment:</strong> 100% Prepaid via UPI QR Code or Partial COD (Advance UPI + Balance on Delivery).</p>
                     <p>• <strong>Packaging:</strong> Packed with cute ASMR aesthetic on Instagram Reels upon request!</p>
                   </div>
                 )}

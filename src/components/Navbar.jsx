@@ -28,18 +28,18 @@ const ANNOUNCEMENTS = [
   {
     id: 1,
     icon: '✨',
-    title: 'Notice: Any 3 Products or Any Order ₹499+',
-    mobileTitle: 'Min 3 Items or Order ₹499+',
-    sub: 'Free Delivery Across India',
-    mobileSub: '100% Prepaid'
+    title: 'Notice: Free Shipping Across India on Orders ₹499+ • Flat ₹49 Below',
+    mobileTitle: 'Free Shipping on ₹499+ • No Min Order',
+    sub: 'Pan-India Delivery',
+    mobileSub: 'Shop Any Item'
   },
   {
     id: 2,
     icon: '🚚',
-    title: '100% Free Delivery Across India on All Orders',
-    mobileTitle: 'Free Delivery on All Orders',
-    sub: '100% Prepaid UPI',
-    mobileSub: '100% Free'
+    title: '100% Free Express Delivery on Orders Above ₹499',
+    mobileTitle: 'Free Delivery on ₹499+',
+    sub: 'Prepaid UPI & Partial COD',
+    mobileSub: 'Fast Shipping'
   },
   {
     id: 3,

@@ -107,7 +107,7 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
           {/* Top Boutique Live Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/70 border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 font-extrabold text-[11px] sm:text-xs tracking-wide uppercase shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#E60067] animate-ping shrink-0" />
-            <span>India 🇮🇳 • Min 3 Items Required • 100% Prepaid</span>
+            <span>India 🇮🇳 • FREE Delivery on ₹499+ • No Minimum Order</span>
           </div>
 
           {/* Main Title */}

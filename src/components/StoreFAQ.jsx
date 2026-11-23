@@ -48,8 +48,8 @@ const FAQS_DATA = [
   // ORDER RULES
   {
     category: 'orders',
-    q: 'What is the order policy (3 products or ₹499+)?',
-    a: 'You can order whenever your bag has any 3 items, OR whenever any single or combo item total is ₹499 or above (like our Mini, Midi, or Big Mystery Scoops)! For smaller items under ₹250, adding 3 items or reaching ₹499 unlocks 100% Free Express Delivery across India.'
+    q: 'What is the shipping & order policy (Free Shipping ₹499+)?',
+    a: 'There is no minimum item requirement! You can order even a single product. Delivery is 100% FREE across India on all orders of ₹499 or above. For orders under ₹499, a flat shipping charge of just ₹49 is added.'
   },
   {
     category: 'orders',
@@ -139,7 +139,7 @@ export default function StoreFAQ() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search e.g. anti-tarnish, minimum 3, water, reel..."
+              placeholder="Search e.g. anti-tarnish, free shipping 499, water, reel..."
               className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-xs sm:text-sm font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#E60067]"
             />
           </div>

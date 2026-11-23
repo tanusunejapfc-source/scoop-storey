@@ -99,10 +99,10 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'shipping' }
               <div className="p-4 rounded-2xl bg-pink-50/70 dark:bg-pink-950/30 border border-pink-200/60 dark:border-pink-900/40 space-y-1.5">
                 <h4 className="font-display font-extrabold text-sm text-[#E60067] dark:text-pink-400 flex items-center gap-2">
                   <Truck className="w-4 h-4" />
-                  <span>100% Free Express Delivery Across India</span>
+                  <span>Free Express Delivery on Orders ₹499+ (Flat ₹49 Below)</span>
                 </h4>
                 <p className="text-xs text-neutral-600 dark:text-neutral-300">
-                  Every order on Scoop Storey is eligible for zero delivery fees anywhere in India with any 3 items or any order ₹499 and above.
+                  Every order on Scoop Storey of ₹499 and above is eligible for 100% FREE delivery anywhere in India. For orders below ₹499, a flat shipping charge of ₹49 is added. There is no minimum order item count!
                 </p>
               </div>
 

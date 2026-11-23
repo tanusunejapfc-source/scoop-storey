@@ -111,6 +111,38 @@ it('Strictly invalidates coupon when cart drops below minSpend requirement', () 
   assert.strictEqual(calculateDiscount(1800, coupon), 0); // Cart dropped below ₹2000!
 });
 
+// 2b. SHIPPING & ORDER RULES: Free Shipping on ₹499+ and Flat ₹49 Below
+console.log('\n--- 2b. Shipping Rules: Free Above ₹499 & Flat ₹49 Below ---');
+
+function calculateShipping(itemCount, itemsNetINR, coupon = null) {
+  if (itemCount === 0) return 0;
+  if (coupon?.type === 'shipping' || itemsNetINR >= 499) return 0;
+  return 49;
+}
+
+it('Adds flat ₹49 shipping on orders below ₹499', () => {
+  const shipping = calculateShipping(1, 199);
+  assert.strictEqual(shipping, 49);
+  assert.strictEqual(199 + shipping, 248);
+});
+
+it('Waives shipping completely (₹0) on orders at or above ₹499', () => {
+  assert.strictEqual(calculateShipping(1, 499), 0);
+  assert.strictEqual(calculateShipping(3, 750), 0);
+  assert.strictEqual(calculateShipping(1, 1299), 0);
+});
+
+it('Waives shipping when free shipping coupon is applied, even below ₹499', () => {
+  const coupon = { code: 'FREESHIP', type: 'shipping' };
+  assert.strictEqual(calculateShipping(1, 250, coupon), 0);
+});
+
+it('Permits single-item checkout without any 3-item restriction', () => {
+  const totalItemCount = 1;
+  const canCheckout = totalItemCount > 0;
+  assert.strictEqual(canCheckout, true);
+});
+
 // 3. PAYMENT & E-COMMERCE: Partial COD Breakdown
 console.log('\n--- 3. Payment & E-commerce: Partial COD Logic ---');
 

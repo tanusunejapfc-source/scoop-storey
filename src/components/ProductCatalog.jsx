@@ -214,7 +214,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
 
         {/* Inquire on WhatsApp Link */}
         <a
-          href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Scoop Storey! 🎀 Mujhe "${product.name}" ke baare me inquiry karni hai. (Prepaid Store • Min 3 items)`)}`}
+          href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Scoop Storey! 🎀 Mujhe "${product.name}" ke baare me inquiry karni hai. (Prepaid Store • Free Shipping ₹499+)`)}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
@@ -846,7 +846,7 @@ export default function ProductCatalog({
                 </h3>
               </div>
               <span className="text-xs text-neutral-500 font-semibold hidden sm:inline">
-                Instant Add to Bag (Min 3 required)
+                Instant Add to Bag • Free Delivery ₹499+
               </span>
             </div>
 
@@ -1001,9 +1001,9 @@ export default function ProductCatalog({
                 </div>
                 <div className="w-px h-8 bg-pink-200 dark:bg-neutral-700" />
                 <div>
-                  <span className="text-[10px] font-bold text-neutral-400 block uppercase">Order Rule</span>
-                  <span className="font-display font-black text-xs text-pink-600 dark:text-pink-400 block">
-                    Min 3 Items
+                  <span className="text-[10px] font-bold text-neutral-400 block uppercase">Delivery</span>
+                  <span className="font-display font-black text-xs text-emerald-600 dark:text-emerald-400 block">
+                    Free on ₹499+
                   </span>
                 </div>
               </div>
@@ -1175,7 +1175,7 @@ export default function ProductCatalog({
             </button>
 
             <span className="text-xs text-neutral-400 font-medium">
-              Scoop Storey India • Min 3 items required to order
+              Scoop Storey India • FREE Shipping Across India on Orders ₹499+ (Flat ₹49 below)
             </span>
           </div>
         </div>

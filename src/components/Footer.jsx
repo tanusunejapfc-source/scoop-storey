@@ -18,8 +18,8 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 const FAQS = [
   {
-    q: 'What is the minimum order requirement?',
-    a: 'You can order with any 3 items, OR if any single or combo item total is ₹499 or above (such as our Mini, Midi, or Big Mystery Scoops)! You can freely mix and match across Pendants, Bracelets, Self-Care, and Mystery Scoops.'
+    q: 'Is there a minimum order requirement?',
+    a: 'No! There is no minimum item requirement — you can checkout with even a single product. All orders of ₹499 or more get 100% FREE Delivery across India. For orders below ₹499, a flat shipping charge of ₹49 is added.'
   },
   {
     q: 'What payment methods do you accept?',
@@ -97,9 +97,9 @@ export default function Footer({ onOpenAdmin, onOpenTracking, onOpenPolicy }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-sm text-neutral-900 dark:text-white">
-                3 Items or Order ₹499+
+                Free Delivery Above ₹499
               </div>
-              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Mix & match any 3 items or order any scoop/item above ₹499</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Flat ₹49 below ₹499 • No minimum items needed</div>
             </div>
           </div>
 

@@ -184,8 +184,18 @@ export default function CartDrawer({
     }
     return Math.round(subtotalINR * appliedDiscount);
   }, [subtotalINR, appliedCoupon, appliedDiscount]);
-  const shippingINR = 0; // 100% Free Shipping on all orders across India
-  const totalINR = Math.max(0, subtotalINR - discountAmountINR);
+
+  // Shipping Rules:
+  // - FREE Shipping on all orders >= ₹499 net items total (or with free shipping coupon)
+  // - Flat ₹49 Standard Delivery on orders below ₹499
+  const FREE_SHIPPING_THRESHOLD = 499;
+  const FLAT_SHIPPING_FEE = 49;
+  const itemsNetINR = Math.max(0, subtotalINR - discountAmountINR);
+  const isFreeShipping = totalItemCount > 0 && (itemsNetINR >= FREE_SHIPPING_THRESHOLD || appliedCoupon?.type === 'shipping');
+  const shippingINR = totalItemCount === 0 || isFreeShipping ? 0 : FLAT_SHIPPING_FEE;
+  const totalINR = totalItemCount === 0 ? 0 : itemsNetINR + shippingINR;
+  const amountNeededForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - itemsNetINR);
+  const shippingProgressPct = Math.min(100, Math.round((itemsNetINR / FREE_SHIPPING_THRESHOLD) * 100));
 
   // Partial COD & Payment Breakdown
   // Dedicated Partial COD preview (always calculated with 'partial_cod' mode)
@@ -201,19 +211,15 @@ export default function CartDrawer({
     return calculatePaymentBreakdown(totalINR, paymentMode, paymentSettings);
   }, [totalINR, paymentMode, paymentSettings]);
 
-  // Order Eligibility: Any 3 items OR any single/combo total >= ₹499
-  const minItemCount = 3;
-  const minAmountINR = 499;
-  const isMinimumMet = totalItemCount >= minItemCount || totalINR >= minAmountINR;
-  const itemsRemainingForMin = Math.max(0, minItemCount - totalItemCount);
-  const amountRemainingForMin = Math.max(0, minAmountINR - totalINR);
+  // Order Eligibility: No minimum item restriction! Any cart with items can checkout.
+  const hasItems = totalItemCount > 0;
 
-  // If cart drops below order requirements while on address or payment step, return to cart immediately
+  // If cart is emptied while on address or payment step, return to cart immediately
   useEffect(() => {
-    if (checkoutStep !== 'cart' && !isMinimumMet) {
+    if (checkoutStep !== 'cart' && !hasItems) {
       setCheckoutStep('cart');
     }
-  }, [checkoutStep, isMinimumMet]);
+  }, [checkoutStep, hasItems]);
 
   // Sync latest merchant discount coupons from cloud storage
   useEffect(() => {
@@ -486,11 +492,9 @@ export default function CartDrawer({
 
   // Transition to Delivery Address Step (Separated from bag view for clean, un-congested UX)
   const handleProceedToAddress = () => {
-    if (!isMinimumMet) {
+    if (!hasItems) {
       soundFX.playPop(300);
-      alert(
-        `⚠️ Order Rule: Add any 3 products OR reach ₹499 total to checkout.\n\nYou currently have ${totalItemCount} item(s) (₹${totalINR}). Please add ${itemsRemainingForMin} more product(s) or ₹${amountRemainingForMin} to unlock payment.`
-      );
+      alert('Your cart is empty! Please add some cute items to checkout.');
       return;
     }
 
@@ -504,11 +508,9 @@ export default function CartDrawer({
 
   // Transition to UPI & QR Payment Step
   const handleProceedToUpiPayment = () => {
-    if (!isMinimumMet) {
+    if (!hasItems) {
       soundFX.playPop(300);
-      alert(
-        `⚠️ Order Rule: Add any 3 products OR reach ₹499 total to checkout.\n\nYou currently have ${totalItemCount} item(s) (₹${totalINR}). Please add ${itemsRemainingForMin} more product(s) or ₹${amountRemainingForMin} to unlock payment.`
-      );
+      alert('Your cart is empty! Please add some cute items to checkout.');
       setCheckoutStep('cart');
       return;
     }
@@ -680,8 +682,10 @@ export default function CartDrawer({
       ? `📦 PAYMENT TYPE: Partial COD (Advance Booking)
 ✅ Advance Paid via UPI: ₹${paymentBreakdown.payNowINR} (${paymentBreakdown.advancePercentage}% Advance)
 💵 Balance to Collect in Cash on Delivery: ₹${paymentBreakdown.balanceCodINR}
+🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+)' : `₹${shippingINR}`}
 💰 Total Order Value: ₹${paymentBreakdown.finalTotalINR}`
       : `📦 PAYMENT TYPE: 100% Prepaid UPI
+🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+)' : `₹${shippingINR}`}
 💰 Total Paid: ₹${totalINR} (${totalItemCount} items)`;
 
     const msg = `Hi Scoop Storey! 🎀 Mera Order confirm ho gaya hai!
@@ -792,16 +796,28 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
             </div>
           </div>
 
-          {/* 100% Free Shipping Across India */}
-          <div className="px-4 py-2 bg-gradient-to-r from-emerald-50 via-pink-50/60 to-emerald-50 dark:from-emerald-950/40 dark:via-[#261835] dark:to-emerald-950/40 border-b border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-300">
-            <span className="flex items-center gap-1.5">
-              <Gift className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>🎉 100% Free Delivery Across India (All Orders)</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-emerald-200/80 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200">
-              FREE
-            </span>
-          </div>
+          {/* Dynamic Shipping Header Banner */}
+          {isFreeShipping ? (
+            <div className="px-4 py-2 bg-gradient-to-r from-emerald-50 via-pink-50/60 to-emerald-50 dark:from-emerald-950/40 dark:via-[#261835] dark:to-emerald-950/40 border-b border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <span className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>🎉 Yay! You Unlocked FREE Delivery Across India! ✨</span>
+              </span>
+              <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-emerald-200/80 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200">
+                FREE
+              </span>
+            </div>
+          ) : (
+            <div className="px-4 py-2 bg-gradient-to-r from-pink-50 via-purple-50/60 to-pink-50 dark:from-pink-950/40 dark:via-[#261835] dark:to-purple-950/40 border-b border-pink-200/60 dark:border-pink-900/40 flex items-center justify-between text-xs font-bold text-pink-800 dark:text-pink-300">
+              <span className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400" />
+                <span>🚚 FREE Delivery on orders ₹499+ (Only ₹49 below)</span>
+              </span>
+              <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/60 text-pink-700 dark:text-pink-200">
+                ₹499 FREE
+              </span>
+            </div>
+          )}
 
           {/* Cart Items List & Checkout Form (Scrollable) */}
           <div ref={cartContentRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
@@ -965,7 +981,7 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     </div>
 
                     <div className="text-[11px] text-neutral-500 dark:text-neutral-400 text-center">
-                      Total Order Value: <strong>₹{paymentBreakdown.finalTotalINR}</strong> (100% Free Shipping)
+                      Total Order Value: <strong>₹{paymentBreakdown.finalTotalINR}</strong> ({isFreeShipping ? '100% Free Shipping' : `Includes ₹${shippingINR} Shipping`})
                     </div>
                   </div>
                 ) : (
@@ -975,7 +991,9 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                       <span className="font-display font-extrabold text-2xl text-pink-600 dark:text-pink-400">
                         ₹{totalINR}
                       </span>
-                      <span className="text-[11px] text-neutral-500 block">100% Prepaid • Instant Dispatch Priority ⚡</span>
+                      <span className="text-[11px] text-neutral-500 block">
+                        {isFreeShipping ? '100% Free Express Delivery • Instant Dispatch Priority ⚡' : `Standard Delivery: ₹${shippingINR} (Free above ₹499)`}
+                      </span>
                     </div>
                     <div className="text-right">
                       <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
@@ -1603,52 +1621,61 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
               </div>
             ) : (
               <>
-                {/* REWARD & PROGRESS BAR */}
+                {/* REWARD & SHIPPING PROGRESS BAR */}
                 <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-900/40 space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-neutral-900 dark:text-white flex items-center gap-1.5">
-                      <Gift className="w-3.5 h-3.5 text-[#E60067]" />
+                      {isFreeShipping ? (
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      ) : (
+                        <Truck className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
+                      )}
                       <span>
-                        {!isMinimumMet
-                          ? `Add ${itemsRemainingForMin} more item${itemsRemainingForMin > 1 ? 's' : ''} or ₹${amountRemainingForMin} to unlock Checkout!`
-                          : totalINR < 599
-                            ? `Add ₹${599 - totalINR} more to unlock a Free Mystery Charm Pack! 🎁`
-                            : totalINR < 999
-                              ? `Add ₹${999 - totalINR} more for VIP Deluxe Box Packaging! 👑`
-                              : `🎉 All VIP Milestone Rewards Unlocked!`}
+                        {!isFreeShipping
+                          ? `Add ₹${amountNeededForFreeShipping} more for FREE Shipping! 🚚💨`
+                          : itemsNetINR < 999
+                            ? `Add ₹${999 - itemsNetINR} more for VIP Deluxe Box Packaging! 👑`
+                            : `🎉 FREE Delivery + All VIP Milestone Rewards Unlocked! ✨`}
                       </span>
                     </span>
-                    <span className="text-[11px] font-black text-[#E60067] dark:text-pink-400">
-                      {!isMinimumMet ? `${totalItemCount}/3 Items (or ₹499)` : totalINR >= 999 ? 'VIP Unlocked' : `₹${totalINR}`}
+                    <span className="text-[11px] font-black">
+                      {!isFreeShipping ? (
+                        <span className="text-[#E60067] dark:text-pink-400">
+                          ₹{itemsNetINR}/₹499
+                        </span>
+                      ) : (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
+                          <span>✓ FREE</span>
+                        </span>
+                      )}
                     </span>
                   </div>
 
                   {/* Progress track */}
-                  <div className="w-full h-2 rounded-full bg-pink-100 dark:bg-neutral-800 overflow-hidden relative">
+                  <div className="w-full h-2.5 rounded-full bg-pink-100 dark:bg-neutral-800 overflow-hidden relative shadow-inner">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#E60067] via-purple-500 to-pink-500 transition-all duration-500"
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        isFreeShipping
+                          ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-pink-500'
+                          : 'bg-gradient-to-r from-[#E60067] via-pink-500 to-purple-500'
+                      }`}
                       style={{
-                        width: !isMinimumMet
-                          ? `${Math.max(Math.min(100, (totalItemCount / 3) * 60), Math.min(60, (totalINR / 499) * 60))}%`
-                          : totalINR < 599
-                            ? `${60 + Math.min(25, ((totalINR - 499) / 100) * 25)}%`
-                            : totalINR < 999
-                              ? `${85 + Math.min(15, ((totalINR - 599) / 400) * 15)}%`
-                              : '100%'
+                        width: !isFreeShipping
+                          ? `${Math.max(6, (itemsNetINR / FREE_SHIPPING_THRESHOLD) * 60)}%`
+                          : itemsNetINR < 999
+                            ? `${60 + Math.min(40, ((itemsNetINR - 499) / 500) * 40)}%`
+                            : '100%'
                       }}
                     />
                   </div>
 
                   {/* Milestone Icons */}
                   <div className="flex items-center justify-between text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 pt-0.5">
-                    <span className={isMinimumMet ? 'text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1' : ''}>
-                      {isMinimumMet ? '✓ Checkout Unlocked' : '3 Items / ₹499'}
+                    <span className={isFreeShipping ? 'text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1' : ''}>
+                      {isFreeShipping ? '✓ ₹499 Free Shipping Unlocked' : '₹499 Free Shipping'}
                     </span>
-                    <span className={totalINR >= 599 ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
-                      {totalINR >= 599 ? '✓ Free Charm Pack' : '₹599 Free Charm'}
-                    </span>
-                    <span className={totalINR >= 999 ? 'text-amber-600 dark:text-amber-400 font-bold' : ''}>
-                      {totalINR >= 999 ? '✓ VIP Deluxe Box' : '₹999 VIP Box'}
+                    <span className={itemsNetINR >= 999 ? 'text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1' : ''}>
+                      {itemsNetINR >= 999 ? '✓ VIP Deluxe Box' : '₹999 VIP Box 👑'}
                     </span>
                   </div>
                 </div>
@@ -1745,23 +1772,23 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                   })}
                 </div>
 
-                {/* BUNDLE UNLOCK ASSISTANT: Quick-Add Items to reach 3 items */}
-                {!isMinimumMet && bundleAddOns.length > 0 && (
+                {/* BUNDLE ASSISTANT: Quick-Add Items to save ₹49 on shipping */}
+                {!isFreeShipping && bundleAddOns.length > 0 && (
                   <div data-bundle-helper className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
                         <h5 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white">
-                          Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} or ₹{amountRemainingForMin} to unlock!
+                          Add ₹{amountNeededForFreeShipping} more to unlock FREE Delivery! 🚚
                         </h5>
                       </div>
                       <span className="text-[10px] font-bold text-[#E60067] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
-                        Pocket-Friendly ✨
+                        Save ₹49 ✨
                       </span>
                     </div>
 
                     <p className="text-[11px] text-[#554664] dark:text-[#D5CBE2] font-medium">
-                      Tap to add any cute add-on under ₹250 directly to your bag:
+                      Add any cute treat below under ₹250 to save ₹49 shipping & get free delivery:
                     </p>
 
                     <div className="flex items-stretch gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
@@ -1961,9 +1988,25 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
                     <span>-₹{discountAmountINR}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-neutral-500 dark:text-neutral-400">
-                  <span>Delivery (Across India)</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
+                <div className="flex justify-between items-center text-neutral-500 dark:text-neutral-400">
+                  <span className="flex items-center gap-1">
+                    <span>Delivery (Across India)</span>
+                    {isFreeShipping && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                        FREE ₹499+
+                      </span>
+                    )}
+                  </span>
+                  {isFreeShipping ? (
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <span className="line-through text-neutral-400 font-normal text-[11px]">₹49</span>
+                      <span>FREE</span>
+                    </span>
+                  ) : (
+                    <span className="font-bold text-neutral-800 dark:text-neutral-200">
+                      ₹{FLAT_SHIPPING_FEE}
+                    </span>
+                  )}
                 </div>
 
                 {paymentMode === 'partial_cod' ? (
@@ -1995,35 +2038,14 @@ ${isPartialCod ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar 
 
               {/* Checkout Action Buttons */}
               <div className="space-y-2 pt-1">
-                {!isMinimumMet ? (
-                  /* Locked Payment Warning Button */
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundFX.playPop(300);
-                      const helperCard = document.querySelector('[data-bundle-helper]');
-                      if (helperCard) {
-                        helperCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      } else {
-                        handleGoToCollections();
-                      }
-                    }}
-                    className="w-full py-3.5 px-4 rounded-2xl bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-neutral-300 dark:border-neutral-700 cursor-pointer shadow-inner active:scale-[0.99] transition"
-                  >
-                    <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span>Add {itemsRemainingForMin} more item{itemsRemainingForMin > 1 ? 's' : ''} (or reach ₹499) to unlock</span>
-                  </button>
-                ) : (
-                  /* Proceed to Checkout / Address Step Button */
-                  <button
-                    type="button"
-                    onClick={handleProceedToAddress}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
-                  >
-                    <span>Proceed to Checkout</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleProceedToAddress}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-pink-500/25 transition cursor-pointer"
+                >
+                  <span>Proceed to Delivery Details</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
 
                 {/* Drop a Gift Hint / Share Bag on WhatsApp */}
                 <button

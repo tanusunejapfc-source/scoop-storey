@@ -265,7 +265,7 @@ export default function GlobalSearchModal({
 
         {/* Modal Footer Note */}
         <div className="p-3 bg-pink-50/70 dark:bg-neutral-900 border-t border-pink-100 dark:border-neutral-800 text-center text-[11px] text-neutral-600 dark:text-neutral-300 font-medium">
-          <span>✨ Any 3 items or order ₹499+ • 100% Free Express Delivery across India</span>
+          <span>✨ Free Express Delivery on orders ₹499+ (Flat ₹49 below) • No minimum order limit</span>
         </div>
 
       </div>
