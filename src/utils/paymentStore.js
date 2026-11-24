@@ -11,16 +11,18 @@ export const DEFAULT_PAYMENT_SETTINGS = {
   payeeName: 'Scoop Storey',
   qrImage: '', // Base64 data URL or external image URL uploaded by admin
   instructions: 'Scan QR with GPay / PhonePe / Paytm or pay using UPI ID / Phone. Then upload your payment screenshot to confirm order!',
-  // 100% Cash on Delivery (Full COD) Settings
-  fullCodEnabled: true,
-  codFee: 0, // Extra courier collection charge for Full COD (0 = Free COD)
-  // Partial COD Settings
-  partialCodEnabled: false,
+  // 1. 100% Prepaid Settings
+  prepaidEnabled: true,
+  // 2. Partial COD Settings
+  partialCodEnabled: true,
   partialCodType: 'percentage', // 'percentage' | 'flat'
   partialCodPercentage: 20, // 10%, 15%, 20%, 25% or custom %
   partialCodFlatAmount: 99, // Flat advance ₹ amount
   partialCodFee: 0, // Extra courier collection charge (0 = Free)
-  partialCodInstructions: 'Pay small advance via UPI to confirm booking; balance in Cash on delivery.'
+  partialCodInstructions: 'Pay small advance via UPI to confirm booking; balance in Cash on delivery.',
+  // 3. 100% Cash on Delivery (Full COD) Settings
+  fullCodEnabled: true,
+  codFee: 49 // Extra courier collection charge for Full COD (0 = Free COD)
 };
 
 export function getPaymentSettings() {

@@ -366,8 +366,10 @@ export default function App() {
       ];
     });
 
-    // DO NOT open cart directly! (User requested: add to bag without opening cart)
-    // Show non-intrusive "Added to Bag" toast with "Go to Bag" option for a few seconds
+    // Automatically open the side drawer when customer adds product to cart
+    setIsCartOpen(true);
+    soundFX.playSuccess();
+
     if (toastTimeoutRef.current) {
       clearTimeout(toastTimeoutRef.current);
     }
@@ -380,7 +382,7 @@ export default function App() {
     });
     toastTimeoutRef.current = setTimeout(() => {
       setAddedToastItem(null);
-    }, 4500);
+    }, 3500);
   };
 
   const handleUpdateQty = (key, newQty) => {

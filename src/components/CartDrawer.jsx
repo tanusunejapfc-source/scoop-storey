@@ -27,7 +27,9 @@ import {
   ArrowRight,
   Lock,
   Download,
-  Truck
+  Truck,
+  CreditCard,
+  ShieldCheck
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
@@ -255,6 +257,29 @@ export default function CartDrawer({
       cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }, 25);
   };
+
+  // Return to payment selection step smoothly and scroll to top
+  const handleBackToPayment = () => {
+    soundFX.playPop(500);
+    setCheckoutStep('payment');
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 25);
+  };
+
+  // Auto-fallback if the currently selected payment mode is disabled by admin settings
+  useEffect(() => {
+    if (paymentMode === 'full_cod' && paymentSettings.fullCodEnabled === false) {
+      if (paymentSettings.prepaidEnabled !== false) setPaymentMode('full_prepaid');
+      else if (paymentSettings.partialCodEnabled) setPaymentMode('partial_cod');
+    } else if (paymentMode === 'partial_cod' && !paymentSettings.partialCodEnabled) {
+      if (paymentSettings.prepaidEnabled !== false) setPaymentMode('full_prepaid');
+      else if (paymentSettings.fullCodEnabled !== false) setPaymentMode('full_cod');
+    } else if (paymentMode === 'full_prepaid' && paymentSettings.prepaidEnabled === false) {
+      if (paymentSettings.fullCodEnabled !== false) setPaymentMode('full_cod');
+      else if (paymentSettings.partialCodEnabled) setPaymentMode('partial_cod');
+    }
+  }, [paymentMode, paymentSettings]);
 
   if (!isOpen) return null;
 
@@ -491,7 +516,7 @@ export default function CartDrawer({
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
-  // Transition to Delivery Address Step (Separated from bag view for clean, un-congested UX)
+  // Transition to Delivery Address Step (Step 2)
   const handleProceedToAddress = () => {
     if (!hasItems) {
       soundFX.playPop(300);
@@ -502,6 +527,31 @@ export default function CartDrawer({
     soundFX.playPop(600);
     setCheckoutStep('address');
     setAddressErrors({});
+    setTimeout(() => {
+      cartContentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }, 20);
+  };
+
+  // Transition to Payment Selection Step (Step 3: Prepaid, Partial COD, or Full COD)
+  const handleProceedToPayment = () => {
+    if (!hasItems) {
+      soundFX.playPop(300);
+      alert('Your cart is empty! Please add some cute items to checkout.');
+      setCheckoutStep('cart');
+      return;
+    }
+
+    const errors = validateAddress();
+    if (Object.keys(errors).length > 0) {
+      setAddressErrors(errors);
+      soundFX.playPop(300);
+      addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    soundFX.playPop(600);
+    setAddressErrors({});
+    setCheckoutStep('payment');
     setTimeout(() => {
       cartContentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
     }, 20);
@@ -996,15 +1046,30 @@ ${closingUserMsg}`;
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={handleBackToAddress}
+                  onClick={handleBackToPayment}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#B81D24] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
-                  title="Return to Address Details"
+                  title="Return to Payment Selection"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Address</span>
+                  <span>Back</span>
                 </button>
                 <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hidden xs:inline">
                   Step 3: Pay QR
+                </span>
+              </div>
+            ) : checkoutStep === 'payment' ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleBackToAddress}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#B81D24] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
+                  title="Return to Delivery Address"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back</span>
+                </button>
+                <span className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hidden xs:inline">
+                  Step 3: Payment
                 </span>
               </div>
             ) : checkoutStep === 'address' ? (
@@ -1013,7 +1078,7 @@ ${closingUserMsg}`;
                   type="button"
                   onClick={handleBackToCart}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#B81D24] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
-                  title="Return to Cart to add/remove items"
+                  title="Return to Bag to add/remove items"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Bag</span>
@@ -1024,7 +1089,7 @@ ${closingUserMsg}`;
               </div>
             ) : (
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-600 text-white shadow-md">
+                <div className="p-2 rounded-xl bg-[#B81D24] text-white shadow-md">
                   <ShoppingBag className="w-4 h-4" />
                 </div>
                 <div>
@@ -1041,7 +1106,7 @@ ${closingUserMsg}`;
             <div className="flex items-center gap-2">
               {checkoutStep !== 'cart' && (
                 <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                  ₹{paymentMode === 'partial_cod' ? paymentBreakdown.payNowINR : totalINR}
+                  ₹{paymentMode === 'partial_cod' ? paymentBreakdown.payNowINR : paymentBreakdown.finalTotalINR}
                 </span>
               )}
               <button
@@ -1074,6 +1139,91 @@ ${closingUserMsg}`;
               <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/60 text-pink-700 dark:text-pink-200">
                 ₹499 FREE
               </span>
+            </div>
+          )}
+
+          {/* Enterprise 3-Step Checkout Progress Bar */}
+          {cartItems.length > 0 && (
+            <div className="px-4 py-2.5 bg-stone-50/80 dark:bg-neutral-800/60 border-b border-stone-200/80 dark:border-neutral-800">
+              <div className="flex items-center justify-between max-w-sm mx-auto relative px-1">
+                {/* Connecting Track Line */}
+                <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-0.5 bg-stone-200 dark:bg-neutral-700 -z-0" />
+                {/* Active Colored Fill Line */}
+                <div
+                  className="absolute left-6 top-1/2 -translate-y-1/2 h-0.5 bg-[#B81D24] transition-all duration-300 -z-0"
+                  style={{
+                    width: checkoutStep === 'cart' ? '0%' : checkoutStep === 'address' ? '50%' : '100%'
+                  }}
+                />
+
+                {/* Step 1: Bag */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (checkoutStep !== 'cart') handleBackToCart();
+                  }}
+                  className={`relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    checkoutStep === 'cart'
+                      ? 'bg-[#B81D24] text-white shadow-sm ring-2 ring-[#B81D24]/20'
+                      : 'bg-emerald-600 text-white shadow-2xs hover:opacity-95'
+                  }`}
+                >
+                  {checkoutStep === 'cart' ? (
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-white flex items-center justify-center text-[9px] font-black">1</span>
+                  ) : (
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  )}
+                  <span>1. Bag</span>
+                </button>
+
+                {/* Step 2: Address */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (checkoutStep === 'payment' || checkoutStep === 'upi_payment') {
+                      handleBackToAddress();
+                    } else if (checkoutStep === 'cart') {
+                      handleProceedToAddress();
+                    }
+                  }}
+                  className={`relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    checkoutStep === 'address'
+                      ? 'bg-[#B81D24] text-white shadow-sm ring-2 ring-[#B81D24]/20'
+                      : checkoutStep === 'payment' || checkoutStep === 'upi_payment'
+                      ? 'bg-emerald-600 text-white shadow-2xs hover:opacity-95'
+                      : 'bg-stone-100 dark:bg-neutral-800 text-stone-500 dark:text-neutral-400 border border-stone-200 dark:border-neutral-700'
+                  }`}
+                >
+                  {checkoutStep === 'payment' || checkoutStep === 'upi_payment' ? (
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  ) : (
+                    <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black ${
+                      checkoutStep === 'address' ? 'bg-white/20 text-white' : 'bg-stone-200 dark:bg-neutral-700 text-stone-600 dark:text-stone-300'
+                    }`}>2</span>
+                  )}
+                  <span>2. Address</span>
+                </button>
+
+                {/* Step 3: Payment */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (checkoutStep === 'upi_payment') {
+                      handleBackToPayment();
+                    }
+                  }}
+                  className={`relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition ${
+                    checkoutStep === 'payment' || checkoutStep === 'upi_payment'
+                      ? 'bg-[#B81D24] text-white shadow-sm ring-2 ring-[#B81D24]/20 cursor-pointer'
+                      : 'bg-stone-100 dark:bg-neutral-800 text-stone-500 dark:text-neutral-400 border border-stone-200 dark:border-neutral-700 cursor-default'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black ${
+                    checkoutStep === 'payment' || checkoutStep === 'upi_payment' ? 'bg-white/20 text-white' : 'bg-stone-200 dark:bg-neutral-700 text-stone-600 dark:text-stone-300'
+                  }`}>3</span>
+                  <span>3. Payment</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -1122,18 +1272,18 @@ ${closingUserMsg}`;
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
-                      onClick={handleBackToAddress}
+                      onClick={handleBackToPayment}
                       className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#B81D24] dark:text-pink-300 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-800 cursor-pointer flex items-center gap-1 active:scale-95 transition"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Address</span>
+                      <span>Payment</span>
                     </button>
                     <button
                       type="button"
-                      onClick={handleBackToCart}
+                      onClick={handleBackToAddress}
                       className="px-2 py-1.5 rounded-xl bg-pink-50 dark:bg-neutral-700 hover:bg-pink-100 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-200 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-700 cursor-pointer flex items-center gap-1 active:scale-95 transition"
                     >
-                      <span>Bag</span>
+                      <span>Address</span>
                     </button>
                   </div>
                 </div>
@@ -1560,6 +1710,274 @@ ${closingUserMsg}`;
                   </p>
                 </div>
               </div>
+            ) : checkoutStep === 'payment' ? (
+              <div className="space-y-4 animate-fadeIn">
+                {/* DELIVERING TO ADDRESS CONFIRMATION CARD */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-stone-50 via-rose-50/40 to-stone-50 dark:from-neutral-800 dark:to-neutral-800/80 border border-stone-200 dark:border-neutral-700 flex items-start justify-between shadow-2xs">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-[#B81D24] dark:text-rose-300 flex items-center justify-center shrink-0 mt-0.5">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                        <span>Delivering to: {addressData.fullName || 'Customer'}</span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-full border border-emerald-200 dark:border-emerald-800">
+                          Verified Address ✓
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-neutral-600 dark:text-neutral-300 mt-0.5 line-clamp-1">
+                        {addressData.streetAddress}{addressData.landmark ? `, Near ${addressData.landmark}` : ''}, {addressData.city} - {addressData.pincode}
+                      </div>
+                      <div className="text-[10px] text-neutral-400 dark:text-neutral-500">
+                        +91 {addressData.phone} {addressData.email ? `• ${addressData.email}` : ''}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleBackToAddress}
+                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-stone-50 dark:hover:bg-neutral-700 text-[#B81D24] font-bold text-[11px] border border-stone-200 dark:border-neutral-700 shadow-2xs shrink-0 cursor-pointer active:scale-95 transition"
+                  >
+                    Edit
+                  </button>
+                </div>
+
+                {/* PAYMENT METHOD SELECTION (3 ENTERPRISE OPTIONS) */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between px-1">
+                    <h4 className="font-display font-extrabold text-sm text-neutral-900 dark:text-white flex items-center gap-1.5">
+                      <CreditCard className="w-4 h-4 text-[#B81D24]" />
+                      <span>Choose Payment Method</span>
+                    </h4>
+                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                      Step 3 of 3
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* OPTION 1: 100% PREPAID UPI */}
+                    {paymentSettings.prepaidEnabled !== false && (
+                      <div
+                        onClick={() => {
+                          setPaymentMode('full_prepaid');
+                          soundFX.playPop(550);
+                        }}
+                        className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer relative ${
+                          paymentMode === 'full_prepaid'
+                            ? 'bg-rose-50/50 dark:bg-neutral-800/90 border-[#B81D24] shadow-sm ring-1 ring-[#B81D24]/30'
+                            : 'bg-white dark:bg-neutral-900 border-stone-200 dark:border-neutral-800 hover:border-stone-300'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${
+                              paymentMode === 'full_prepaid'
+                                ? 'border-[#B81D24] bg-[#B81D24] text-white'
+                                : 'border-stone-300 dark:border-neutral-600 bg-white dark:bg-neutral-800'
+                            }`}>
+                              {paymentMode === 'full_prepaid' && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-display font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-white">
+                                  ⚡ 100% Prepaid (Instant UPI)
+                                </span>
+                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                  🎁 Free Mystery Charm
+                                </span>
+                              </div>
+
+                              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
+                                Instant scan & pay via GPay, PhonePe, Paytm, or any UPI app.
+                              </p>
+
+                              <div className="flex items-center gap-2 mt-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                <span className="flex items-center gap-1">
+                                  <Sparkles className="w-3 h-3" />
+                                  <span>₹0 Extra Fee • Priority Express Dispatch</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <div className="font-display font-black text-sm sm:text-base text-neutral-900 dark:text-white">
+                              ₹{totalINR}
+                            </div>
+                            <span className="text-[10px] text-neutral-400 font-bold block">
+                              Prepaid
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* OPTION 2: PARTIAL COD (ADVANCE BOOKING) */}
+                    {paymentSettings.partialCodEnabled && (
+                      <div
+                        onClick={() => {
+                          setPaymentMode('partial_cod');
+                          soundFX.playPop(550);
+                        }}
+                        className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer relative ${
+                          paymentMode === 'partial_cod'
+                            ? 'bg-purple-50/60 dark:bg-purple-950/20 border-purple-600 dark:border-purple-500 shadow-sm ring-1 ring-purple-600/30'
+                            : 'bg-white dark:bg-neutral-900 border-stone-200 dark:border-neutral-800 hover:border-stone-300'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${
+                              paymentMode === 'partial_cod'
+                                ? 'border-purple-600 bg-purple-600 text-white'
+                                : 'border-stone-300 dark:border-neutral-600 bg-white dark:bg-neutral-800'
+                            }`}>
+                              {paymentMode === 'partial_cod' && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-display font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-white">
+                                  📦 Partial Cash on Delivery
+                                </span>
+                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                  Lock Order
+                                </span>
+                              </div>
+
+                              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
+                                Pay small advance of ₹{partialCodPreview.payNowINR} via UPI now; balance ₹{partialCodPreview.balanceCodINR} in Cash to courier.
+                              </p>
+
+                              <div className="flex items-center gap-2 mt-2 text-[11px] font-semibold text-purple-700 dark:text-purple-300">
+                                <span>Advance: ₹{partialCodPreview.payNowINR} • Cash: ₹{partialCodPreview.balanceCodINR}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <div className="font-display font-black text-sm sm:text-base text-purple-700 dark:text-purple-300">
+                              ₹{partialCodPreview.finalTotalINR}
+                            </div>
+                            <span className="text-[10px] text-neutral-400 font-bold block">
+                              Split Total
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* OPTION 3: 100% CASH ON DELIVERY (FULL COD) */}
+                    {paymentSettings.fullCodEnabled !== false && (
+                      <div
+                        onClick={() => {
+                          setPaymentMode('full_cod');
+                          soundFX.playPop(550);
+                        }}
+                        className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer relative ${
+                          paymentMode === 'full_cod'
+                            ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-600 dark:border-emerald-500 shadow-sm ring-1 ring-emerald-600/30'
+                            : 'bg-white dark:bg-neutral-900 border-stone-200 dark:border-neutral-800 hover:border-stone-300'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${
+                              paymentMode === 'full_cod'
+                                ? 'border-emerald-600 bg-emerald-600 text-white'
+                                : 'border-stone-300 dark:border-neutral-600 bg-white dark:bg-neutral-800'
+                            }`}>
+                              {paymentMode === 'full_cod' && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-display font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-white">
+                                  📦 100% Cash on Delivery
+                                </span>
+                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                  ₹0 Advance
+                                </span>
+                              </div>
+
+                              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
+                                Zero advance payment today. Pay full amount in cash to delivery courier at doorstep.
+                              </p>
+
+                              <div className="mt-2 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                {Number(paymentSettings.codFee || 0) > 0 ? (
+                                  <span className="flex items-center gap-1">
+                                    <Truck className="w-3 h-3" />
+                                    <span>Extra Courier Handling Fee: +₹{paymentSettings.codFee}</span>
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    <span>₹0 Extra Fee • Free Cash on Delivery ✨</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <div className="font-display font-black text-sm sm:text-base text-emerald-700 dark:text-emerald-300">
+                              ₹{totalINR + Number(paymentSettings.codFee || 0)}
+                            </div>
+                            <span className="text-[10px] text-neutral-400 font-bold block">
+                              Pay Courier
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* BAG ITEMS PREVIEW CARD */}
+                <div className="p-3 rounded-2xl bg-stone-50/80 dark:bg-neutral-800/60 border border-stone-200 dark:border-neutral-700 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-neutral-500" />
+                    <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                      Bag Summary: {totalItemCount} item{totalItemCount > 1 ? 's' : ''} (₹{totalINR})
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleBackToCart}
+                    className="text-[11px] font-bold text-[#B81D24] dark:text-rose-400 hover:underline cursor-pointer"
+                  >
+                    Review Items
+                  </button>
+                </div>
+
+                {/* TRUST & SECURITY BADGES */}
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-neutral-900 border border-stone-200 dark:border-neutral-800 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Scoop Storey 100% Buyer Protection</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span>19,000+ PIN Codes</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span>WhatsApp Live Updates</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span>Safe & Cute Packaging</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span>Zero Hidden Gateway Fees</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : checkoutStep === 'address' ? (
               <div className="space-y-4 animate-fadeIn">
                 {/* ORDER RECAP CHIP */}
@@ -1573,9 +1991,7 @@ ${closingUserMsg}`;
                         {totalItemCount} item{totalItemCount > 1 ? 's' : ''} in Bag
                       </div>
                       <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                        {paymentMode === 'partial_cod'
-                          ? `Partial Payment • ₹${paymentBreakdown.payNowINR} Advance`
-                          : `100% Prepaid • ₹${totalINR} Total`}
+                        Total Order Value: ₹{totalINR}
                       </div>
                     </div>
                   </div>
@@ -2157,103 +2573,14 @@ ${closingUserMsg}`;
             )}
           </div>
 
-          {/* Sticky Bottom Controls for Step 1: Bag */}
+          {/* Sticky Bottom Controls for Step 1: Bag (Payment Selector REMOVED as requested) */}
           {cartItems.length > 0 && checkoutStep === 'cart' && (
-            <div className="p-4 sm:p-5 border-t border-pink-100 dark:border-pink-900/30 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)]">
-
-              {/* Payment Option Selector at Bottom */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] font-bold text-neutral-600 dark:text-neutral-400">
-                  <span>Payment Option:</span>
-                  {paymentMode === 'full_cod' ? (
-                    <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
-                      <span>📦 Cash on Delivery</span>
-                    </span>
-                  ) : paymentMode === 'full_prepaid' ? (
-                    <span className="text-[#B81D24] dark:text-pink-400 font-extrabold flex items-center gap-1">
-                      <span>⚡ 100% Prepaid UPI</span>
-                    </span>
-                  ) : (
-                    <span className="text-purple-600 dark:text-purple-400 font-extrabold flex items-center gap-1">
-                      <span>📦 Partial Payment</span>
-                    </span>
-                  )}
-                </div>
-
-                <div className="p-1.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800/90 border border-pink-200 dark:border-neutral-700 grid grid-cols-2 gap-2">
-                  {/* Option 1: Cash on Delivery (Full COD) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaymentMode('full_cod');
-                      soundFX.playPop(550);
-                    }}
-                    className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
-                      paymentMode === 'full_cod'
-                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-emerald-600 dark:border-emerald-500 text-neutral-900 dark:text-white'
-                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="font-display font-extrabold text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                          <span>📦 Cash on Delivery</span>
-                        </span>
-                        {paymentMode === 'full_cod' && (
-                          <div className="w-3.5 h-3.5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                            <Check className="w-2 h-2" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="font-display font-black text-sm mt-1 text-neutral-900 dark:text-white">
-                        ₹{totalINR}
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1 block">
-                      ₹0 Advance • Pay to Courier
-                    </span>
-                  </button>
-
-                  {/* Option 2: Full Prepaid */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaymentMode('full_prepaid');
-                      soundFX.playPop(550);
-                    }}
-                    className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
-                      paymentMode === 'full_prepaid'
-                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#B81D24] dark:border-pink-500 text-neutral-900 dark:text-white'
-                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="font-display font-extrabold text-xs text-[#B81D24] dark:text-pink-400 flex items-center gap-1">
-                          <span>⚡ 100% Prepaid</span>
-                        </span>
-                        {paymentMode === 'full_prepaid' && (
-                          <div className="w-3.5 h-3.5 rounded-full bg-[#B81D24] text-white flex items-center justify-center shrink-0">
-                            <Check className="w-2 h-2" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="font-display font-black text-sm mt-1 text-neutral-900 dark:text-white">
-                        ₹{totalINR}
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold mt-1 block">
-                      🎁 Free Mystery Charm
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Pricing Breakdown (India INR Only) */}
+            <div className="p-4 sm:p-5 border-t border-stone-200/80 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)]">
+              {/* Pricing Breakdown */}
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-neutral-500 dark:text-neutral-400">
                   <span>Subtotal ({totalItemCount} items)</span>
-                  <span>₹{subtotalINR}</span>
+                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">₹{subtotalINR}</span>
                 </div>
                 {discountAmountINR > 0 && (
                   <div className="flex justify-between text-emerald-600 font-semibold">
@@ -2282,11 +2609,163 @@ ${closingUserMsg}`;
                   )}
                 </div>
 
+                <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-2 border-t border-stone-200/80 dark:border-neutral-800">
+                  <span>Estimated Total</span>
+                  <span className="text-[#B81D24] dark:text-rose-400">
+                    ₹{totalINR}
+                  </span>
+                </div>
+              </div>
+
+              {/* Checkout Action Buttons for Step 1 */}
+              <div className="space-y-2 pt-1">
+                {/* Primary Button: Proceed to Step 2 (Address) */}
+                <button
+                  type="button"
+                  onClick={handleProceedToAddress}
+                  className="w-full py-3.5 rounded-full bg-[#B81D24] hover:bg-[#9B151C] active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
+                >
+                  <span>Proceed to Delivery Details</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center gap-2 py-0.5">
+                  <div className="flex-1 h-px bg-stone-200 dark:bg-neutral-800" />
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">or instant WhatsApp order</span>
+                  <div className="flex-1 h-px bg-stone-200 dark:bg-neutral-800" />
+                </div>
+
+                {/* 1-Tap Quick Order on WhatsApp */}
+                <button
+                  type="button"
+                  onClick={handleQuickWhatsAppOrder}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-4 h-4 text-white fill-current" />
+                  <span>💬 1-Tap Quick Order on WhatsApp</span>
+                </button>
+
+                {/* Drop a Gift Hint / Share Bag on WhatsApp */}
+                <button
+                  type="button"
+                  onClick={handleShareBagOnWhatsApp}
+                  className="w-full py-2 rounded-2xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
+                  title="Share your bag with someone on WhatsApp"
+                >
+                  <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                  <span>Drop a Gift Hint / Share Bag 🎁</span>
+                </button>
+
+                {/* Need help support inquiry link */}
+                <div className="text-center pt-0.5">
+                  <a
+                    href="https://wa.me/918199922653?text=Hi%20Tanu!%20I%20have%20a%20question%20about%20my%20Scoop%20Storey%20bag."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+                  >
+                    <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
+                    <span>Need help? Chat with Tanu on WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sticky Bottom Controls for Step 2: Delivery Address */}
+          {cartItems.length > 0 && checkoutStep === 'address' && (
+            <div className="p-4 sm:p-5 border-t border-stone-200/80 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)] animate-fadeIn">
+              {/* Validation Warning Notice if fields missing */}
+              {Object.keys(addressErrors).length > 0 && (
+                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                  <span>Please fill in the required address fields highlighted above.</span>
+                </div>
+              )}
+
+              {/* Order total preview line */}
+              <div className="flex items-center justify-between text-xs pb-1">
+                <div>
+                  <span className="text-neutral-500 dark:text-neutral-400">Order Subtotal: </span>
+                  <span className="font-extrabold text-sm text-neutral-900 dark:text-white">
+                    ₹{totalINR}
+                  </span>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+                  {isFreeShipping ? 'Free Delivery Across India' : `Delivery: ₹${FLAT_SHIPPING_FEE}`}
+                </span>
+              </div>
+
+              {/* Action Buttons for Step 2 */}
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleProceedToPayment}
+                  className="w-full py-3.5 rounded-full bg-[#B81D24] hover:bg-[#9B151C] active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
+                >
+                  <span>Proceed to Payment Selection</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleBackToCart}
+                  className="w-full text-center py-1 text-xs font-bold text-neutral-500 dark:text-neutral-400 hover:text-pink-600 dark:hover:text-pink-400 transition cursor-pointer"
+                >
+                  ← Back to Bag to Edit Items
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Sticky Bottom Controls for Step 3: Payment Selection */}
+          {cartItems.length > 0 && checkoutStep === 'payment' && (
+            <div className="p-4 sm:p-5 border-t border-stone-200/80 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)] animate-fadeIn">
+              {/* Dynamic Pricing Breakdown */}
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between text-neutral-500 dark:text-neutral-400">
+                  <span>Subtotal ({totalItemCount} items)</span>
+                  <span>₹{subtotalINR}</span>
+                </div>
+                {discountAmountINR > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-semibold">
+                    <span>Discount {appliedCoupon?.code ? `(${appliedCoupon.code})` : ''}</span>
+                    <span>-₹{discountAmountINR}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-neutral-500 dark:text-neutral-400">
+                  <span className="flex items-center gap-1">
+                    <span>Delivery (Across India)</span>
+                    {isFreeShipping && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                        FREE ₹499+
+                      </span>
+                    )}
+                  </span>
+                  {isFreeShipping ? (
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <span className="line-through text-neutral-400 font-normal text-[11px]">₹49</span>
+                      <span>FREE</span>
+                    </span>
+                  ) : (
+                    <span className="font-bold text-neutral-800 dark:text-neutral-200">
+                      ₹{FLAT_SHIPPING_FEE}
+                    </span>
+                  )}
+                </div>
+
+                {paymentMode === 'full_cod' && Number(paymentBreakdown.codFeeINR || 0) > 0 && (
+                  <div className="flex justify-between text-amber-700 dark:text-amber-400 font-semibold">
+                    <span>Extra COD Courier Handling Fee</span>
+                    <span>+₹{paymentBreakdown.codFeeINR}</span>
+                  </div>
+                )}
+
                 {paymentMode === 'full_cod' ? (
                   <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 space-y-1">
                     <div className="flex justify-between text-neutral-600 dark:text-neutral-400 font-semibold">
-                      <span>Advance to Pay Now:</span>
-                      <span className="text-emerald-600 font-bold">₹0 (Zero Advance ✨)</span>
+                      <span>Advance Due Now:</span>
+                      <span className="text-emerald-600 font-bold">₹0 (Zero Advance Required ✨)</span>
                     </div>
                     <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-1 border-t border-dashed border-neutral-200 dark:border-neutral-700">
                       <span>Cash Due on Delivery</span>
@@ -2314,104 +2793,15 @@ ${closingUserMsg}`;
                   </div>
                 ) : (
                   <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                    <span>Total (Prepaid UPI)</span>
-                    <span className="text-pink-600 dark:text-pink-400">
-                      ₹{totalINR}
+                    <span>Total Payable (UPI QR)</span>
+                    <span className="text-[#B81D24] dark:text-rose-400">
+                      ₹{paymentBreakdown.finalTotalINR}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* Checkout Action Buttons */}
-              <div className="space-y-2 pt-1">
-                {/* 1-Tap Quick Order on WhatsApp */}
-                <button
-                  type="button"
-                  onClick={handleQuickWhatsAppOrder}
-                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition cursor-pointer"
-                >
-                  <WhatsAppIcon className="w-5 h-5 text-white fill-current" />
-                  <span>💬 1-Tap Quick Order on WhatsApp</span>
-                </button>
-
-                <div className="flex items-center gap-2 py-0.5">
-                  <div className="flex-1 h-px bg-pink-100 dark:bg-neutral-800" />
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">or fill address online</span>
-                  <div className="flex-1 h-px bg-pink-100 dark:bg-neutral-800" />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleProceedToAddress}
-                  className="w-full py-3.5 rounded-full bg-[#B81D24] hover:bg-[#9B151C] active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
-                >
-                  <span>{paymentMode === 'full_cod' ? 'Proceed to Delivery Details (COD)' : 'Proceed to Delivery Details'}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                {/* Drop a Gift Hint / Share Bag on WhatsApp */}
-                <button
-                  type="button"
-                  onClick={handleShareBagOnWhatsApp}
-                  className="w-full py-2 rounded-2xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
-                  title="Share your bag with someone on WhatsApp"
-                >
-                  <Gift className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                  <span>Drop a Gift Hint / Share Bag on WhatsApp 🎁</span>
-                </button>
-
-                {/* Need help support inquiry link */}
-                <div className="text-center pt-0.5">
-                  <a
-                    href="https://wa.me/918199922653?text=Hi%20Tanu!%20I%20have%20a%20question%20about%20my%20Scoop%20Storey%20bag."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
-                  >
-                    <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
-                    <span>Need help? Chat with Tanu on WhatsApp</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Sticky Bottom Controls for Step 2: Delivery Address */}
-          {cartItems.length > 0 && checkoutStep === 'address' && (
-            <div className="p-4 sm:p-5 border-t border-pink-100 dark:border-pink-900/30 bg-white/95 dark:bg-neutral-900/95 space-y-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.06)] animate-fadeIn">
-              {/* Validation Warning Notice if fields missing */}
-              {Object.keys(addressErrors).length > 0 && (
-                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
-                  <span>Please fill in the required address fields highlighted above.</span>
-                </div>
-              )}
-
-              {/* Order total preview line */}
-              <div className="flex items-center justify-between text-xs pb-1">
-                <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">
-                    {paymentMode === 'full_cod' ? 'Cash Due on Delivery:' : paymentMode === 'partial_cod' ? 'Advance to Pay Now:' : 'Total Payable:'}{' '}
-                  </span>
-                  <span className="font-extrabold text-sm text-neutral-900 dark:text-white">
-                    ₹{paymentMode === 'partial_cod' ? paymentBreakdown.payNowINR : totalINR}
-                  </span>
-                  {paymentMode === 'full_cod' ? (
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
-                      (₹0 Advance • Pay cash to courier ✨)
-                    </span>
-                  ) : paymentMode === 'partial_cod' ? (
-                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold block">
-                      (₹{paymentBreakdown.balanceCodINR} cash due on delivery)
-                    </span>
-                  ) : null}
-                </div>
-                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
-                  Free Delivery Across India
-                </span>
-              </div>
-
-              {/* Action Buttons */}
+              {/* Action Buttons for Step 3 */}
               <div className="space-y-2 pt-1">
                 {paymentMode === 'full_cod' ? (
                   <button
@@ -2421,6 +2811,15 @@ ${closingUserMsg}`;
                   >
                     <span>📦 Place Cash on Delivery Order (Pay ₹{paymentBreakdown.finalTotalINR} on Delivery) →</span>
                   </button>
+                ) : paymentMode === 'partial_cod' ? (
+                  <button
+                    type="button"
+                    onClick={handleProceedToUpiPayment}
+                    className="w-full py-3.5 rounded-full text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] bg-purple-700 hover:bg-purple-800"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>Proceed to Pay ₹{paymentBreakdown.payNowINR} Advance (UPI) →</span>
+                  </button>
                 ) : (
                   <button
                     type="button"
@@ -2428,11 +2827,7 @@ ${closingUserMsg}`;
                     className="w-full py-3.5 rounded-full text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] bg-[#B81D24] hover:bg-[#9B151C]"
                   >
                     <QrCode className="w-4 h-4" />
-                    <span>
-                      {paymentMode === 'partial_cod'
-                        ? `Proceed to Pay ₹${paymentBreakdown.payNowINR} Advance (UPI) →`
-                        : `Proceed to Pay ₹${totalINR} (UPI QR Code) →`}
-                    </span>
+                    <span>Proceed to Pay ₹{paymentBreakdown.finalTotalINR} (UPI QR Code) →</span>
                   </button>
                 )}
 
@@ -2440,18 +2835,18 @@ ${closingUserMsg}`;
                 <button
                   type="button"
                   onClick={handleDirectAddressWhatsAppOrder}
-                  className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer active:scale-[0.99]"
+                  className="w-full py-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]"
                 >
-                  <WhatsAppIcon className="w-4 h-4 text-white fill-current" />
+                  <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
                   <span>💬 Book & Pay Directly on WhatsApp</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleBackToCart}
+                  onClick={handleBackToAddress}
                   className="w-full text-center py-1 text-xs font-bold text-neutral-500 dark:text-neutral-400 hover:text-pink-600 dark:hover:text-pink-400 transition cursor-pointer"
                 >
-                  ← Back to Bag to Edit Items
+                  ← Back to Delivery Address
                 </button>
               </div>
             </div>

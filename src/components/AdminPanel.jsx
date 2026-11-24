@@ -2868,6 +2868,19 @@ export default function AdminPanel({
                             className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-pink-400 resize-none font-medium"
                           />
                         </div>
+
+                        {/* Enable / Disable 100% Prepaid Toggle */}
+                        <label className="flex items-center gap-3 p-3 rounded-xl bg-pink-50/60 dark:bg-neutral-800/80 border border-pink-100 dark:border-neutral-700 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={paymentForm.prepaidEnabled !== false}
+                            onChange={(e) => setPaymentForm(prev => ({ ...prev, prepaidEnabled: e.target.checked }))}
+                            className="w-4 h-4 text-[#B81D24] rounded-sm focus:ring-pink-500"
+                          />
+                          <span className="text-xs font-bold text-neutral-900 dark:text-white select-none">
+                            Enable 100% Prepaid (Instant UPI QR Code Payment)
+                          </span>
+                        </label>
                       </div>
                     </div>
 
@@ -2902,6 +2915,45 @@ export default function AdminPanel({
                           Enable Full Cash on Delivery (100% COD with ₹0 Advance)
                         </span>
                       </label>
+
+                      {paymentForm.fullCodEnabled !== false && (
+                        <div className="space-y-2 pt-2 border-t border-emerald-100 dark:border-emerald-900/30">
+                          <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                            Full COD Extra Courier / Handling Fee (₹)
+                          </label>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div className="relative w-36">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400">₹</span>
+                              <input
+                                type="number"
+                                min={0}
+                                max={299}
+                                value={paymentForm.codFee ?? 49}
+                                onChange={(e) => setPaymentForm(prev => ({ ...prev, codFee: Math.max(0, Number(e.target.value) || 0) }))}
+                                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-emerald-200 dark:border-neutral-700 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                              />
+                            </div>
+                            {/* Preset chips */}
+                            {[0, 39, 49, 60, 79, 99].map(fee => (
+                              <button
+                                key={fee}
+                                type="button"
+                                onClick={() => setPaymentForm(prev => ({ ...prev, codFee: fee }))}
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold border cursor-pointer transition ${
+                                  Number(paymentForm.codFee) === fee
+                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                                    : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 hover:border-emerald-300'
+                                }`}
+                              >
+                                {fee === 0 ? '₹0 (Free COD)' : `₹${fee}`}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-normal">
+                            This extra fee is added to the customer's total only when they select Full Cash on Delivery. Set to ₹0 to offer completely Free COD with no extra charge.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* 4. PARTIAL COD (ADVANCE PAYMENT) CONFIGURATION */}
