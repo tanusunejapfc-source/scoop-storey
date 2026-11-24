@@ -108,13 +108,13 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
   };
 
   return (
-    <section className="relative pt-3 pb-8 md:pt-6 md:pb-12 px-3 sm:px-6 md:px-8 max-w-7xl mx-auto overflow-hidden">
+    <section className="relative pt-3 pb-8 md:pt-6 md:pb-12 px-2.5 sm:px-6 md:px-8 max-w-7xl mx-auto overflow-hidden">
       
       {/* Background Soft Blush Glow */}
       <div className="absolute top-4 left-1/4 w-96 h-96 rounded-full bg-[#FDF2F4] dark:bg-pink-950/20 blur-3xl pointer-events-none -z-10" />
 
       {/* Main Hero Container */}
-      <div className="rounded-3xl bg-[#FFF9F4] dark:bg-[#1E1724] border border-[#F3D7DC] dark:border-stone-800 p-5 sm:p-8 lg:p-10 transition-colors shadow-xs">
+      <div className="rounded-3xl bg-[#FFF9F4] dark:bg-[#1E1724] border border-[#F3D7DC] dark:border-stone-800 p-4 sm:p-8 lg:p-10 transition-colors shadow-xs">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           
           {/* ======================================================== */}

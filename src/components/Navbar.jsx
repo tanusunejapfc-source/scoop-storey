@@ -277,9 +277,9 @@ export default function Navbar({
 
       {/* Main Nav Container - Soft Warm Cream Ivory (#FFF9F4) matching screenshot */}
       <nav className="bg-[#FFF9F4] dark:bg-[#1A1326] border-b border-[#EAE4E5] dark:border-stone-800 transition-colors">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 py-2.5 sm:py-3">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 md:px-8 py-2 sm:py-3">
           {/* Top Row: Brand, Search, Action Pills */}
-          <div className="flex items-center justify-between gap-3 md:gap-6">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-4 md:gap-6">
             
             {/* Logo & Brand Identity */}
             <a 
@@ -290,26 +290,26 @@ export default function Navbar({
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 soundFX.playPop(500);
               }}
-              className="flex items-center gap-2 group shrink-0 min-w-0"
+              className="flex items-center gap-1.5 sm:gap-2 group min-w-0 shrink"
             >
               <div className="relative shrink-0">
                 <img 
                   src="/brand-avatar.jpg" 
                   alt="Tanu - Scoop Storey" 
-                  className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border border-[#EAE4E5] shadow-xs group-hover:scale-105 transition-transform"
+                  className="w-8 h-8 sm:w-11 sm:h-11 rounded-full object-cover border border-[#EAE4E5] shadow-xs group-hover:scale-105 transition-transform"
                 />
-                <span className="absolute -bottom-1 -right-1 text-[10px]">🌸</span>
+                <span className="absolute -bottom-1 -right-1 text-[9px] sm:text-[10px]">🌸</span>
               </div>
               <div className="flex flex-col justify-center min-w-0">
                 <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
-                  <span className="font-display font-extrabold text-base sm:text-xl md:text-2xl text-[#1A2536] dark:text-white tracking-tight whitespace-nowrap">
+                  <span className="font-display font-extrabold text-[15px] sm:text-xl md:text-2xl text-[#1A2536] dark:text-white tracking-tight whitespace-nowrap">
                     Scoop Storey
                   </span>
-                  <span className="text-[8px] sm:text-[9px] bg-[#FDF2F4] text-[#B81D24] font-bold px-1.5 py-0.5 rounded-full border border-[#F3D7DC] shrink-0">
+                  <span className="text-[7.5px] sm:text-[9px] bg-[#FDF2F4] text-[#B81D24] font-bold px-1 sm:px-1.5 py-0.2 rounded-full border border-[#F3D7DC] shrink-0">
                     KR
                   </span>
                 </div>
-                <span className="text-[9px] sm:text-xs font-script font-bold text-[#B81D24] tracking-wider leading-none mt-0.5 sm:mt-1 truncate">
+                <span className="text-[8.5px] sm:text-xs font-script font-bold text-[#B81D24] tracking-wider leading-none mt-0.5 sm:mt-1 truncate max-w-[125px] sm:max-w-none">
                   • Collect Happiness Everyday •
                 </span>
               </div>
@@ -334,7 +334,7 @@ export default function Navbar({
             </button>
 
             {/* Right Action Pills */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Mobile Search Button */}
               <button
                 type="button"
@@ -342,7 +342,7 @@ export default function Navbar({
                   onOpenSearch?.();
                   soundFX.playPop(550);
                 }}
-                className="md:hidden h-8 w-8 rounded-full border border-stone-200 bg-white text-stone-700 flex items-center justify-center hover:bg-stone-50 transition cursor-pointer shadow-xs"
+                className="md:hidden h-8 w-8 rounded-full border border-stone-200 bg-white text-stone-700 flex items-center justify-center hover:bg-stone-50 transition cursor-pointer shadow-xs active:scale-95 shrink-0"
                 title="Search products"
                 aria-label="Search Store"
               >
@@ -370,7 +370,7 @@ export default function Navbar({
                   onOpenWishlist?.();
                   soundFX.playPop(500);
                 }}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-stone-200 bg-white hover:bg-stone-50 text-[#1A2536] text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer"
+                className="h-8 px-2 sm:px-3 rounded-full border border-stone-200 bg-white hover:bg-stone-50 text-[#1A2536] text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1 shrink-0"
                 title="Your Wishlist"
                 aria-label="Wishlist"
               >
@@ -385,12 +385,12 @@ export default function Navbar({
                   onOpenCart();
                   soundFX.playPop(620);
                 }}
-                className="relative h-8 sm:h-9 px-3.5 sm:px-4 rounded-full bg-[#B81D24] hover:bg-[#9B151C] text-white flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition shrink-0 cursor-pointer font-bold text-xs"
+                className="relative h-8 sm:h-9 px-2.5 sm:px-4 rounded-full bg-[#B81D24] hover:bg-[#9B151C] text-white flex items-center justify-center gap-1 sm:gap-1.5 shadow-sm active:scale-95 transition shrink-0 cursor-pointer font-bold text-xs"
                 aria-label="View Shopping Cart"
               >
                 <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                <span>Cart</span>
-                <span className="font-extrabold ml-0.5">{cartCount}</span>
+                <span className="hidden sm:inline">Cart</span>
+                <span className="font-extrabold">{cartCount}</span>
               </button>
 
               {/* Sound Toggle */}
