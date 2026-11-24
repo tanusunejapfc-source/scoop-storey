@@ -757,7 +757,7 @@ export default function ProductCatalog({
                 <div
                   key={col.id}
                   onClick={() => handleEnterCollection(col.category)}
-                  className="group relative rounded-2xl bg-white dark:bg-[#1C1625] border border-stone-200/90 dark:border-stone-800 hover:border-rose-300 dark:hover:border-rose-800 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
+                  className="group relative rounded-2xl bg-white dark:bg-[#1C1625] border border-stone-200/90 dark:border-stone-800 hover:border-[#B81D24]/40 dark:hover:border-[#B81D24]/60 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
                 >
                   <div>
                     {/* Collection Cover Image Container (4:3 aspect for compact visual density) */}
@@ -789,7 +789,7 @@ export default function ProductCatalog({
 
                       {/* Bottom-left: Starting Price Pill */}
                       <div className="absolute bottom-2 left-2 z-10">
-                        <span className="px-2 py-0.5 rounded-lg bg-rose-600/90 backdrop-blur-md text-white font-display font-bold text-[10px] sm:text-xs shadow-xs">
+                        <span className="px-2 py-0.5 rounded-lg bg-[#B81D24]/95 backdrop-blur-md text-white font-display font-bold text-[10px] sm:text-xs shadow-xs">
                           From ₹{col.minPrice}
                         </span>
                       </div>
@@ -801,12 +801,12 @@ export default function ProductCatalog({
                         <span className="text-base sm:text-lg flex items-center shrink-0">
                           {renderCollectionIcon(col, 'w-4 h-4')}
                         </span>
-                        <h3 className="font-display font-bold text-xs sm:text-sm text-stone-900 dark:text-white group-hover:text-rose-600 transition-colors truncate">
+                        <h3 className="font-display font-bold text-xs sm:text-sm text-stone-900 dark:text-white group-hover:text-[#B81D24] transition-colors truncate">
                           {col.name}
                         </h3>
                       </div>
 
-                      <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 dark:text-rose-400 truncate">
+                      <p className="text-[10px] sm:text-[11px] font-bold text-[#B81D24] dark:text-rose-400 truncate">
                         {col.tagline}
                       </p>
 
@@ -824,10 +824,10 @@ export default function ProductCatalog({
                         e.stopPropagation();
                         handleEnterCollection(col.category);
                       }}
-                      className="w-full py-1.5 sm:py-2 px-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 group-hover:bg-rose-500 text-stone-700 dark:text-stone-300 group-hover:text-white font-display font-semibold text-[10px] sm:text-xs tracking-wide transition-all flex items-center justify-center gap-1 border border-stone-200 dark:border-stone-700 group-hover:border-rose-500"
+                      className="w-full py-2 px-3 rounded-xl bg-[#B81D24] hover:bg-[#9B151C] text-white font-display font-bold text-[11px] sm:text-xs tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-xs shadow-[#B81D24]/20 active:scale-[0.98] cursor-pointer"
                     >
                       <span>Explore Collection</span>
-                      <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
