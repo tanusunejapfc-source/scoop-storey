@@ -275,8 +275,8 @@ export default function Navbar({
         )}
       </div>
 
-      {/* Main Nav Container - Pure White with Subtle Border */}
-      <nav className="bg-white dark:bg-[#1A1326] border-b border-[#EAE4E5] dark:border-stone-800 transition-colors">
+      {/* Main Nav Container - Soft Warm Cream Ivory (#FFF9F4) matching screenshot */}
+      <nav className="bg-[#FFF9F4] dark:bg-[#1A1326] border-b border-[#EAE4E5] dark:border-stone-800 transition-colors">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 py-2.5 sm:py-3">
           {/* Top Row: Brand, Search, Action Pills */}
           <div className="flex items-center justify-between gap-3 md:gap-6">
@@ -322,7 +322,7 @@ export default function Navbar({
                 onOpenSearch?.();
                 soundFX.playPop(550);
               }}
-              className="hidden md:flex items-center justify-between flex-1 max-w-sm lg:max-w-md px-4 py-2 rounded-full border border-stone-200 bg-stone-50/60 hover:bg-white text-stone-500 hover:text-stone-800 transition text-xs shadow-xs cursor-pointer"
+              className="hidden md:flex items-center justify-between flex-1 max-w-sm lg:max-w-md px-4 py-2 rounded-full border border-stone-200 bg-white hover:bg-stone-50 text-stone-500 hover:text-stone-800 transition text-xs shadow-xs cursor-pointer"
               title="Search products (Ctrl + K)"
               aria-label="Search Store"
             >
