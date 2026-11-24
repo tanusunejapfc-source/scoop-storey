@@ -60,11 +60,11 @@ const ProductCardItem = React.memo(function ProductCardItem({
   return (
     <div
       onClick={() => onSelectProduct?.(product)}
-      className="group rounded-3xl bg-white dark:bg-[#1E172E] overflow-hidden border-2 border-pink-200/80 dark:border-pink-900/60 hover:shadow-2xl hover:border-pink-400 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-md cursor-pointer h-full"
+      className="group rounded-2xl bg-white dark:bg-[#1C1625] overflow-hidden border border-stone-200/90 dark:border-stone-800 hover:border-rose-300 dark:hover:border-rose-900/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-xs cursor-pointer h-full"
     >
       <div>
         {/* 4:5 Standard E-Commerce Ratio Container */}
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-900">
           <img
             src={product.image || product.images?.[0] || '/images/deluxe-giftbox.webp'}
             alt={product.name}
@@ -78,7 +78,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
           />
           
           {/* Badge */}
-          <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
+          <span className="absolute top-2.5 left-2.5 z-10 px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-neutral-900/90 backdrop-blur-md text-[11px] font-bold text-stone-800 dark:text-stone-200 shadow-xs border border-stone-200/60 dark:border-neutral-800 pointer-events-none">
             {product.badge || 'Popular ✨'}
           </span>
 
@@ -89,10 +89,10 @@ const ProductCardItem = React.memo(function ProductCardItem({
               e.stopPropagation();
               toggleWishlist(product);
             }}
-            className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+            className={`absolute top-2.5 right-2.5 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
               isWishlisted(product.id)
-                ? 'bg-[#E60067] text-white shadow-md scale-105'
-                : 'bg-white/95 dark:bg-neutral-900/95 text-neutral-400 hover:text-[#E60067] shadow-sm'
+                ? 'bg-rose-500 text-white shadow-md scale-105'
+                : 'bg-white/95 dark:bg-neutral-900/90 text-stone-400 hover:text-rose-500 shadow-xs border border-stone-200/50 dark:border-neutral-800'
             }`}
             title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
             aria-label="Save to favorites"
@@ -102,45 +102,45 @@ const ProductCardItem = React.memo(function ProductCardItem({
 
           {/* Multiple Photos Pill */}
           {imageCount > 1 && (
-            <div className="absolute top-12 right-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white shadow-xs">
-              <Images className="w-3 h-3 text-pink-300" />
+            <div className="absolute top-11 right-2.5 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-medium text-white shadow-xs">
+              <Images className="w-3 h-3 text-rose-200" />
               <span>{imageCount} Photos</span>
             </div>
           )}
 
           {/* Pack on Reel Tag */}
-          <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-bold text-white shadow-xs pointer-events-none">
-            <Video className="w-3 h-3 text-pink-400" />
-            <span>Eligible for IG Reel packing</span>
+          <div className="absolute bottom-2.5 left-2.5 z-10 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-medium text-white shadow-xs pointer-events-none">
+            <Video className="w-3 h-3 text-rose-300" />
+            <span>Eligible for IG Reel</span>
           </div>
 
           {/* Quick View Hover Overlay Button */}
-          <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-            <div className="px-4 py-2 rounded-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-bold text-xs text-[#E60067] shadow-xl flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-              <Eye className="w-3.5 h-3.5" />
-              <span>View Colors & Details</span>
+          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+            <div className="px-3.5 py-1.5 rounded-xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-semibold text-xs text-stone-800 dark:text-stone-100 shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+              <Eye className="w-3.5 h-3.5 text-rose-500" />
+              <span>Quick View</span>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-5">
-          <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider mb-1">
-            <span className="text-[#E60067] dark:text-pink-400">
+        <div className="p-4 sm:p-4.5">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+            <span className="text-rose-600 dark:text-rose-400">
               {product.collection || (Array.isArray(product.collections) && product.collections[0]) || product.category}
             </span>
             {product.rating && (
-              <span className="text-amber-500 font-extrabold flex items-center gap-0.5">
+              <span className="text-amber-500 font-bold flex items-center gap-0.5">
                 ★ {product.rating}
               </span>
             )}
           </div>
 
-          <h3 className="font-display font-extrabold text-base md:text-lg text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors">
+          <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-rose-600 transition-colors line-clamp-1">
             {product.name}
           </h3>
 
-          <p className="mt-1.5 text-xs text-[#554664] dark:text-[#D5CBE2] line-clamp-2 leading-relaxed font-medium">
+          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed font-normal">
             {product.description}
           </p>
 
@@ -179,13 +179,13 @@ const ProductCardItem = React.memo(function ProductCardItem({
 
       {/* Price & Action Buttons */}
       <div 
-        className="p-5 pt-0 space-y-2.5"
+        className="p-4 sm:p-4.5 pt-0 space-y-2"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-display font-black text-[#231733] dark:text-white">
+              <span className="text-xl sm:text-2xl font-display font-bold text-stone-900 dark:text-white">
                 ₹{product.priceINR}
               </span>
               <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
@@ -197,18 +197,18 @@ const ProductCardItem = React.memo(function ProductCardItem({
           <button
             type="button"
             onClick={() => onSelectProduct?.(product)}
-            className="py-2 px-3.5 rounded-xl btn-3d-pink text-white font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+            className="py-1.5 px-3 rounded-xl btn-3d-pink text-white font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
             title={colorCount > 1 ? "Choose Colors & View Details" : "View Product Details"}
           >
             {colorCount > 1 ? (
               <>
                 <Palette className="w-3.5 h-3.5 text-white" />
-                <span>Choose Colors</span>
+                <span>Colors</span>
               </>
             ) : (
               <>
                 <Eye className="w-3.5 h-3.5 text-white" />
-                <span>View Details</span>
+                <span>Details</span>
               </>
             )}
           </button>
@@ -220,7 +220,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold flex items-center justify-center gap-1.5 border border-emerald-200 dark:border-emerald-800 transition-colors"
+          className="w-full py-1.5 px-2.5 rounded-xl bg-stone-50 hover:bg-emerald-50 dark:bg-stone-900/60 dark:hover:bg-emerald-950/40 text-stone-600 hover:text-emerald-700 dark:text-stone-300 dark:hover:text-emerald-300 text-[10px] sm:text-[11px] font-medium flex items-center justify-center gap-1.5 border border-stone-200/80 hover:border-emerald-300 dark:border-stone-800 transition-colors"
         >
           <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
           <span>Inquire on WhatsApp (+91 8199922653)</span>
@@ -757,11 +757,11 @@ export default function ProductCatalog({
                 <div
                   key={col.id}
                   onClick={() => handleEnterCollection(col.category)}
-                  className="group relative rounded-2xl sm:rounded-3xl bg-white dark:bg-[#1E172E] border-2 border-pink-200/90 dark:border-pink-900/60 hover:border-[#E60067] dark:hover:border-pink-500 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
+                  className="group relative rounded-2xl bg-white dark:bg-[#1C1625] border border-stone-200/90 dark:border-stone-800 hover:border-rose-300 dark:hover:border-rose-800 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
                 >
                   <div>
                     {/* Collection Cover Image Container (4:3 aspect for compact visual density) */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-b from-pink-50 to-pink-100/50 dark:from-[#251A38] dark:to-[#181126]">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-b from-stone-50 to-stone-100/60 dark:from-[#251A38] dark:to-[#181126]">
                       <img
                         src={col.coverImage}
                         alt={col.name}
@@ -778,18 +778,18 @@ export default function ProductCatalog({
 
                       {/* Top Badges */}
                       <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 z-10">
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black shadow-xs border ${deptMeta.chipClass}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold shadow-xs border ${deptMeta.chipClass}`}>
                           {deptMeta.label}
                         </span>
 
-                        <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white font-extrabold text-[9px] sm:text-[10px] shadow-xs">
+                        <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white font-medium text-[9px] sm:text-[10px] shadow-xs">
                           {col.itemsCount} Items
                         </span>
                       </div>
 
                       {/* Bottom-left: Starting Price Pill */}
                       <div className="absolute bottom-2 left-2 z-10">
-                        <span className="px-2 py-0.5 rounded-lg bg-pink-600/90 backdrop-blur-md text-white font-display font-extrabold text-[10px] sm:text-xs shadow-xs">
+                        <span className="px-2 py-0.5 rounded-lg bg-rose-600/90 backdrop-blur-md text-white font-display font-bold text-[10px] sm:text-xs shadow-xs">
                           From ₹{col.minPrice}
                         </span>
                       </div>
@@ -801,16 +801,16 @@ export default function ProductCatalog({
                         <span className="text-base sm:text-lg flex items-center shrink-0">
                           {renderCollectionIcon(col, 'w-4 h-4')}
                         </span>
-                        <h3 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white group-hover:text-[#E60067] transition-colors truncate">
+                        <h3 className="font-display font-bold text-xs sm:text-sm text-stone-900 dark:text-white group-hover:text-rose-600 transition-colors truncate">
                           {col.name}
                         </h3>
                       </div>
 
-                      <p className="text-[10px] sm:text-[11px] font-bold text-pink-600 dark:text-pink-400 truncate">
+                      <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 dark:text-rose-400 truncate">
                         {col.tagline}
                       </p>
 
-                      <p className="text-[10px] text-[#554664] dark:text-[#D5CBE2] line-clamp-1 font-medium hidden sm:block">
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 line-clamp-1 font-normal hidden sm:block">
                         {col.description}
                       </p>
                     </div>
@@ -824,7 +824,7 @@ export default function ProductCatalog({
                         e.stopPropagation();
                         handleEnterCollection(col.category);
                       }}
-                      className="w-full py-1.5 sm:py-2 px-2.5 rounded-xl bg-pink-50 dark:bg-neutral-800 group-hover:bg-[#E60067] text-[#E60067] dark:text-pink-300 group-hover:text-white font-display font-bold text-[10px] sm:text-xs tracking-wide transition-all flex items-center justify-center gap-1 border border-pink-200 dark:border-neutral-700 group-hover:border-[#E60067]"
+                      className="w-full py-1.5 sm:py-2 px-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 group-hover:bg-rose-500 text-stone-700 dark:text-stone-300 group-hover:text-white font-display font-semibold text-[10px] sm:text-xs tracking-wide transition-all flex items-center justify-center gap-1 border border-stone-200 dark:border-stone-700 group-hover:border-rose-500"
                     >
                       <span>Explore Collection</span>
                       <ArrowRight className="w-3 h-3 transform group-hover:translate-x-1 transition-transform" />

@@ -182,7 +182,7 @@ export default function Navbar({
 
   const tickerBg = hasCustom && themeGradients[customAnnouncement.bgTheme]
     ? themeGradients[customAnnouncement.bgTheme]
-    : 'from-pink-600 via-purple-600 to-pink-600 text-white';
+    : 'from-[#D66885] via-[#C95B78] to-[#D66885] text-white';
 
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
@@ -243,12 +243,12 @@ export default function Navbar({
                 <span>✨</span>
                 <span><strong>Notice:</strong> Free Delivery Across India on Orders ₹499+</span>
               </div>
-              <span className="text-pink-300">•</span>
+              <span className="text-pink-200">•</span>
               <div className="flex items-center gap-1.5">
                 <span>📦</span>
                 <span>Cash on Delivery (COD) Available Across India!</span>
               </div>
-              <span className="text-pink-300">•</span>
+              <span className="text-pink-200">•</span>
               <a 
                 href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai" 
                 target="_blank" 
@@ -266,8 +266,8 @@ export default function Navbar({
       {/* Main Glass Nav */}
       <nav className={`px-3 sm:px-6 md:px-8 py-2.5 sm:py-3 transition-all duration-300 ${
         scrolled 
-          ? 'bg-white/95 dark:bg-[#1A1326]/95 shadow-md backdrop-blur-xl border-b-2 border-pink-200 dark:border-pink-900' 
-          : 'bg-white/90 dark:bg-[#1A1326]/90 backdrop-blur-md border-b border-pink-100 dark:border-pink-950'
+          ? 'bg-white/95 dark:bg-[#1A1326]/95 shadow-sm backdrop-blur-xl border-b border-stone-200/90 dark:border-stone-800' 
+          : 'bg-white/90 dark:bg-[#1A1326]/90 backdrop-blur-md border-b border-stone-200/60 dark:border-stone-900'
       }`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 xl:gap-8">
           
@@ -286,20 +286,20 @@ export default function Navbar({
               <img 
                 src="/brand-avatar.jpg" 
                 alt="Tanu - Scoop Storey" 
-                className="w-8 h-8 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-pink-400 shadow-md group-hover:scale-105 transition-transform"
+                className="w-8 h-8 sm:w-11 sm:h-11 rounded-full object-cover border border-rose-300 shadow-sm group-hover:scale-105 transition-transform"
               />
               <span className="absolute -bottom-1 -right-1 text-[10px] sm:text-xs">✨</span>
             </div>
             <div className="flex flex-col justify-center min-w-0">
               <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
-                <span className="font-display font-black text-sm sm:text-lg md:text-xl text-[#231733] dark:text-white tracking-tight whitespace-nowrap">
+                <span className="font-display font-extrabold text-sm sm:text-lg md:text-xl text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
                   Scoop Storey
                 </span>
-                <span className="text-[8px] sm:text-[9px] bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 font-black px-1.5 py-0.5 rounded-full border border-pink-300 dark:border-pink-800 shrink-0">
+                <span className="text-[8px] sm:text-[9px] bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-300 font-bold px-1.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-900 shrink-0">
                   3D
                 </span>
               </div>
-              <span className="text-[9px] sm:text-xs font-script font-bold text-[#E60067] dark:text-pink-400 tracking-wider leading-none mt-0.5 sm:mt-1 truncate">
+              <span className="text-[9px] sm:text-xs font-script font-bold text-rose-500 dark:text-rose-400 tracking-wider leading-none mt-0.5 sm:mt-1 truncate">
                 • Collect Happiness •
               </span>
             </div>

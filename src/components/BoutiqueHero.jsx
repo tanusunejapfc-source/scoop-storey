@@ -105,19 +105,19 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
         <div className="lg:col-span-6 space-y-5 text-center lg:text-left z-10">
           
           {/* Top Boutique Live Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100/90 dark:bg-pink-950/70 border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 font-extrabold text-[11px] sm:text-xs tracking-wide uppercase shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-[#E60067] animate-ping shrink-0" />
-            <span>India 🇮🇳 • FREE Delivery on ₹499+ • No Minimum Order</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-300 font-bold text-[11px] sm:text-xs tracking-wide uppercase shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0" />
+            <span>India 🇮🇳 • FREE Delivery on ₹499+ • Cash on Delivery</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-display font-extrabold tracking-tight text-[#231733] dark:text-white leading-[1.12]">
+          <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-display font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.12]">
             Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
           </h1>
 
           {/* Boutique Tagline */}
-          <p className="text-sm sm:text-base md:text-lg text-[#554664] dark:text-[#E0D7EB] font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
-            India's viral boutique for <strong className="text-pink-600 dark:text-pink-300 font-bold">18K anti-tarnish jewelry</strong>, pastel Korean quilted bags, handmade charm bracelets, and interactive 3D ASMR mystery scoops — all hand-packed live on Instagram Reels!
+          <p className="text-sm sm:text-base md:text-lg text-[#6B5E5B] dark:text-[#E0D7EB] font-normal leading-relaxed max-w-xl mx-auto lg:mx-0">
+            India's viral boutique for <strong className="text-rose-600 dark:text-rose-300 font-semibold">18K anti-tarnish jewelry</strong>, pastel Korean quilted bags, handmade charm bracelets, and interactive 3D ASMR mystery scoops — all hand-packed live on Instagram Reels!
           </p>
 
           {/* Primary Action Buttons */}
@@ -125,7 +125,7 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
             <a
               href="#menu"
               onClick={handleScrollToCollections}
-              className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition cursor-pointer text-center"
+              className="w-full sm:w-auto btn-3d-pink px-7 py-3.5 rounded-2xl font-display font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition cursor-pointer text-center"
             >
               <Sparkles className="w-4 h-4 text-yellow-300 fill-yellow-300" />
               <span>Explore Collections</span>
@@ -135,9 +135,9 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
             <a
               href="#scoop-machine"
               onClick={handleScrollToScoopMachine}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border-2 border-pink-300 dark:border-pink-700 text-[#231733] dark:text-white font-display font-extrabold text-sm sm:text-base hover:bg-pink-50 dark:hover:bg-neutral-700 hover:border-pink-500 transition shadow-sm flex items-center justify-center gap-2 cursor-pointer text-center"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-neutral-800/90 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-white font-display font-semibold text-sm sm:text-base hover:bg-stone-50 dark:hover:bg-neutral-700 hover:border-stone-400 transition shadow-xs flex items-center justify-center gap-2 cursor-pointer text-center"
             >
-              <MiniScoopIcon className="w-4 h-4 text-pink-500" />
+              <MiniScoopIcon className="w-4 h-4 text-rose-500" />
               <span>Dip 3D Scoop Studio</span>
             </a>
           </div>

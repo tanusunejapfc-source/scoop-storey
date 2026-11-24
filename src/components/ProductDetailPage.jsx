@@ -667,12 +667,12 @@ export default function ProductDetailPage({
               </div>
 
               {/* Price Row */}
-              <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-3xl font-display font-black text-[#E60067] dark:text-pink-400">
+              <div className="mt-3 flex items-baseline gap-2.5">
+                <span className="text-3xl font-display font-bold text-stone-900 dark:text-white">
                   ₹{product.priceINR}
                 </span>
-                <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
-                  (100% Prepaid UPI / QR)
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  COD Available
                 </span>
               </div>
 
@@ -803,7 +803,7 @@ export default function ProductDetailPage({
                 {/* Inquire on WhatsApp Link */}
                 <a
                   href={`https://wa.me/918199922653?text=${encodeURIComponent(
-                    `Hi Scoop Storey! 🎀 Mujhe "${product.name}" (${selectedColor?.name || 'Standard'}) ke baare me inquiry karni hai. (Prepaid Store • Free Shipping ₹499+)`
+                    `Hi Scoop Storey! 🎀 Mujhe "${product.name}" (${selectedColor?.name || 'Standard'}) ke baare me inquiry karni hai. (COD Available • Free Shipping ₹499+)`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
