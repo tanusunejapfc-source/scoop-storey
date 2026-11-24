@@ -174,20 +174,32 @@ export default function Navbar({
   const hasCustom = customAnnouncement && customAnnouncement.enabled && customAnnouncement.text?.trim();
 
   const themeGradients = {
-    pink: 'from-pink-600 via-rose-500 to-pink-600 text-white',
-    purple: 'from-purple-800 via-fuchsia-700 to-purple-800 text-white',
-    gold: 'from-amber-600 via-yellow-500 to-amber-600 text-neutral-950 font-black',
-    black: 'from-neutral-950 via-slate-900 to-neutral-950 text-pink-300'
+    pink: 'bg-[#B81D24] text-white',
+    purple: 'bg-[#801017] text-white',
+    gold: 'bg-amber-600 text-white font-black',
+    black: 'bg-neutral-950 text-white'
   };
 
   const tickerBg = hasCustom && themeGradients[customAnnouncement.bgTheme]
     ? themeGradients[customAnnouncement.bgTheme]
-    : 'from-[#D66885] via-[#C95B78] to-[#D66885] text-white';
+    : 'bg-[#A31D24] text-white';
+
+  const categoryNavItems = [
+    { label: 'Home', isHome: true },
+    { label: 'All Products', isAllCollections: true },
+    { label: 'Pendants & Chains', category: 'Pendants & Chains' },
+    { label: 'Wallets & Bags', category: 'Korean wallets and bags' },
+    { label: 'Bracelets', category: 'Bracelets' },
+    { label: '3D Mystery Scoops', href: '#scoop-machine' },
+    { label: 'Kawaii Stationery', category: 'Kawaii Stationery' },
+    { label: 'ASMR Reels', href: '#reels' },
+    { label: 'Reviews', href: '#reviews' }
+  ];
 
   return (
-    <header className="sticky top-0 z-40 w-full transition-all duration-300">
-      {/* Top Ticker Announcement */}
-      <div className={`bg-gradient-to-r ${tickerBg} text-[11px] md:text-xs font-bold py-2 px-3 text-center tracking-wide overflow-hidden shadow-sm transition-colors duration-300`}>
+    <header className="sticky top-0 z-40 w-full transition-all duration-300 shadow-xs">
+      {/* Top Ticker Announcement - Solid Crimson as in Seoulmate */}
+      <div className={`${tickerBg} text-[11px] md:text-xs font-bold py-2 px-3 text-center tracking-wide overflow-hidden transition-colors duration-300`}>
         {hasCustom ? (
           <div className="flex items-center justify-center gap-2 px-2 py-0.5 text-center">
             <span className="animate-bounce shrink-0">📢</span>
@@ -238,17 +250,17 @@ export default function Navbar({
             </div>
 
             {/* Desktop: Full Horizontal Inline Notice */}
-            <div className="hidden sm:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
+            <div className="hidden sm:flex items-center justify-center gap-3 md:gap-4 flex-wrap text-white">
               <div className="flex items-center gap-1.5">
                 <span>✨</span>
-                <span><strong>Notice:</strong> Free Delivery Across India on Orders ₹499+</span>
+                <span><strong>Notice:</strong> 10% off on prepaid orders • Free delivery on orders ₹499+</span>
               </div>
-              <span className="text-pink-200">•</span>
+              <span className="text-white/60">•</span>
               <div className="flex items-center gap-1.5">
                 <span>📦</span>
                 <span>Cash on Delivery (COD) Available Across India!</span>
               </div>
-              <span className="text-pink-200">•</span>
+              <span className="text-white/60">•</span>
               <a 
                 href="https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai" 
                 target="_blank" 
@@ -263,152 +275,195 @@ export default function Navbar({
         )}
       </div>
 
-      {/* Main Glass Nav */}
-      <nav className={`px-3 sm:px-6 md:px-8 py-2.5 sm:py-3 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-white/95 dark:bg-[#1A1326]/95 shadow-sm backdrop-blur-xl border-b border-stone-200/90 dark:border-stone-800' 
-          : 'bg-white/90 dark:bg-[#1A1326]/90 backdrop-blur-md border-b border-stone-200/60 dark:border-stone-900'
-      }`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 xl:gap-8">
-          
-          {/* Logo & Brand Identity */}
-          <a 
-            href="/" 
-            onClick={(e) => {
-              e.preventDefault();
-              onSelectCategory?.(null);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              soundFX.playPop(500);
-            }}
-            className="flex items-center gap-1.5 sm:gap-3 group shrink-0 min-w-0"
-          >
-            <div className="relative shrink-0">
-              <img 
-                src="/brand-avatar.jpg" 
-                alt="Tanu - Scoop Storey" 
-                className="w-8 h-8 sm:w-11 sm:h-11 rounded-full object-cover border border-rose-300 shadow-sm group-hover:scale-105 transition-transform"
-              />
-              <span className="absolute -bottom-1 -right-1 text-[10px] sm:text-xs">✨</span>
-            </div>
-            <div className="flex flex-col justify-center min-w-0">
-              <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
-                <span className="font-display font-extrabold text-sm sm:text-lg md:text-xl text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
-                  Scoop Storey
-                </span>
-                <span className="text-[8px] sm:text-[9px] bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-300 font-bold px-1.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-900 shrink-0">
-                  3D
+      {/* Main Nav Container - Pure White with Subtle Border */}
+      <nav className="bg-white dark:bg-[#1A1326] border-b border-[#EAE4E5] dark:border-stone-800 transition-colors">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 py-2.5 sm:py-3">
+          {/* Top Row: Brand, Search, Action Pills */}
+          <div className="flex items-center justify-between gap-3 md:gap-6">
+            
+            {/* Logo & Brand Identity */}
+            <a 
+              href="/" 
+              onClick={(e) => {
+                e.preventDefault();
+                onSelectCategory?.(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                soundFX.playPop(500);
+              }}
+              className="flex items-center gap-2 group shrink-0 min-w-0"
+            >
+              <div className="relative shrink-0">
+                <img 
+                  src="/brand-avatar.jpg" 
+                  alt="Tanu - Scoop Storey" 
+                  className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border border-[#EAE4E5] shadow-xs group-hover:scale-105 transition-transform"
+                />
+                <span className="absolute -bottom-1 -right-1 text-[10px]">🌸</span>
+              </div>
+              <div className="flex flex-col justify-center min-w-0">
+                <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
+                  <span className="font-serif-display font-bold text-base sm:text-xl md:text-2xl text-[#1A2536] dark:text-white tracking-tight whitespace-nowrap">
+                    Scoop Storey
+                  </span>
+                  <span className="text-[8px] sm:text-[9px] bg-[#FDF2F4] text-[#B81D24] font-bold px-1.5 py-0.5 rounded-full border border-[#F3D7DC] shrink-0">
+                    KR
+                  </span>
+                </div>
+                <span className="text-[9px] sm:text-xs font-script font-bold text-[#B81D24] tracking-wider leading-none mt-0.5 sm:mt-1 truncate">
+                  • Collect Happiness Everyday •
                 </span>
               </div>
-              <span className="text-[9px] sm:text-xs font-script font-bold text-rose-500 dark:text-rose-400 tracking-wider leading-none mt-0.5 sm:mt-1 truncate">
-                • Collect Happiness •
-              </span>
-            </div>
-          </a>
+            </a>
 
-          {/* Desktop Nav Links - Centered & Clean */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5 justify-center flex-1 min-w-0 px-2">
-            {navLinks.slice(0, 5).map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={(e) => {
-                  soundFX.playPop(480);
-                  if (link.isAllCollections) {
-                    e.preventDefault();
-                    onSelectCategory?.('All Items');
-                  } else if (link.category) {
-                    e.preventDefault();
-                    onSelectCategory?.(link.category);
-                  } else if (link.href?.startsWith('#')) {
-                    e.preventDefault();
-                    onSelectCategory?.(null);
-                    const targetId = link.href.slice(1);
-                    setTimeout(() => {
-                      const el = document.getElementById(targetId);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth' });
-                      } else {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }, 50);
-                  }
-                }}
-                className="inline-flex items-center text-xs sm:text-sm font-bold text-[#3B2C4C] dark:text-[#E0D7EB] hover:text-[#E60067] dark:hover:text-pink-400 transition-colors relative group py-1.5 whitespace-nowrap"
-              >
-                <span>{link.label}</span>
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-200 group-hover:w-full rounded-full" />
-              </a>
-            ))}
-          </div>
-
-          {/* Action Buttons: STRICTLY Logo, Search, Sound, Cart + Side Menu Button */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* 1. Search Icon Button */}
+            {/* Desktop Pill Search Bar (Seoulmate Style) */}
             <button
               type="button"
               onClick={() => {
                 onOpenSearch?.();
                 soundFX.playPop(550);
               }}
-              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2.5 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center gap-1.5 hover:bg-pink-100 dark:hover:bg-neutral-700 transition text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95"
+              className="hidden md:flex items-center justify-between flex-1 max-w-sm lg:max-w-md px-4 py-2 rounded-full border border-stone-200 bg-stone-50/60 hover:bg-white text-stone-500 hover:text-stone-800 transition text-xs shadow-xs cursor-pointer"
               title="Search products (Ctrl + K)"
               aria-label="Search Store"
             >
-              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E60067] dark:text-pink-400" />
-              <span className="hidden md:inline text-[11px] text-neutral-600 dark:text-neutral-300">Search</span>
-              <kbd className="hidden xl:inline text-[9px] bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 px-1 py-0.5 rounded text-neutral-400 font-mono">⌘K</kbd>
+              <div className="flex items-center gap-2 text-stone-500">
+                <Search className="w-3.5 h-3.5 text-stone-400" />
+                <span className="truncate">Search 18k jewelry, bags, scoops, stationery...</span>
+              </div>
+              <kbd className="text-[9px] bg-white border border-stone-200 px-1.5 py-0.5 rounded text-stone-400 font-mono shrink-0">⌘K</kbd>
             </button>
 
-            {/* 2. Sound Icon Button */}
-            <button
-              type="button"
-              onClick={handleToggleSound}
-              className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-pink-50/80 dark:bg-neutral-800 text-[#231733] dark:text-neutral-200 border border-pink-200 dark:border-neutral-700 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition shrink-0 cursor-pointer shadow-xs active:scale-95"
-              title={soundEnabled ? 'Mute ASMR sound effects' : 'Enable ASMR sound effects'}
-              aria-label="Toggle Sound"
-            >
-              {soundEnabled ? (
-                <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E60067] dark:text-pink-400" />
-              ) : (
-                <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400" />
-              )}
-            </button>
+            {/* Right Action Pills */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Mobile Search Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenSearch?.();
+                  soundFX.playPop(550);
+                }}
+                className="md:hidden h-8 w-8 rounded-full border border-stone-200 bg-white text-stone-700 flex items-center justify-center hover:bg-stone-50 transition cursor-pointer shadow-xs"
+                title="Search products"
+                aria-label="Search Store"
+              >
+                <Search className="w-3.5 h-3.5" />
+              </button>
 
-            {/* 3. Cart Icon Button */}
-            <button
-              type="button"
-              onClick={() => {
-                onOpenCart();
-                soundFX.playPop(620);
-              }}
-              className="relative h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white flex items-center justify-center gap-1.5 shadow-md hover:from-pink-600 hover:to-rose-700 active:scale-95 transition shrink-0 cursor-pointer"
-              aria-label="View Shopping Bag"
-            >
-              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              <span className="hidden sm:inline font-bold text-xs">Bag</span>
-              {cartCount > 0 && (
-                <span className="min-w-[16px] sm:min-w-[18px] h-4 sm:h-[18px] px-1 rounded-full bg-yellow-400 text-purple-950 text-[9px] sm:text-[10px] font-black flex items-center justify-center shadow-xs">
-                  {cartCount}
-                </span>
-              )}
-            </button>
+              {/* Order Tracking Pill */}
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenTracking?.();
+                  soundFX.playPop(500);
+                }}
+                className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-stone-200 bg-white hover:bg-stone-50 text-[#1A2536] text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer"
+                title="Track your order"
+              >
+                <Truck className="w-3.5 h-3.5 text-stone-600" />
+                <span>Track Order</span>
+              </button>
 
-            {/* 4. Side Menu Toggle Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setSideMenuOpen(true);
-                soundFX.playPop(500);
-              }}
-              className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-pink-50/90 dark:bg-neutral-800 text-[#231733] dark:text-neutral-100 border-2 border-pink-300 dark:border-pink-800 flex items-center justify-center hover:bg-pink-100 dark:hover:bg-neutral-700 transition shrink-0 cursor-pointer shadow-xs active:scale-95"
-              aria-label="Open Side Menu"
-              title="Menu & Store Options"
-            >
-              <Menu className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#E60067] ring-2 ring-white dark:ring-neutral-900" />
-              )}
-            </button>
+              {/* Wishlist Pill */}
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenWishlist?.();
+                  soundFX.playPop(500);
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-stone-200 bg-white hover:bg-stone-50 text-[#1A2536] text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer"
+                title="Your Wishlist"
+                aria-label="Wishlist"
+              >
+                <Heart className={`w-3.5 h-3.5 ${wishlistCount > 0 ? 'text-[#B81D24] fill-[#B81D24]' : 'text-stone-600'}`} />
+                <span className="text-xs font-bold">{wishlistCount}</span>
+              </button>
+
+              {/* Cart Pill - Solid Crimson Red (Seoulmate Exact) */}
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenCart();
+                  soundFX.playPop(620);
+                }}
+                className="relative h-8 sm:h-9 px-3.5 sm:px-4 rounded-full bg-[#B81D24] hover:bg-[#9B151C] text-white flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition shrink-0 cursor-pointer font-bold text-xs"
+                aria-label="View Shopping Cart"
+              >
+                <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                <span>Cart</span>
+                <span className="font-extrabold ml-0.5">{cartCount}</span>
+              </button>
+
+              {/* Sound Toggle */}
+              <button
+                type="button"
+                onClick={handleToggleSound}
+                className="hidden sm:flex h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-stone-200 bg-white text-stone-700 items-center justify-center hover:bg-stone-50 transition cursor-pointer shadow-xs"
+                title={soundEnabled ? 'Mute ASMR sound effects' : 'Enable ASMR sound effects'}
+                aria-label="Toggle Sound"
+              >
+                {soundEnabled ? (
+                  <Volume2 className="w-3.5 h-3.5 text-[#B81D24]" />
+                ) : (
+                  <VolumeX className="w-3.5 h-3.5 text-stone-400" />
+                )}
+              </button>
+
+              {/* Side Menu Drawer Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSideMenuOpen(true);
+                  soundFX.playPop(500);
+                }}
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-stone-200 bg-white text-stone-800 flex items-center justify-center hover:bg-stone-50 transition shrink-0 cursor-pointer shadow-xs active:scale-95"
+                aria-label="Open Store Menu"
+                title="Store Options"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Row: Seoulmate Style Horizontal Navigation Links */}
+          <div className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 pt-3 mt-1 border-t border-stone-100 dark:border-stone-800 text-xs font-semibold text-[#1A2536] dark:text-[#E0D7EB]">
+            {categoryNavItems.map((item, idx) => {
+              const isFirst = idx === 0;
+              return (
+                <a
+                  key={item.label}
+                  href={item.href || '#collections'}
+                  onClick={(e) => {
+                    soundFX.playPop(480);
+                    if (item.isHome) {
+                      e.preventDefault();
+                      onSelectCategory?.(null);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else if (item.isAllCollections) {
+                      e.preventDefault();
+                      onSelectCategory?.('All Items');
+                      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+                    } else if (item.category) {
+                      e.preventDefault();
+                      onSelectCategory?.(item.category);
+                      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+                    } else if (item.href?.startsWith('#')) {
+                      e.preventDefault();
+                      const target = document.getElementById(item.href.slice(1));
+                      if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                  }}
+                  className={`transition-colors pb-1 cursor-pointer whitespace-nowrap ${
+                    isFirst 
+                      ? 'text-[#B81D24] font-bold border-b-2 border-[#B81D24]' 
+                      : 'hover:text-[#B81D24] text-[#1A2536] dark:text-stone-300'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </div>
         </div>
       </nav>
@@ -453,7 +508,7 @@ export default function Navbar({
                         3D
                       </span>
                     </div>
-                    <span className="text-[10px] font-script font-bold text-[#E60067] dark:text-pink-400 block mt-0.5">
+                    <span className="text-[10px] font-script font-bold text-[#B81D24] dark:text-pink-400 block mt-0.5">
                       • Collect Happiness •
                     </span>
                   </div>
@@ -465,7 +520,7 @@ export default function Navbar({
                     setSideMenuOpen(false);
                     soundFX.playPop(450);
                   }}
-                  className="w-8 h-8 rounded-full bg-pink-100/80 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-[#E60067] hover:bg-pink-200 transition flex items-center justify-center cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-pink-100/80 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-[#B81D24] hover:bg-pink-200 transition flex items-center justify-center cursor-pointer"
                   aria-label="Close Side Menu"
                 >
                   <X className="w-4 h-4" />
@@ -504,7 +559,7 @@ export default function Navbar({
                       </div>
                     </div>
                     {/* Toggle Switch Visual */}
-                    <div className={`w-10 h-5 rounded-full p-0.5 transition-colors ${isDark ? 'bg-[#E60067]' : 'bg-neutral-300 dark:bg-neutral-600'}`}>
+                    <div className={`w-10 h-5 rounded-full p-0.5 transition-colors ${isDark ? 'bg-[#B81D24]' : 'bg-neutral-300 dark:bg-neutral-600'}`}>
                       <div className={`w-4 h-4 rounded-full bg-white transition-transform ${isDark ? 'translate-x-5' : 'translate-x-0'}`} />
                     </div>
                   </button>
@@ -520,8 +575,8 @@ export default function Navbar({
                     className="w-full flex items-center justify-between p-3 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/80 border border-pink-200/70 dark:border-neutral-700 hover:bg-pink-100/70 dark:hover:bg-neutral-750 transition cursor-pointer text-left shadow-2xs"
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-950/80 flex items-center justify-center text-[#E60067] dark:text-pink-400 shrink-0">
-                        <Heart className={`w-4 h-4 ${wishlistCount > 0 ? 'fill-[#E60067] dark:fill-pink-400' : ''}`} />
+                      <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-950/80 flex items-center justify-center text-[#B81D24] dark:text-pink-400 shrink-0">
+                        <Heart className={`w-4 h-4 ${wishlistCount > 0 ? 'fill-[#B81D24] dark:fill-pink-400' : ''}`} />
                       </div>
                       <div>
                         <div className="text-xs font-bold text-neutral-900 dark:text-white">
@@ -534,7 +589,7 @@ export default function Navbar({
                     </div>
                     <div className="flex items-center gap-1.5">
                       {wishlistCount > 0 && (
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#E60067] text-white">
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#B81D24] text-white">
                           {wishlistCount}
                         </span>
                       )}
@@ -554,7 +609,7 @@ export default function Navbar({
                   >
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/80 flex items-center justify-center text-purple-700 dark:text-purple-300 shrink-0">
-                        <Truck className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                        <Truck className="w-4 h-4 text-[#B81D24] dark:text-pink-400" />
                       </div>
                       <div>
                         <div className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
@@ -566,7 +621,7 @@ export default function Navbar({
                         </div>
                       </div>
                     </div>
-                    <span className="text-xs font-black text-[#E60067] dark:text-pink-400">
+                    <span className="text-xs font-black text-[#B81D24] dark:text-pink-400">
                       Live ➔
                     </span>
                   </button>
@@ -583,7 +638,7 @@ export default function Navbar({
                   >
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-neutral-700 flex items-center justify-center text-pink-700 dark:text-pink-300 shrink-0">
-                        <Sliders className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                        <Sliders className="w-4 h-4 text-[#B81D24] dark:text-pink-400" />
                       </div>
                       <div>
                         <div className="text-xs font-bold text-neutral-900 dark:text-white">
@@ -685,7 +740,7 @@ export default function Navbar({
 
                 {/* 4. Policy Micro Notice */}
                 <div className="p-3 rounded-2xl bg-pink-100/60 dark:bg-neutral-800/60 border border-pink-200 dark:border-pink-900/40 text-center text-[10px] text-[#554664] dark:text-[#D5CBE2] space-y-0.5">
-                  <div className="font-extrabold text-[#E60067] dark:text-pink-400">
+                  <div className="font-extrabold text-[#B81D24] dark:text-pink-400">
                     India 🇮🇳 • Any 3 Products or Order ₹499+
                   </div>
                   <div>100% Free Express Delivery Across India</div>

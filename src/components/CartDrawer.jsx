@@ -997,7 +997,7 @@ ${closingUserMsg}`;
                 <button
                   type="button"
                   onClick={handleBackToAddress}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#B81D24] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
                   title="Return to Address Details"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1012,7 +1012,7 @@ ${closingUserMsg}`;
                 <button
                   type="button"
                   onClick={handleBackToCart}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-pink-950/80 dark:hover:bg-pink-900 text-[#B81D24] dark:text-pink-300 font-display font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
                   title="Return to Cart to add/remove items"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1107,7 +1107,7 @@ ${closingUserMsg}`;
                 {/* PROMINENT TOP BACK TO EDIT BANNER CARD */}
                 <div className="p-3 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-[#251A38] dark:via-[#2A1E40] dark:to-[#251A38] border-2 border-pink-200 dark:border-pink-900/60 flex items-center justify-between shadow-xs">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#E60067] dark:text-pink-300 font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#B81D24] dark:text-pink-300 font-bold shrink-0">
                       <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
@@ -1123,7 +1123,7 @@ ${closingUserMsg}`;
                     <button
                       type="button"
                       onClick={handleBackToAddress}
-                      className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-800 cursor-pointer flex items-center gap-1 active:scale-95 transition"
+                      className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#B81D24] dark:text-pink-300 font-display font-extrabold text-xs shadow-xs border border-pink-200 dark:border-pink-800 cursor-pointer flex items-center gap-1 active:scale-95 transition"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
                       <span>Address</span>
@@ -1149,17 +1149,17 @@ ${closingUserMsg}`;
                         soundFX.playPop(550);
                       }}
                       className={`p-3 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${paymentMode === 'full_prepaid'
-                          ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#E60067] dark:border-pink-500 text-neutral-900 dark:text-white'
+                          ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#B81D24] dark:border-pink-500 text-neutral-900 dark:text-white'
                           : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
                         }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1">
-                          <span className="font-display font-extrabold text-xs text-[#E60067] dark:text-pink-400 flex items-center gap-1">
+                          <span className="font-display font-extrabold text-xs text-[#B81D24] dark:text-pink-400 flex items-center gap-1">
                             <span>⚡ 100% Prepaid</span>
                           </span>
                           {paymentMode === 'full_prepaid' && (
-                            <div className="w-4 h-4 rounded-full bg-[#E60067] text-white flex items-center justify-center shrink-0">
+                            <div className="w-4 h-4 rounded-full bg-[#B81D24] text-white flex items-center justify-center shrink-0">
                               <Check className="w-2.5 h-2.5" />
                             </div>
                           )}
@@ -1510,9 +1510,9 @@ ${closingUserMsg}`;
                         <label className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed transition cursor-pointer text-center ${
                           upiRefError
                             ? 'border-rose-400 bg-rose-50/50 dark:border-rose-700'
-                            : 'border-pink-300 dark:border-neutral-700 hover:border-[#E60067] bg-pink-50/40 dark:bg-neutral-800/40'
+                            : 'border-pink-300 dark:border-neutral-700 hover:border-[#B81D24] bg-pink-50/40 dark:bg-neutral-800/40'
                         }`}>
-                          <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-950/60 text-[#E60067] flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-950/60 text-[#B81D24] flex items-center justify-center">
                             <Upload className="w-5 h-5" />
                           </div>
                           <div>
@@ -1565,7 +1565,7 @@ ${closingUserMsg}`;
                 {/* ORDER RECAP CHIP */}
                 <div className="p-3 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-[#251A38] dark:via-[#2A1E40] dark:to-[#251A38] border border-pink-200 dark:border-pink-900/60 flex items-center justify-between shadow-xs">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#E60067] dark:text-pink-300 font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center text-[#B81D24] dark:text-pink-300 font-bold shrink-0">
                       <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
@@ -1582,7 +1582,7 @@ ${closingUserMsg}`;
                   <button
                     type="button"
                     onClick={handleBackToCart}
-                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-[11px] shadow-xs border border-pink-200 dark:border-pink-800 shrink-0 cursor-pointer flex items-center gap-1 active:scale-95 transition"
+                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-pink-50 dark:hover:bg-neutral-700 text-[#B81D24] dark:text-pink-300 font-display font-extrabold text-[11px] shadow-xs border border-pink-200 dark:border-pink-800 shrink-0 cursor-pointer flex items-center gap-1 active:scale-95 transition"
                   >
                     <ArrowLeft className="w-3 h-3" />
                     <span>Edit Bag</span>
@@ -1897,7 +1897,7 @@ ${closingUserMsg}`;
                       {isFreeShipping ? (
                         <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       ) : (
-                        <Truck className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
+                        <Truck className="w-3.5 h-3.5 text-[#B81D24] dark:text-pink-400 shrink-0" />
                       )}
                       <span>
                         {!isFreeShipping
@@ -1909,7 +1909,7 @@ ${closingUserMsg}`;
                     </span>
                     <span className="text-[11px] font-black">
                       {!isFreeShipping ? (
-                        <span className="text-[#E60067] dark:text-pink-400">
+                        <span className="text-[#B81D24] dark:text-pink-400">
                           ₹{itemsNetINR}/₹499
                         </span>
                       ) : (
@@ -1926,7 +1926,7 @@ ${closingUserMsg}`;
                       className={`h-full rounded-full transition-all duration-500 ${
                         isFreeShipping
                           ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-pink-500'
-                          : 'bg-gradient-to-r from-[#E60067] via-pink-500 to-purple-500'
+                          : 'bg-gradient-to-r from-[#B81D24] via-pink-500 to-purple-500'
                       }`}
                       style={{
                         width: !isFreeShipping
@@ -1977,7 +1977,7 @@ ${closingUserMsg}`;
                             <h5 className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
                               {item.name}
                             </h5>
-                            <span className="font-display font-black text-xs sm:text-sm text-[#E60067] dark:text-pink-400 shrink-0">
+                            <span className="font-display font-black text-xs sm:text-sm text-[#B81D24] dark:text-pink-400 shrink-0">
                               ₹{item.priceINR * item.qty}
                             </span>
                           </div>
@@ -2046,12 +2046,12 @@ ${closingUserMsg}`;
                   <div data-bundle-helper className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-pink-500/10 to-purple-500/10 border-2 border-dashed border-pink-300 dark:border-pink-800 space-y-2.5 animate-fadeIn">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                        <Sparkles className="w-4 h-4 text-[#B81D24] dark:text-pink-400" />
                         <h5 className="font-display font-extrabold text-xs sm:text-sm text-[#231733] dark:text-white">
                           Add ₹{amountNeededForFreeShipping} more to unlock FREE Delivery! 🚚
                         </h5>
                       </div>
-                      <span className="text-[10px] font-bold text-[#E60067] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-[#B81D24] dark:text-pink-300 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
                         Save ₹49 ✨
                       </span>
                     </div>
@@ -2081,7 +2081,7 @@ ${closingUserMsg}`;
                             <h6 className="font-display font-bold text-[11px] text-[#231733] dark:text-white line-clamp-1">
                               {addon.name}
                             </h6>
-                            <div className="text-xs font-black text-[#E60067] dark:text-pink-400">
+                            <div className="text-xs font-black text-[#B81D24] dark:text-pink-400">
                               ₹{addon.priceINR}
                             </div>
                           </div>
@@ -2089,7 +2089,7 @@ ${closingUserMsg}`;
                           <button
                             type="button"
                             onClick={() => handleQuickAddBundleItem(addon)}
-                            className="mt-2 w-full py-1.5 px-2 rounded-lg bg-[#E60067] hover:bg-[#D8005A] text-white font-display font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer active:scale-95 transition"
+                            className="mt-2 w-full py-1.5 px-2 rounded-lg bg-[#B81D24] hover:bg-[#D8005A] text-white font-display font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer active:scale-95 transition"
                           >
                             <Plus className="w-3 h-3" />
                             <span>Add</span>
@@ -2101,15 +2101,15 @@ ${closingUserMsg}`;
                       <button
                         type="button"
                         onClick={handleGoToCollections}
-                        className="w-32 sm:w-36 shrink-0 p-3 rounded-xl bg-gradient-to-b from-pink-100/90 to-purple-100/90 dark:from-pink-950/70 dark:to-purple-950/70 border-2 border-dashed border-[#E60067]/50 hover:border-[#E60067] flex flex-col items-center justify-center text-center cursor-pointer transition active:scale-95 shadow-xs group"
+                        className="w-32 sm:w-36 shrink-0 p-3 rounded-xl bg-gradient-to-b from-pink-100/90 to-purple-100/90 dark:from-pink-950/70 dark:to-purple-950/70 border-2 border-dashed border-[#B81D24]/50 hover:border-[#B81D24] flex flex-col items-center justify-center text-center cursor-pointer transition active:scale-95 shadow-xs group"
                       >
-                        <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center text-[#E60067] mb-1.5 shadow-xs group-hover:scale-110 transition">
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center text-[#B81D24] mb-1.5 shadow-xs group-hover:scale-110 transition">
                           <ArrowRight className="w-4 h-4" />
                         </div>
                         <span className="font-display font-extrabold text-[11px] text-[#231733] dark:text-white leading-tight">
                           View Full Collection
                         </span>
-                        <span className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold mt-1">
+                        <span className="text-[10px] text-[#B81D24] dark:text-pink-400 font-bold mt-1">
                           Browse All →
                         </span>
                       </button>
@@ -2119,9 +2119,9 @@ ${closingUserMsg}`;
                     <button
                       type="button"
                       onClick={handleGoToCollections}
-                      className="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-pink-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-800 shadow-xs cursor-pointer transition active:scale-[0.99]"
+                      className="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-pink-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#B81D24] dark:text-pink-300 font-display font-bold text-xs flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-800 shadow-xs cursor-pointer transition active:scale-[0.99]"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#B81D24] dark:text-pink-400" />
                       <span>View Full Collection & Browse All Goodies →</span>
                     </button>
                   </div>
@@ -2170,7 +2170,7 @@ ${closingUserMsg}`;
                       <span>📦 Cash on Delivery</span>
                     </span>
                   ) : paymentMode === 'full_prepaid' ? (
-                    <span className="text-[#E60067] dark:text-pink-400 font-extrabold flex items-center gap-1">
+                    <span className="text-[#B81D24] dark:text-pink-400 font-extrabold flex items-center gap-1">
                       <span>⚡ 100% Prepaid UPI</span>
                     </span>
                   ) : (
@@ -2223,17 +2223,17 @@ ${closingUserMsg}`;
                     }}
                     className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
                       paymentMode === 'full_prepaid'
-                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#E60067] dark:border-pink-500 text-neutral-900 dark:text-white'
+                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-[#B81D24] dark:border-pink-500 text-neutral-900 dark:text-white'
                         : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-1">
-                        <span className="font-display font-extrabold text-xs text-[#E60067] dark:text-pink-400 flex items-center gap-1">
+                        <span className="font-display font-extrabold text-xs text-[#B81D24] dark:text-pink-400 flex items-center gap-1">
                           <span>⚡ 100% Prepaid</span>
                         </span>
                         {paymentMode === 'full_prepaid' && (
-                          <div className="w-3.5 h-3.5 rounded-full bg-[#E60067] text-white flex items-center justify-center shrink-0">
+                          <div className="w-3.5 h-3.5 rounded-full bg-[#B81D24] text-white flex items-center justify-center shrink-0">
                             <Check className="w-2 h-2" />
                           </div>
                         )}
@@ -2328,7 +2328,7 @@ ${closingUserMsg}`;
                 <button
                   type="button"
                   onClick={handleQuickWhatsAppOrder}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-display font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition cursor-pointer"
+                  className="w-full py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition cursor-pointer"
                 >
                   <WhatsAppIcon className="w-5 h-5 text-white fill-current" />
                   <span>💬 1-Tap Quick Order on WhatsApp</span>
@@ -2343,7 +2343,7 @@ ${closingUserMsg}`;
                 <button
                   type="button"
                   onClick={handleProceedToAddress}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-pink-500/25 transition cursor-pointer"
+                  className="w-full py-3.5 rounded-full bg-[#B81D24] hover:bg-[#9B151C] active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
                 >
                   <span>{paymentMode === 'full_cod' ? 'Proceed to Delivery Details (COD)' : 'Proceed to Delivery Details'}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2417,7 +2417,7 @@ ${closingUserMsg}`;
                   <button
                     type="button"
                     onClick={handleConfirmFullCodOrder}
-                    className="w-full py-3.5 rounded-2xl text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/25"
+                    className="w-full py-3.5 rounded-full text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/25"
                   >
                     <span>📦 Place Cash on Delivery Order (Pay ₹{paymentBreakdown.finalTotalINR} on Delivery) →</span>
                   </button>
@@ -2425,11 +2425,7 @@ ${closingUserMsg}`;
                   <button
                     type="button"
                     onClick={handleProceedToUpiPayment}
-                    className={`w-full py-3.5 rounded-2xl text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] ${
-                      paymentMode === 'partial_cod'
-                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:to-pink-700'
-                        : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700'
-                    }`}
+                    className="w-full py-3.5 rounded-full text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] bg-[#B81D24] hover:bg-[#9B151C]"
                   >
                     <QrCode className="w-4 h-4" />
                     <span>

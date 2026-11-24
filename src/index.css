@@ -4,22 +4,26 @@
 
 @layer base {
   :root {
-    --bg-page: #FAF8F5;
+    --bg-page: #FFFFFF;
     --bg-surface: #FFFFFF;
-    --bg-surface-glass: rgba(255, 255, 255, 0.94);
+    --bg-surface-glass: rgba(255, 255, 255, 0.96);
     --bg-surface-elevated: #FFFFFF;
-    --border-subtle: rgba(226, 218, 214, 0.8);
-    --border-highlight: rgba(214, 104, 133, 0.45);
-    --text-main: #2C2523;
-    --text-muted: #6B5E5B;
-    --text-brand: #C95B78;
-    --accent-pink: #DE6B88;
+    --bg-soft-blush: #FDF2F4;
+    --border-subtle: #EAE4E5;
+    --border-highlight: rgba(184, 29, 36, 0.35);
+    --text-main: #1A2536;
+    --text-muted: #5A6270;
+    --text-brand: #B81D24;
+    --accent-crimson: #B81D24;
+    --accent-crimson-hover: #9B151C;
+    --accent-crimson-deep: #801017;
+    --accent-pink: #B81D24;
     --accent-lilac: #8F6A99;
     --accent-peach: #D97352;
     --accent-mint: #2E8B7E;
     --accent-lemon: #D49B24;
-    --shadow-soft: 0 8px 24px -4px rgba(44, 37, 35, 0.06);
-    --shadow-glow: 0 0 25px rgba(222, 107, 136, 0.18);
+    --shadow-soft: 0 4px 20px -2px rgba(26, 37, 54, 0.06);
+    --shadow-glow: 0 0 25px rgba(184, 29, 36, 0.16);
   }
 
   .dark {
@@ -27,11 +31,15 @@
     --bg-surface: #1E1724;
     --bg-surface-glass: rgba(30, 23, 36, 0.92);
     --bg-surface-elevated: #281F30;
+    --bg-soft-blush: #231620;
     --border-subtle: rgba(220, 160, 185, 0.25);
     --border-highlight: rgba(222, 107, 136, 0.5);
     --text-main: #FAF8F5;
     --text-muted: #D1C7D6;
     --text-brand: #E8829C;
+    --accent-crimson: #E8829C;
+    --accent-crimson-hover: #F295AA;
+    --accent-crimson-deep: #B81D24;
     --accent-pink: #DE6B88;
     --accent-lilac: #B88ED0;
     --accent-peach: #F29579;
@@ -66,10 +74,18 @@
   }
 }
 
-/* Custom Typography Helpers - Refined Korean Minimalist Aesthetic */
+/* Custom Typography Helpers - Refined Seoulmate Aesthetic */
+.font-serif-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
 .font-display {
-  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Playfair Display', Georgia, serif;
   letter-spacing: -0.015em;
+}
+
+.font-sans-display {
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
 
 .font-body {
@@ -90,7 +106,7 @@
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-subtle);
 }
@@ -99,23 +115,42 @@
   background: rgba(30, 23, 46, 0.85);
 }
 
-/* Modern Aesthetic Button Styles */
-.btn-3d-pink {
-  background: linear-gradient(135deg, #DE6B88 0%, #C4516E 100%);
-  box-shadow: 0 4px 14px rgba(196, 81, 110, 0.25);
+/* Seoulmate Exact Crimson Red Pill Button */
+.btn-3d-pink,
+.btn-crimson-pill {
+  background: #B81D24 !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 14px rgba(184, 29, 36, 0.28);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   color: #FFFFFF !important;
 }
 
-.btn-3d-pink:hover {
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 20px rgba(196, 81, 110, 0.35);
-  filter: brightness(1.03);
+.btn-3d-pink:hover,
+.btn-crimson-pill:hover {
+  background: #9B151C !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(184, 29, 36, 0.36);
+  filter: brightness(1.02);
 }
 
-.btn-3d-pink:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 6px rgba(196, 81, 110, 0.2);
+.btn-3d-pink:active,
+.btn-crimson-pill:active {
+  transform: translateY(0.5px);
+  box-shadow: 0 2px 6px rgba(184, 29, 36, 0.2);
+}
+
+.btn-outline-pill {
+  background: #FFFFFF !important;
+  border: 1px solid #D1D5DB !important;
+  color: #1A2536 !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-pill:hover {
+  border-color: #B81D24 !important;
+  color: #B81D24 !important;
+  background: #FFF7F8 !important;
 }
 
 .btn-3d-gold {
@@ -201,11 +236,11 @@
   animation: spinSlow 20s linear infinite;
 }
 
-/* Refined Aesthetic Shimmer Text */
+/* Refined Seoulmate Crimson Shimmer Text */
 .shimmer-text {
-  background: linear-gradient(90deg, #C4516E 0%, #8F6A99 35%, #D97352 70%, #C4516E 100%);
+  background: linear-gradient(90deg, #B81D24 0%, #D8313A 40%, #B81D24 80%);
   background-size: 200% auto;
-  color: #C4516E;
+  color: #B81D24;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -240,7 +275,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #E60067;
+    background: #B81D24;
   }
 }
 

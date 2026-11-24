@@ -310,8 +310,8 @@ export default function CategoryIconsBar({
         {/* Header Tagline & Micro-Notice */}
         <div className="flex items-center justify-between mb-3 px-1">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#E60067] animate-pulse" />
-            <span className="text-[11px] sm:text-xs font-display font-extrabold uppercase tracking-wider text-[#E60067] dark:text-pink-400">
+            <span className="w-2 h-2 rounded-full bg-[#B81D24] animate-pulse" />
+            <span className="text-[11px] sm:text-xs font-display font-extrabold uppercase tracking-wider text-[#B81D24] dark:text-pink-400">
               Explore Collections
             </span>
             <span className="text-neutral-400 text-xs hidden sm:inline">•</span>
@@ -325,7 +325,7 @@ export default function CategoryIconsBar({
             <button
               type="button"
               onClick={() => handleScroll('left')}
-              className="w-7 h-7 rounded-full bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:text-[#E60067] hover:border-pink-400 transition flex items-center justify-center shadow-xs cursor-pointer active:scale-95"
+              className="w-7 h-7 rounded-full bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:text-[#B81D24] hover:border-pink-400 transition flex items-center justify-center shadow-xs cursor-pointer active:scale-95"
               aria-label="Scroll categories left"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -333,7 +333,7 @@ export default function CategoryIconsBar({
             <button
               type="button"
               onClick={() => handleScroll('right')}
-              className="w-7 h-7 rounded-full bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:text-[#E60067] hover:border-pink-400 transition flex items-center justify-center shadow-xs cursor-pointer active:scale-95"
+              className="w-7 h-7 rounded-full bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:text-[#B81D24] hover:border-pink-400 transition flex items-center justify-center shadow-xs cursor-pointer active:scale-95"
               aria-label="Scroll categories right"
             >
               <ChevronRight className="w-4 h-4" />
@@ -387,7 +387,7 @@ export default function CategoryIconsBar({
                     <span 
                       className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-[#1E172E] border-2 shadow-sm flex items-center justify-center text-xs transition-transform group-hover:scale-110 overflow-hidden ${
                         isSelected 
-                          ? 'border-[#E60067] shadow-pink-500/30 animate-bounce' 
+                          ? 'border-[#B81D24] shadow-pink-500/30 animate-bounce' 
                           : 'border-pink-200 dark:border-pink-900'
                       }`}
                     >
@@ -403,8 +403,8 @@ export default function CategoryIconsBar({
                   <span 
                     className={`font-display font-bold text-xs sm:text-[13px] tracking-tight text-center max-w-[80px] sm:max-w-[95px] line-clamp-1 transition-colors leading-tight ${
                       isSelected
-                        ? 'text-[#E60067] dark:text-pink-400 font-extrabold'
-                        : 'text-[#231733] dark:text-white group-hover:text-[#E60067] dark:group-hover:text-pink-400'
+                        ? 'text-[#B81D24] dark:text-pink-400 font-extrabold'
+                        : 'text-[#231733] dark:text-white group-hover:text-[#B81D24] dark:group-hover:text-pink-400'
                     }`}
                   >
                     {item.shortName || item.name}
@@ -414,7 +414,7 @@ export default function CategoryIconsBar({
                   <span 
                     className={`text-[10px] font-semibold mt-0.5 tracking-tight transition-colors ${
                       isSelected
-                        ? 'text-[#E60067] dark:text-pink-300 font-bold'
+                        ? 'text-[#B81D24] dark:text-pink-300 font-bold'
                         : 'text-[#716182] dark:text-neutral-400'
                     }`}
                   >

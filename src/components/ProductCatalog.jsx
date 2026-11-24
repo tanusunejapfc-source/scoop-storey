@@ -60,7 +60,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
   return (
     <div
       onClick={() => onSelectProduct?.(product)}
-      className="group rounded-2xl bg-white dark:bg-[#1C1625] overflow-hidden border border-stone-200/90 dark:border-stone-800 hover:border-rose-300 dark:hover:border-rose-900/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-xs cursor-pointer h-full"
+      className="group rounded-2xl bg-white dark:bg-[#1C1625] overflow-hidden border border-stone-200/90 dark:border-stone-800 hover:border-[#B81D24] dark:hover:border-[#B81D24] hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-xs cursor-pointer h-full"
     >
       <div>
         {/* 4:5 Standard E-Commerce Ratio Container */}
@@ -91,8 +91,8 @@ const ProductCardItem = React.memo(function ProductCardItem({
             }}
             className={`absolute top-2.5 right-2.5 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
               isWishlisted(product.id)
-                ? 'bg-rose-500 text-white shadow-md scale-105'
-                : 'bg-white/95 dark:bg-neutral-900/90 text-stone-400 hover:text-rose-500 shadow-xs border border-stone-200/50 dark:border-neutral-800'
+                ? 'bg-[#B81D24] text-white shadow-md scale-105'
+                : 'bg-white/95 dark:bg-neutral-900/90 text-stone-400 hover:text-[#B81D24] shadow-xs border border-stone-200/50 dark:border-neutral-800'
             }`}
             title={isWishlisted(product.id) ? 'Remove from favorites' : 'Save to favorites'}
             aria-label="Save to favorites"
@@ -116,8 +116,8 @@ const ProductCardItem = React.memo(function ProductCardItem({
 
           {/* Quick View Hover Overlay Button */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-            <div className="px-3.5 py-1.5 rounded-xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-semibold text-xs text-stone-800 dark:text-stone-100 shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-              <Eye className="w-3.5 h-3.5 text-rose-500" />
+            <div className="px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md font-display font-semibold text-xs text-stone-800 dark:text-stone-100 shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+              <Eye className="w-3.5 h-3.5 text-[#B81D24]" />
               <span>Quick View</span>
             </div>
           </div>
@@ -126,7 +126,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
         {/* Content */}
         <div className="p-4 sm:p-4.5">
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-            <span className="text-rose-600 dark:text-rose-400">
+            <span className="text-[#B81D24] dark:text-rose-400">
               {product.collection || (Array.isArray(product.collections) && product.collections[0]) || product.category}
             </span>
             {product.rating && (
@@ -136,7 +136,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
             )}
           </div>
 
-          <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-rose-600 transition-colors line-clamp-1">
+          <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-[#B81D24] transition-colors line-clamp-1">
             {product.name}
           </h3>
 
@@ -165,10 +165,10 @@ const ProductCardItem = React.memo(function ProductCardItem({
 
           {/* Highlights */}
           {product.includes && product.includes.length > 0 && (
-            <div className="mt-3.5 pt-3 border-t border-pink-100 dark:border-pink-900/40 space-y-1">
+            <div className="mt-3.5 pt-3 border-t border-stone-100 dark:border-stone-800 space-y-1">
               {product.includes.slice(0, 2).map((inc, i) => (
                 <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-[#483A54] dark:text-[#D5CBE2]">
-                  <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
+                  <Check className="w-3.5 h-3.5 text-[#B81D24] shrink-0" />
                   <span className="truncate">{inc}</span>
                 </div>
               ))}
@@ -197,7 +197,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
           <button
             type="button"
             onClick={() => onSelectProduct?.(product)}
-            className="py-1.5 px-3 rounded-xl btn-3d-pink text-white font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+            className="py-1.5 px-3.5 rounded-full bg-[#B81D24] hover:bg-[#9B151C] text-white font-display font-bold text-xs tracking-wide transition-all flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
             title={colorCount > 1 ? "Choose Colors & View Details" : "View Product Details"}
           >
             {colorCount > 1 ? (
@@ -220,7 +220,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="w-full py-1.5 px-2.5 rounded-xl bg-stone-50 hover:bg-emerald-50 dark:bg-stone-900/60 dark:hover:bg-emerald-950/40 text-stone-600 hover:text-emerald-700 dark:text-stone-300 dark:hover:text-emerald-300 text-[10px] sm:text-[11px] font-medium flex items-center justify-center gap-1.5 border border-stone-200/80 hover:border-emerald-300 dark:border-stone-800 transition-colors"
+          className="w-full py-1.5 px-2.5 rounded-full bg-stone-50 hover:bg-emerald-50 dark:bg-stone-900/60 dark:hover:bg-emerald-950/40 text-stone-600 hover:text-emerald-700 dark:text-stone-300 dark:hover:text-emerald-300 text-[10px] sm:text-[11px] font-medium flex items-center justify-center gap-1.5 border border-stone-200/80 hover:border-emerald-300 dark:border-stone-800 transition-colors"
         >
           <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
           <span>Inquire on WhatsApp (+91 8199922653)</span>

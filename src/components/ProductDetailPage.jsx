@@ -419,17 +419,17 @@ export default function ProductDetailPage({
             <button
               onClick={onClose}
               type="button"
-              className="px-3.5 py-1.5 rounded-2xl bg-pink-100/90 hover:bg-pink-200 dark:bg-pink-950/80 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer active:scale-95 shadow-xs shrink-0"
+              className="px-3.5 py-1.5 rounded-2xl bg-pink-100/90 hover:bg-pink-200 dark:bg-pink-950/80 text-[#B81D24] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer active:scale-95 shadow-xs shrink-0"
               aria-label="Back to collection"
             >
-              <ChevronLeft className="w-4 h-4 text-[#E60067]" />
+              <ChevronLeft className="w-4 h-4 text-[#B81D24]" />
               <span>Back</span>
             </button>
 
             <button
               type="button"
               onClick={() => onSelectCollection ? onSelectCollection(null) : onClose()}
-              className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition hidden sm:inline"
+              className="hover:text-[#B81D24] dark:hover:text-pink-400 hover:underline cursor-pointer transition hidden sm:inline"
             >
               Home
             </button>
@@ -437,12 +437,12 @@ export default function ProductDetailPage({
             <button
               type="button"
               onClick={() => onSelectCollection ? onSelectCollection(product.collection || product.category) : onClose()}
-              className="hover:text-[#E60067] dark:hover:text-pink-400 hover:underline cursor-pointer transition truncate max-w-[150px] sm:max-w-none"
+              className="hover:text-[#B81D24] dark:hover:text-pink-400 hover:underline cursor-pointer transition truncate max-w-[150px] sm:max-w-none"
             >
               {product.collection || product.category}
             </button>
             <span>/</span>
-            <span className="text-[#E60067] dark:text-pink-400 font-bold truncate max-w-[180px] sm:max-w-none">
+            <span className="text-[#B81D24] dark:text-pink-400 font-bold truncate max-w-[180px] sm:max-w-none">
               {product.name}
             </span>
           </div>
@@ -453,7 +453,7 @@ export default function ProductDetailPage({
               className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 hover:bg-pink-50 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
               title="Share Link"
             >
-              <Share2 className="w-3.5 h-3.5 text-[#E60067]" />
+              <Share2 className="w-3.5 h-3.5 text-[#B81D24]" />
               <span className="hidden sm:inline">{copiedLink ? 'Link Copied!' : 'Share'}</span>
             </button>
 
@@ -462,12 +462,12 @@ export default function ProductDetailPage({
               onClick={() => toggleWishlist(product)}
               className={`px-3 py-1.5 rounded-xl border transition text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs ${
                 isWishlisted(product.id)
-                  ? 'bg-[#E60067] text-white border-[#E60067]'
+                  ? 'bg-[#B81D24] text-white border-[#B81D24]'
                   : 'bg-white dark:bg-neutral-800 border-pink-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-pink-50'
               }`}
               title="Save to favorites"
             >
-              <Heart className={`w-3.5 h-3.5 ${isWishlisted(product.id) ? 'fill-white text-white' : 'text-[#E60067]'}`} />
+              <Heart className={`w-3.5 h-3.5 ${isWishlisted(product.id) ? 'fill-white text-white' : 'text-[#B81D24]'}`} />
               <span className="hidden sm:inline">{isWishlisted(product.id) ? 'Saved' : 'Wishlist'}</span>
             </button>
           </div>
@@ -515,7 +515,7 @@ export default function ProductDetailPage({
               </div>
 
               {/* Badge */}
-              <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#E60067] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
+              <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-xs font-black text-[#B81D24] dark:text-pink-400 shadow-sm border border-pink-200/60 dark:border-pink-800 pointer-events-none">
                 {product.badge || 'Kawaii Favorite ✨'}
               </span>
 
@@ -553,7 +553,7 @@ export default function ProductDetailPage({
                       key={i}
                       className={`transition-all rounded-full ${
                         i === activeImageIndex 
-                          ? 'w-4 h-1.5 bg-[#E60067]' 
+                          ? 'w-4 h-1.5 bg-[#B81D24]' 
                           : 'w-1.5 h-1.5 bg-white/60'
                       }`}
                     />
@@ -586,7 +586,7 @@ export default function ProductDetailPage({
                       onClick={() => handleSelectImageIndex(idx)}
                       className={`relative w-16 h-20 rounded-xl p-0.5 shrink-0 transition-all bg-white dark:bg-neutral-800 cursor-pointer ${
                         isSelected
-                          ? 'ring-2 ring-[#E60067] shadow-lg shadow-pink-500/25'
+                          ? 'ring-2 ring-[#B81D24] shadow-lg shadow-pink-500/25'
                           : 'ring-1 ring-pink-200/80 dark:ring-neutral-700 opacity-75 hover:opacity-100 hover:ring-pink-400'
                       }`}
                     >
@@ -617,7 +617,7 @@ export default function ProductDetailPage({
             {/* Trust highlights banner */}
             <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-neutral-600 dark:text-neutral-300 pt-2">
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-pink-50/60 dark:bg-neutral-800/60 border border-pink-100 dark:border-neutral-700">
-                <ShieldCheck className="w-4 h-4 text-[#E60067] shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#B81D24] shrink-0" />
                 <span>Anti-Tarnish Safe</span>
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-50/60 dark:bg-neutral-800/60 border border-purple-100 dark:border-neutral-700">
@@ -652,7 +652,7 @@ export default function ProductDetailPage({
                       setActiveTab('reviews');
                       soundFX.playPop(450);
                     }}
-                    className="text-neutral-500 dark:text-neutral-400 font-medium hover:text-[#E60067] cursor-pointer"
+                    className="text-neutral-500 dark:text-neutral-400 font-medium hover:text-[#B81D24] cursor-pointer"
                     title="Read customer reviews"
                   >
                     {activeReviewsCount} {productReviews.length > 0 ? 'Verified Reviews' : 'Verified Unboxings'}
@@ -687,7 +687,7 @@ export default function ProductDetailPage({
                   <span className="font-bold text-neutral-800 dark:text-neutral-200">
                     Choose Color / Finish:
                   </span>
-                  <span className="font-black text-[#E60067] dark:text-pink-400">
+                  <span className="font-black text-[#B81D24] dark:text-pink-400">
                     {selectedColor?.name || colors[0]?.name}
                   </span>
                 </div>
@@ -704,7 +704,7 @@ export default function ProductDetailPage({
                         onClick={() => handleSelectColor(c)}
                         className={`group relative flex items-center justify-between gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer w-full text-left ${
                           isSelected
-                            ? 'border-[#E60067] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30'
+                            ? 'border-[#B81D24] bg-white dark:bg-neutral-900 shadow-md ring-2 ring-pink-400/30'
                             : 'border-pink-200/90 dark:border-neutral-700 bg-white/70 dark:bg-neutral-900/60 hover:border-pink-300'
                         }`}
                       >
@@ -732,13 +732,13 @@ export default function ProductDetailPage({
                             />
                           )}
                           <span className={`text-xs font-bold truncate ${
-                            isSelected ? 'text-[#E60067] dark:text-pink-400' : 'text-neutral-700 dark:text-neutral-300'
+                            isSelected ? 'text-[#B81D24] dark:text-pink-400' : 'text-neutral-700 dark:text-neutral-300'
                           }`}>
                             {c.name}
                           </span>
                         </div>
                         {isSelected && (
-                          <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0 ml-1" />
+                          <Check className="w-3.5 h-3.5 text-[#B81D24] dark:text-pink-400 shrink-0 ml-1" />
                         )}
                       </button>
                     );
@@ -780,7 +780,7 @@ export default function ProductDetailPage({
                   {/* Add to Bag Primary Button */}
                   <button
                     onClick={handleAdd}
-                    className={`flex-1 py-3 px-3 sm:px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wide transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg cursor-pointer ${
+                    className={`flex-1 py-3 px-3 sm:px-5 rounded-full font-display font-bold text-xs sm:text-sm tracking-wide transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg cursor-pointer ${
                       justAdded
                         ? 'bg-emerald-600 text-white'
                         : 'btn-3d-pink text-white'
@@ -820,8 +820,8 @@ export default function ProductDetailPage({
                     onClick={() => toggleWishlist(product)}
                     className={`py-2.5 px-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 ${
                       isWishlisted(product.id)
-                        ? 'bg-[#E60067] text-white border-[#E60067] shadow-xs'
-                        : 'bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#E60067] dark:text-pink-300 border-pink-200 dark:border-neutral-700'
+                        ? 'bg-[#B81D24] text-white border-[#B81D24] shadow-xs'
+                        : 'bg-pink-50 hover:bg-pink-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-[#B81D24] dark:text-pink-300 border-pink-200 dark:border-neutral-700'
                     }`}
                     title={isWishlisted(product.id) ? 'Saved in favorites' : 'Save to favorites'}
                   >
@@ -863,7 +863,7 @@ export default function ProductDetailPage({
               <div className="mt-5 p-4 rounded-2xl bg-white dark:bg-neutral-800/80 border border-pink-200/80 dark:border-pink-900/40 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                    <Truck className="w-4 h-4 text-[#E60067] dark:text-pink-400" />
+                    <Truck className="w-4 h-4 text-[#B81D24] dark:text-pink-400" />
                     <span>Check Estimated Delivery & Pincode</span>
                   </div>
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold uppercase">
@@ -892,14 +892,14 @@ export default function ProductDetailPage({
                         }
                       }}
                       placeholder="Enter 6-digit PIN (e.g. 110001, 400050)"
-                      className="w-full pl-8 pr-3 py-2 text-xs font-semibold rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-neutral-800 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#E60067]"
+                      className="w-full pl-8 pr-3 py-2 text-xs font-semibold rounded-xl bg-pink-50/50 dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-neutral-800 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#B81D24]"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleCheckPincode()}
                     disabled={pincodeLoading}
-                    className="px-3.5 py-2 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-[#E60067] dark:text-pink-300 font-bold text-xs transition cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-[#B81D24] dark:text-pink-300 font-bold text-xs transition cursor-pointer disabled:opacity-50"
                   >
                     {pincodeLoading ? 'Checking...' : 'Check'}
                   </button>
@@ -940,7 +940,7 @@ export default function ProductDetailPage({
                     }}
                     className={`pb-2 text-xs font-bold transition border-b-2 ${
                       activeTab === 'specs'
-                        ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                        ? 'border-[#B81D24] text-[#B81D24] dark:text-pink-400'
                         : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
                     }`}
                   >
@@ -953,7 +953,7 @@ export default function ProductDetailPage({
                     }}
                     className={`pb-2 text-xs font-bold transition border-b-2 ${
                       activeTab === 'includes'
-                        ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                        ? 'border-[#B81D24] text-[#B81D24] dark:text-pink-400'
                         : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
                     }`}
                   >
@@ -966,7 +966,7 @@ export default function ProductDetailPage({
                     }}
                     className={`pb-2 text-xs font-bold transition border-b-2 ${
                       activeTab === 'shipping'
-                        ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                        ? 'border-[#B81D24] text-[#B81D24] dark:text-pink-400'
                         : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
                     }`}
                   >
@@ -980,7 +980,7 @@ export default function ProductDetailPage({
                       }}
                       className={`pb-2 text-xs font-bold transition border-b-2 flex items-center gap-1 ${
                         activeTab === 'scoopChart'
-                          ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                          ? 'border-[#B81D24] text-[#B81D24] dark:text-pink-400'
                           : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
                       }`}
                     >
@@ -995,7 +995,7 @@ export default function ProductDetailPage({
                     }}
                     className={`pb-2 text-xs font-bold transition border-b-2 flex items-center gap-1 ${
                       activeTab === 'reviews'
-                        ? 'border-[#E60067] text-[#E60067] dark:text-pink-400'
+                        ? 'border-[#B81D24] text-[#B81D24] dark:text-pink-400'
                         : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
                     }`}
                   >
@@ -1030,7 +1030,7 @@ export default function ProductDetailPage({
                   <div className="space-y-2 text-xs animate-fadeIn">
                     {product.includes?.map((inc, i) => (
                       <div key={i} className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 font-medium">
-                        <Check className="w-3.5 h-3.5 text-[#E60067] dark:text-pink-400 shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-[#B81D24] dark:text-pink-400 shrink-0" />
                         <span>{inc}</span>
                       </div>
                     ))}
@@ -1051,7 +1051,7 @@ export default function ProductDetailPage({
                 {activeTab === 'scoopChart' && (
                   <div className="space-y-3 text-xs animate-fadeIn">
                     <div className="p-2.5 rounded-xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-200 dark:border-pink-800/50 flex items-center justify-between">
-                      <span className="font-bold text-[#E60067] dark:text-pink-300">
+                      <span className="font-bold text-[#B81D24] dark:text-pink-300">
                         Official 54-Item Scoop Board
                       </span>
                       <span className="text-[10px] font-bold text-neutral-500">
@@ -1067,7 +1067,7 @@ export default function ProductDetailPage({
                               <span>{cat.icon}</span>
                               <span>{cat.title}</span>
                             </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-200 dark:bg-pink-900/60 text-[#E60067] dark:text-pink-300 font-black">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-200 dark:bg-pink-900/60 text-[#B81D24] dark:text-pink-300 font-black">
                               {cat.badge}
                             </span>
                           </div>
@@ -1138,7 +1138,7 @@ export default function ProductDetailPage({
                             soundFX.playPop(500);
                             if (onOpenReviewModal) onOpenReviewModal(product);
                           }}
-                          className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 font-bold text-xs transition cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-pink-100 hover:bg-pink-200 dark:bg-neutral-700 text-[#B81D24] dark:text-pink-300 font-bold text-xs transition cursor-pointer"
                         >
                           Be the First to Review
                         </button>
@@ -1211,7 +1211,7 @@ export default function ProductDetailPage({
               <div className="pt-5 border-t border-pink-100 dark:border-neutral-800 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <h4 className="font-display font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-white flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#E60067]" />
+                    <Sparkles className="w-4 h-4 text-[#B81D24]" />
                     <span>You May Also Love</span>
                   </h4>
                   <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold">
@@ -1244,10 +1244,10 @@ export default function ProductDetailPage({
                         {rel.name}
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="font-black text-xs text-[#E60067] dark:text-pink-400">
+                        <span className="font-black text-xs text-[#B81D24] dark:text-pink-400">
                           ₹{rel.priceINR || rel.price}
                         </span>
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 group-hover:bg-[#E60067] group-hover:text-white group-hover:border-transparent transition">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-neutral-900 border border-pink-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 group-hover:bg-[#B81D24] group-hover:text-white group-hover:border-transparent transition">
                           View
                         </span>
                       </div>
@@ -1294,7 +1294,7 @@ export default function ProductDetailPage({
 
           <button
             onClick={handleAdd}
-            className={`flex-1 py-2.5 px-4 rounded-xl font-display font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer ${
+            className={`flex-1 py-2.5 px-4 rounded-full font-display font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer ${
               justAdded
                 ? 'bg-emerald-600 text-white'
                 : 'btn-3d-pink text-white'

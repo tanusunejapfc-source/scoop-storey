@@ -49,8 +49,8 @@ export default function Testimonials({ onOpenReviewModal }) {
       {/* SECTION HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-pink-100 dark:border-pink-900/40">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 text-xs font-black tracking-wider uppercase mb-3">
-            <Heart className="w-3.5 h-3.5 fill-[#E60067] text-[#E60067]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/60 border border-pink-300 dark:border-pink-800 text-[#B81D24] dark:text-pink-300 text-xs font-black tracking-wider uppercase mb-3">
+            <Heart className="w-3.5 h-3.5 fill-[#B81D24] text-[#B81D24]" />
             <span>Real Happiness Delivered Across India</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-display font-extrabold text-[#231733] dark:text-white">
@@ -151,7 +151,7 @@ export default function Testimonials({ onOpenReviewModal }) {
         {/* Right: Unboxing Proof Badges */}
         <div className="md:col-span-3 space-y-3 bg-white dark:bg-neutral-800/70 p-4 rounded-2xl border border-pink-100 dark:border-pink-900/30 text-xs">
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 rounded-xl bg-pink-100 dark:bg-pink-950/60 text-[#E60067] dark:text-pink-300 shrink-0">
+            <div className="p-1.5 rounded-xl bg-pink-100 dark:bg-pink-950/60 text-[#B81D24] dark:text-pink-300 shrink-0">
               <Camera className="w-4 h-4" />
             </div>
             <div>
@@ -188,8 +188,8 @@ export default function Testimonials({ onOpenReviewModal }) {
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
             activeFilter === 'all'
-              ? 'bg-[#E60067] text-white shadow-xs'
-              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#E60067]'
+              ? 'bg-[#B81D24] text-white shadow-xs'
+              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#B81D24]'
           }`}
         >
           All Reviews ({publishedReviews.length})
@@ -204,8 +204,8 @@ export default function Testimonials({ onOpenReviewModal }) {
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
             activeFilter === 'photos'
-              ? 'bg-[#E60067] text-white shadow-xs'
-              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#E60067]'
+              ? 'bg-[#B81D24] text-white shadow-xs'
+              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#B81D24]'
           }`}
         >
           <Camera className="w-3.5 h-3.5" />
@@ -221,8 +221,8 @@ export default function Testimonials({ onOpenReviewModal }) {
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
             activeFilter === 5
-              ? 'bg-[#E60067] text-white shadow-xs'
-              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#E60067]'
+              ? 'bg-[#B81D24] text-white shadow-xs'
+              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#B81D24]'
           }`}
         >
           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -238,8 +238,8 @@ export default function Testimonials({ onOpenReviewModal }) {
           }}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
             activeFilter === 'verified'
-              ? 'bg-[#E60067] text-white shadow-xs'
-              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#E60067]'
+              ? 'bg-[#B81D24] text-white shadow-xs'
+              : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-pink-200 dark:border-neutral-700 hover:border-[#B81D24]'
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
@@ -263,7 +263,7 @@ export default function Testimonials({ onOpenReviewModal }) {
               setActiveFilter('all');
               setDisplayCount(4);
             }}
-            className="mt-4 px-4 py-2 rounded-xl bg-pink-100 dark:bg-neutral-800 text-[#E60067] dark:text-pink-300 text-xs font-bold hover:bg-pink-200 transition cursor-pointer"
+            className="mt-4 px-4 py-2 rounded-xl bg-pink-100 dark:bg-neutral-800 text-[#B81D24] dark:text-pink-300 text-xs font-bold hover:bg-pink-200 transition cursor-pointer"
           >
             Clear Filters
           </button>
@@ -362,7 +362,7 @@ export default function Testimonials({ onOpenReviewModal }) {
                         {rev.customerName}
                       </span>
                       {rev.handle && (
-                        <span className="text-[10px] text-[#E60067] dark:text-pink-400 font-bold block">
+                        <span className="text-[10px] text-[#B81D24] dark:text-pink-400 font-bold block">
                           {rev.handle}
                         </span>
                       )}
@@ -373,10 +373,10 @@ export default function Testimonials({ onOpenReviewModal }) {
                   <button
                     type="button"
                     onClick={(e) => handleLike(rev.id, e)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-neutral-600 dark:text-neutral-400 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-800 transition cursor-pointer"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-neutral-600 dark:text-neutral-400 hover:text-[#B81D24] hover:bg-pink-50 dark:hover:bg-neutral-800 transition cursor-pointer"
                     title="Mark as helpful"
                   >
-                    <ThumbsUp className={`w-3.5 h-3.5 ${likedReviews[rev.id] ? 'fill-[#E60067] text-[#E60067]' : ''}`} />
+                    <ThumbsUp className={`w-3.5 h-3.5 ${likedReviews[rev.id] ? 'fill-[#B81D24] text-[#B81D24]' : ''}`} />
                     <span>{currentLikes}</span>
                   </button>
                 </div>
@@ -394,7 +394,7 @@ export default function Testimonials({ onOpenReviewModal }) {
                 soundFX.playPop(450);
                 setDisplayCount(prev => prev + 4);
               }}
-              className="px-6 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-[#E60067] dark:text-pink-300 font-display font-extrabold text-xs sm:text-sm hover:border-[#E60067] hover:shadow-md transition cursor-pointer"
+              className="px-6 py-3 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-[#B81D24] dark:text-pink-300 font-display font-extrabold text-xs sm:text-sm hover:border-[#B81D24] hover:shadow-md transition cursor-pointer"
             >
               Load More Reviews ({filteredReviews.length - displayCount} more) ✨
             </button>

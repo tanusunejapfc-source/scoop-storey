@@ -140,7 +140,7 @@ export default function StoreFAQ() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search e.g. anti-tarnish, free shipping 499, water, reel..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-xs sm:text-sm font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#E60067]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-pink-200 dark:border-pink-900/60 text-xs sm:text-sm font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#B81D24]"
             />
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function StoreFAQ() {
                 }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-gradient-to-r from-[#E60067] to-purple-600 text-white shadow-md scale-105'
+                    ? 'bg-gradient-to-r from-[#B81D24] to-purple-600 text-white shadow-md scale-105'
                     : 'bg-pink-50/80 dark:bg-neutral-800/80 text-neutral-700 dark:text-neutral-300 border border-pink-200/60 dark:border-neutral-700 hover:bg-pink-100'
                 }`}
               >
@@ -194,7 +194,7 @@ export default function StoreFAQ() {
                 className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-pink-100 dark:bg-neutral-700 text-[#E60067] dark:text-pink-300 text-xs font-black flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-pink-100 dark:bg-neutral-700 text-[#B81D24] dark:text-pink-300 text-xs font-black flex items-center justify-center shrink-0">
                     Q
                   </span>
                   <span className="font-display font-bold text-xs sm:text-sm text-neutral-900 dark:text-white">
@@ -202,7 +202,7 @@ export default function StoreFAQ() {
                   </span>
                 </div>
                 {isOpen ? (
-                  <ChevronUp className="w-4 h-4 text-[#E60067] shrink-0" />
+                  <ChevronUp className="w-4 h-4 text-[#B81D24] shrink-0" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-neutral-400 shrink-0" />
                 )}
@@ -229,7 +229,7 @@ export default function StoreFAQ() {
         <div className="space-y-1">
           <h4 className="font-display font-bold text-sm sm:text-base text-neutral-900 dark:text-white flex items-center justify-center sm:justify-start gap-1.5">
             <span>Still have a question or special custom request?</span>
-            <Sparkles className="w-4 h-4 text-[#E60067]" />
+            <Sparkles className="w-4 h-4 text-[#B81D24]" />
           </h4>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Tanu is active daily on WhatsApp to help with orders, reel packing & queries.

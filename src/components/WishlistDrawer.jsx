@@ -61,7 +61,7 @@ export default function WishlistDrawer({
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between bg-gradient-to-r from-pink-50/70 to-purple-50/70 dark:from-neutral-900 dark:to-neutral-900">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#E60067] to-purple-600 text-white flex items-center justify-center shadow-md shadow-pink-500/20">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#B81D24] to-purple-600 text-white flex items-center justify-center shadow-md shadow-pink-500/20">
                 <Heart className="w-4 h-4 fill-white" />
               </div>
               <div>
@@ -87,7 +87,7 @@ export default function WishlistDrawer({
           <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
             {wishlistCount === 0 ? (
               <div className="text-center py-16 px-4 space-y-3">
-                <div className="w-16 h-16 rounded-full bg-pink-100/80 dark:bg-neutral-800 text-[#E60067] flex items-center justify-center mx-auto shadow-inner text-2xl">
+                <div className="w-16 h-16 rounded-full bg-pink-100/80 dark:bg-neutral-800 text-[#B81D24] flex items-center justify-center mx-auto shadow-inner text-2xl">
                   💖
                 </div>
                 <h4 className="font-display font-bold text-base text-neutral-900 dark:text-white">
@@ -138,7 +138,7 @@ export default function WishlistDrawer({
                         <h5 className="font-display font-bold text-xs text-neutral-900 dark:text-white truncate">
                           {item.name}
                         </h5>
-                        <span className="font-display font-black text-xs text-[#E60067] dark:text-pink-400">
+                        <span className="font-display font-black text-xs text-[#B81D24] dark:text-pink-400">
                           ₹{item.priceINR}
                         </span>
                       </div>
@@ -184,7 +184,7 @@ export default function WishlistDrawer({
             <div className="p-4 sm:p-5 border-t border-pink-100 dark:border-pink-900/30 bg-gradient-to-t from-pink-50/50 to-white dark:from-neutral-900 dark:to-neutral-900 space-y-2.5">
               <div className="flex items-center justify-between text-xs pb-1">
                 <span className="text-neutral-500">Total Wishlist Value:</span>
-                <span className="font-display font-black text-sm text-[#E60067] dark:text-pink-400">
+                <span className="font-display font-black text-sm text-[#B81D24] dark:text-pink-400">
                   ₹{totalValue}
                 </span>
               </div>
@@ -192,7 +192,7 @@ export default function WishlistDrawer({
               <button
                 type="button"
                 onClick={handleMoveAllToBag}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#E60067] to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#B81D24] to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Move All to Bag ({wishlistCount} items)</span>

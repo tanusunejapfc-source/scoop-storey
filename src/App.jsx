@@ -434,7 +434,7 @@ export default function App() {
           <Suspense fallback={
             <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
               <div className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
-              <span className="font-display font-extrabold text-sm text-[#E60067]">Opening Cute Goodie Details... 🎀</span>
+              <span className="font-display font-extrabold text-sm text-[#B81D24]">Opening Cute Goodie Details... 🎀</span>
             </div>
           }>
             <ProductDetailPage
