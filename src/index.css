@@ -74,13 +74,14 @@
   }
 }
 
-/* Custom Typography Helpers - Refined Seoulmate Aesthetic */
-.font-serif-display {
-  font-family: 'Playfair Display', Georgia, serif;
+/* Custom Typography Helpers - Refined Korean Minimalist Aesthetic (Outfit & Plus Jakarta Sans) */
+.font-display {
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.015em;
 }
 
-.font-display {
-  font-family: 'Playfair Display', Georgia, serif;
+.font-serif-display {
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.015em;
 }
 

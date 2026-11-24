@@ -129,9 +129,9 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
               <span>🌸</span>
             </div>
 
-            {/* Editorial Serif Headline (Seoulmate Exact) */}
-            <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-serif-display font-bold text-[#1A2536] dark:text-white leading-[1.14]">
-              Cute Details <span className="italic font-serif-display font-normal text-[#1A2536] dark:text-stone-300">for a</span>
+            {/* Modern Korean Aesthetic Headline (Outfit & Caveat Script) */}
+            <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-display font-extrabold text-[#1A2536] dark:text-white leading-[1.14]">
+              Cute Details <span className="font-display font-semibold text-[#1A2536] dark:text-stone-300">for a</span>
               <br />
               <span className="font-script text-4xl sm:text-6xl lg:text-[64px] text-[#B81D24] block mt-1">
                 Happier Everyday ♡

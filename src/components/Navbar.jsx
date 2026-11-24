@@ -302,7 +302,7 @@ export default function Navbar({
               </div>
               <div className="flex flex-col justify-center min-w-0">
                 <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
-                  <span className="font-serif-display font-bold text-base sm:text-xl md:text-2xl text-[#1A2536] dark:text-white tracking-tight whitespace-nowrap">
+                  <span className="font-display font-extrabold text-base sm:text-xl md:text-2xl text-[#1A2536] dark:text-white tracking-tight whitespace-nowrap">
                     Scoop Storey
                   </span>
                   <span className="text-[8px] sm:text-[9px] bg-[#FDF2F4] text-[#B81D24] font-bold px-1.5 py-0.5 rounded-full border border-[#F3D7DC] shrink-0">
