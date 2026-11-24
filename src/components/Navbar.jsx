@@ -28,26 +28,26 @@ const ANNOUNCEMENTS = [
   {
     id: 1,
     icon: '✨',
-    title: 'Notice: Free Shipping Across India on Orders ₹499+ • Flat ₹49 Below',
-    mobileTitle: 'Free Shipping on ₹499+ • No Min Order',
+    title: 'Free Shipping Across India on Orders ₹499+ • Cash on Delivery Available',
+    mobileTitle: 'COD Available • Free Shipping ₹499+',
     sub: 'Pan-India Delivery',
-    mobileSub: 'Shop Any Item'
+    mobileSub: 'Zero Advance'
   },
   {
     id: 2,
-    icon: '🚚',
-    title: '100% Free Express Delivery on Orders Above ₹499',
-    mobileTitle: 'Free Delivery on ₹499+',
-    sub: 'Prepaid UPI & Partial COD',
-    mobileSub: 'Fast Shipping'
+    icon: '📦',
+    title: 'Cash on Delivery (COD) Available • Pay When Your Parcel Arrives',
+    mobileTitle: 'Cash on Delivery Available',
+    sub: '100% COD or UPI',
+    mobileSub: 'Pay at Doorstep'
   },
   {
     id: 3,
     icon: '💬',
-    title: 'Instant WhatsApp Order: +91 8199922653',
+    title: 'Instant WhatsApp Order & Support: +91 8199922653',
     mobileTitle: 'WhatsApp Orders: +91 8199922653',
-    sub: 'Chat & UPI QR Code',
-    mobileSub: 'Prepaid QR',
+    sub: 'Fast Dispatch',
+    mobileSub: '1-Tap Order',
     href: 'https://wa.me/918199922653?text=Hi%20Scoop%20Storey%2C%20mujhe%20order%20place%20karna%20hai'
   }
 ];
@@ -241,12 +241,12 @@ export default function Navbar({
             <div className="hidden sm:flex items-center justify-center gap-3 md:gap-4 flex-wrap">
               <div className="flex items-center gap-1.5">
                 <span>✨</span>
-                <span><strong>Notice:</strong> Any 3 Products or Any Order ₹499+</span>
+                <span><strong>Notice:</strong> Free Delivery Across India on Orders ₹499+</span>
               </div>
               <span className="text-pink-300">•</span>
               <div className="flex items-center gap-1.5">
-                <span>🚚</span>
-                <span>100% Free Delivery Across India on All Orders (Prepaid)</span>
+                <span>📦</span>
+                <span>Cash on Delivery (COD) Available Across India!</span>
               </div>
               <span className="text-pink-300">•</span>
               <a 

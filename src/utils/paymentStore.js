@@ -11,8 +11,11 @@ export const DEFAULT_PAYMENT_SETTINGS = {
   payeeName: 'Scoop Storey',
   qrImage: '', // Base64 data URL or external image URL uploaded by admin
   instructions: 'Scan QR with GPay / PhonePe / Paytm or pay using UPI ID / Phone. Then upload your payment screenshot to confirm order!',
+  // 100% Cash on Delivery (Full COD) Settings
+  fullCodEnabled: true,
+  codFee: 0, // Extra courier collection charge for Full COD (0 = Free COD)
   // Partial COD Settings
-  partialCodEnabled: true,
+  partialCodEnabled: false,
   partialCodType: 'percentage', // 'percentage' | 'flat'
   partialCodPercentage: 20, // 10%, 15%, 20%, 25% or custom %
   partialCodFlatAmount: 99, // Flat advance ₹ amount
@@ -218,54 +221,74 @@ export function buildAppUpiUri(app, { upiId, payeeName, amount, orderId }) {
 }
 
 /**
- * Calculates payment split between Immediate UPI Pay and Balance on Delivery (Partial COD)
+ * Calculates payment split between Immediate UPI Pay and Balance on Delivery (Full COD or Partial COD)
  */
-export function calculatePaymentBreakdown(totalINR, paymentMode = 'full_prepaid', settings = {}) {
+export function calculatePaymentBreakdown(totalINR, paymentMode = 'full_cod', settings = {}) {
   const mergedSettings = { ...DEFAULT_PAYMENT_SETTINGS, ...settings };
   const baseOrderTotal = Math.max(0, Number(totalINR || 0));
 
-  if (paymentMode !== 'partial_cod' || !mergedSettings.partialCodEnabled) {
+  // 1. 100% Cash on Delivery (Full COD - ₹0 Advance)
+  if (paymentMode === 'full_cod' || paymentMode === 'cod') {
+    const codFee = Math.max(0, Number(mergedSettings.codFee || 0));
+    const orderWithFee = baseOrderTotal + codFee;
     return {
-      paymentMode: 'full_prepaid',
-      payNowINR: baseOrderTotal,
-      balanceCodINR: 0,
-      codFeeINR: 0,
-      finalTotalINR: baseOrderTotal,
-      advancePercentage: 100,
+      paymentMode: 'full_cod',
+      payNowINR: 0,
+      balanceCodINR: orderWithFee,
+      codFeeINR: codFee,
+      finalTotalINR: orderWithFee,
+      advancePercentage: 0,
+      isFullCod: true,
       isPartialCod: false
     };
   }
 
-  const codFee = Math.max(0, Number(mergedSettings.partialCodFee || 0));
-  const orderWithFee = baseOrderTotal + codFee;
+  // 2. Partial COD (Advance UPI + Balance in Cash on Delivery)
+  if (paymentMode === 'partial_cod' && mergedSettings.partialCodEnabled) {
+    const codFee = Math.max(0, Number(mergedSettings.partialCodFee || 0));
+    const orderWithFee = baseOrderTotal + codFee;
 
-  let advanceINR = 0;
-  let advancePct = 0;
+    let advanceINR = 0;
+    let advancePct = 0;
 
-  if (mergedSettings.partialCodType === 'flat') {
-    const flatVal = Number(mergedSettings.partialCodFlatAmount || 99);
-    advanceINR = Math.min(orderWithFee, Math.max(1, flatVal));
-    advancePct = orderWithFee > 0 ? Math.round((advanceINR / orderWithFee) * 100) : 0;
-  } else {
-    // Percentage mode
-    let pct = Number(mergedSettings.partialCodPercentage);
-    if (isNaN(pct) || pct <= 0 || pct >= 100) {
-      pct = 20;
+    if (mergedSettings.partialCodType === 'flat') {
+      const flatVal = Number(mergedSettings.partialCodFlatAmount || 99);
+      advanceINR = Math.min(orderWithFee, Math.max(1, flatVal));
+      advancePct = orderWithFee > 0 ? Math.round((advanceINR / orderWithFee) * 100) : 0;
+    } else {
+      // Percentage mode
+      let pct = Number(mergedSettings.partialCodPercentage);
+      if (isNaN(pct) || pct <= 0 || pct >= 100) {
+        pct = 20;
+      }
+      advancePct = pct;
+      advanceINR = Math.max(1, Math.round((orderWithFee * advancePct) / 100));
     }
-    advancePct = pct;
-    advanceINR = Math.max(1, Math.round((orderWithFee * advancePct) / 100));
+
+    const balanceINR = Math.max(0, orderWithFee - advanceINR);
+
+    return {
+      paymentMode: 'partial_cod',
+      payNowINR: advanceINR,
+      balanceCodINR: balanceINR,
+      codFeeINR: codFee,
+      finalTotalINR: orderWithFee,
+      advancePercentage: advancePct,
+      isFullCod: false,
+      isPartialCod: true
+    };
   }
 
-  const balanceINR = Math.max(0, orderWithFee - advanceINR);
-
+  // 3. Full Prepaid (100% Online via UPI / QR)
   return {
-    paymentMode: 'partial_cod',
-    payNowINR: advanceINR,
-    balanceCodINR: balanceINR,
-    codFeeINR: codFee,
-    finalTotalINR: orderWithFee,
-    advancePercentage: advancePct,
-    isPartialCod: true
+    paymentMode: 'full_prepaid',
+    payNowINR: baseOrderTotal,
+    balanceCodINR: 0,
+    codFeeINR: 0,
+    finalTotalINR: baseOrderTotal,
+    advancePercentage: 100,
+    isFullCod: false,
+    isPartialCod: false
   };
 }
 

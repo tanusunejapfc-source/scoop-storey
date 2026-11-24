@@ -150,7 +150,7 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
             </div>
             <div className="px-1 border-x border-pink-200 dark:border-pink-800">
               <strong className="text-[#231733] dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">100%</strong>
-              <span className="text-[10px] sm:text-xs leading-tight">Prepaid Delivery</span>
+              <span className="text-[10px] sm:text-xs leading-tight">Cash on Delivery</span>
             </div>
             <div className="px-1">
               <strong className="text-[#231733] dark:text-white text-xs sm:text-sm font-extrabold block leading-tight">4.9 ★</strong>

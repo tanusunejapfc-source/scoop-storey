@@ -184,12 +184,14 @@ const ProductCardItem = React.memo(function ProductCardItem({
       >
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-2xl font-display font-black text-[#231733] dark:text-white">
-              ₹{product.priceINR}
-            </span>
-            <span className="text-[10px] text-[#716182] dark:text-neutral-400 font-bold ml-1">
-              (Prepaid)
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-display font-black text-[#231733] dark:text-white">
+                ₹{product.priceINR}
+              </span>
+              <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                COD Available
+              </span>
+            </div>
           </div>
 
           <button
@@ -214,7 +216,7 @@ const ProductCardItem = React.memo(function ProductCardItem({
 
         {/* Inquire on WhatsApp Link */}
         <a
-          href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Scoop Storey! 🎀 Mujhe "${product.name}" ke baare me inquiry karni hai. (Prepaid Store • Free Shipping ₹499+)`)}`}
+          href={`https://wa.me/918199922653?text=${encodeURIComponent(`Hi Scoop Storey! 🎀 Mujhe "${product.name}" ke baare me inquiry karni hai. (COD Available • Free Shipping ₹499+)`)}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}

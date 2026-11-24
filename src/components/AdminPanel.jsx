@@ -2418,19 +2418,34 @@ export default function AdminPanel({
                               }`}>
                                 <div className="flex items-center gap-2">
                                   <div className={`p-1.5 rounded-lg shrink-0 ${
-                                    ord.isPartialCod
+                                    ord.isFullCod || ord.paymentMethod === 'Cash on Delivery'
+                                      ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300'
+                                      : ord.isPartialCod
                                       ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300'
                                       : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'
                                   }`}>
-                                    {ord.isPartialCod ? <Truck className="w-4 h-4" /> : <QrCode className="w-4 h-4" />}
+                                    {ord.isFullCod || ord.paymentMethod === 'Cash on Delivery' || ord.isPartialCod ? <Truck className="w-4 h-4" /> : <QrCode className="w-4 h-4" />}
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <span className={`text-[10px] font-bold uppercase block ${
-                                        ord.isPartialCod ? 'text-purple-700 dark:text-purple-400' : 'text-emerald-700 dark:text-emerald-400'
+                                        ord.isFullCod || ord.paymentMethod === 'Cash on Delivery'
+                                          ? 'text-amber-700 dark:text-amber-400'
+                                          : ord.isPartialCod
+                                          ? 'text-purple-700 dark:text-purple-400'
+                                          : 'text-emerald-700 dark:text-emerald-400'
                                       }`}>
-                                        {ord.isPartialCod ? 'Partial COD Verification:' : 'Prepaid UPI Ref / UTR No. (Bank Verification):'}
+                                        {ord.isFullCod || ord.paymentMethod === 'Cash on Delivery'
+                                          ? 'Cash on Delivery (Full COD):'
+                                          : ord.isPartialCod
+                                          ? 'Partial COD Verification:'
+                                          : 'Prepaid UPI Ref / UTR No. (Bank Verification):'}
                                       </span>
+                                      {(ord.isFullCod || ord.paymentMethod === 'Cash on Delivery') && (
+                                        <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-[10px] font-black">
+                                          💵 Collect on Delivery: ₹{ord.balanceDueOnDeliveryINR || ord.totalINR}
+                                        </span>
+                                      )}
                                       {ord.isPartialCod && (
                                         <>
                                           <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black">
@@ -2443,20 +2458,22 @@ export default function AdminPanel({
                                       )}
                                     </div>
                                     <span className="font-mono font-black text-sm text-neutral-900 dark:text-neutral-100 tracking-wider mt-0.5 block">
-                                      {ord.upiRefNumber}
+                                      {ord.upiRefNumber || (ord.isFullCod || ord.paymentMethod === 'Cash on Delivery' ? 'Cash on Delivery (₹0 Advance)' : 'N/A')}
                                     </span>
                                   </div>
                                 </div>
                                 <button
-                                  onClick={() => handleCopyText(ord.upiRefNumber, `utr-${ord.orderId}`)}
+                                  onClick={() => handleCopyText(ord.upiRefNumber || (ord.isFullCod ? 'Cash on Delivery' : ord.orderId), `utr-${ord.orderId}`)}
                                   className={`self-start sm:self-center px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border text-[11px] font-bold flex items-center gap-1 transition shadow-xs ${
-                                    ord.isPartialCod
+                                    ord.isFullCod || ord.paymentMethod === 'Cash on Delivery'
+                                      ? 'border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50'
+                                      : ord.isPartialCod
                                       ? 'border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50'
                                       : 'border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50'
                                   }`}
                                 >
                                   {copiedOrderId === `utr-${ord.orderId}` ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                                  <span>{copiedOrderId === `utr-${ord.orderId}` ? 'Copied!' : 'Copy UTR'}</span>
+                                  <span>{copiedOrderId === `utr-${ord.orderId}` ? 'Copied!' : 'Copy'}</span>
                                 </button>
                               </div>
                             )}
@@ -2854,7 +2871,40 @@ export default function AdminPanel({
                       </div>
                     </div>
 
-                    {/* 3. PARTIAL COD (ADVANCE PAYMENT) CONFIGURATION */}
+                    {/* 3. 100% FULL CASH ON DELIVERY (COD) CONFIGURATION */}
+                    <div className="p-5 rounded-2xl glass-panel border border-emerald-200 dark:border-emerald-900/50 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">
+                          <Truck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          <span>100% Full Cash on Delivery (COD)</span>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          paymentForm.fullCodEnabled !== false
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
+                        }`}>
+                          {paymentForm.fullCodEnabled !== false ? 'Active & Live ✨' : 'Disabled'}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-body">
+                        Allow customers to place orders with ₹0 upfront payment. Customers pay 100% in cash directly to the delivery courier agent at their doorstep. Dramatically increases conversions from Meta & Instagram ad campaigns!
+                      </p>
+
+                      <label className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={paymentForm.fullCodEnabled !== false}
+                          onChange={(e) => setPaymentForm(prev => ({ ...prev, fullCodEnabled: e.target.checked }))}
+                          className="w-4 h-4 text-emerald-600 rounded-sm focus:ring-emerald-500"
+                        />
+                        <span className="text-xs font-bold text-neutral-900 dark:text-white select-none">
+                          Enable Full Cash on Delivery (100% COD with ₹0 Advance)
+                        </span>
+                      </label>
+                    </div>
+
+                    {/* 4. PARTIAL COD (ADVANCE PAYMENT) CONFIGURATION */}
                     <div className="p-5 rounded-2xl glass-panel border border-purple-200 dark:border-purple-900/50 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="font-display font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-2">

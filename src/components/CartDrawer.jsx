@@ -100,7 +100,7 @@ export default function CartDrawer({
   // Payment Settings & Checkout Step
   const { settings: paymentSettings } = usePaymentSettings();
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'address' | 'upi_payment'
-  const [paymentMode, setPaymentMode] = useState('full_prepaid'); // 'full_prepaid' | 'partial_cod'
+  const [paymentMode, setPaymentMode] = useState('full_cod'); // 'full_cod' | 'full_prepaid' | 'partial_cod'
   const [currentOrderId, setCurrentOrderId] = useState('');
   const [upiRefNumber, setUpiRefNumber] = useState('');
   const [upiRefError, setUpiRefError] = useState('');
@@ -509,6 +509,11 @@ export default function CartDrawer({
 
   // Transition to UPI & QR Payment Step
   const handleProceedToUpiPayment = () => {
+    if (paymentMode === 'full_cod') {
+      handleConfirmFullCodOrder();
+      return;
+    }
+
     if (!hasItems) {
       soundFX.playPop(300);
       alert('Your cart is empty! Please add some cute items to checkout.');
@@ -617,6 +622,110 @@ ${discountAmountINR > 0 ? `🏷️ Discount Applied: -₹${discountAmountINR}\n`
 💰 Total: ₹${totalINR} (${totalItemCount} ${totalItemCount === 1 ? 'item' : 'items'})
 
 Maine bag me items select kar liye hain. Please delivery address & payment details share kar dijiye! ✨`;
+
+    window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  // 1-Tap Cash on Delivery Order Placement (Zero Advance Required!)
+  const handleConfirmFullCodOrder = () => {
+    if (!hasItems) {
+      soundFX.playPop(300);
+      alert('Your cart is empty! Please add some cute items to checkout.');
+      setCheckoutStep('cart');
+      return;
+    }
+
+    const errors = validateAddress();
+    if (Object.keys(errors).length > 0) {
+      setAddressErrors(errors);
+      soundFX.playPop(300);
+      addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    soundFX.playSuccess();
+    confetti({
+      particleCount: 140,
+      spread: 90,
+      origin: { y: 0.5 },
+      colors: ['#FF6699', '#B56BFF', '#FFD043', '#48CAE4', '#FF3385', '#10B981']
+    });
+
+    const newId = currentOrderId || `SS-COD-${Math.floor(100000 + Math.random() * 900000)}`;
+    const cleanItems = cartItems.map(item => ({
+      id: item.id || '',
+      name: item.name || 'Scoop Storey Item',
+      priceINR: getAuthoritativePrice(item.id, item.priceINR),
+      qty: Math.max(1, Math.min(20, Math.floor(Number(item.qty || 1)))),
+      image: item.image || (Array.isArray(item.images) && item.images[0]) || '/images/deluxe-giftbox.webp',
+      selectedColor: item.selectedColor || null,
+      selectedColorHex: item.selectedColorHex || null
+    }));
+
+    const finalPayableOnDelivery = paymentBreakdown.finalTotalINR;
+
+    const newOrder = {
+      orderId: newId,
+      timestamp: Date.now(),
+      date: new Date().toLocaleDateString('en-IN', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      source: 'Cash on Delivery',
+      status: 'COD - Order Placed (Pending Dispatch)',
+      paymentMethod: 'Cash on Delivery',
+      isFullCod: true,
+      isPartialCod: false,
+      advancePaidINR: 0,
+      balanceDueOnDeliveryINR: finalPayableOnDelivery,
+      codFeeINR: paymentBreakdown.codFeeINR || 0,
+      advancePercentage: 0,
+      upiRefNumber: 'N/A (Cash on Delivery)',
+      paymentScreenshot: null,
+      customer: { ...addressData },
+      items: cleanItems,
+      totalItemCount,
+      subtotalINR,
+      discountAmountINR,
+      shippingINR,
+      totalINR: finalPayableOnDelivery,
+      filmOnReel: filmOnReel ? (userHandle || '@customer') : null,
+      additionalNotes: additionalNotes.trim() || null
+    };
+
+    saveOrderToStore(newOrder);
+    trackOrderCompleted(newOrder);
+    dispatchAllOrderNotifications(newOrder);
+
+    onClearCart();
+    setOrderCompleteData(newOrder);
+    setCheckoutStep('cart');
+
+    const orderItemsSummary = cleanItems
+      .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
+      .join('\n');
+
+    const msg = `Hi Scoop Storey! 🎀 Maine Cash on Delivery (COD) order place kiya hai!
+
+Order ID: ${newId}
+📦 PAYMENT TYPE: 100% Cash on Delivery (₹0 Advance)
+💵 Amount to Pay Courier on Delivery: ₹${finalPayableOnDelivery}
+🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+ ✨)' : `₹${shippingINR}`}
+
+🛍️ ITEMS ORDERED:
+${orderItemsSummary}
+${filmOnReel ? `🎬 Film on IG Reel: Yes (@${userHandle || 'customer'})\n` : ''}${additionalNotes.trim() ? `📝 Notes: ${additionalNotes.trim()}\n` : ''}
+📍 DELIVERY ADDRESS:
+• Name: ${addressData.fullName}
+• Mobile/WhatsApp: +91 ${addressData.phone}
+${addressData.email ? `• Email: ${addressData.email.trim()}\n` : ''}• Address: ${addressData.streetAddress}
+${addressData.landmark ? `• Landmark: ${addressData.landmark}\n` : ''}• City, State: ${addressData.city}, ${addressData.state}
+• PIN Code: ${addressData.pincode}
+
+Mera address verified hai. Please parcel pack karke dispatch kar dijiye! ✨`;
 
     window.open(`https://wa.me/918199922653?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
@@ -748,6 +857,7 @@ Maine delivery details enter kar di hain. Please payment method confirm karke pa
       };
     });
 
+    const isFullCod = Boolean(paymentBreakdown.isFullCod);
     const isPartialCod = Boolean(paymentBreakdown.isPartialCod);
     const newOrder = {
       orderId: currentOrderId,
@@ -759,21 +869,24 @@ Maine delivery details enter kar di hain. Please payment method confirm karke pa
         hour: '2-digit',
         minute: '2-digit'
       }),
-      source: isPartialCod ? 'Partial COD' : 'Prepaid UPI / QR Code',
-      status: hasScreenshot
+      source: isFullCod ? 'Cash on Delivery' : isPartialCod ? 'Partial COD' : 'Prepaid UPI / QR Code',
+      status: isFullCod
+        ? 'COD - Order Placed (Pending Dispatch)'
+        : hasScreenshot
         ? (isPartialCod ? 'Partial COD - Advance Paid (Screenshot Attached)' : 'Payment Received (Screenshot Attached)')
         : (isPartialCod ? 'Partial COD - Advance Verification Pending' : 'UPI - Pending WhatsApp Verification'),
-      paymentMethod: isPartialCod ? 'Partial COD' : 'UPI QR Code',
+      paymentMethod: isFullCod ? 'Cash on Delivery' : isPartialCod ? 'Partial COD' : 'UPI QR Code',
+      isFullCod,
       isPartialCod,
-      advancePaidINR: paymentBreakdown.payNowINR,
-      balanceDueOnDeliveryINR: paymentBreakdown.balanceCodINR,
+      advancePaidINR: isFullCod ? 0 : paymentBreakdown.payNowINR,
+      balanceDueOnDeliveryINR: isFullCod ? paymentBreakdown.finalTotalINR : paymentBreakdown.balanceCodINR,
       codFeeINR: paymentBreakdown.codFeeINR,
-      advancePercentage: paymentBreakdown.advancePercentage,
-      upiRefNumber: utrDisplay,
-      paymentScreenshot: paymentScreenshot || null,
+      advancePercentage: isFullCod ? 0 : paymentBreakdown.advancePercentage,
+      upiRefNumber: isFullCod ? 'N/A (Cash on Delivery)' : utrDisplay,
+      paymentScreenshot: isFullCod ? null : (paymentScreenshot || null),
       customer: { 
         ...addressData,
-        paymentScreenshot: paymentScreenshot || null
+        paymentScreenshot: isFullCod ? null : (paymentScreenshot || null)
       },
       items: cleanItems,
       totalItemCount,
@@ -802,7 +915,12 @@ Maine delivery details enter kar di hain. Please payment method confirm karke pa
       .map(item => `• ${item.name}${item.selectedColor ? ` [Color: ${item.selectedColor}]` : ''} x${item.qty} = ₹${item.priceINR * item.qty}`)
       .join('\n');
 
-    const paymentSummaryText = isPartialCod
+    const paymentSummaryText = isFullCod
+      ? `📦 PAYMENT TYPE: 100% Cash on Delivery (₹0 Advance)
+💵 Amount to Pay Courier on Delivery: ₹${paymentBreakdown.finalTotalINR}
+🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+)' : `₹${shippingINR}`}
+💰 Total Order Value: ₹${paymentBreakdown.finalTotalINR}`
+      : isPartialCod
       ? `📦 PAYMENT TYPE: Partial COD (Advance Booking)
 ✅ Advance to Pay: ₹${paymentBreakdown.payNowINR} (${paymentBreakdown.advancePercentage}% Advance)
 💵 Balance to Collect in Cash on Delivery: ₹${paymentBreakdown.balanceCodINR}
@@ -812,11 +930,15 @@ Maine delivery details enter kar di hain. Please payment method confirm karke pa
 🚚 Delivery: ${isFreeShipping ? 'FREE (Orders ₹499+)' : `₹${shippingINR}`}
 💰 Total Paid: ₹${totalINR} (${totalItemCount} items)`;
 
-    const proofSummaryText = hasScreenshot
+    const proofSummaryText = isFullCod
+      ? '📦 Cash Payment: Full amount to be paid in cash to delivery agent'
+      : hasScreenshot
       ? '📸 Payment Proof: Attached via Screenshot in Web App'
       : '📸 Payment Proof: Main screenshot abhi WhatsApp pe bhej raha/rahi hu ✨';
 
-    const closingUserMsg = hasScreenshot
+    const closingUserMsg = isFullCod
+      ? `Maine Cash on Delivery order confirm kiya hai. Courier aane par ₹${paymentBreakdown.finalTotalINR} cash dungi. Please verify karke parcel pack kar dijiye! ✨`
+      : hasScreenshot
       ? (isPartialCod 
           ? `Maine ₹${paymentBreakdown.payNowINR} advance UPI se pay kar diya hai aur screenshot attach kar diya hai. Remaining ₹${paymentBreakdown.balanceCodINR} cash delivery ke time dunga/dungi. Please verify karke parcel dispatch kar dijiye! ✨`
           : `Maine UPI payment successfully transfer kar diya hai aur screenshot attach kar diya hai. Please verify karke packing start kar dijiye! ✨`)
@@ -2043,9 +2165,13 @@ ${closingUserMsg}`;
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] font-bold text-neutral-600 dark:text-neutral-400">
                   <span>Payment Option:</span>
-                  {paymentMode === 'full_prepaid' ? (
+                  {paymentMode === 'full_cod' ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
+                      <span>📦 Cash on Delivery</span>
+                    </span>
+                  ) : paymentMode === 'full_prepaid' ? (
                     <span className="text-[#E60067] dark:text-pink-400 font-extrabold flex items-center gap-1">
-                      <span>⚡ 100% Prepaid</span>
+                      <span>⚡ 100% Prepaid UPI</span>
                     </span>
                   ) : (
                     <span className="text-purple-600 dark:text-purple-400 font-extrabold flex items-center gap-1">
@@ -2055,7 +2181,40 @@ ${closingUserMsg}`;
                 </div>
 
                 <div className="p-1.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800/90 border border-pink-200 dark:border-neutral-700 grid grid-cols-2 gap-2">
-                  {/* Option 1: Full Prepaid */}
+                  {/* Option 1: Cash on Delivery (Full COD) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPaymentMode('full_cod');
+                      soundFX.playPop(550);
+                    }}
+                    className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
+                      paymentMode === 'full_cod'
+                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-emerald-600 dark:border-emerald-500 text-neutral-900 dark:text-white'
+                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-display font-extrabold text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <span>📦 Cash on Delivery</span>
+                        </span>
+                        {paymentMode === 'full_cod' && (
+                          <div className="w-3.5 h-3.5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                            <Check className="w-2 h-2" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="font-display font-black text-sm mt-1 text-neutral-900 dark:text-white">
+                        ₹{totalINR}
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1 block">
+                      ₹0 Advance • Pay to Courier
+                    </span>
+                  </button>
+
+                  {/* Option 2: Full Prepaid */}
                   <button
                     type="button"
                     onClick={() => {
@@ -2085,39 +2244,6 @@ ${closingUserMsg}`;
                     </div>
                     <span className="text-[10px] text-pink-600 dark:text-pink-400 font-bold mt-1 block">
                       🎁 Free Mystery Charm
-                    </span>
-                  </button>
-
-                  {/* Option 2: Partial Payment */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaymentMode('partial_cod');
-                      soundFX.playPop(550);
-                    }}
-                    className={`p-2.5 rounded-xl text-left transition relative cursor-pointer flex flex-col justify-between ${
-                      paymentMode === 'partial_cod'
-                        ? 'bg-white dark:bg-neutral-900 shadow-md border-2 border-purple-600 dark:border-purple-400 text-neutral-900 dark:text-white'
-                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="font-display font-extrabold text-xs text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                          <span>📦 Partial Payment</span>
-                        </span>
-                        {paymentMode === 'partial_cod' && (
-                          <div className="w-3.5 h-3.5 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0">
-                            <Check className="w-2 h-2" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="font-display font-black text-sm mt-1 text-purple-700 dark:text-purple-300">
-                        ₹{partialCodPreview.payNowINR} <span className="text-[10px] font-normal text-neutral-500">advance</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold mt-1 block">
-                      🚚 ₹{partialCodPreview.balanceCodINR} on Delivery
                     </span>
                   </button>
                 </div>
@@ -2156,7 +2282,20 @@ ${closingUserMsg}`;
                   )}
                 </div>
 
-                {paymentMode === 'partial_cod' ? (
+                {paymentMode === 'full_cod' ? (
+                  <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 space-y-1">
+                    <div className="flex justify-between text-neutral-600 dark:text-neutral-400 font-semibold">
+                      <span>Advance to Pay Now:</span>
+                      <span className="text-emerald-600 font-bold">₹0 (Zero Advance ✨)</span>
+                    </div>
+                    <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-1 border-t border-dashed border-neutral-200 dark:border-neutral-700">
+                      <span>Cash Due on Delivery</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ₹{paymentBreakdown.finalTotalINR}
+                      </span>
+                    </div>
+                  </div>
+                ) : paymentMode === 'partial_cod' ? (
                   <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 space-y-1">
                     <div className="flex justify-between font-bold text-purple-700 dark:text-purple-300">
                       <span>Advance to Pay Now (UPI):</span>
@@ -2175,7 +2314,7 @@ ${closingUserMsg}`;
                   </div>
                 ) : (
                   <div className="flex justify-between font-display font-extrabold text-base text-neutral-900 dark:text-white pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                    <span>Total (Prepaid)</span>
+                    <span>Total (Prepaid UPI)</span>
                     <span className="text-pink-600 dark:text-pink-400">
                       ₹{totalINR}
                     </span>
@@ -2206,7 +2345,7 @@ ${closingUserMsg}`;
                   onClick={handleProceedToAddress}
                   className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:scale-[0.99] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-pink-500/25 transition cursor-pointer"
                 >
-                  <span>Proceed to Delivery Details</span>
+                  <span>{paymentMode === 'full_cod' ? 'Proceed to Delivery Details (COD)' : 'Proceed to Delivery Details'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -2252,16 +2391,20 @@ ${closingUserMsg}`;
               <div className="flex items-center justify-between text-xs pb-1">
                 <div>
                   <span className="text-neutral-500 dark:text-neutral-400">
-                    {paymentMode === 'partial_cod' ? 'Advance to Pay Now:' : 'Total Payable:'}{' '}
+                    {paymentMode === 'full_cod' ? 'Cash Due on Delivery:' : paymentMode === 'partial_cod' ? 'Advance to Pay Now:' : 'Total Payable:'}{' '}
                   </span>
                   <span className="font-extrabold text-sm text-neutral-900 dark:text-white">
                     ₹{paymentMode === 'partial_cod' ? paymentBreakdown.payNowINR : totalINR}
                   </span>
-                  {paymentMode === 'partial_cod' && (
+                  {paymentMode === 'full_cod' ? (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
+                      (₹0 Advance • Pay cash to courier ✨)
+                    </span>
+                  ) : paymentMode === 'partial_cod' ? (
                     <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold block">
                       (₹{paymentBreakdown.balanceCodINR} cash due on delivery)
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
                   Free Delivery Across India
@@ -2270,22 +2413,32 @@ ${closingUserMsg}`;
 
               {/* Action Buttons */}
               <div className="space-y-2 pt-1">
-                <button
-                  type="button"
-                  onClick={handleProceedToUpiPayment}
-                  className={`w-full py-3.5 rounded-2xl text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] ${
-                    paymentMode === 'partial_cod'
-                      ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:to-pink-700'
-                      : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700'
-                  }`}
-                >
-                  <QrCode className="w-4 h-4" />
-                  <span>
-                    {paymentMode === 'partial_cod'
-                      ? `Proceed to Pay ₹${paymentBreakdown.payNowINR} Advance (UPI) →`
-                      : `Proceed to Pay ₹${totalINR} (UPI QR Code) →`}
-                  </span>
-                </button>
+                {paymentMode === 'full_cod' ? (
+                  <button
+                    type="button"
+                    onClick={handleConfirmFullCodOrder}
+                    className="w-full py-3.5 rounded-2xl text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/25"
+                  >
+                    <span>📦 Place Cash on Delivery Order (Pay ₹{paymentBreakdown.finalTotalINR} on Delivery) →</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleProceedToUpiPayment}
+                    className={`w-full py-3.5 rounded-2xl text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition cursor-pointer active:scale-[0.99] ${
+                      paymentMode === 'partial_cod'
+                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:to-pink-700'
+                        : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700'
+                    }`}
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>
+                      {paymentMode === 'partial_cod'
+                        ? `Proceed to Pay ₹${paymentBreakdown.payNowINR} Advance (UPI) →`
+                        : `Proceed to Pay ₹${totalINR} (UPI QR Code) →`}
+                    </span>
+                  </button>
+                )}
 
                 {/* 1-Tap Book Directly on WhatsApp with Address */}
                 <button
@@ -2318,14 +2471,35 @@ ${closingUserMsg}`;
               🎉
             </div>
             <h3 className="text-2xl font-display font-bold text-neutral-900 dark:text-white">
-              {orderCompleteData.isPartialCod ? 'Partial COD Order Confirmed!' : 'Prepaid Order Confirmed & Sent!'}
+              {orderCompleteData.isFullCod
+                ? '🎉 Cash on Delivery Order Placed!'
+                : orderCompleteData.isPartialCod
+                ? 'Partial COD Order Confirmed!'
+                : 'Prepaid Order Confirmed & Sent!'}
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Order ID: <strong className="text-pink-600 font-mono">{orderCompleteData.orderId}</strong>
             </p>
 
             <div className="my-5 p-4 rounded-2xl bg-pink-50/70 dark:bg-neutral-800/70 text-left text-xs space-y-2.5 border border-pink-100 dark:border-pink-900/30">
-              {orderCompleteData.isPartialCod ? (
+              {orderCompleteData.isFullCod ? (
+                <>
+                  <div className="flex justify-between font-bold text-emerald-700 dark:text-emerald-300 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                    <span>🚚 Cash Due on Delivery:</span>
+                    <span className="font-mono text-base font-extrabold text-emerald-800 dark:text-emerald-200">
+                      ₹{orderCompleteData.balanceDueOnDeliveryINR || orderCompleteData.totalINR}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                    <span>Advance Payment:</span>
+                    <span className="font-bold text-emerald-600">₹0 (Zero Advance Required ✨)</span>
+                  </div>
+                  <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                    <span>Payment Mode:</span>
+                    <span className="font-bold text-neutral-900 dark:text-white">100% Cash on Delivery</span>
+                  </div>
+                </>
+              ) : orderCompleteData.isPartialCod ? (
                 <>
                   <div className="flex justify-between font-bold text-purple-700 dark:text-purple-300">
                     <span>Advance Paid via UPI:</span>
@@ -2423,7 +2597,9 @@ ${closingUserMsg}`;
             </div>
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-5 font-body">
-              {orderCompleteData.isPartialCod
+              {orderCompleteData.isFullCod
+                ? 'Your Cash on Delivery order has been successfully placed! Please keep cash ready for the courier when the package arrives.'
+                : orderCompleteData.isPartialCod
                 ? 'Your Partial COD order details have been recorded! Remaining balance will be collected in Cash by the courier.'
                 : 'Your order details have been recorded! If WhatsApp hasn\'t opened automatically, click the button below to message Tanu directly to confirm your order.'}
             </p>
@@ -2431,7 +2607,9 @@ ${closingUserMsg}`;
             <div className="space-y-2">
               <a
                 href={`https://wa.me/918199922653?text=${encodeURIComponent(
-                  orderCompleteData.isPartialCod
+                  orderCompleteData.isFullCod
+                    ? `Hi Tanu! 🎀 Mera Cash on Delivery (COD) Order ID ${orderCompleteData.orderId} confirm hua hai (Total to Pay Courier: ₹${orderCompleteData.balanceDueOnDeliveryINR || orderCompleteData.totalINR}).\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPlease pack and dispatch! ✨`
+                    : orderCompleteData.isPartialCod
                     ? `Hi Tanu! 🎀 Mera Partial COD Order ID ${orderCompleteData.orderId} hai (Advance: ₹${orderCompleteData.advancePaidINR}, Balance on Delivery: ₹${orderCompleteData.balanceDueOnDeliveryINR}, Total: ₹${orderCompleteData.totalINR}).\n${orderCompleteData.paymentScreenshot ? '📸 Payment Proof: Screenshot Attached via UPI' : '📸 Payment Proof: Chat me share kar raha/rahi hu'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPlease verify and pack! ✨`
                     : `Hi Tanu! 🎀 Mera Order ID ${orderCompleteData.orderId} hai (Total: ₹${orderCompleteData.totalINR}).\n${orderCompleteData.paymentScreenshot ? '📸 Payment Proof: Screenshot Attached via UPI' : '📸 Payment Proof: Chat me share kar raha/rahi hu'}\nDeliver to: ${orderCompleteData.customer?.fullName}, ${orderCompleteData.customer?.city} (${orderCompleteData.customer?.pincode}).\nPlease verify and pack! ✨`
                 )}`}

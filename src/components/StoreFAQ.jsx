@@ -53,8 +53,8 @@ const FAQS_DATA = [
   },
   {
     category: 'orders',
-    q: 'How does the Prepaid UPI / QR Code payment process work?',
-    a: 'We are 100% Prepaid to prevent transit damage and delivery fraud. Once you enter your delivery address in the Bag, our system generates a verified UPI QR Code and handles instant UTR confirmation. You can also chat directly on WhatsApp (+91 8199922653) to pay via Google Pay, PhonePe, or Paytm.'
+    q: 'Do you offer Cash on Delivery (COD) and Online Payment?',
+    a: 'Yes! We support 100% Cash on Delivery (COD) with zero advance payment required across all serviceable pincodes in India. You simply pay cash to the delivery agent when your parcel arrives. You can also choose 100% Prepaid via UPI / QR Code to receive a special Free Mystery Charm with your order!'
   },
   {
     category: 'orders',

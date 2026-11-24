@@ -343,7 +343,7 @@ export const DEFAULT_PRODUCTS = INITIAL_PRODUCTS.map(p => {
     defaultSpecs = {
       'Scoop Size': p.includes?.[0] || 'Handpicked Cute Surprises',
       'Extra Free Gifts': 'Included with every scoop',
-      'Free Shipping': 'Free Delivery Across India (Prepaid)',
+      'Free Shipping': 'Free Delivery Across India (Orders ₹499+)',
       'Packaging': 'Deluxe Kawaii Gift Packaging & Stickers',
       'ASMR Reel': 'Eligible for packing video request on Instagram'
     };

@@ -8,7 +8,7 @@ export default function ScoopMachineSkeleton({ isHero = true }) {
       <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-pink-100 dark:from-pink-950/80 dark:via-purple-950/70 dark:to-pink-950/80 border border-pink-300 dark:border-pink-800 text-[#E60067] dark:text-pink-300 font-extrabold text-[11px] sm:text-xs tracking-wide uppercase mb-3 shadow-xs">
           <span className="w-2 h-2 rounded-full bg-[#E60067] animate-ping shrink-0" />
-          <span>India's 1st 3D Interactive ASMR Mystery Scoop Studio • 100% Prepaid</span>
+          <span>India's 1st 3D Interactive ASMR Mystery Scoop Studio • Cash on Delivery Available</span>
         </div>
         <h1 className="text-3xl sm:text-5xl lg:text-[56px] font-display font-black tracking-tight text-[#231733] dark:text-white leading-[1.12]">
           Collect <span className="shimmer-text">Happiness</span> In Every Single Scoop.
