@@ -1275,11 +1275,11 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300">
-              Selected: <strong className="text-[#E60067] dark:text-pink-300">{selectedTier.name}</strong> ({selectedTier.itemsCount})
+              Selected: <strong className="text-[#B81D24] dark:text-rose-400">{selectedTier.name}</strong> ({selectedTier.itemsCount})
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full max-w-xl p-1.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50/50 to-pink-50 dark:from-[#251A38] dark:to-[#1E172E] border border-pink-200/80 dark:border-pink-800/50 shadow-inner">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full max-w-xl p-1.5 rounded-2xl bg-[#FFF9F4] dark:bg-[#1E172E] border border-[#F3D7DC] dark:border-stone-800 shadow-inner">
             {SCOOP_TIERS.map((tier) => {
               const isSelected = selectedTier.id === tier.id;
               const cleanName = tier.name.replace('Scoop Storey - ', '').replace("Bhaskar's Vault ", '').replace("Tanu's Vault ", '');
@@ -1296,8 +1296,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
                   }}
                   className={`relative py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl transition-all duration-200 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 text-center cursor-pointer select-none ${
                     isSelected
-                      ? 'bg-gradient-to-r from-[#FF4D8D] to-[#D8005A] text-white shadow-md shadow-pink-500/30 scale-[1.02]'
-                      : 'text-[#554664] dark:text-[#D5CBE2] hover:text-[#231733] dark:hover:text-white hover:bg-white/70 dark:hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-[#B81D24] to-[#9B151C] text-white shadow-md shadow-[#B81D24]/25 scale-[1.02]'
+                      : 'text-[#1A2536] dark:text-[#D5CBE2] hover:text-[#B81D24] dark:hover:text-white hover:bg-white/70 dark:hover:bg-white/5'
                   }`}
                 >
                   <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight whitespace-nowrap">
@@ -1306,8 +1306,8 @@ export default function ScoopMachine3D({ onAddToCart, isDark = false, isHero = f
                   <span
                     className={`text-[11px] sm:text-xs font-black px-1.5 py-0.5 rounded-md ${
                       isSelected
-                        ? 'bg-white/20 text-yellow-200'
-                        : 'bg-pink-100 dark:bg-pink-950/60 text-[#E60067] dark:text-pink-300'
+                        ? 'bg-white/20 text-white'
+                        : 'bg-[#FDF2F4] dark:bg-stone-800 text-[#B81D24] dark:text-rose-300 border border-[#F3D7DC] dark:border-stone-700'
                     }`}
                   >
                     ₹{tier.priceINR}
