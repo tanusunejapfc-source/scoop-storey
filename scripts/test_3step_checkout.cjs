@@ -3,47 +3,55 @@ const fs = require('fs');
 console.log('Running 3-Step Enterprise Checkout Audit...');
 
 const drawer = fs.readFileSync('src/components/CartDrawer.jsx', 'utf8');
+const app = fs.readFileSync('src/App.jsx', 'utf8');
+const wishlist = fs.readFileSync('src/utils/wishlistStore.js', 'utf8');
+const admin = fs.readFileSync('src/components/AdminPanel.jsx', 'utf8');
+const reviewsAdmin = fs.readFileSync('src/components/admin/AdminReviewsManager.jsx', 'utf8');
+const reelsStore = fs.readFileSync('src/utils/reelsStore.js', 'utf8');
 
-// 1. Verify Stepper
-const hasStepper = drawer.includes('1. Bag') && drawer.includes('2. Address') && drawer.includes('3. Payment');
-console.log('1. Stepper check:', hasStepper ? 'PASS' : 'FAIL');
-if (!hasStepper) process.exit(1);
+function check(label, cond) {
+  console.log(`${label}: ${cond ? 'PASS' : 'FAIL'}`);
+  if (!cond) process.exit(1);
+}
 
-// 2. Verify Payment Option removed from step 1
+// 1. Stepper check
+check('1. Stepper check', drawer.includes('1. Bag') && drawer.includes('2. Address') && drawer.includes('3. Payment'));
+
+// 2. Payment Option removed from step 1
 const cartIndex = drawer.indexOf("checkoutStep === 'cart' && (");
 const addressIndex = drawer.indexOf("checkoutStep === 'address' && (");
 const cartStepSection = drawer.slice(cartIndex, addressIndex);
-const paymentRemovedFromStep1 = !cartStepSection.includes('Payment Option:');
-console.log('2. Payment option removed from step 1 (cart):', paymentRemovedFromStep1 ? 'PASS' : 'FAIL');
-if (!paymentRemovedFromStep1) process.exit(1);
+check('2. Payment option removed from step 1 (cart)', !cartStepSection.includes('Payment Option:'));
 
-// 3. Verify Step 3 (payment) screen in drawer
-const hasPaymentStep = drawer.includes("checkoutStep === 'payment'");
-console.log('3. Step 3 (payment) screen in drawer:', hasPaymentStep ? 'PASS' : 'FAIL');
-if (!hasPaymentStep) process.exit(1);
+// 3. Step 3 (payment) screen in drawer
+check('3. Step 3 (payment) screen in drawer', drawer.includes("checkoutStep === 'payment'"));
 
-// 4. Verify 3 options in payment step
-const hasPrepaid = drawer.includes('100% Prepaid (Instant UPI)');
-const hasPartialCod = drawer.includes('Partial Cash on Delivery');
-const hasFullCod = drawer.includes('100% Cash on Delivery');
-const hasCodFee = drawer.includes('Extra Courier Handling Fee');
+// 4. All 3 payment options in step 3
+check('4. 100% Prepaid in step 3', drawer.includes('100% Prepaid (UPI)'));
+check('5. Partial COD in step 3', drawer.includes('Partial Cash on Delivery'));
+check('6. Full COD in step 3', drawer.includes('100% Cash on Delivery'));
 
-console.log('4. 100% Prepaid in step 3:', hasPrepaid ? 'PASS' : 'FAIL');
-console.log('5. Partial COD in step 3:', hasPartialCod ? 'PASS' : 'FAIL');
-console.log('6. Full COD in step 3:', hasFullCod ? 'PASS' : 'FAIL');
-console.log('7. Full COD extra fee display:', hasCodFee ? 'PASS' : 'FAIL');
-if (!hasPrepaid || !hasPartialCod || !hasFullCod || !hasCodFee) process.exit(1);
+// 5. Total details moved below payment method (scrollable), not bloating sticky footer
+const paymentBodyStart = drawer.lastIndexOf("checkoutStep === 'payment' ? (");
+const addressBodyStart = drawer.indexOf("checkoutStep === 'address' ? (", paymentBodyStart);
+const paymentBody = drawer.slice(paymentBodyStart, addressBodyStart);
+const paymentFooterStart = drawer.indexOf("checkoutStep === 'payment' && (");
+const paymentFooter = drawer.slice(paymentFooterStart);
+check('7. Total details placed below payment methods in scrollable body', paymentBody.includes('Extra COD Courier Handling Fee') && paymentBody.includes('Order Total'));
+check('8. Sticky bottom bar for payment step is slim (no Subtotal breakdown)', !paymentFooter.includes('Subtotal ('));
 
-// 8. Verify auto-open on add to cart in App.jsx
-const app = fs.readFileSync('src/App.jsx', 'utf8');
-const hasAutoOpen = app.includes('setIsCartOpen(true);') && app.includes('soundFX.playSuccess();');
-console.log('8. Auto-open drawer in App.jsx:', hasAutoOpen ? 'PASS' : 'FAIL');
-if (!hasAutoOpen) process.exit(1);
+// 6. Auto-open drawer & overlapping toast removed in App.jsx
+check('9. Auto-open drawer in App.jsx', app.includes('setIsCartOpen(true);') && app.includes('soundFX.playSuccess();'));
+check('10. AddedToCartToast removed from App.jsx', !app.includes('<AddedToCartToast') && !app.includes('setAddedToastItem('));
 
-// 9. Verify AdminPanel has COD fee and prepaid toggle
-const admin = fs.readFileSync('src/components/AdminPanel.jsx', 'utf8');
-const hasAdminCodFee = admin.includes('codFee') && admin.includes('prepaidEnabled');
-console.log('9. Admin COD fee & prepaid config:', hasAdminCodFee ? 'PASS' : 'FAIL');
-if (!hasAdminCodFee) process.exit(1);
+// 7. Cart & Wishlist synchronous clearing on order confirmation
+check('11. Synchronous cart clear in App.jsx', app.includes("localStorage.setItem('scoop_cart_items_v2', JSON.stringify([]));"));
+check('12. removeItemsFromWishlist exported & used', wishlist.includes('export function removeItemsFromWishlist') && drawer.includes('removeItemsFromWishlist(cleanItems.map(item => item.id))'));
 
-console.log('\nAll 9/9 3-Step Checkout Verification Tests PASSED!');
+// 8. Admin COD fee & prepaid config
+check('13. Admin COD fee & prepaid config', admin.includes('codFee') && admin.includes('prepaidEnabled'));
+
+// 9. Bug fixes verified (minRequired, setComment, REVIEWS_STORAGE_KEY)
+check('14. Bug fixes (no undefined refs)', !drawer.includes('minRequired') && !reviewsAdmin.includes('setComment') && !reelsStore.includes('REVIEWS_STORAGE_KEY'));
+
+console.log('\nAll 14/14 3-Step Checkout & Bugfix Verification Tests PASSED!');

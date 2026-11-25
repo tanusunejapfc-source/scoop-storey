@@ -58,6 +58,23 @@ export function isItemInWishlist(productId) {
   return current.some(item => item.id === productId);
 }
 
+/**
+ * Synchronously remove purchased product IDs from Wishlist (localStorage + state)
+ * so ordered items don't linger in Wishlist after order confirmation.
+ */
+export function removeItemsFromWishlist(productIds = []) {
+  if (!Array.isArray(productIds) || productIds.length === 0) return [];
+  const idSet = new Set(productIds.filter(Boolean));
+  if (idSet.size === 0) return getStoredWishlist();
+
+  const current = getStoredWishlist();
+  const updated = current.filter(item => !idSet.has(item.id));
+  if (updated.length !== current.length) {
+    saveWishlistToStore(updated);
+  }
+  return updated;
+}
+
 export function useWishlist() {
   const [wishlist, setWishlist] = useState(() => getStoredWishlist());
 

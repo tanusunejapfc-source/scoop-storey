@@ -691,7 +691,7 @@ export default function AdminReviewsManager({ products = [] }) {
                   rows={3}
                   required
                   value={customComment}
-                  onChange={(e) => setComment ? setCustomComment(e.target.value) : null}
+                  onChange={(e) => setCustomComment(e.target.value)}
                   placeholder="Paste what the customer said on WhatsApp or Instagram..."
                   className="w-full px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-white font-medium focus:outline-none resize-none"
                 />

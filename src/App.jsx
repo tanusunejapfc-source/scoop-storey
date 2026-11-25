@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import CategoryIconsBar from './components/CategoryIconsBar';
 import BoutiqueHero from './components/BoutiqueHero';
 import ProductCatalog from './components/ProductCatalog';
-import AddedToCartToast from './components/AddedToCartToast';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import SocialProofToast from './components/SocialProofToast';
@@ -46,8 +45,6 @@ export default function App() {
   const [activeCollection, setActiveCollection] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewModalProduct, setReviewModalProduct] = useState(null);
-  const [addedToastItem, setAddedToastItem] = useState(null);
-  const toastTimeoutRef = useRef(null);
   const historyInsertedRef = useRef(false);
 
   const handleOpenReviewModal = (product = null) => {
@@ -369,20 +366,6 @@ export default function App() {
     // Automatically open the side drawer when customer adds product to cart
     setIsCartOpen(true);
     soundFX.playSuccess();
-
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setAddedToastItem({
-      ...product,
-      qty: addQuantity,
-      image: product.image || (product.images?.[0] || '/images/deluxe-giftbox.jpg'),
-      priceINR: product.priceINR || product.price || 0,
-      timestamp: Date.now()
-    });
-    toastTimeoutRef.current = setTimeout(() => {
-      setAddedToastItem(null);
-    }, 3500);
   };
 
   const handleUpdateQty = (key, newQty) => {
@@ -400,6 +383,9 @@ export default function App() {
   };
 
   const handleClearCart = () => {
+    try {
+      localStorage.setItem('scoop_cart_items_v2', JSON.stringify([]));
+    } catch (_) {}
     setCartItems([]);
   };
 
@@ -563,15 +549,6 @@ export default function App() {
         </Suspense>
       )}
 
-      {/* QUICK ADDED TO BAG TOAST (Option to go to cart for few seconds) */}
-      <AddedToCartToast
-        item={addedToastItem}
-        cartCount={totalCartCount}
-        onOpenCart={() => setIsCartOpen(true)}
-        onClose={() => setAddedToastItem(null)}
-        durationMs={4500}
-      />
-
       {/* GLOBAL INSTANT SEARCH MODAL */}
       {isSearchOpen && (
         <Suspense fallback={null}>
@@ -637,7 +614,7 @@ export default function App() {
       <FloatingWhatsApp />
 
       {/* RECENT VERIFIED PURCHASES / SOCIAL PROOF TOAST */}
-      {!addedToastItem && (
+      {!isCartOpen && (
         <SocialProofToast
           products={products}
           onSelectProduct={handleSelectProduct}

@@ -224,7 +224,7 @@ export function getStoredReels() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         const sanitized = parsed.map(sanitizeReel);
         memoryReels = sanitized;
-        try { localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(sanitized)); } catch {}
+        try { localStorage.setItem(REELS_STORAGE_KEY, JSON.stringify(sanitized)); } catch {}
         return sanitized;
       }
     }
