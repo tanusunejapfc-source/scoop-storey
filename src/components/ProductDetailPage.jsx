@@ -36,6 +36,7 @@ export default function ProductDetailPage({
   onSelectProduct,
   onOpenReviewModal,
   activeCollection,
+  isDirectAdLanding = false,
   onSelectCollection
 }) {
   const baseImages = (product?.images && product.images.length > 0)
@@ -420,20 +421,20 @@ export default function ProductDetailPage({
               onClick={onClose}
               type="button"
               className="px-3.5 py-1.5 rounded-2xl bg-pink-100/90 hover:bg-pink-200 dark:bg-pink-950/80 text-[#B81D24] dark:text-pink-300 font-display font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer active:scale-95 shadow-xs shrink-0"
-              aria-label="Back to collection"
+              aria-label={isDirectAdLanding && !activeCollection ? 'Back to Store Homepage' : 'Back to collection'}
             >
               <ChevronLeft className="w-4 h-4 text-[#B81D24]" />
-              <span>Back</span>
+              <span>{isDirectAdLanding && !activeCollection ? 'Back to Home' : 'Back'}</span>
             </button>
 
             <button
               type="button"
               onClick={() => onSelectCollection ? onSelectCollection(null) : onClose()}
-              className="hover:text-[#B81D24] dark:hover:text-pink-400 hover:underline cursor-pointer transition hidden sm:inline"
+              className="hover:text-[#B81D24] dark:hover:text-pink-400 hover:underline cursor-pointer transition font-bold"
             >
               Home
             </button>
-            <span className="hidden sm:inline">/</span>
+            <span>/</span>
             <button
               type="button"
               onClick={() => onSelectCollection ? onSelectCollection(product.collection || product.category) : onClose()}

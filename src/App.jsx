@@ -45,7 +45,15 @@ export default function App() {
   const [activeCollection, setActiveCollection] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewModalProduct, setReviewModalProduct] = useState(null);
+  const [isDirectAdLanding, setIsDirectAdLanding] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const h = window.location.hash || '';
+    const s = window.location.search || '';
+    return h.startsWith('#product-') || h.startsWith('#collection-') || s.includes('product=') || s.includes('p=');
+  });
   const historyInsertedRef = useRef(false);
+  const userActivatedHistoryRef = useRef(false);
+  const hasInternalNavRef = useRef(false);
 
   const handleOpenReviewModal = (product = null) => {
     setReviewModalProduct(product);
@@ -133,23 +141,41 @@ export default function App() {
 
   // Handle URL hash & browser back/forward buttons (popstate & hashchange)
   useEffect(() => {
-    // 🛡️ History Insertion for Meta / Instagram Ads direct product & collection links
-    // When a customer clicks a direct product ad from Instagram/Facebook, the browser history only has [Instagram] -> [Product Page].
-    // If they press the phone's hardware back button after adding to cart, they are booted out of the site back to Instagram.
-    // By replacing the initial landing state with Home and pushing the Product state, Back navigates them to the Storefront!
-    if (typeof window !== 'undefined' && window.history?.replaceState && window.history?.pushState) {
-      const initialHash = window.location.hash || '';
-      const state = window.history.state;
-      const isProductLink = initialHash.startsWith('#product-');
-      const isCollectionLink = initialHash.startsWith('#collection-');
+    const getCleanHomeUrl = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        params.delete('product');
+        params.delete('p');
+        const qs = params.toString();
+        return window.location.pathname + (qs ? `?${qs}` : '');
+      } catch {
+        return window.location.pathname + window.location.search;
+      }
+    };
 
+    // Support query-param product landing URLs (e.g. ?product=scoop-midi&fbclid=...) by normalizing to #product-...
+    let initialHash = window.location.hash || '';
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryProdId = searchParams.get('product') || searchParams.get('p');
+      if (queryProdId && !initialHash.startsWith('#product-')) {
+        initialHash = `#product-${queryProdId}`;
+        window.history.replaceState(window.history.state, '', getCleanHomeUrl() + initialHash);
+      }
+    } catch {}
+
+    const isProductLink = initialHash.startsWith('#product-');
+    const isCollectionLink = initialHash.startsWith('#collection-');
+
+    // 🛡️ History Insertion for Meta / Instagram Ads direct product & collection links
+    // 1. Insert Homepage immediately as fallback on initial mount
+    if (typeof window !== 'undefined' && window.history?.replaceState && window.history?.pushState) {
+      const state = window.history.state;
       if ((isProductLink || isCollectionLink) && !state?.scoop_history_inserted && !historyInsertedRef.current) {
         historyInsertedRef.current = true;
         try {
-          const cleanHomeUrl = window.location.pathname + window.location.search;
-          // Step 1: Replace direct landing entry with Homepage Storefront entry
+          const cleanHomeUrl = getCleanHomeUrl();
           window.history.replaceState({ page: 'storefront', scoop_history_inserted: true }, '', cleanHomeUrl);
-          // Step 2: Push deep-linked page on top so it becomes the current active page
           window.history.pushState(
             { page: isProductLink ? 'product' : 'collection', scoop_history_inserted: true },
             '',
@@ -159,6 +185,40 @@ export default function App() {
           console.warn('History insertion skipped:', e);
         }
       }
+    }
+
+    // 2. User-Activated History Commit:
+    // Modern Chrome / Android WebView / Instagram IAB marks pushState done before user interaction as skippable.
+    // On the user's first tap/touch/click/keydown, commit a real user-activated [Homepage] -> [Product] history entry
+    // so the hardware/browser Back button takes ad visitors to our Homepage instead of kicking them back to IG/FB.
+    const commitUserActivatedHistory = () => {
+      if (userActivatedHistoryRef.current || hasInternalNavRef.current) return;
+      const activeHash = window.location.hash || '';
+      if (!activeHash.startsWith('#product-') && !activeHash.startsWith('#collection-')) return;
+      userActivatedHistoryRef.current = true;
+
+      try {
+        const cleanHomeUrl = getCleanHomeUrl();
+        window.history.replaceState(
+          { page: 'storefront', scoop_history_inserted: true, scoop_user_activated_home: true },
+          '',
+          cleanHomeUrl
+        );
+        window.history.pushState(
+          { page: activeHash.startsWith('#product-') ? 'product' : 'collection', scoop_history_inserted: true, scoop_user_activated: true },
+          '',
+          cleanHomeUrl + activeHash
+        );
+      } catch (e) {
+        console.warn('User-activated history commit skipped:', e);
+      }
+    };
+
+    if (isProductLink || isCollectionLink) {
+      window.addEventListener('pointerdown', commitUserActivatedHistory, { once: true, passive: true });
+      window.addEventListener('touchstart', commitUserActivatedHistory, { once: true, passive: true });
+      window.addEventListener('click', commitUserActivatedHistory, { once: true, passive: true });
+      window.addEventListener('keydown', commitUserActivatedHistory, { once: true, passive: true });
     }
 
     const handleNavigation = (isInitial = false) => {
@@ -200,6 +260,7 @@ export default function App() {
         // Return smoothly to Homepage
         setActiveCollection(null);
         if (!isInitial && (hash === '' || hash === '#')) {
+          setIsDirectAdLanding(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       } else if (hash === '#reels' || hash === '#scoop-machine' || hash === '#faq-section' || hash === '#story' || hash === '#reviews') {
@@ -220,6 +281,10 @@ export default function App() {
     return () => {
       window.removeEventListener('hashchange', onNavChange);
       window.removeEventListener('popstate', onNavChange);
+      window.removeEventListener('pointerdown', commitUserActivatedHistory);
+      window.removeEventListener('touchstart', commitUserActivatedHistory);
+      window.removeEventListener('click', commitUserActivatedHistory);
+      window.removeEventListener('keydown', commitUserActivatedHistory);
     };
   }, [products]);
 
@@ -273,13 +338,15 @@ export default function App() {
 
   // Unified Category Navigation handler
   const handleSelectCategory = (category) => {
+    hasInternalNavRef.current = true;
+    setIsDirectAdLanding(false);
     setSelectedProduct(null);
     setActiveCollection(category);
     const slug = category ? categoryToSlug(category) : 'all';
     const targetHash = category ? `#collection-${slug}` : '';
     if (window.location.hash !== targetHash) {
       try {
-        window.history.pushState({ type: 'collection', category }, '', window.location.pathname + targetHash);
+        window.history.pushState({ type: 'collection', category }, '', window.location.pathname + window.location.search + targetHash);
       } catch {
         window.location.hash = targetHash;
       }
@@ -296,7 +363,7 @@ export default function App() {
       setSelectedProduct(null);
       const fallback = activeCollection ? `#collection-${categoryToSlug(activeCollection)}` : '';
       try {
-        window.history.pushState(null, '', window.location.pathname + fallback);
+        window.history.pushState(null, '', window.location.pathname + window.location.search + fallback);
       } catch {
         window.location.hash = fallback;
       }
@@ -305,6 +372,8 @@ export default function App() {
       if (document.body) document.body.scrollTop = 0;
       return;
     }
+    hasInternalNavRef.current = true;
+    setIsDirectAdLanding(false);
     setSelectedProduct(prod);
     if (prod.category && !activeCollection) {
       setActiveCollection(prod.category);
@@ -312,7 +381,7 @@ export default function App() {
     const targetHash = `#product-${prod.id}`;
     if (window.location.hash !== targetHash) {
       try {
-        window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + targetHash);
+        window.history.pushState({ type: 'product', id: prod.id }, '', window.location.pathname + window.location.search + targetHash);
       } catch {
         window.location.hash = targetHash;
       }
@@ -322,8 +391,27 @@ export default function App() {
     if (document.body) document.body.scrollTop = 0;
   };
 
-  // Safe handler for closing ProductDetailPage (synchronizes on-screen Back with browser Back)
+  // Safe handler for closing ProductDetailPage:
+  // If visitor arrived directly via Meta Ads / external link without internal storefront history,
+  // NEVER call window.history.back() (which can exit back to Instagram/FB); route straight to Homepage.
   const handleCloseProduct = () => {
+    if (!hasInternalNavRef.current || isDirectAdLanding) {
+      hasInternalNavRef.current = true;
+      setIsDirectAdLanding(false);
+      setSelectedProduct(null);
+      setActiveCollection(null);
+      const cleanHomeUrl = window.location.pathname + window.location.search;
+      try {
+        window.history.replaceState({ page: 'storefront', scoop_home: true }, '', cleanHomeUrl);
+      } catch {
+        window.location.hash = '';
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+      return;
+    }
+
     if (typeof window !== 'undefined' && window.history.length > 1) {
       window.history.back();
       setTimeout(() => {
@@ -430,6 +518,7 @@ export default function App() {
               product={selectedProduct}
               allProducts={products}
               activeCollection={activeCollection}
+              isDirectAdLanding={isDirectAdLanding}
               onSelectCollection={handleSelectCategory}
               onOpenReviewModal={handleOpenReviewModal}
               onClose={handleCloseProduct}

@@ -54,4 +54,13 @@ check('13. Admin COD fee & prepaid config', admin.includes('codFee') && admin.in
 // 9. Bug fixes verified (minRequired, setComment, REVIEWS_STORAGE_KEY)
 check('14. Bug fixes (no undefined refs)', !drawer.includes('minRequired') && !reviewsAdmin.includes('setComment') && !reelsStore.includes('REVIEWS_STORAGE_KEY'));
 
-console.log('\nAll 14/14 3-Step Checkout & Bugfix Verification Tests PASSED!');
+// 10. Meta Ads Back-to-Homepage routing verified
+const productPage = fs.readFileSync('src/components/ProductDetailPage.jsx', 'utf8');
+check(
+  '15. Meta Ads user-activated history & safe Back-to-Home routing',
+  app.includes('commitUserActivatedHistory') &&
+  app.includes('isDirectAdLanding') &&
+  productPage.includes('Back to Home')
+);
+
+console.log('\nAll 15/15 3-Step Checkout & Meta Ads Routing Verification Tests PASSED!');
