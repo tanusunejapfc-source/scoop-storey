@@ -39,8 +39,8 @@ import { trackCheckoutStarted, trackOrderCompleted } from '../utils/analyticsTel
 import { usePaymentSettings, calculatePaymentBreakdown, getQrDisplayUrl } from '../utils/paymentStore';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
 import { removeItemsFromWishlist } from '../utils/wishlistStore';
-import { CLOUD_DISCOUNTS_URL } from './admin/AdminDiscountsCMS';
-import { uploadPaymentProofToSupabase } from '../utils/supabaseClient';
+import { fetchDiscountsFromCloud } from './admin/AdminDiscountsCMS';
+import { uploadPaymentProofToCloud } from '../utils/apiClient';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh',
@@ -222,19 +222,10 @@ export default function CartDrawer({
     }
   }, [checkoutStep, hasItems]);
 
-  // Sync latest merchant discount coupons from cloud storage
+  // Sync latest merchant discount coupons from Railway PostgreSQL config
   useEffect(() => {
     if (isOpen) {
-      fetch(`${CLOUD_DISCOUNTS_URL}?t=${Date.now()}`)
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (data?.coupons && Array.isArray(data.coupons)) {
-            try {
-              localStorage.setItem('bhaskar_store_coupons_v1', JSON.stringify(data.coupons));
-            } catch {}
-          }
-        })
-        .catch(() => {});
+      fetchDiscountsFromCloud().catch(() => {});
     }
   }, [isOpen]);
 
@@ -622,12 +613,12 @@ export default function CartDrawer({
           setPaymentScreenshot(compressed);
           soundFX.playPop(600);
 
-          // Upload compressed image to Supabase Storage in background for permanent admin visibility
+          // Upload compressed image to Railway Volume in background for permanent admin visibility
           canvas.toBlob(async (blob) => {
             if (!blob) return;
             setIsUploadingScreenshot(true);
             try {
-              const cloudUrl = await uploadPaymentProofToSupabase(blob, currentOrderId || 'order');
+              const cloudUrl = await uploadPaymentProofToCloud(blob, currentOrderId || 'order');
               if (cloudUrl) {
                 setPaymentScreenshot(cloudUrl);
               }

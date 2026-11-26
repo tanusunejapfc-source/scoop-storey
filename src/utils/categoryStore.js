@@ -1,9 +1,7 @@
-import { supabase } from './supabaseClient';
+import { fetchConfigFromCloud, syncConfigToCloud } from './apiClient';
 
 const CATEGORIES_STORAGE_KEY = 'bhaskar_custom_categories_v3';
 const CATEGORIES_DELETED_KEY = 'bhaskar_deleted_categories_v3';
-export const CLOUD_CATEGORIES_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/categories.json';
-export const CLOUD_DELETED_CATEGORIES_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/deleted-categories.json';
 
 // Initial default rich category metadata based on store collections
 export const DEFAULT_CATEGORY_METADATA = [
@@ -31,7 +29,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'bracelets',
     name: 'Bracelets',
     icon: '🎀',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000022689-564739.png',
+    image: '/images/bracelets/butterfly-charm-bracelet.webp',
     department: 'jewelry',
     badge: 'Handcrafted Dainty ✨',
     description: 'Adjustable charm link bracelets, protective evil eye amulets, and fairy-core pastel glass beads.',
@@ -41,7 +39,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'anklets',
     name: 'Anklets',
     icon: '💫',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020275-997799.jpg',
+    image: '/images/bracelets-anklets.webp',
     department: 'jewelry',
     badge: 'Summer Shimmer ☀️',
     description: 'Sleek, fluid herringbone snake chains and dainty stationed beaded ankle chains.',
@@ -51,7 +49,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'makeup',
     name: 'Make up',
     icon: '💄',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023632-055369.png',
+    image: '/images/scoop-chart-beauty-accessories.webp',
     department: 'beauty',
     badge: 'Pastel Glow 💋',
     description: 'Fruit-tinted lip oils, bouncy jelly blush sticks, and radiant liquid glitter eyeshadows.',
@@ -61,7 +59,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'soft-toys',
     name: 'Soft Toys',
     icon: '🧸',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024255-720651.jpg',
+    image: '/images/deluxe-giftbox.webp',
     department: 'lifestyle',
     badge: 'Super Fluffy ☁️',
     description: 'Cloud-soft cuddle plushies, squishy boba milk teas, and cute sleeping kitten pillows.',
@@ -71,7 +69,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'keychains',
     name: 'Key chains',
     icon: '🗝️',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000025663-831617.jpg',
+    image: '/images/charm-bracelets.webp',
     department: 'lifestyle',
     badge: 'Kawaii Charms ✨',
     description: 'Floating liquid glitter bears, Sanrio anime bell straps, and handcrafted beaded phone charms.',
@@ -81,7 +79,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'hair-accessories',
     name: 'Hair Accessories',
     icon: '🎀',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024279-340427.jpg',
+    image: '/images/pendants/bow-heart-pendant.webp',
     department: 'lifestyle',
     badge: 'Cute Styling 🌸',
     description: 'Matte pastel butterfly hair claws, velvet plush cloud scrunchies, and pearl barrette duos.',
@@ -91,7 +89,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'self-care',
     name: 'Self-Care',
     icon: '🌸',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000020284-107611.jpg',
+    image: '/images/eyemasks-skincare.webp',
     department: 'beauty',
     badge: 'Glow Routine ✨',
     description: 'Ultra-soft cloud velvet and silk sleeping masks, novelty soda-can wet wipes, deep-cleansing pore strips, and self-care essentials.',
@@ -101,7 +99,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'korean-wallets-and-bags',
     name: 'Korean wallets and bags',
     icon: '👛',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg',
+    image: '/images/korean-wallets.webp',
     department: 'lifestyle',
     badge: 'Boutique Hot 🔥',
     description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
@@ -111,7 +109,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'kawaii-stationery',
     name: 'Kawaii Stationery',
     icon: '📝',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg',
+    image: '/images/scoop-chart-stationery-lifestyle.webp',
     department: 'lifestyle',
     badge: 'Pastel Journaling ✨',
     description: 'Aesthetic floral diaries, magnetic bookmarks, kawaii sticky notes, and pastel journaling essentials.',
@@ -121,7 +119,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'bottles-mugs',
     name: 'Bottles & Mugs',
     icon: '🥛',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000023670-563833.jpg',
+    image: '/images/scoop-bowl.webp',
     department: 'lifestyle',
     badge: 'Cute Drinkware 🎀',
     description: 'Labubu sipper bottles, aesthetic pearl glass mugs, and cute bunny ear drinkware.',
@@ -131,7 +129,7 @@ export const DEFAULT_CATEGORY_METADATA = [
     id: 'accessories',
     name: 'Accessories',
     icon: '✨',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024681-197035.jpg',
+    image: '/images/scoop-chart-beauty-accessories.webp',
     department: 'lifestyle',
     badge: 'Everyday Cute ✨',
     description: 'Portable handheld mini fans, plushie compact mirrors, and aesthetic everyday accessories.',
@@ -161,16 +159,7 @@ export function getDeletedCategoryNames() {
 }
 
 export async function syncDeletedCategoriesToCloud(deletedList) {
-  if (!supabase) return;
-  try {
-    const blob = new Blob([JSON.stringify(deletedList, null, 2)], { type: 'application/json' });
-    await supabase.storage
-      .from('product-images')
-      .upload('config/deleted-categories.json', blob, {
-        upsert: true,
-        contentType: 'application/json'
-      });
-  } catch {}
+  await syncConfigToCloud('deleted_categories', deletedList);
 }
 
 /**
@@ -245,7 +234,7 @@ export function getStoredCategories() {
                 id: 'korean-wallets-and-bags',
                 name: 'Korean wallets and bags',
                 icon: '👛',
-                image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg',
+                image: '/images/korean-wallets.webp',
                 department: 'lifestyle',
                 badge: 'Boutique Hot 🔥',
                 description: 'Quilted pastel diamond pocket wallets, aesthetic totes, mini bags, and kawaii accessories with gold zip accents and plush bear charm pulls.',
@@ -261,9 +250,10 @@ export function getStoredCategories() {
         const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase().trim(), d]));
         const finalized = cleaned.map(c => {
           const def = c.name ? defMap.get(c.name.toLowerCase().trim()) : null;
+          const safeImg = c.image && !String(c.image).includes('supabase.co') ? c.image : (def?.image || '/images/deluxe-giftbox.webp');
           return {
             ...c,
-            image: c.image || def?.image || '/images/deluxe-giftbox.webp'
+            image: safeImg
           };
         });
 
@@ -280,67 +270,50 @@ export function getStoredCategories() {
 }
 
 /**
- * Fetch categories from Supabase cloud storage so all devices & visitors see latest custom collection images
+ * Fetch categories from Railway PostgreSQL config store
  */
 export async function fetchCategoriesFromCloud() {
   if (typeof window === 'undefined') return null;
   try {
-    // Also fetch deleted categories list from cloud
-    try {
-      const delRes = await fetch(`${CLOUD_DELETED_CATEGORIES_URL}?t=${Date.now()}`);
-      if (delRes.ok) {
-        const cloudDeleted = await delRes.json();
-        if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
-          const localDeleted = getDeletedCategoryNames();
-          const combined = Array.from(new Set([...localDeleted, ...cloudDeleted]));
-          localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(combined));
-        }
-      }
-    } catch {}
-
-    const res = await fetch(`${CLOUD_CATEGORIES_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const cloudCats = await res.json();
-      if (Array.isArray(cloudCats) && cloudCats.length > 0) {
-        const deletedNames = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
-        const filtered = cloudCats.filter(c => c && c.name && !deletedNames.has(c.name.toLowerCase().trim()));
-        try {
-          localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(filtered));
-        } catch {}
-        window.dispatchEvent(new CustomEvent('scoop_categories_updated', { detail: filtered }));
-        return filtered;
-      }
+    const cloudDeleted = await fetchConfigFromCloud('deleted_categories');
+    if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
+      const localDeleted = getDeletedCategoryNames();
+      const combined = Array.from(new Set([...localDeleted, ...cloudDeleted]));
+      localStorage.setItem(CATEGORIES_DELETED_KEY, JSON.stringify(combined));
     }
-  } catch (err) {
+
+    const cloudCats = await fetchConfigFromCloud('categories');
+    if (Array.isArray(cloudCats) && cloudCats.length > 0) {
+      const deletedNames = new Set(getDeletedCategoryNames().map(n => n.toLowerCase().trim()));
+      const defMap = new Map(DEFAULT_CATEGORY_METADATA.map(d => [d.name.toLowerCase().trim(), d]));
+      const filtered = cloudCats
+        .filter(c => c && c.name && !deletedNames.has(c.name.toLowerCase().trim()))
+        .map(c => {
+          const def = defMap.get(c.name.toLowerCase().trim());
+          const safeImg = c.image && !String(c.image).includes('supabase.co') ? c.image : (def?.image || '/images/deluxe-giftbox.webp');
+          return { ...c, image: safeImg };
+        });
+      try {
+        localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(filtered));
+      } catch {}
+      window.dispatchEvent(new CustomEvent('scoop_categories_updated', { detail: filtered }));
+      return filtered;
+    }
+  } catch {
     // Non-blocking fallback
   }
   return null;
 }
 
-// Save categories to localStorage, dispatch event, and sync to Supabase Cloud Storage
+// Save categories to localStorage, dispatch event, and sync to Railway PostgreSQL
 export function saveStoredCategories(categories) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
     window.dispatchEvent(new CustomEvent('scoop_categories_updated', { detail: categories }));
-
-    // Asynchronously push to Supabase storage bucket so all devices see the updated collection images
-    if (supabase) {
-      try {
-        const jsonBlob = new Blob([JSON.stringify(categories, null, 2)], { type: 'application/json' });
-        supabase.storage
-          .from('product-images')
-          .upload('config/categories.json', jsonBlob, {
-            contentType: 'application/json',
-            upsert: true
-          })
-          .catch(cloudErr => {
-            console.warn('Could not sync categories to cloud storage:', cloudErr);
-          });
-      } catch (cloudErr) {
-        console.warn('Could not sync categories to cloud storage:', cloudErr);
-      }
-    }
+    syncConfigToCloud('categories', categories).catch((cloudErr) => {
+      console.warn('Could not sync categories to cloud:', cloudErr);
+    });
   } catch (err) {
     console.error('Failed to save categories to localStorage:', err);
   }
@@ -362,6 +335,7 @@ export function deleteStoredCategory(categoryName) {
 export function resetStoredCategories() {
   try {
     localStorage.removeItem(CATEGORIES_DELETED_KEY);
+    syncDeletedCategoriesToCloud([]);
   } catch {}
   saveStoredCategories(DEFAULT_CATEGORY_METADATA);
   return DEFAULT_CATEGORY_METADATA;

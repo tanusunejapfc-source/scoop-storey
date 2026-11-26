@@ -139,9 +139,6 @@ export default defineConfig({
           if (id.includes('node_modules/@tanstack')) {
             return 'vendor-virtual';
           }
-          if (id.includes('node_modules/@supabase')) {
-            return 'vendor-supabase';
-          }
         }
       }
     }

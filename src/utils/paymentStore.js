@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { supabase } from './supabaseClient';
+import { fetchConfigFromCloud, syncConfigToCloud } from './apiClient';
 
 const PAYMENT_SETTINGS_KEY = 'bhaskar_payment_settings_v1';
 const PAYMENT_SETTINGS_EVENT = 'bhaskar_payment_settings_updated';
-const CLOUD_SETTINGS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/payment-settings.json';
 
 export const DEFAULT_PAYMENT_SETTINGS = {
   upiId: 'scoopstorey77@okaxis',
@@ -47,25 +46,22 @@ export function getPaymentSettings() {
 
 export async function fetchPaymentSettingsFromCloud() {
   try {
-    const res = await fetch(`${CLOUD_SETTINGS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const cloud = await res.json();
-      if (cloud && typeof cloud === 'object') {
-        if (cloud.upiId === '8199922653@upi') {
-          cloud.upiId = DEFAULT_PAYMENT_SETTINGS.upiId;
-        }
-        if (cloud.payeeName === 'Bhaskar - Scoop Storey') {
-          cloud.payeeName = DEFAULT_PAYMENT_SETTINGS.payeeName;
-        }
-        const merged = { ...DEFAULT_PAYMENT_SETTINGS, ...cloud };
-        try {
-          localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(merged));
-        } catch (_) {}
-        window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: merged }));
-        return merged;
+    const cloud = await fetchConfigFromCloud('payment_settings');
+    if (cloud && typeof cloud === 'object') {
+      if (cloud.upiId === '8199922653@upi') {
+        cloud.upiId = DEFAULT_PAYMENT_SETTINGS.upiId;
       }
+      if (cloud.payeeName === 'Bhaskar - Scoop Storey') {
+        cloud.payeeName = DEFAULT_PAYMENT_SETTINGS.payeeName;
+      }
+      const merged = { ...DEFAULT_PAYMENT_SETTINGS, ...cloud };
+      try {
+        localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(merged));
+      } catch (_) {}
+      window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: merged }));
+      return merged;
     }
-  } catch (err) {
+  } catch {
     // Non-blocking fallback
   }
   return null;
@@ -78,21 +74,7 @@ export async function savePaymentSettings(newSettings) {
     localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: merged }));
 
-    // Asynchronously push to Supabase storage bucket so all devices see the new settings
-    if (supabase) {
-      try {
-        const jsonBlob = new Blob([JSON.stringify(merged)], { type: 'application/json' });
-        await supabase.storage
-          .from('product-images')
-          .upload('config/payment-settings.json', jsonBlob, {
-            contentType: 'application/json',
-            upsert: true
-          });
-      } catch (cloudErr) {
-        console.warn('Could not sync payment settings to cloud storage:', cloudErr);
-      }
-    }
-
+    await syncConfigToCloud('payment_settings', merged);
     return merged;
   } catch (err) {
     console.error('Error saving payment settings to localStorage:', err);
@@ -104,17 +86,7 @@ export async function resetPaymentSettings() {
   try {
     localStorage.removeItem(PAYMENT_SETTINGS_KEY);
     window.dispatchEvent(new CustomEvent(PAYMENT_SETTINGS_EVENT, { detail: DEFAULT_PAYMENT_SETTINGS }));
-    if (supabase) {
-      try {
-        const jsonBlob = new Blob([JSON.stringify(DEFAULT_PAYMENT_SETTINGS)], { type: 'application/json' });
-        await supabase.storage
-          .from('product-images')
-          .upload('config/payment-settings.json', jsonBlob, {
-            contentType: 'application/json',
-            upsert: true
-          });
-      } catch (_) {}
-    }
+    await syncConfigToCloud('payment_settings', DEFAULT_PAYMENT_SETTINGS);
   } catch (err) {
     console.error('Error resetting payment settings:', err);
   }

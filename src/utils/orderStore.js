@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  supabase, 
-  saveOrderToSupabase, 
-  fetchOrdersFromSupabase,
-  updateOrderStatusInSupabase,
-  updateOrderTrackingInSupabase,
-  deleteOrderFromSupabase,
-  clearAllOrdersFromSupabase
-} from './supabaseClient';
+import {
+  saveOrderToCloud,
+  fetchOrdersFromCloud,
+  updateOrderStatusInCloud,
+  updateOrderTrackingInCloud,
+  deleteOrderFromCloud,
+  clearAllOrdersFromCloud,
+  fetchConfigFromCloud,
+  syncConfigToCloud
+} from './apiClient';
 
 const ORDERS_STORAGE_KEY = 'bhaskar_store_orders_v1';
 const STORAGE_KEY_DELETED_ORDERS = 'bhaskar_deleted_order_ids_v1';
-const CLOUD_DELETED_ORDERS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/deleted-orders.json';
 
 let inMemoryDeletedOrderIds = null;
 
@@ -36,36 +36,21 @@ export function getDeletedOrderIds() {
 export async function fetchDeletedOrderIdsFromCloud() {
   if (typeof window === 'undefined') return getDeletedOrderIds();
   try {
-    const res = await fetch(`${CLOUD_DELETED_ORDERS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const cloudDeleted = await res.json();
-      if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
-        const merged = Array.from(new Set([...getDeletedOrderIds(), ...cloudDeleted]));
-        inMemoryDeletedOrderIds = merged;
-        try {
-          localStorage.setItem(STORAGE_KEY_DELETED_ORDERS, JSON.stringify(merged));
-        } catch {}
-        return merged;
-      }
+    const cloudDeleted = await fetchConfigFromCloud('deleted_orders');
+    if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
+      const merged = Array.from(new Set([...getDeletedOrderIds(), ...cloudDeleted]));
+      inMemoryDeletedOrderIds = merged;
+      try {
+        localStorage.setItem(STORAGE_KEY_DELETED_ORDERS, JSON.stringify(merged));
+      } catch {}
+      return merged;
     }
   } catch {}
   return getDeletedOrderIds();
 }
 
 export async function syncDeletedOrderIdsToCloud(deletedList) {
-  if (!supabase) return;
-  try {
-    const blob = new Blob([JSON.stringify(deletedList, null, 2)], { type: 'application/json' });
-    await supabase.storage
-      .from('product-images')
-      .upload('config/deleted-orders.json', blob, {
-        upsert: true,
-        cacheControl: '0',
-        contentType: 'application/json'
-      });
-  } catch (err) {
-    console.warn('Failed to sync deleted orders to cloud:', err);
-  }
+  await syncConfigToCloud('deleted_orders', deletedList);
 }
 
 // Initial dummy orders (only used if store is completely uninitialized)
@@ -279,6 +264,7 @@ export function getCourierTrackingUrl(courier, awb) {
  */
 export function updateOrderTrackingInStore(orderId, { status, courierName, trackingNumber }) {
   try {
+    updateOrderTrackingInCloud(orderId, { status, courierName, trackingNumber });
     const existing = getStoredOrders();
     const cleanTrackingUrl = trackingNumber ? getCourierTrackingUrl(courierName, trackingNumber) : null;
     const updated = existing.map(ord => {
@@ -296,6 +282,7 @@ export function updateOrderTrackingInStore(orderId, { status, courierName, track
 
     memoryOrders = updated;
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('scoop_orders_updated', { detail: updated }));
     return true;
   } catch (err) {
     console.error('Failed to update order tracking:', err);
@@ -413,8 +400,8 @@ export function saveOrderToStore(order) {
     const cleanOrder = sanitizeOrder(order);
     if (!cleanOrder) return order;
 
-    // 1. Sync directly to Supabase cloud database
-    saveOrderToSupabase(cleanOrder);
+    // 1. Sync directly to Railway PostgreSQL API
+    saveOrderToCloud(cleanOrder);
 
     const existing = getStoredOrders();
     const updated = [cleanOrder, ...existing.filter(o => o.orderId !== cleanOrder.orderId)];
@@ -465,8 +452,8 @@ export function saveOrderToStore(order) {
 
 export function updateOrderStatusInStore(orderId, newStatus) {
   try {
-    // 1. Update in Supabase cloud database
-    updateOrderStatusInSupabase(orderId, newStatus);
+    // 1. Update in Railway PostgreSQL database
+    updateOrderStatusInCloud(orderId, newStatus);
 
     // 2. Update local state
     const existing = getStoredOrders();
@@ -498,8 +485,8 @@ export async function deleteOrderFromStore(orderId) {
       await syncDeletedOrderIdsToCloud(nextDeleted);
     }
 
-    // 2. Delete from Supabase cloud database
-    await deleteOrderFromSupabase(orderId);
+    // 2. Delete from Railway PostgreSQL database
+    await deleteOrderFromCloud(orderId);
 
     // 3. Remove from local store and memory cache
     const existing = getStoredOrders();
@@ -534,8 +521,8 @@ export async function clearAllOrdersFromStore() {
     } catch {}
     await syncDeletedOrderIdsToCloud(nextDeleted);
 
-    // 2. Delete / purge all from Supabase
-    await clearAllOrdersFromSupabase(existingIds);
+    // 2. Delete / purge all from Railway PostgreSQL database
+    await clearAllOrdersFromCloud(existingIds);
 
     // 3. Clear memory and localStorage completely
     memoryOrders = [];
@@ -559,9 +546,9 @@ export function useStoreOrders() {
     } catch {}
     const deletedSet = new Set(deletedIds || []);
 
-    // 2. Fetch live cloud orders from Supabase
+    // 2. Fetch live cloud orders from Railway PostgreSQL API
     try {
-      const cloudOrders = await fetchOrdersFromSupabase();
+      const cloudOrders = await fetchOrdersFromCloud();
       if (Array.isArray(cloudOrders)) {
         // Filter out any tombstoned / deleted orders
         const activeCloud = cloudOrders.filter(o => !deletedSet.has(o.orderId));
@@ -573,7 +560,7 @@ export function useStoreOrders() {
         return activeCloud;
       }
     } catch (err) {
-      console.warn('Failed to fetch orders from Supabase:', err);
+      console.warn('Failed to fetch orders from cloud API:', err);
     }
 
     // 3. Fallback to localStorage if offline
@@ -599,27 +586,17 @@ export function useStoreOrders() {
   }, []);
 
   useEffect(() => {
-    // Fetch live orders from Supabase cloud database immediately
+    // Fetch live orders immediately and poll softly every 20s across admin/open sessions
     refreshOrders();
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        refreshOrders();
+      }
+    }, 20000);
 
-    // Setup Supabase Realtime channel for instant live updates across devices
-    if (supabase) {
-      const channel = supabase
-        .channel('realtime_admin_orders_sync')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'orders' },
-          (payload) => {
-            console.log('⚡ Realtime Supabase order event received:', payload);
-            refreshOrders();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
+    return () => {
+      clearInterval(interval);
+    };
   }, [refreshOrders]);
 
   useEffect(() => {

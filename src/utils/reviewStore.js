@@ -5,7 +5,14 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase, uploadImageToSupabase } from './supabaseClient';
+import {
+  fetchConfigFromCloud,
+  syncConfigToCloud,
+  fetchReviewsFromApi,
+  saveReviewToApi,
+  updateReviewInApi,
+  deleteReviewFromApi
+} from './apiClient';
 import { INITIAL_PRODUCT_REVIEWS } from '../data/productReviewsData';
 
 const REVIEWS_STORAGE_KEY = 'scoop_store_reviews_v5';
@@ -15,31 +22,34 @@ export const INITIAL_REVIEWS = [
   ...INITIAL_PRODUCT_REVIEWS
 ];
 
-export const CLOUD_REVIEWS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/reviews.json';
-
 export async function syncReviewsToCloud(reviewsList) {
-  if (!supabase) return;
   try {
-    const blob = new Blob([JSON.stringify(reviewsList, null, 2)], { type: 'application/json' });
-    await supabase.storage
-      .from('product-images')
-      .upload('config/reviews.json', blob, {
-        upsert: true,
-        contentType: 'application/json'
-      });
+    await syncConfigToCloud('reviews', reviewsList);
   } catch {}
 }
 
 export async function fetchReviewsFromCloud() {
   if (typeof window === 'undefined') return null;
   try {
-    const res = await fetch(`${CLOUD_REVIEWS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        return data;
-      }
+    const [configReviews, dbReviews] = await Promise.all([
+      fetchConfigFromCloud('reviews'),
+      fetchReviewsFromApi()
+    ]);
+
+    const base = Array.isArray(configReviews) && configReviews.length > 0
+      ? configReviews
+      : null;
+
+    if (Array.isArray(dbReviews) && dbReviews.length > 0) {
+      const seenIds = new Set(dbReviews.map(r => r.id));
+      const merged = [
+        ...dbReviews,
+        ...(base || INITIAL_REVIEWS).filter(r => !seenIds.has(r.id))
+      ];
+      return merged;
     }
+
+    return base;
   } catch {}
   return null;
 }
@@ -167,25 +177,8 @@ export async function submitCustomerReview({
   const updated = [newReview, ...existing];
   persistReviews(updated);
 
-  // Attempt async sync to Supabase if table exists
-  if (supabase) {
-    try {
-      supabase.from('reviews').insert({
-        id: newReview.id,
-        product_id: newReview.productId,
-        product_name: newReview.productName,
-        customer_name: newReview.customerName,
-        handle: newReview.handle,
-        rating: newReview.rating,
-        title: newReview.title,
-        comment: newReview.comment,
-        images: newReview.images,
-        verified_buyer: newReview.verifiedBuyer,
-        status: newReview.status,
-        created_at: new Date(newReview.createdAt).toISOString()
-      }).then(() => {}).catch(() => {});
-    } catch {}
-  }
+  // Persist directly to Railway PostgreSQL reviews table
+  saveReviewToApi(newReview).catch(() => {});
 
   return newReview;
 }
@@ -228,6 +221,7 @@ export async function createMerchantReview({
   const existing = getStoredReviews();
   const updated = [newReview, ...existing];
   persistReviews(updated);
+  saveReviewToApi(newReview).catch(() => {});
   return newReview;
 }
 
@@ -240,6 +234,7 @@ export function updateReviewStatus(reviewId, newStatus) {
     rev.id === reviewId ? { ...rev, status: newStatus } : rev
   );
   persistReviews(updated);
+  updateReviewInApi(reviewId, { status: newStatus }).catch(() => {});
   return true;
 }
 
@@ -250,6 +245,7 @@ export function deleteReview(reviewId) {
   const existing = getStoredReviews();
   const updated = existing.filter(rev => rev.id !== reviewId);
   persistReviews(updated);
+  deleteReviewFromApi(reviewId).catch(() => {});
   return true;
 }
 

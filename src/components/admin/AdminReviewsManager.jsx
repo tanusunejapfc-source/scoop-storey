@@ -28,7 +28,7 @@ import {
   toggleReviewVerified, 
   createMerchantReview 
 } from '../../utils/reviewStore';
-import { uploadImageToSupabase } from '../../utils/supabaseClient';
+import { uploadImageToCloud } from '../../utils/apiClient';
 
 export default function AdminReviewsManager({ products = [] }) {
   const { allReviews, refreshReviews } = useReviews();
@@ -140,9 +140,9 @@ export default function AdminReviewsManager({ products = [] }) {
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
 
-      // Try uploading to Supabase Storage if configured
+      // Upload to Railway Persistent Volume
       try {
-        const res = await uploadImageToSupabase(file);
+        const res = await uploadImageToCloud(file, 'reviews');
         if (res && res.success && res.url) {
           setCustomImages(prev => [...prev, res.url]);
           soundFX.playPop(600);

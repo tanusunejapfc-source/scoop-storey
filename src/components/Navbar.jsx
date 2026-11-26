@@ -22,7 +22,7 @@ import { useWishlist } from '../utils/wishlistStore';
 import InstagramIcon from './InstagramIcon';
 import WhatsAppIcon from './WhatsAppIcon';
 import MiniScoopIcon from './MiniScoopIcon';
-import { CLOUD_DISCOUNTS_URL } from './admin/AdminDiscountsCMS';
+import { fetchDiscountsFromCloud } from './admin/AdminDiscountsCMS';
 
 const ANNOUNCEMENTS = [
   {
@@ -79,15 +79,11 @@ export default function Navbar({
 
   // Listen to live announcement updates from Admin CMS & Cloud
   useEffect(() => {
-    // Fetch live announcement from cloud storage on mount
-    fetch(`${CLOUD_DISCOUNTS_URL}?t=${Date.now()}`)
-      .then(res => res.ok ? res.json() : null)
+    // Fetch live announcement from Railway Postgres on mount
+    fetchDiscountsFromCloud()
       .then(data => {
         if (data?.announcement) {
           setCustomAnnouncement(data.announcement);
-          try {
-            localStorage.setItem('bhaskar_announcement_cms_v1', JSON.stringify(data.announcement));
-          } catch {}
         }
       })
       .catch(() => {});

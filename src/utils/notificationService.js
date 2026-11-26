@@ -2,11 +2,10 @@
 // Supports: Telegram Bot Instant Push, Direct Email Alerts (Web3Forms/Formspree), & Real-time Sound Chimes
 
 import { soundFX } from './audio';
-import { supabase } from './supabaseClient';
+import { fetchConfigFromCloud, syncConfigToCloud } from './apiClient';
 
 const NOTIFICATION_CONFIG_KEY = 'bhaskar_store_notifications_v1';
 export const ORDER_BROADCAST_CHANNEL = 'bhaskar_store_order_events';
-export const CLOUD_NOTIFICATIONS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/notifications.json';
 
 // In-memory cache for fast lookup
 let memoryNotificationSettings = null;
@@ -63,57 +62,40 @@ export function getNotificationSettings() {
 }
 
 /**
- * Fetch latest notification settings from Supabase Cloud Storage
+ * Fetch latest notification settings from Railway PostgreSQL config store
  * Ensures every customer checkout on mobile/desktop uses the admin's live keys
  */
 export async function fetchNotificationSettingsFromCloud() {
   try {
-    const res = await fetch(`${CLOUD_NOTIFICATIONS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const cloud = await res.json();
-      if (cloud && typeof cloud === 'object') {
-        const merged = {
-          ...DEFAULT_NOTIFICATION_SETTINGS,
-          ...cloud,
-          telegram: { ...DEFAULT_NOTIFICATION_SETTINGS.telegram, ...(cloud.telegram || {}) },
-          email: { ...DEFAULT_NOTIFICATION_SETTINGS.email, ...(cloud.email || {}) },
-          sound: { ...DEFAULT_NOTIFICATION_SETTINGS.sound, ...(cloud.sound || {}) },
-        };
-        memoryNotificationSettings = merged;
-        try {
-          localStorage.setItem(NOTIFICATION_CONFIG_KEY, JSON.stringify(merged));
-        } catch (_) {}
-        return merged;
-      }
+    const cloud = await fetchConfigFromCloud('notifications');
+    if (cloud && typeof cloud === 'object') {
+      const merged = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        ...cloud,
+        telegram: { ...DEFAULT_NOTIFICATION_SETTINGS.telegram, ...(cloud.telegram || {}) },
+        email: { ...DEFAULT_NOTIFICATION_SETTINGS.email, ...(cloud.email || {}) },
+        sound: { ...DEFAULT_NOTIFICATION_SETTINGS.sound, ...(cloud.sound || {}) },
+      };
+      memoryNotificationSettings = merged;
+      try {
+        localStorage.setItem(NOTIFICATION_CONFIG_KEY, JSON.stringify(merged));
+      } catch (_) {}
+      return merged;
     }
-  } catch (err) {
+  } catch {
     // Non-blocking fallback
   }
   return getNotificationSettings();
 }
 
 /**
- * Save notification preferences to both LocalStorage and Supabase Cloud Storage
+ * Save notification preferences to both LocalStorage and Railway PostgreSQL
  */
 export async function saveNotificationSettings(settings) {
   try {
     memoryNotificationSettings = settings;
     localStorage.setItem(NOTIFICATION_CONFIG_KEY, JSON.stringify(settings));
-
-    // Upload to Supabase cloud storage so all customers across all devices use the new key
-    if (supabase) {
-      try {
-        const jsonBlob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
-        await supabase.storage
-          .from('product-images')
-          .upload('config/notifications.json', jsonBlob, {
-            contentType: 'application/json',
-            upsert: true
-          });
-      } catch (cloudErr) {
-        console.warn('Could not sync notifications to cloud storage:', cloudErr);
-      }
-    }
+    await syncConfigToCloud('notifications', settings);
     return true;
   } catch (e) {
     console.error('Failed to save notification settings:', e);

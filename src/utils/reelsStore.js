@@ -1,24 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from './supabaseClient';
-
-export const CLOUD_REELS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/reels.json';
+import { fetchConfigFromCloud, syncConfigToCloud } from './apiClient';
 
 export async function fetchReelsFromCloud() {
   if (typeof window === 'undefined') return null;
   try {
-    const res = await fetch(`${CLOUD_REELS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        return data;
-      }
+    const data = await fetchConfigFromCloud('reels');
+    if (Array.isArray(data) && data.length > 0) {
+      return data;
     }
   } catch {}
   return null;
 }
 
 export async function syncReelsToCloud(reelsList) {
-  if (!supabase) return;
   try {
     const lean = reelsList.map(r => ({
       ...r,
@@ -26,13 +20,7 @@ export async function syncReelsToCloud(reelsList) {
         ? ''
         : r.videoUrl
     }));
-    const blob = new Blob([JSON.stringify(lean, null, 2)], { type: 'application/json' });
-    await supabase.storage
-      .from('product-images')
-      .upload('config/reels.json', blob, {
-        upsert: true,
-        contentType: 'application/json'
-      });
+    await syncConfigToCloud('reels', lean);
   } catch {}
 }
 

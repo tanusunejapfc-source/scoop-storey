@@ -12,7 +12,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Kawaii Stationery',
     tagline: 'Pastel Diaries, Highlighters & Sticky Notes',
     badge: 'Popular 📝',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024332-291296.jpg',
+    image: '/images/scoop-chart-stationery-lifestyle.webp',
     price: '₹149',
     tags: ['Korean Import', 'Smooth Paper', 'Pastel Vibe']
   },
@@ -34,7 +34,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Korean wallets and bags',
     tagline: 'Diamond Quilt • Pastel Kawaii Chic',
     badge: 'Trending 👛',
-    image: 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/uploads/1000024496-677056.jpg',
+    image: '/images/korean-wallets.webp',
     price: '₹249',
     tags: ['Pastel Aesthetics', 'Gold Hardware', 'Viral on Reels']
   },

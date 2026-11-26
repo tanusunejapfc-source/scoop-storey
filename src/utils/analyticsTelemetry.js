@@ -2,18 +2,24 @@
  * Scoop Storey E-Commerce Telemetry & Analytics Engine
  * 100% REAL AND ACCURATE - ZERO SIMULATED OR FAKE DATA.
  * 
- * Uses Supabase Realtime Channels for true live visitor presence across all devices worldwide,
- * and tracks real sessions, real cart actions, real checkout steps, and real orders.
+ * Syncs visitor sessions & live presence directly to Railway PostgreSQL API.
  */
 
-import { supabase } from './supabaseClient';
+import {
+  syncTelemetrySessionToCloud,
+  fetchTelemetrySummaryFromCloud
+} from './apiClient';
 
 const STORAGE_KEY_SESSIONS = 'scoop_real_sessions_v1';
 const STORAGE_KEY_VISITOR = 'scoop_real_visitor_id_v1';
 const STORAGE_KEY_EVENTS = 'scoop_real_events_v1';
 
-let livePresenceChannel = null;
-let currentPresenceState = {};
+let livePresenceSnapshot = {
+  liveVisitors: 1,
+  activeCarts: 0,
+  activeCheckouts: 0
+};
+let lastPresenceState = { cartCount: 0, inCheckout: false, page: '/' };
 
 /**
  * Get or create unique anonymous visitor ID
@@ -158,16 +164,14 @@ function recordSessionToStorage(session) {
 let cloudSyncTimer = null;
 
 /**
- * Synchronize visitor session to Supabase cloud storage bucket
- * Ensures cross-device analytics are genuine and aggregated across all visitors worldwide
+ * Synchronize visitor session to Railway PostgreSQL telemetry table
  */
-export function syncSessionToCloud(session) {
-  if (!supabase || !session || !session.visitorId || typeof window === 'undefined') return;
+export function syncSessionToCloud(session, extra = {}) {
+  if (!session || !session.visitorId || typeof window === 'undefined') return;
 
   if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(async () => {
     try {
-      const cleanVid = String(session.visitorId).replace(/[^a-zA-Z0-9_-]/g, '_');
       const payload = {
         sessionId: session.sessionId,
         visitorId: session.visitorId,
@@ -177,69 +181,36 @@ export function syncSessionToCloud(session) {
         channel: session.channel || 'Direct Storefront',
         region: session.region || 'India',
         pageviews: session.pageviews || 1,
-        hasCart: Boolean(session.hasCart),
-        cartCount: Number(session.cartCount || 0),
+        hasCart: extra.hasCart !== undefined ? Boolean(extra.hasCart) : Boolean(session.hasCart),
+        cartCount: extra.cartCount !== undefined ? Number(extra.cartCount || 0) : Number(session.cartCount || 0),
+        inCheckout: extra.inCheckout !== undefined ? Boolean(extra.inCheckout) : Boolean(lastPresenceState.inCheckout),
         reachedCheckout: Boolean(session.reachedCheckout),
-        completedOrder: Boolean(session.completedOrder)
+        completedOrder: Boolean(session.completedOrder),
+        currentPage: window.location.hash || '/'
       };
 
-      const jsonBlob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-      await supabase.storage
-        .from('product-images')
-        .upload(`telemetry/sessions/sess_${cleanVid}.json`, jsonBlob, {
-          contentType: 'application/json',
-          upsert: true
-        });
+      await syncTelemetrySessionToCloud(payload);
     } catch {
       // Non-blocking fail-safe
     }
-  }, 1000);
+  }, 800);
 }
 
 /**
- * Fetch all real visitor sessions across India from Supabase cloud storage
+ * Fetch all real visitor sessions across India from Railway PostgreSQL
  */
 export async function fetchCloudSessions() {
-  if (!supabase) return [];
   try {
-    const { data: fileList, error } = await supabase.storage
-      .from('product-images')
-      .list('telemetry/sessions', {
-        limit: 500,
-        sortBy: { column: 'updated_at', order: 'desc' }
-      });
-
-    if (error || !Array.isArray(fileList) || fileList.length === 0) {
-      try {
-        const cached = localStorage.getItem('scoop_cloud_sessions_cache_v1');
-        return cached ? JSON.parse(cached) : [];
-      } catch {
-        return [];
-      }
+    const summary = await fetchTelemetrySummaryFromCloud();
+    if (summary?.presence) {
+      livePresenceSnapshot = summary.presence;
+      window.dispatchEvent(new CustomEvent('scoop_realtime_presence_sync', { detail: summary.presence }));
     }
-
-    const jsonFiles = fileList.filter(f => f.name && f.name.endsWith('.json'));
-    if (jsonFiles.length === 0) return [];
-
-    // Fetch individual visitor session JSONs in parallel batches
-    const fetchPromises = jsonFiles.slice(0, 100).map(async (file) => {
+    if (Array.isArray(summary?.sessions)) {
       try {
-        const url = `https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/telemetry/sessions/${file.name}?t=${Date.now()}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          return await res.json();
-        }
+        localStorage.setItem('scoop_cloud_sessions_cache_v1', JSON.stringify(summary.sessions));
       } catch {}
-      return null;
-    });
-
-    const sessions = (await Promise.all(fetchPromises)).filter(Boolean);
-
-    if (sessions.length > 0) {
-      try {
-        localStorage.setItem('scoop_cloud_sessions_cache_v1', JSON.stringify(sessions));
-      } catch {}
-      return sessions;
+      return summary.sessions;
     }
   } catch (err) {
     console.warn('fetchCloudSessions exception:', err);
@@ -254,87 +225,35 @@ export async function fetchCloudSessions() {
 }
 
 /**
- * Initialize Supabase Realtime Presence for true live visitor tracking
+ * Initialize Live Presence tracking via Railway Postgres telemetry
  */
 export function initLivePresence(cartItems = [], isCartOpen = false) {
-  if (!supabase || typeof window === 'undefined') return;
-  if (livePresenceChannel) return; // already connected
-
-  const vid = getOrCreateVisitorId();
-  const device = getRealDeviceType();
-
-  try {
-    livePresenceChannel = supabase.channel('scoop_store_presence', {
-      config: { presence: { key: vid } }
-    });
-
-    livePresenceChannel
-      .on('presence', { event: 'sync' }, () => {
-        currentPresenceState = livePresenceChannel.presenceState();
-        dispatchPresenceUpdate();
-      })
-      .on('presence', { event: 'join' }, () => {
-        currentPresenceState = livePresenceChannel.presenceState();
-        dispatchPresenceUpdate();
-      })
-      .on('presence', { event: 'leave' }, () => {
-        currentPresenceState = livePresenceChannel.presenceState();
-        dispatchPresenceUpdate();
-      })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await updateLivePresence(cartItems, isCartOpen);
-        }
-      });
-  } catch (err) {
-    console.warn('Live presence init exception:', err);
-  }
+  if (typeof window === 'undefined') return;
+  updateLivePresence(cartItems, isCartOpen);
 }
 
 /**
- * Update current visitor's presence state across the network
+ * Update current visitor's presence state on the server
  */
 export async function updateLivePresence(cartItems = [], isCartOpen = false) {
-  if (!livePresenceChannel) return;
-  const vid = getOrCreateVisitorId();
-  const device = getRealDeviceType();
+  if (typeof window === 'undefined') return;
   const cartCount = Array.isArray(cartItems) ? cartItems.reduce((acc, it) => acc + (it.qty || 1), 0) : 0;
+  const currentPage = window.location.hash || '/';
+  const inCheckout = Boolean(isCartOpen);
 
-  try {
-    await livePresenceChannel.track({
-      visitorId: vid,
-      device,
-      page: window.location.hash || '/',
+  lastPresenceState = { cartCount, inCheckout, page: currentPage };
+
+  const session = getOrCreateSession();
+  if (session) {
+    session.hasCart = cartCount > 0;
+    session.cartCount = cartCount;
+    if (inCheckout) session.reachedCheckout = true;
+    syncSessionToCloud(session, {
       hasCart: cartCount > 0,
       cartCount,
-      inCheckout: Boolean(isCartOpen),
-      onlineAt: Date.now()
+      inCheckout
     });
-  } catch {}
-}
-
-function dispatchPresenceUpdate() {
-  if (typeof window === 'undefined') return;
-  try {
-    const keys = Object.keys(currentPresenceState);
-    const liveCount = keys.length;
-    let activeCarts = 0;
-    let activeCheckouts = 0;
-
-    Object.values(currentPresenceState).forEach(presences => {
-      const p = presences[0];
-      if (p?.hasCart) activeCarts++;
-      if (p?.inCheckout) activeCheckouts++;
-    });
-
-    window.dispatchEvent(new CustomEvent('scoop_realtime_presence_sync', {
-      detail: {
-        liveVisitors: Math.max(1, liveCount), // At least current active visitor
-        activeCarts,
-        activeCheckouts
-      }
-    }));
-  } catch {}
+  }
 }
 
 /**
@@ -575,26 +494,20 @@ export function getTelemetryData(orders = [], timeRange = 'all', externalSession
     }
   });
 
-  // Calculate live visitors from Supabase Realtime presence state, fallback to 3m heartbeat
-  const presenceKeys = Object.keys(currentPresenceState);
-  let liveVisitorsRightNow = presenceKeys.length;
-
-  if (liveVisitorsRightNow === 0) {
-    // Check local active sessions in last 3 minutes
-    const ACTIVE_WINDOW_MS = 3 * 60 * 1000;
-    const activeRecent = filteredSessions.filter(s => now - (s.lastActive || 0) < ACTIVE_WINDOW_MS);
-    liveVisitorsRightNow = Math.max(1, activeRecent.length); // At least current active merchant/shopper
-  }
-
-  let activeCartsRightNow = 0;
-  let activeCheckoutsRightNow = 0;
-  if (presenceKeys.length > 0) {
-    Object.values(currentPresenceState).forEach(presences => {
-      const p = presences[0];
-      if (p?.hasCart) activeCartsRightNow++;
-      if (p?.inCheckout) activeCheckoutsRightNow++;
-    });
-  }
+  // Calculate live visitors from server telemetry snapshot & 90s heartbeat window
+  const ACTIVE_WINDOW_MS = 90 * 1000;
+  const activeRecent = filteredSessions.filter(s => now - (s.lastActive || 0) < ACTIVE_WINDOW_MS);
+  const liveVisitorsRightNow = Math.max(
+    1,
+    livePresenceSnapshot?.liveVisitors || 0,
+    activeRecent.length
+  );
+  const activeCartsRightNow = livePresenceSnapshot?.activeCarts !== undefined
+    ? livePresenceSnapshot.activeCarts
+    : activeRecent.filter(s => s.hasCart).length;
+  const activeCheckoutsRightNow = livePresenceSnapshot?.activeCheckouts !== undefined
+    ? livePresenceSnapshot.activeCheckouts
+    : activeRecent.filter(s => s.inCheckout).length;
 
   // 3. Real Total Sessions and Unique Visitors
   // Each order represents a real completed session; total sessions is at least the order count or recorded visits

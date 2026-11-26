@@ -6,15 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "node server.js",
     "lint": "oxlint",
     "test": "node scripts/test_master_audit.cjs",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.119.0",
     "@tanstack/react-virtual": "^3.14.26",
     "canvas-confetti": "^1.9.4",
+    "express": "^4.21.2",
     "lucide-react": "^1.68.0",
+    "multer": "^2.0.0",
+    "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "three": "^0.187.0"

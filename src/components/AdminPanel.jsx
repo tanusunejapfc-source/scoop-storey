@@ -84,7 +84,7 @@ import {
   ORDER_BROADCAST_CHANNEL 
 } from '../utils/notificationService';
 import { saveStoredProducts } from '../utils/productStore';
-import { uploadImageToSupabase, uploadVideoToSupabase } from '../utils/supabaseClient';
+import { uploadImageToCloud, uploadVideoToCloud } from '../utils/apiClient';
 import { useStoreReels, captureVideoPoster } from '../utils/reelsStore';
 import { 
   getStoredCategories, 
@@ -603,14 +603,14 @@ export default function AdminPanel({
     let videoCdnUrl = null;
     let posterDataUrl = null;
 
-    // 1. Upload to Supabase Storage (Cloud CDN permanent URL)
+    // 1. Upload to Railway Persistent Volume
     try {
-      const res = await uploadVideoToSupabase(file);
+      const res = await uploadVideoToCloud(file);
       if (res?.success && res?.url) {
         videoCdnUrl = res.url;
       }
     } catch (e) {
-      console.warn('Supabase video upload failed:', e);
+      console.warn('Video upload failed:', e);
     }
 
     // 2. Generate cover frame automatically
@@ -862,14 +862,14 @@ export default function AdminPanel({
       }
       let finalUrl = compressedDataUrl;
 
-      // 1. Try uploading to Supabase Storage
+      // 1. Upload compressed category image to Railway Persistent Volume
       try {
-        const sbRes = await uploadImageToSupabase(file);
-        if (sbRes?.success && sbRes?.url) {
-          finalUrl = sbRes.url;
+        const res = await uploadImageToCloud(compressedDataUrl || file, 'categories');
+        if (res?.success && res?.url) {
+          finalUrl = res.url;
         }
       } catch (err) {
-        console.warn('Supabase category upload error:', err);
+        console.warn('Category upload error:', err);
       }
 
       setCategoryModal(prev => ({ ...prev, image: finalUrl }));
@@ -1359,14 +1359,14 @@ export default function AdminPanel({
 
         let finalUrl = compressedDataUrl;
 
-        // 1. Try uploading directly to Supabase Storage (Cloud CDN URL for all visitors)
+        // 1. Upload compressed 4:5 image directly to Railway Persistent Volume
         try {
-          const sbRes = await uploadImageToSupabase(file);
-          if (sbRes?.success && sbRes?.url) {
-            finalUrl = sbRes.url;
+          const res = await uploadImageToCloud(compressedDataUrl || file, 'products');
+          if (res?.success && res?.url) {
+            finalUrl = res.url;
           }
         } catch (e) {
-          console.warn('Supabase upload skipped:', e);
+          console.warn('Cloud image upload skipped:', e);
         }
 
         // 2. Fallback: Auto-save image to public/images/uploads via dev server API when running locally
@@ -1508,12 +1508,12 @@ export default function AdminPanel({
 
       let finalUrl = compressedDataUrl;
       try {
-        const sbRes = await uploadImageToSupabase(file);
-        if (sbRes?.success && sbRes?.url) {
-          finalUrl = sbRes.url;
+        const res = await uploadImageToCloud(compressedDataUrl || file, 'products');
+        if (res?.success && res?.url) {
+          finalUrl = res.url;
         }
       } catch (err) {
-        console.warn('Supabase upload skipped:', err);
+        console.warn('Color photo upload skipped:', err);
       }
 
       if (finalUrl === compressedDataUrl) {
@@ -1757,14 +1757,14 @@ export default function AdminPanel({
       return;
     }
 
-    // Try uploading to Supabase Storage for global CDN availability
+    // Upload QR code image to Railway Persistent Volume
     showToast('Uploading QR code image... ⏳');
     try {
-      const uploadRes = await uploadImageToSupabase(file);
+      const uploadRes = await uploadImageToCloud(file, 'uploads');
       if (uploadRes?.success && uploadRes.url) {
         setPaymentForm(prev => ({ ...prev, qrImage: uploadRes.url }));
         soundFX.playPop(600);
-        showToast('QR Code uploaded to cloud! Click "Save Payment Settings" to apply. ✨');
+        showToast('QR Code uploaded! Click "Save Payment Settings" to apply. ✨');
         return;
       }
     } catch (_) {}
@@ -4213,7 +4213,7 @@ export default function AdminPanel({
                     </strong>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 block">Supabase Sync</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 block">Railway Postgres Sync</span>
                     <strong className="text-sm font-black text-emerald-700 dark:text-emerald-300 mt-1 block flex items-center gap-1">
                       <Check className="w-4 h-4" /> Live & Cloud Synced
                     </strong>

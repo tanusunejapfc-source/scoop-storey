@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import { getStoredOrders } from '../utils/orderStore';
-import { fetchSingleOrderForTracking } from '../utils/supabaseClient';
+import { fetchSingleOrderForTracking } from '../utils/apiClient';
 import WhatsAppIcon from './WhatsAppIcon';
 
 const STATUS_STEPS = [

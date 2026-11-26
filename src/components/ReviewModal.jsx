@@ -13,7 +13,7 @@ import {
 import confetti from 'canvas-confetti';
 import { soundFX } from '../utils/audio';
 import { submitCustomerReview } from '../utils/reviewStore';
-import { uploadImageToSupabase } from '../utils/supabaseClient';
+import { uploadImageToCloud } from '../utils/apiClient';
 
 export default function ReviewModal({
   isOpen,
@@ -67,9 +67,9 @@ export default function ReviewModal({
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
 
-      // 1. Try uploading to Supabase Storage if configured
+      // 1. Upload to Railway Persistent Volume
       try {
-        const res = await uploadImageToSupabase(file);
+        const res = await uploadImageToCloud(file, 'reviews');
         if (res && res.success && res.url) {
           setImages(prev => [...prev, res.url]);
           soundFX.playPop(600);

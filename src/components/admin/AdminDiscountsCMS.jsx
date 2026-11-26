@@ -14,46 +14,35 @@ import {
   Power
 } from 'lucide-react';
 import { soundFX } from '../../utils/audio';
-import { supabase } from '../../utils/supabaseClient';
+import { fetchConfigFromCloud, syncConfigToCloud } from '../../utils/apiClient';
 
 export const COUPONS_STORAGE_KEY = 'bhaskar_store_coupons_v1';
 export const ANNOUNCEMENT_STORAGE_KEY = 'bhaskar_announcement_cms_v1';
-export const CLOUD_DISCOUNTS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/discounts.json';
 
 export async function syncDiscountsToCloud(couponsData, announcementData) {
-  if (!supabase) return;
   try {
     const payload = {
       coupons: couponsData,
       announcement: announcementData,
       updatedAt: new Date().toISOString()
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    await supabase.storage
-      .from('product-images')
-      .upload('config/discounts.json', blob, {
-        upsert: true,
-        contentType: 'application/json'
-      });
+    await syncConfigToCloud('discounts', payload);
   } catch {}
 }
 
 export async function fetchDiscountsFromCloud() {
   if (typeof window === 'undefined') return null;
   try {
-    const res = await fetch(`${CLOUD_DISCOUNTS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && typeof data === 'object') {
-        if (Array.isArray(data.coupons)) {
-          try { localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(data.coupons)); } catch {}
-        }
-        if (data.announcement) {
-          try { localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(data.announcement)); } catch {}
-          window.dispatchEvent(new CustomEvent('scoop_announcement_updated', { detail: data.announcement }));
-        }
-        return data;
+    const data = await fetchConfigFromCloud('discounts');
+    if (data && typeof data === 'object') {
+      if (Array.isArray(data.coupons)) {
+        try { localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(data.coupons)); } catch {}
       }
+      if (data.announcement) {
+        try { localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(data.announcement)); } catch {}
+        window.dispatchEvent(new CustomEvent('scoop_announcement_updated', { detail: data.announcement }));
+      }
+      return data;
     }
   } catch {}
   return null;

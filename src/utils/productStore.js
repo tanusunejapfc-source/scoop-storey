@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { PRODUCTS as INITIAL_PRODUCTS } from '../data/storeData';
-import { 
-  supabase,
-  fetchProductsFromSupabase, 
-  saveProductToSupabase, 
-  deleteProductFromSupabase 
-} from './supabaseClient';
+import {
+  fetchProductsFromCloud,
+  saveProductToCloud,
+  saveProductsBatchToCloud,
+  deleteProductFromCloud,
+  deleteProductsBatchFromCloud,
+  resetProductsInCloud,
+  fetchConfigFromCloud,
+  syncConfigToCloud
+} from './apiClient';
 import { getDeletedCategoryNames } from './categoryStore';
 
 export const STORAGE_KEY_DELETED_PRODUCTS = 'bhaskar_deleted_product_ids_v2';
-export const CLOUD_DELETED_PRODUCTS_URL = 'https://fxsmqomlxekbcfihhnle.supabase.co/storage/v1/object/public/product-images/config/deleted-products.json';
 
 let inMemoryDeletedProdIds = null;
 
@@ -34,35 +37,21 @@ export function getDeletedProductIds() {
 export async function fetchDeletedProductIdsFromCloud() {
   if (typeof window === 'undefined') return getDeletedProductIds();
   try {
-    const res = await fetch(`${CLOUD_DELETED_PRODUCTS_URL}?t=${Date.now()}`);
-    if (res.ok) {
-      const cloudDeleted = await res.json();
-      if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
-        const merged = Array.from(new Set([...getDeletedProductIds(), ...cloudDeleted]));
-        inMemoryDeletedProdIds = merged;
-        try {
-          localStorage.setItem(STORAGE_KEY_DELETED_PRODUCTS, JSON.stringify(merged));
-        } catch {}
-        return merged;
-      }
+    const cloudDeleted = await fetchConfigFromCloud('deleted_products');
+    if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
+      const merged = Array.from(new Set([...getDeletedProductIds(), ...cloudDeleted]));
+      inMemoryDeletedProdIds = merged;
+      try {
+        localStorage.setItem(STORAGE_KEY_DELETED_PRODUCTS, JSON.stringify(merged));
+      } catch {}
+      return merged;
     }
   } catch {}
   return getDeletedProductIds();
 }
 
 export async function syncDeletedProductsToCloud(deletedList) {
-  if (!supabase) return;
-  try {
-    const blob = new Blob([JSON.stringify(deletedList, null, 2)], { type: 'application/json' });
-    await supabase.storage
-      .from('product-images')
-      .upload('config/deleted-products.json', blob, {
-        upsert: true,
-        contentType: 'application/json'
-      });
-  } catch (err) {
-    console.warn('Failed to sync deleted products to cloud:', err);
-  }
+  await syncConfigToCloud('deleted_products', deletedList);
 }
 
 export function recordProductDeletion(ids) {
@@ -456,7 +445,11 @@ export async function clearIDBProducts() {
   }
 }
 
-// Helper to automatically migrate any legacy combined categories
+const DEFAULT_PRODUCT_IMAGE_MAP = new Map(
+  INITIAL_PRODUCTS.map(p => [p.id, p.image])
+);
+
+// Helper to automatically migrate any legacy combined categories & stale dead image URLs
 export function migrateLegacyProduct(p) {
   if (!p) return p;
   let category = p.category;
@@ -474,7 +467,18 @@ export function migrateLegacyProduct(p) {
   ) {
     category = 'Korean wallets and bags';
   }
-  return { ...p, category };
+
+  const fb = DEFAULT_PRODUCT_IMAGE_MAP.get(p.id) || '/images/deluxe-giftbox.webp';
+  const sanitizeUrl = (u) => (!u || String(u).includes('supabase.co') ? fb : u);
+  const image = sanitizeUrl(p.image);
+  const images = Array.isArray(p.images) && p.images.length > 0
+    ? Array.from(new Set(p.images.map(sanitizeUrl)))
+    : [image];
+  const colors = Array.isArray(p.colors)
+    ? p.colors.map(c => c && c.image && String(c.image).includes('supabase.co') ? { ...c, image: fb } : c)
+    : [];
+
+  return { ...p, category, image, images, colors };
 }
 
 export function cleanProductList(list) {
@@ -563,8 +567,8 @@ export function useStoreProducts() {
       }
     });
 
-    // 1. Fetch live products from Supabase Cloud Database first
-    fetchProductsFromSupabase().then((cloudList) => {
+    // 1. Fetch live products from Railway PostgreSQL API first
+    fetchProductsFromCloud().then((cloudList) => {
       if (isMounted && Array.isArray(cloudList) && cloudList.length > 0) {
         const merged = mergeWithDefaults(cloudList, true);
         setProducts(merged);
@@ -601,36 +605,25 @@ export function useStoreProducts() {
       }
     };
 
+    const handleFocusRefresh = () => {
+      fetchProductsFromCloud().then((cloudList) => {
+        if (isMounted && Array.isArray(cloudList) && cloudList.length > 0) {
+          const merged = mergeWithDefaults(cloudList, true);
+          setProducts(merged);
+          saveStoredProducts(merged);
+        }
+      });
+    };
+
     window.addEventListener('scoop_products_updated', handleUpdate);
     window.addEventListener('storage', handleUpdate);
-
-    // 3. Supabase Realtime Channel: Instantly sync products across ALL connected devices worldwide
-    let channel = null;
-    if (supabase) {
-      try {
-        channel = supabase
-          .channel('public:products_live_sync')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async () => {
-            const fresh = await fetchProductsFromSupabase();
-            if (isMounted && Array.isArray(fresh) && fresh.length > 0) {
-              const cleaned = mergeWithDefaults(fresh, true);
-              setProducts(cleaned);
-              saveStoredProducts(cleaned);
-            }
-          })
-          .subscribe();
-      } catch (rtErr) {
-        console.warn('Realtime sync subscription warning:', rtErr);
-      }
-    }
+    window.addEventListener('focus', handleFocusRefresh);
 
     return () => {
       isMounted = false;
-      if (channel && supabase) {
-        try { supabase.removeChannel(channel); } catch {}
-      }
       window.removeEventListener('scoop_products_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('focus', handleFocusRefresh);
     };
   }, []);
 
@@ -638,7 +631,7 @@ export function useStoreProducts() {
     setProducts((current) => {
       const updatedList = current.map((p) => (p.id === updated.id ? updated : p));
       saveStoredProducts(updatedList);
-      saveProductToSupabase(updated);
+      saveProductToCloud(updated);
       return updatedList;
     });
   };
@@ -649,7 +642,7 @@ export function useStoreProducts() {
     setProducts((current) => {
       const updatedList = current.map((p) => map.get(p.id) || p);
       saveStoredProducts(updatedList);
-      batchList.forEach((p) => saveProductToSupabase(p));
+      saveProductsBatchToCloud(batchList);
       return updatedList;
     });
   };
@@ -658,7 +651,7 @@ export function useStoreProducts() {
     setProducts((current) => {
       const updatedList = [newProduct, ...current];
       saveStoredProducts(updatedList);
-      saveProductToSupabase(newProduct);
+      saveProductToCloud(newProduct);
       return updatedList;
     });
   };
@@ -668,7 +661,7 @@ export function useStoreProducts() {
     setProducts((current) => {
       const updatedList = current.filter((p) => p.id !== id);
       saveStoredProducts(updatedList);
-      deleteProductFromSupabase(id);
+      deleteProductFromCloud(id);
       return updatedList;
     });
   };
@@ -680,7 +673,7 @@ export function useStoreProducts() {
     setProducts((current) => {
       const updatedList = current.filter((p) => !set.has(p.id));
       saveStoredProducts(updatedList);
-      idsToDelete.forEach((id) => deleteProductFromSupabase(id));
+      deleteProductsBatchFromCloud(idsToDelete);
       return updatedList;
     });
   };
@@ -688,6 +681,7 @@ export function useStoreProducts() {
   const resetAll = () => {
     const defaultList = resetStoredProducts();
     setProducts(defaultList);
+    resetProductsInCloud();
   };
 
   return {
