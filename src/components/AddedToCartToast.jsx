@@ -74,12 +74,12 @@ export default function AddedToCartToast({
         <div className="flex items-center gap-3">
           <div className="relative w-14 h-14 rounded-xl bg-pink-50 dark:bg-neutral-800 border border-pink-200/80 dark:border-pink-900/50 overflow-hidden shrink-0">
             <img
-              src={item.image || '/images/deluxe-giftbox.jpg'}
+              src={item.image || '/images/deluxe-giftbox.webp'}
               alt={item.name || 'Product'}
               className="w-full h-full object-cover"
               onError={(e) => {
                 e.currentTarget.onerror = null;
-                e.currentTarget.src = '/images/deluxe-giftbox.jpg';
+                e.currentTarget.src = '/images/deluxe-giftbox.webp';
               }}
             />
             {item.qty > 1 && (

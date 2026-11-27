@@ -95,7 +95,8 @@ import {
   getDeletedCategoryNames,
   removeCategoryFromDeleted,
   fetchCategoriesFromCloud,
-  DEFAULT_CATEGORY_METADATA
+  DEFAULT_CATEGORY_METADATA,
+  resolveCategoryCoverImage
 } from '../utils/categoryStore';
 import { CATEGORY_ICONS_DATA } from './CategoryIconsBar';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -4235,6 +4236,7 @@ export default function AdminPanel({
 
                     const catProducts = products.filter(p => p.category === catName);
                     const inStockCount = catProducts.filter(p => p.inStock !== false).length;
+                    const displayCatImage = resolveCategoryCoverImage(meta.image, null, catProducts);
 
                     return (
                       <div
@@ -4246,10 +4248,10 @@ export default function AdminPanel({
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-3 min-w-0">
                               <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 via-purple-100 to-pink-50 dark:from-pink-950 dark:to-neutral-900 border border-pink-200 dark:border-pink-800 flex items-center justify-center text-2xl shadow-inner shrink-0 overflow-hidden">
-                                {meta.image ? (
+                                {displayCatImage ? (
                                   <>
                                     <img
-                                      src={meta.image}
+                                      src={displayCatImage}
                                       alt={catName}
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
@@ -4279,7 +4281,7 @@ export default function AdminPanel({
                             <div className="flex items-center gap-1 shrink-0">
                               <button
                                 type="button"
-                                onClick={() => handleOpenEditCategoryModal(meta)}
+                                onClick={() => handleOpenEditCategoryModal({ ...meta, image: displayCatImage })}
                                 className="p-1.5 rounded-xl text-neutral-500 hover:text-[#E60067] hover:bg-pink-50 dark:hover:bg-neutral-700 transition cursor-pointer"
                                 title={`Edit ${catName}`}
                               >
@@ -4480,13 +4482,13 @@ export default function AdminPanel({
                         <div className="grid grid-cols-4 gap-1.5">
                           {[
                             { name: 'Scoop Bowl', src: '/images/scoop-bowl.webp' },
-                            { name: 'Pendants', src: '/images/pendants.webp' },
-                            { name: 'Charms', src: '/images/charm-bracelets.webp' },
-                            { name: 'Anklets', src: '/images/bracelets-anklets.webp' },
-                            { name: 'Gift Box', src: '/images/deluxe-giftbox.webp' },
-                            { name: 'Wallets', src: '/images/korean-wallets.webp' },
-                            { name: 'Skincare', src: '/images/eyemasks-skincare.webp' },
-                            { name: 'ASMR', src: '/images/asmr-packing.webp' },
+                            { name: 'Big Scoop', src: '/images/deluxe-giftbox.webp' },
+                            { name: 'Pendants', src: '/images/pendants/bow-heart-pendant.webp' },
+                            { name: 'Bracelets', src: '/uploads/products/image-404767-30y2.webp' },
+                            { name: 'Make up', src: '/uploads/products/image-474478-84v8.webp' },
+                            { name: 'Wallets & Bags', src: '/uploads/products/image-245381-g9l6.webp' },
+                            { name: 'Self-Care', src: '/uploads/products/image-830292-lu23.webp' },
+                            { name: 'Stationery', src: '/uploads/products/image-022892-2wuh.webp' },
                           ].map(preset => (
                             <button
                               key={preset.src}

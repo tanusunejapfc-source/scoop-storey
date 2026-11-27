@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 import MiniScoopIcon from './MiniScoopIcon';
-import { getStoredCategories, fetchCategoriesFromCloud } from '../utils/categoryStore';
+import { getStoredCategories, fetchCategoriesFromCloud, resolveCategoryCoverImage } from '../utils/categoryStore';
 
 // Curated Category Icons matching Scoop Storey Kawaii Luxury Aesthetic
 export const CATEGORY_ICONS_DATA = [
@@ -23,7 +23,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Pendants & Chains',
     name: 'Pendants & Chains',
     shortName: 'Pendants',
-    image: '/images/pendants.webp',
+    image: '/images/pendants/bow-heart-pendant.webp',
     emoji: '✨',
     tag: '18K Gold',
     gradient: 'from-amber-400 via-pink-400 to-rose-400',
@@ -34,7 +34,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Bracelets',
     name: 'Bracelets',
     shortName: 'Bracelets',
-    image: '/images/bracelets/butterfly-charm-bracelet.webp',
+    image: '/uploads/products/image-404767-30y2.webp',
     emoji: '🎀',
     tag: 'Charm Links',
     gradient: 'from-purple-400 via-pink-400 to-indigo-500',
@@ -45,7 +45,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Anklets',
     name: 'Anklets',
     shortName: 'Anklets',
-    image: '/images/bracelets-anklets.webp',
+    image: '/uploads/products/image-777653-czgk.webp',
     emoji: '💫',
     tag: 'Liquid Gold',
     gradient: 'from-amber-400 via-orange-400 to-pink-400',
@@ -56,7 +56,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Make up',
     name: 'Make up',
     shortName: 'Make up',
-    image: '/images/scoop-chart-beauty-accessories.webp',
+    image: '/uploads/products/image-474478-84v8.webp',
     emoji: '💄',
     tag: 'Pastel Glow',
     gradient: 'from-rose-400 via-pink-400 to-fuchsia-400',
@@ -67,7 +67,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Soft Toys',
     name: 'Soft Toys',
     shortName: 'Soft Toys',
-    image: '/images/deluxe-giftbox.webp',
+    image: '/uploads/products/image-615687-q8ve.webp',
     emoji: '🧸',
     tag: 'Plushies',
     gradient: 'from-amber-400 via-rose-400 to-pink-400',
@@ -78,7 +78,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Key chains',
     name: 'Key chains',
     shortName: 'Keychains',
-    image: '/images/charm-bracelets.webp',
+    image: '/uploads/products/image-403327-hwdu.webp',
     emoji: '🗝️',
     tag: 'Bag Charms',
     gradient: 'from-purple-400 via-pink-400 to-amber-400',
@@ -89,7 +89,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Hair Accessories',
     name: 'Hair Accessories',
     shortName: 'Hair Clips',
-    image: '/images/pendants/bow-heart-pendant.webp',
+    image: '/uploads/products/image-544752-oom9.webp',
     emoji: '🌸',
     tag: 'Claw Clips',
     gradient: 'from-pink-400 via-purple-400 to-rose-400',
@@ -100,7 +100,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Self-Care',
     name: 'Self-Care',
     shortName: 'Self-Care',
-    image: '/images/eyemasks-skincare.webp',
+    image: '/uploads/products/image-830292-lu23.webp',
     emoji: '🌸',
     tag: 'Glow Routine',
     gradient: 'from-rose-400 via-teal-400 to-emerald-400',
@@ -111,7 +111,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Korean wallets and bags',
     name: 'Korean wallets and bags',
     shortName: 'Wallets & Bags',
-    image: '/images/korean-wallets.webp',
+    image: '/uploads/products/image-245381-g9l6.webp',
     emoji: '👛',
     tag: 'Quilted & Totes',
     gradient: 'from-pink-400 via-purple-400 to-rose-400',
@@ -122,7 +122,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Kawaii Stationery',
     name: 'Kawaii Stationery',
     shortName: 'Stationery',
-    image: '/images/scoop-chart-stationery-lifestyle.webp',
+    image: '/uploads/products/image-022892-2wuh.webp',
     emoji: '📝',
     tag: 'Pastel Diaries',
     gradient: 'from-amber-400 via-rose-400 to-pink-400',
@@ -133,7 +133,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Bottles & Mugs',
     name: 'Bottles & Mugs',
     shortName: 'Bottles & Mugs',
-    image: '/images/scoop-bowl.webp',
+    image: '/uploads/products/image-385062-6ud0.webp',
     emoji: '🥛',
     tag: 'Cute Drinkware',
     gradient: 'from-teal-400 via-cyan-400 to-blue-500',
@@ -144,7 +144,7 @@ export const CATEGORY_ICONS_DATA = [
     category: 'Accessories',
     name: 'Accessories',
     shortName: 'Accessories',
-    image: '/images/scoop-chart-beauty-accessories.webp',
+    image: '/uploads/products/image-984999-ibrm.webp',
     emoji: '✨',
     tag: 'Everyday Cute',
     gradient: 'from-purple-400 via-pink-400 to-amber-400',
@@ -162,17 +162,6 @@ export const CATEGORY_ICONS_DATA = [
     ringColor: 'from-purple-600 to-pink-500'
   }
 ];
-
-const isStaleLocalImage = (url) => {
-  if (!url) return true;
-  return (
-    url === '/images/charm-bracelets.webp' ||
-    url === '/images/bracelets-anklets.webp' ||
-    url === '/images/eyemasks-skincare.webp' ||
-    url === '/images/korean-wallets.webp' ||
-    url === '/images/deluxe-giftbox.webp'
-  );
-};
 
 export default function CategoryIconsBar({ 
   activeCategory, 
@@ -206,31 +195,22 @@ export default function CategoryIconsBar({
     const seen = new Set();
     const ghostMergedSet = new Set(['eye masks', 'korean wallets', 'bottles', 'bracelets & anklets', 'eye masks & self-care']);
 
-    const resolveItemImage = (catImg, presetImg, categoryLower) => {
-      if (catImg && !isStaleLocalImage(catImg)) return catImg;
-      if (presetImg && !isStaleLocalImage(presetImg)) return presetImg;
-      const liveProd = products?.find(p => p.category && p.category.toLowerCase().trim() === categoryLower);
-      if (liveProd?.image) return liveProd.image;
-      if (liveProd?.images?.[0]) return liveProd.images[0];
-      return catImg || presetImg || '/images/deluxe-giftbox.webp';
-    };
-
     // 1. Process all categories stored in categoryStore
     for (const cat of categoriesList) {
       if (!cat || typeof cat.name !== 'string' || !cat.name.trim()) continue;
       const lower = cat.name.toLowerCase().trim();
       if (ghostMergedSet.has(lower)) continue;
 
+      const categoryItems = (products || []).filter(p => p.category && p.category.toLowerCase().trim() === lower);
       // If products are loaded, ensure collection has items (or is a valid curated collection)
-      if (products && products.length > 0) {
-        const hasProducts = products.some(p => p.category && p.category.toLowerCase().trim() === lower);
-        if (!hasProducts) continue;
+      if (products && products.length > 0 && categoryItems.length === 0) {
+        continue;
       }
 
       if (!seen.has(lower)) {
         seen.add(lower);
         const preset = iconDataMap.get(lower);
-        const resolvedImage = resolveItemImage(cat.image, preset?.image, lower);
+        const resolvedImage = resolveCategoryCoverImage(cat.image, preset?.image, categoryItems);
         if (preset) {
           list.push({
             ...preset,
@@ -263,16 +243,21 @@ export default function CategoryIconsBar({
         if (ghostMergedSet.has(lower) || seen.has(lower)) continue;
 
         seen.add(lower);
+        const categoryItems = products.filter(item => item.category && item.category.toLowerCase().trim() === lower);
         const preset = iconDataMap.get(lower);
+        const resolvedImage = resolveCategoryCoverImage(null, preset?.image, categoryItems);
         if (preset) {
-          list.push(preset);
+          list.push({
+            ...preset,
+            image: resolvedImage
+          });
         } else {
           list.push({
             id: lower.replace(/[^a-z0-9]+/g, '-'),
             category: p.category,
             name: p.category,
             shortName: p.category,
-            image: p.image || '/images/deluxe-giftbox.webp',
+            image: resolvedImage,
             emoji: '🎀',
             tag: 'Curated ✨',
             gradient: 'from-pink-400 via-purple-400 to-rose-400',
@@ -285,7 +270,11 @@ export default function CategoryIconsBar({
     // 3. Always append "All Collections" at the end
     const allPreset = CATEGORY_ICONS_DATA.find(i => i.category === 'All Items');
     if (allPreset && !seen.has('all items')) {
-      list.push(allPreset);
+      const flagshipProduct = products?.find(p => p.id === 'scoop-big') || products?.[0];
+      list.push({
+        ...allPreset,
+        image: flagshipProduct?.image || flagshipProduct?.images?.[0] || allPreset.image
+      });
     }
 
     return list;

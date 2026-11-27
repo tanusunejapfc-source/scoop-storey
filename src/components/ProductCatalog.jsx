@@ -20,7 +20,7 @@ import {
 import { soundFX } from '../utils/audio';
 import { CATEGORIES, COLLECTIONS_CONFIG, DEPARTMENTS_CONFIG, categoryToSlug } from '../data/storeData';
 import { DEFAULT_PRODUCTS } from '../utils/productStore';
-import { getStoredCategories, fetchCategoriesFromCloud } from '../utils/categoryStore';
+import { getStoredCategories, fetchCategoriesFromCloud, resolveCategoryCoverImage } from '../utils/categoryStore';
 // Product inquiries on WhatsApp handled via direct chat links (no unverified orders created)
 import { useWishlist } from '../utils/wishlistStore';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -359,25 +359,6 @@ export default function ProductCatalog({
     const seenCategories = new Set();
     const ghostMergedSet = new Set(['eye masks', 'korean wallets', 'bottles', 'bracelets & anklets', 'eye masks & self-care']);
 
-    const isStaleLocalImage = (url) => {
-      if (!url) return true;
-      return (
-        url === '/images/charm-bracelets.webp' ||
-        url === '/images/bracelets-anklets.webp' ||
-        url === '/images/eyemasks-skincare.webp' ||
-        url === '/images/korean-wallets.webp' ||
-        url === '/images/deluxe-giftbox.webp'
-      );
-    };
-
-    const resolveCover = (catImg, configImg, categoryItems) => {
-      if (catImg && !isStaleLocalImage(catImg)) return catImg;
-      if (configImg && !isStaleLocalImage(configImg)) return configImg;
-      if (categoryItems && categoryItems[0]?.image) return categoryItems[0].image;
-      if (categoryItems && categoryItems[0]?.images?.[0]) return categoryItems[0].images[0];
-      return catImg || configImg || '/images/deluxe-giftbox.webp';
-    };
-
     // 1. Process all categories stored in categoryStore
     for (const catMeta of categoriesList) {
       if (!catMeta || typeof catMeta.name !== 'string' || !catMeta.name.trim()) continue;
@@ -394,7 +375,7 @@ export default function ProductCatalog({
         const prices = items.map(p => p.priceINR).filter(Boolean);
         const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
         const previews = items.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
-        const finalCover = resolveCover(catMeta.image, config?.coverImage, items);
+        const finalCover = resolveCategoryCoverImage(catMeta.image, config?.coverImage, items);
 
         if (config) {
           list.push({
@@ -444,7 +425,7 @@ export default function ProductCatalog({
         const prices = items.map(item => item.priceINR).filter(Boolean);
         const minPrice = prices.length > 0 ? Math.min(...prices) : 199;
         const previews = items.slice(0, 4).map(item => item.image || item.images?.[0]).filter(Boolean);
-        const finalCover = resolveCover(null, config?.coverImage, items);
+        const finalCover = resolveCategoryCoverImage(null, config?.coverImage, items);
 
         if (config) {
           list.push({
@@ -488,10 +469,7 @@ export default function ProductCatalog({
     // Check categoriesList for custom category
     const catMeta = categoriesList.find(c => c.name?.toLowerCase() === activeCollection.toLowerCase());
     const items = products.filter(p => p.category && p.category.toLowerCase() === activeCollection.toLowerCase());
-    const firstImg = items[0]?.image || items[0]?.images?.[0];
-    const catImg = catMeta?.image && !catMeta.image.startsWith('/images/charm-bracelets') && !catMeta.image.startsWith('/images/bracelets-anklets') && !catMeta.image.startsWith('/images/eyemasks-skincare') && !catMeta.image.startsWith('/images/korean-wallets') && !catMeta.image.startsWith('/images/deluxe-giftbox')
-      ? catMeta.image
-      : (firstImg || catMeta?.image || '/images/deluxe-giftbox.webp');
+    const catImg = resolveCategoryCoverImage(catMeta?.image, null, items);
 
     return {
       name: activeCollection,

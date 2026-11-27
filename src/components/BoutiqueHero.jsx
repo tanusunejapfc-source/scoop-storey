@@ -3,6 +3,7 @@ import { Sparkles, ArrowRight, ShieldCheck, Heart, Eye, Star, Flame, Gem, Truck,
 import { soundFX } from '../utils/audio';
 import MiniScoopIcon from './MiniScoopIcon';
 import WhatsAppIcon from './WhatsAppIcon';
+import { resolveCategoryCoverImage } from '../utils/categoryStore';
 
 const HERO_FEATURED_COLLECTIONS = [
   {
@@ -12,7 +13,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Kawaii Stationery',
     tagline: 'Pastel Diaries, Highlighters & Sticky Notes',
     badge: 'Popular 📝',
-    image: '/images/scoop-chart-stationery-lifestyle.webp',
+    image: '/uploads/products/image-022892-2wuh.webp',
     price: '₹149',
     tags: ['Korean Import', 'Smooth Paper', 'Pastel Vibe']
   },
@@ -23,7 +24,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Pendants & Chains',
     tagline: 'Waterproof • Sweatproof • Real PVD Gold',
     badge: 'Bestseller 🔥',
-    image: '/images/pendants.webp',
+    image: '/images/pendants/bow-heart-pendant.webp',
     price: '₹199',
     tags: ['18K PVD Gold', 'Waterproof', 'No Green Skin']
   },
@@ -34,7 +35,7 @@ const HERO_FEATURED_COLLECTIONS = [
     category: 'Korean wallets and bags',
     tagline: 'Diamond Quilt • Pastel Kawaii Chic',
     badge: 'Trending 👛',
-    image: '/images/korean-wallets.webp',
+    image: '/uploads/products/image-245381-g9l6.webp',
     price: '₹249',
     tags: ['Pastel Aesthetics', 'Gold Hardware', 'Viral on Reels']
   },
@@ -51,7 +52,7 @@ const HERO_FEATURED_COLLECTIONS = [
   }
 ];
 
-export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
+export default function BoutiqueHero({ onSelectCategory, isDark = false, products = [] }) {
   const [activeIdx, setActiveIdx] = useState(0);
 
   // Rotating countdown timer (Seoulmate style)
@@ -85,7 +86,14 @@ export default function BoutiqueHero({ onSelectCategory, isDark = false }) {
     return () => clearInterval(timer);
   }, []);
 
-  const activeItem = HERO_FEATURED_COLLECTIONS[activeIdx];
+  const rawActiveItem = HERO_FEATURED_COLLECTIONS[activeIdx];
+  const activeCatItems = Array.isArray(products)
+    ? products.filter((p) => p?.category?.toLowerCase().trim() === rawActiveItem.category.toLowerCase().trim())
+    : [];
+  const activeItem = {
+    ...rawActiveItem,
+    image: resolveCategoryCoverImage(null, rawActiveItem.image, activeCatItems)
+  };
 
   const handleSelectFeatured = (item) => {
     soundFX.playPop(520);

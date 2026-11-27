@@ -2004,7 +2004,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Korean Anti-Tarnish 💖',
     tagline: '18K Yellow & Rose Gold Plated Aesthetic Necklaces',
     description: 'Anti-tarnish, water-resistant dainty chains, sparkling bow hearts, sculpted Monalisa crystals, and lustrous baroque pearls.',
-    coverImage: '/images/pendants.webp',
+    coverImage: '/images/pendants/bow-heart-pendant.webp',
     gradient: 'from-amber-500/15 via-pink-500/10 to-rose-500/20',
     borderHover: 'hover:border-amber-400',
     btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
@@ -2018,7 +2018,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Handcrafted Dainty ✨',
     tagline: 'Romantic Charm Links & Protective Evil Eye Talismans',
     description: 'Adjustable charm link bracelets, protective evil eye amulets, and fairy-core pastel glass beads designed for daily stacking.',
-    coverImage: '/images/bracelets/butterfly-charm-bracelet.webp',
+    coverImage: '/uploads/products/image-404767-30y2.webp',
     gradient: 'from-purple-500/15 via-pink-500/10 to-indigo-500/20',
     borderHover: 'hover:border-purple-400',
     btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'
@@ -2032,7 +2032,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Summer Shimmer ☀️',
     tagline: 'Liquid Gold Snake Chains & Barely-There Stationed Beads',
     description: 'Sleek, fluid herringbone snake chains and dainty beaded ankle chains that never snag and add instant shimmer to sneakers or heels.',
-    coverImage: '/images/bracelets-anklets.webp',
+    coverImage: '/uploads/products/image-777653-czgk.webp',
     gradient: 'from-amber-500/15 via-orange-500/10 to-pink-500/20',
     borderHover: 'hover:border-amber-400',
     btnGradient: 'bg-gradient-to-r from-amber-500 to-orange-500'
@@ -2046,7 +2046,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Pastel Glow 💋',
     tagline: 'Fruit-Tinted Lip Oils, Jelly Blushes & Shimmer Glaze',
     description: 'Cute aesthetic lip tints, fruit lip oils, jelly blush sticks, and shimmer eyeshadows crafted for everyday pastel glow.',
-    coverImage: '/images/scoop-chart-beauty-accessories.webp',
+    coverImage: '/uploads/products/image-474478-84v8.webp',
     gradient: 'from-rose-500/15 via-pink-500/10 to-fuchsia-500/20',
     borderHover: 'hover:border-rose-400',
     btnGradient: 'bg-gradient-to-r from-rose-500 to-pink-500'
@@ -2060,7 +2060,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Glow Routine ✨',
     tagline: 'Cloud Sleeping Masks, Refreshing Wipes & Beauty Treats',
     description: 'Ultra-soft cloud velvet and silk sleeping masks, viral novelty soda can wet wipes, deep cleansing nose strips, and cute sensory self-care essentials.',
-    coverImage: '/images/eyemasks-skincare.webp',
+    coverImage: '/uploads/products/image-830292-lu23.webp',
     gradient: 'from-rose-500/15 via-teal-500/10 to-emerald-500/20',
     borderHover: 'hover:border-rose-400',
     btnGradient: 'bg-gradient-to-r from-rose-500 to-teal-500'
@@ -2074,7 +2074,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Super Fluffy ☁️',
     tagline: 'Cloud-Soft Cuddle Plushies, Boba Cups & Velvet Cuties',
     description: 'Ultra-soft squishy boba plushies, long-eared bunny cuties, and sleeping kitten pillows that bring instant cozy comfort.',
-    coverImage: '/images/deluxe-giftbox.webp',
+    coverImage: '/uploads/products/image-615687-q8ve.webp',
     gradient: 'from-amber-500/15 via-rose-500/10 to-pink-500/20',
     borderHover: 'hover:border-amber-400',
     btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
@@ -2088,7 +2088,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Kawaii Charms ✨',
     tagline: 'Liquid Floating Bear Keychains, Sanrio Bells & Phone Charms',
     description: 'Floating glitter kawaii bear key rings, pastel anime bell strap charms, and aesthetic beaded wristlet phone lanyards.',
-    coverImage: '/images/charm-bracelets.webp',
+    coverImage: '/uploads/products/image-403327-hwdu.webp',
     gradient: 'from-purple-500/15 via-pink-500/10 to-amber-500/20',
     borderHover: 'hover:border-purple-400',
     btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'
@@ -2102,7 +2102,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Cute Styling 🌸',
     tagline: 'Pastel Butterfly Claws, Fluffy Scrunchies & Pearl Pins',
     description: 'Non-slip matte butterfly hair claws, cloud-plush velvet scrunchies, and iridescent Korean pearl clip pairs.',
-    coverImage: '/images/pendants/bow-heart-pendant.webp',
+    coverImage: '/uploads/products/image-544752-oom9.webp',
     gradient: 'from-pink-500/15 via-purple-500/10 to-rose-500/20',
     borderHover: 'hover:border-pink-400',
     btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
@@ -2116,7 +2116,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Boutique Hot 🔥',
     tagline: 'Quilted Diamond Pocket Wallets, Totes & Mini Bags',
     description: 'Soft pastel diamond-quilted pocket wallets, aesthetic totes, mini bags, and kawaii accessories featuring durable gold hardware and plush bear charms.',
-    coverImage: '/images/korean-wallets.webp',
+    coverImage: '/uploads/products/image-245381-g9l6.webp',
     gradient: 'from-pink-500/15 via-purple-500/10 to-rose-500/20',
     borderHover: 'hover:border-pink-400',
     btnGradient: 'bg-gradient-to-r from-pink-500 to-purple-500'
@@ -2130,7 +2130,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Pastel Journaling ✨',
     tagline: 'Floral Diaries, Magnetic Bookmarks & Sticky Notes',
     description: 'Aesthetic floral diaries, magnetic bookmarks, kawaii sticky notes, and pastel journaling essentials.',
-    coverImage: '/images/scoop-chart-stationery-lifestyle.webp',
+    coverImage: '/uploads/products/image-022892-2wuh.webp',
     gradient: 'from-amber-500/15 via-rose-500/10 to-pink-500/20',
     borderHover: 'hover:border-amber-400',
     btnGradient: 'bg-gradient-to-r from-amber-500 to-pink-500'
@@ -2144,7 +2144,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Cute Drinkware 🎀',
     tagline: 'Labubu Sippers, Pearl Glass Mugs & Bunny Drinkware',
     description: 'Aesthetic cute drinkware including Labubu bottles, pearl glass mugs, and cute bunny ear sippers.',
-    coverImage: '/images/scoop-bowl.webp',
+    coverImage: '/uploads/products/image-385062-6ud0.webp',
     gradient: 'from-teal-500/15 via-cyan-500/10 to-blue-500/20',
     borderHover: 'hover:border-teal-400',
     btnGradient: 'bg-gradient-to-r from-teal-500 to-cyan-500'
@@ -2158,7 +2158,7 @@ export const COLLECTIONS_CONFIG = [
     badge: 'Everyday Cute ✨',
     tagline: 'Mini Portable Fans, Plushie Mirrors & Cute Gadgets',
     description: 'Everyday aesthetic accessories including portable handheld mini fans, plushie compact mirrors, and kawaii lifestyle essentials.',
-    coverImage: '/images/scoop-chart-beauty-accessories.webp',
+    coverImage: '/uploads/products/image-984999-ibrm.webp',
     gradient: 'from-purple-500/15 via-pink-500/10 to-amber-500/20',
     borderHover: 'hover:border-purple-400',
     btnGradient: 'bg-gradient-to-r from-purple-500 to-pink-500'

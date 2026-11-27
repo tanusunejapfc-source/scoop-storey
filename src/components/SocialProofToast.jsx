@@ -9,13 +9,13 @@ const RECENT_ACTIVITIES = [
     item: 'Pearl Glass Cute Mug',
     variant: 'Baby pink',
     time: '2 mins ago',
-    image: '/images/deluxe-giftbox.webp',
+    image: '/uploads/products/image-504360-t1l1.webp',
     reel: true
   },
   {
     name: 'Pooja K.',
     city: 'Bengaluru',
-    item: 'Midi Mystery Scoop ✨',
+    item: 'Scoop Storey - Midi Scoop',
     variant: 'Pastel Kawaii',
     time: '4 mins ago',
     image: '/images/scoop-bowl.webp',
@@ -27,31 +27,31 @@ const RECENT_ACTIVITIES = [
     item: 'Labubu Lipgloss',
     variant: 'Peach',
     time: '6 mins ago',
-    image: '/images/eyemasks-skincare.webp',
+    image: '/uploads/products/image-409687-8xhp.webp',
     reel: false
   },
   {
     name: 'Rhea D.',
     city: 'Pune',
-    item: 'Korean Quilted Pastel Wallet',
+    item: 'Soft Korean Minimalist Wallet',
     variant: 'Baby Pink',
     time: '8 mins ago',
-    image: '/images/korean-wallets.webp',
+    image: '/uploads/products/image-387615-h3o5.webp',
     reel: true
   },
   {
     name: 'Kavya R.',
     city: 'Hyderabad',
-    item: 'Butterfly Charm Bracelet',
+    item: 'Butterfly Kda Bracelet',
     variant: '18K Yellow Gold',
     time: '12 mins ago',
-    image: '/images/charm-bracelets.webp',
+    image: '/uploads/products/image-644133-p0jx.webp',
     reel: false
   },
   {
     name: 'Ishita V.',
     city: 'Jaipur',
-    item: 'Mini Mystery Scoop Studio',
+    item: 'Scoop Storey - Mini Scoop',
     variant: 'Mix Charms',
     time: '15 mins ago',
     image: '/images/scoop-bowl.webp',
@@ -88,6 +88,12 @@ export default function SocialProofToast({ onSelectProduct, products = [] }) {
   }, [isDismissedSession]);
 
   const activity = RECENT_ACTIVITIES[currentIdx];
+  const matchedProduct = products.find(
+    (p) => p?.name && p.name.toLowerCase().trim() === activity.item.toLowerCase().trim()
+  ) || products.find(
+    (p) => p?.name && p.name.toLowerCase().includes(activity.item.toLowerCase().trim())
+  );
+  const displayImage = matchedProduct?.image || matchedProduct?.images?.[0] || activity.image;
 
   const handleDismiss = (e) => {
     e.stopPropagation();
@@ -98,13 +104,8 @@ export default function SocialProofToast({ onSelectProduct, products = [] }) {
 
   const handleClick = () => {
     soundFX.playPop(500);
-    if (onSelectProduct && products.length > 0) {
-      const match = products.find(p => 
-        p.name.toLowerCase().includes(activity.item.toLowerCase().split(' ')[0])
-      );
-      if (match) {
-        onSelectProduct(match);
-      }
+    if (onSelectProduct && matchedProduct) {
+      onSelectProduct(matchedProduct);
     }
   };
 
@@ -121,7 +122,7 @@ export default function SocialProofToast({ onSelectProduct, products = [] }) {
       {/* Product Image / Icon */}
       <div className="relative w-12 h-12 rounded-xl bg-pink-100 dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 flex items-center justify-center overflow-hidden shrink-0">
         <img
-          src={activity.image}
+          src={displayImage}
           alt={activity.item}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
           onError={(e) => {
