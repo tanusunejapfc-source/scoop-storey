@@ -4465,10 +4465,10 @@ export default function AdminPanel({
                           </button>
 
                           <input
-                            type="url"
+                            type="text"
                             value={categoryModal.image || ''}
                             onChange={(e) => setCategoryModal(prev => ({ ...prev, image: e.target.value }))}
-                            placeholder="Or paste image URL (https://...)"
+                            placeholder="Or paste image path (/uploads/...) or URL"
                             className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-pink-200 dark:border-neutral-700 text-[11px] focus:outline-none focus:ring-1 focus:ring-pink-400"
                           />
                         </div>
