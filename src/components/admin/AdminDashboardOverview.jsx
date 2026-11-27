@@ -35,7 +35,7 @@ export default function AdminDashboardOverview({
   const [timeRange, setTimeRange] = useState('all'); // 'all' | '7d' | '30d' | 'today'
   const [realtimePresence, setRealtimePresence] = useState(null);
 
-  // Listen to true live presence sync from Supabase Realtime
+  // Listen to live presence sync events
   useEffect(() => {
     const handlePresence = (e) => {
       if (e.detail) setRealtimePresence(e.detail);

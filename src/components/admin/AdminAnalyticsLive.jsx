@@ -40,7 +40,7 @@ export default function AdminAnalyticsLive({
   const [realtimePresence, setRealtimePresence] = useState(null);
   const [cloudSessions, setCloudSessions] = useState([]);
 
-  // Fetch real cross-device sessions from Supabase cloud storage
+  // Fetch real cross-device sessions from Railway PostgreSQL
   useEffect(() => {
     let isMounted = true;
     fetchCloudSessions().then(sessions => {
@@ -51,7 +51,7 @@ export default function AdminAnalyticsLive({
     return () => { isMounted = false; };
   }, [tick]);
 
-  // Listen to true live presence sync from Supabase Realtime
+  // Listen to live presence sync events
   useEffect(() => {
     const handlePresence = (e) => {
       if (e.detail) {

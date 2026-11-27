@@ -156,7 +156,7 @@ function recordSessionToStorage(session) {
     if (sessions.length > 300) sessions = sessions.slice(0, 300);
     localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
 
-    // Automatically sync anonymous visitor session to Supabase cloud storage
+    // Automatically sync anonymous visitor session to Railway PostgreSQL telemetry
     syncSessionToCloud(session);
   } catch {}
 }

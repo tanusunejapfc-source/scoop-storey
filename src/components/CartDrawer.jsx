@@ -947,7 +947,7 @@ Maine delivery details enter kar di hain. Please payment method confirm karke pa
       additionalNotes: additionalNotes.trim() || null
     };
 
-    // 1. Save to persistent order store & Supabase immediately (Captures all customer details!)
+    // 1. Save to persistent order store & Railway PostgreSQL immediately (Captures all customer details!)
     saveOrderToStore(newOrder);
     trackOrderCompleted(newOrder);
     dispatchAllOrderNotifications(newOrder);

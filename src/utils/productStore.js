@@ -503,7 +503,7 @@ export function mergeWithDefaults(list, isCloudSource = false) {
   
   const cleaned = cleanProductList(list);
 
-  // When loaded from Supabase Cloud Database, the cloud is the SINGLE source of truth!
+  // When loaded from Railway PostgreSQL Database, the cloud is the SINGLE source of truth!
   // NEVER resurrect products deleted from the cloud database.
   if (isCloudSource) {
     return cleaned;

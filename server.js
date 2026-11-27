@@ -44,7 +44,7 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
-// Security headers (parity with vercel.json)
+// Security headers applied on all responses
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -783,7 +783,7 @@ app.delete('/api/reviews/:id', async (req, res) => {
 });
 
 // =======================
-// SITE CONFIGS API (replaces Supabase Storage config/*.json)
+// SITE CONFIGS API (PostgreSQL JSON config store)
 // =======================
 app.get('/api/config/:key', async (req, res) => {
   const key = String(req.params.key || '').trim();

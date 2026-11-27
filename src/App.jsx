@@ -90,7 +90,7 @@ export default function App() {
     } catch (_) {}
   }, [cartItems]);
 
-  // True Real-Time Supabase Presence & Live Visitor Telemetry Heartbeat
+  // Live Visitor Presence & Telemetry Heartbeat
   useEffect(() => {
     initLivePresence(cartItems, isCartOpen);
     sendHeartbeat();

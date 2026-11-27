@@ -228,7 +228,7 @@ it('Masks postal PIN code for public tracking display', () => {
   assert.strictEqual(maskPincode('124001'), '124***');
 });
 
-// 5. SEO & PLATFORM INTEGRITY: Robots, Sitemap, Manifest, Vercel Config
+// 5. SEO & PLATFORM INTEGRITY: Robots, Sitemap, Manifest, Server Security Headers
 console.log('\n--- 5. SEO & Technical Configuration Verification ---');
 
 const projectRoot = path.resolve(__dirname, '..');
@@ -259,16 +259,15 @@ it('Verifies public/manifest.json exists with valid PWA manifest fields', () => 
   assert(manifest.icons.length > 0, 'Must have app icons');
 });
 
-it('Verifies vercel.json contains complete security headers (HSTS, nosniff, DENY)', () => {
-  const vercelPath = path.join(projectRoot, 'vercel.json');
-  assert(fs.existsSync(vercelPath), 'vercel.json must exist');
-  const vercelConfig = JSON.parse(fs.readFileSync(vercelPath, 'utf8'));
-  const allHeaderRules = vercelConfig.headers.flatMap(h => h.headers);
-  const headerKeys = allHeaderRules.map(h => h.key);
-  assert(headerKeys.includes('X-Content-Type-Options'), 'Must include X-Content-Type-Options');
-  assert(headerKeys.includes('X-Frame-Options'), 'Must include X-Frame-Options');
-  assert(headerKeys.includes('Strict-Transport-Security'), 'Must include HSTS');
-  assert(headerKeys.includes('Permissions-Policy'), 'Must include Permissions-Policy');
+it('Verifies server.js sets complete security headers (HSTS, nosniff, DENY)', () => {
+  const serverPath = path.join(projectRoot, 'server.js');
+  assert(fs.existsSync(serverPath), 'server.js must exist');
+  const serverCode = fs.readFileSync(serverPath, 'utf8');
+  assert(serverCode.includes('X-Content-Type-Options') && serverCode.includes('nosniff'), 'Must include X-Content-Type-Options: nosniff');
+  assert(serverCode.includes('X-Frame-Options') && serverCode.includes('DENY'), 'Must include X-Frame-Options: DENY');
+  assert(serverCode.includes('Strict-Transport-Security'), 'Must include HSTS');
+  assert(serverCode.includes('Permissions-Policy'), 'Must include Permissions-Policy');
+  assert(serverCode.includes('Referrer-Policy'), 'Must include Referrer-Policy');
 });
 
 it('Verifies index.html has canonical link, manifest, and Schema.org structured data', () => {

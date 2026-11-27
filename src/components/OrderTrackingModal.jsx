@@ -86,7 +86,7 @@ export default function OrderTrackingModal({ isOpen, onClose, initialQuery = '' 
       return;
     }
 
-    // 2. Query Supabase securely for the single specific order (privacy-masked)
+    // 2. Query Railway PostgreSQL securely for the single specific order (privacy-masked)
     setIsSearchingCloud(true);
     try {
       const cloudMatch = await fetchSingleOrderForTracking(q);

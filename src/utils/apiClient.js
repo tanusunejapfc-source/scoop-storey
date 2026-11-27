@@ -1,6 +1,6 @@
 /**
  * Scoop Storey Railway PostgreSQL & Persistent Volume API Client
- * Replaces Supabase client calls with native Railway Express REST APIs.
+ * Uses native Railway Express REST APIs backed by PostgreSQL and /data/uploads.
  */
 
 async function requestJson(url, options = {}) {

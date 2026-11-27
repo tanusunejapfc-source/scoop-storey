@@ -257,7 +257,7 @@ export function saveStoredReels(reels) {
     // ignore
   }
 
-  // 4. Asynchronously push to Supabase Cloud Storage so all devices see the new reels
+  // 4. Asynchronously push to Railway PostgreSQL config store so all devices see the new reels
   syncReelsToCloud(reels);
 }
 

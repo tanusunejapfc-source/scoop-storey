@@ -620,7 +620,7 @@ export default function AdminPanel({
       console.warn('Poster frame capture error:', e);
     }
 
-    // 3. Fallback: if Supabase upload failed and file <= 15MB, use data URL safely
+    // 3. Fallback: if media upload failed and file <= 15MB, use data URL safely
     if (!videoCdnUrl && file.size <= 15 * 1024 * 1024) {
       try {
         videoCdnUrl = await new Promise((res) => {
@@ -705,7 +705,7 @@ export default function AdminPanel({
   const { settings: paymentSettings, updateSettings: updatePaymentSettings, reset: resetPaymentSettings } = usePaymentSettings();
   const [paymentForm, setPaymentForm] = useState(paymentSettings);
 
-  // Sync paymentForm whenever paymentSettings change or load from Supabase / localStorage
+  // Sync paymentForm whenever paymentSettings change or load from PostgreSQL / localStorage
   useEffect(() => {
     if (paymentSettings) {
       setPaymentForm(paymentSettings);
@@ -1387,7 +1387,7 @@ export default function AdminPanel({
               }
             }
           } catch {
-            // Dev API not available (e.g. running on Vercel)
+            // Dev fallback upload API unavailable
           }
         }
 
