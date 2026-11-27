@@ -18,6 +18,10 @@ import {
   saveBufferToVolume,
   sanitizeFolder
 } from './server/uploadStorage.js';
+import {
+  optimizeExistingUploads,
+  getLastOptimizationReport
+} from './server/optimizeUploads.js';
 import { PRODUCTS as DEFAULT_PRODUCTS } from './src/data/storeData.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -183,6 +187,7 @@ function requireDb(res) {
 // =======================
 app.get('/api/health', async (req, res) => {
   let counts = null;
+  let optimization = getLastOptimizationReport();
   if (isDatabaseReady()) {
     try {
       const [pRes, oRes] = await Promise.all([
@@ -193,6 +198,12 @@ app.get('/api/health', async (req, res) => {
         products: pRes.rows[0]?.count ?? 0,
         orders: oRes.rows[0]?.count ?? 0
       };
+      if (!optimization) {
+        const optRes = await query(
+          `SELECT value FROM site_configs WHERE key = 'uploads_webp_optimization_report'`
+        );
+        optimization = optRes.rows[0]?.value ?? null;
+      }
     } catch {}
   }
 
@@ -201,11 +212,25 @@ app.get('/api/health', async (req, res) => {
     database: getDatabaseStatus(),
     storage: {
       persistentVolume: hasPersistentVolume(),
-      uploadRoot: resolveUploadRoot()
+      uploadRoot: resolveUploadRoot(),
+      optimization
     },
     counts,
     timestamp: new Date().toISOString()
   });
+});
+
+app.post('/api/optimize-uploads', async (req, res) => {
+  try {
+    const rawQuality = req.body?.quality;
+    const quality = Number.isFinite(Number(rawQuality))
+      ? Math.min(95, Math.max(50, Math.round(Number(rawQuality))))
+      : 84;
+    const report = await optimizeExistingUploads({ quality });
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 // =======================
@@ -910,6 +935,26 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
+// Seamless .webp fallback when cached browser/localStorage links request old .jpg/.jpeg/.png paths
+app.get('/uploads/*', (req, res, next) => {
+  const rawRel = String(req.params[0] || '').trim();
+  const normalizedRel = path.posix.normalize(rawRel.replace(/\\/g, '/')).replace(/^\/+/, '');
+  if (!normalizedRel || normalizedRel.startsWith('..') || !/\.(jpe?g|png)$/i.test(normalizedRel)) {
+    return next();
+  }
+  const rootDir = path.resolve(resolveUploadRoot());
+  const rootPrefix = rootDir.endsWith(path.sep) ? rootDir : `${rootDir}${path.sep}`;
+  const webpRel = normalizedRel.replace(/\.(jpe?g|png)$/i, '.webp');
+  const candidatePath = path.resolve(rootDir, webpRel);
+  if (candidatePath.startsWith(rootPrefix) && fs.existsSync(candidatePath)) {
+    return res.sendFile(candidatePath, {
+      maxAge: '365d',
+      immutable: true
+    });
+  }
+  return next();
+});
+
 app.all('/uploads/*', (req, res) => {
   res.status(404).send('File not found');
 });
@@ -952,7 +997,15 @@ if (fs.existsSync(DIST_DIR)) {
 // Start server immediately so healthcheck passes, initialize PostgreSQL asynchronously with retries
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Scoop Storey server running on http://0.0.0.0:${PORT}`);
-  initDatabase().catch((err) => {
-    console.warn('Database initialization error:', err.message);
-  });
+  initDatabase()
+    .then((ready) => {
+      if (ready) {
+        optimizeExistingUploads().catch((err) => {
+          console.warn('Startup upload optimization error:', err.message);
+        });
+      }
+    })
+    .catch((err) => {
+      console.warn('Database initialization error:', err.message);
+    });
 });
